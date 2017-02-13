@@ -27,7 +27,7 @@ The avionics flight software was written in compliance with NASA JPL's  Safety-C
 `data.h` - Structure of current data frame.
 
 #### Classes
-`Avionics` - Implementation of flight controller.
+`Avionics` - Implementation of flight logic.
 
 `Sensors` - Interface to filtered data from hardware.
 

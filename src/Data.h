@@ -41,6 +41,8 @@ struct DataFrame {
   bool         GPS_GOOD_STATE    =  false;
   bool         LOOP_GOOD_STATE   =  false;
 
+  float        valveIncentive    =    0.0;
+  float        ballastIncentive  =    0.0;
   bool         SETUP_STATE       =   true;
   bool         DEBUG_STATE       =   true;
   bool         SHOULD_CUTDOWN    =  false;

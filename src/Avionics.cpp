@@ -136,8 +136,8 @@ bool Avionics::calcState() {
   calcVitals();
   calcDebug();
   calcCutdown();
-  double VALVE_INCENTIVE_TEMP_VALUE = computer.getBalastIncentive();
-  double BALAST_INCENTIVE_TEMP_VALUE = computer.getValveIncentive();
+  data.valveIncentive = computer.getBalastIncentive();
+  data.ballastIncentive = computer.getValveIncentive();
   return true;
 }
 

@@ -45,11 +45,11 @@ struct DataFrame {
   float        BALLAST_INCENTIVE      =        0.0;
   float        VALVE_SETPOINT         =    13500.0;
   float        BALLAST_SETPOINT       =    13000.0;
-  float        VALVE_Kp_CONSTANT      =        1.0;
-  float        VALVE_Kd_CONSTANT      =        1.0 / 1000.0;
+  float        VALVE_Kp_CONSTANT      =        1.0 / 1000.0;
+  float        VALVE_Kd_CONSTANT      =        1.0;
   float        VALVE_Ki_CONSTANT      =        1.0 / 1000.0;
-  float        BALLAST_Kp_CONSTANT    =        1.0;
-  float        BALLAST_Kd_CONSTANT    =        1.0 / 1000.0;
+  float        BALLAST_Kp_CONSTANT    =        1.0 / 1000.0;
+  float        BALLAST_Kd_CONSTANT    =        1.0;
   float        BALLAST_Ki_CONSTANT    =        1.0 / 1000.0;
 
   bool         SETUP_STATE            =       true;

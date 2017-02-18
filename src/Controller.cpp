@@ -31,8 +31,8 @@ bool Controller::init() {
  * This function calculates the current incentive to actuate the valve.
  */
 float Controller::getValveIncentive(float valveAltitudeSetpoint, float valveKpConstant, float valveKdConstant, float valveKiConstant, double ascentRate, double altitude, double altitudeSinceLastVent) {
-  float proportionalTerm = valveKpConstant * ascentRate;
-  float derivitveTerm    = valveKdConstant * (altitude - valveAltitudeSetpoint);
+  float proportionalTerm = valveKpConstant * (altitude - valveAltitudeSetpoint);
+  float derivitveTerm    = valveKdConstant * ascentRate;
   float integralTerm     = valveKiConstant * (altitude - altitudeSinceLastVent);
   return proportionalTerm + derivitveTerm + integralTerm;
 }
@@ -43,8 +43,8 @@ float Controller::getValveIncentive(float valveAltitudeSetpoint, float valveKpCo
  * This function calculates the current incentive to actuate the balast.
  */
 float Controller::getBalastIncentive(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKdConstant, float ballastKiConstant, double ascentRate, double altitude, double altitudeSinceLastDrop) {
-  float proportionalTerm = -1 * ballastKpConstant * ascentRate;
-  float derivitveTerm    = ballastKdConstant * (ballastAltitudeSetpoint - altitude);
+  float proportionalTerm = ballastKpConstant * (ballastAltitudeSetpoint - altitude);
+  float derivitveTerm    = ballastKdConstant * -1 * ascentRate;
   float integralTerm     = ballastKiConstant * (altitudeSinceLastDrop - altitude);
   return proportionalTerm + derivitveTerm + integralTerm;
 }

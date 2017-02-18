@@ -56,5 +56,5 @@ Here is the current status of the code:
 3. Current readings.
 4. Debug mode disabled at altitude.
 5. GPS successful set to flight mode.
-6 Compression of data frame into bitstream for comms.
+6. Compression of data frame into bitstream for comms.
 7. RockBlock command parsing for satcomms uplink.

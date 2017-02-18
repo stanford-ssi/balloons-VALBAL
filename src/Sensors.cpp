@@ -54,7 +54,7 @@ uint32_t Sensors::getTime() {
   This function gets the battery voltage.
 */
 double Sensors::getVoltage() {
-  return (analogRead(VBAT_PIN) / 310.0) * 4;
+  return (double)analogRead(VBAT_PIN) * 1.2 * 4.0 / (double)pow(2, 12);
 }
 
 /*

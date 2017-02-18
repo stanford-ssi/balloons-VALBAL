@@ -18,6 +18,10 @@
   This function initializes the PCB hardware.
 */
 void Hardware::init() {
+  pinMode(VALVE_REVERSE, OUTPUT);
+  pinMode(VALVE_FORWARD, OUTPUT);
+  pinMode(BALLAST_REVERSE, OUTPUT);
+  pinMode(BALLAST_FORWARD, OUTPUT);
   pinMode(HEATER_INTERNAL_STRONG, OUTPUT);
   pinMode(HEATER_INTERNAL_WEAK, OUTPUT);
 }

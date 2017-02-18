@@ -30,11 +30,11 @@ bool Controller::init() {
  * -------------------
  * This function calculates the current incentive to actuate the valve.
  */
-float Controller::getValveIncentive(float valveKpConstant, float valveKdConstant, float valveKiConstant, double ascentRate) {
-  float DAlt = 0;
-  float ALTITUDE_SETPOINT = 0;
-  float altitudeSinceLastVent = 0;
-  return (valveKpConstant * ascentRate) +  (valveKdConstant * (DAlt - ALTITUDE_SETPOINT)) + (valveKiConstant * (DAlt - altitudeSinceLastVent));
+float Controller::getValveIncentive(float valveAltitudeSetpoint, float valveKpConstant, float valveKdConstant, float valveKiConstant, double ascentRate, double altitude, double altitudeSinceLastVent) {
+  float proportionalTerm = valveKpConstant * ascentRate;
+  float derivitveTerm    = valveKdConstant * (altitude - valveAltitudeSetpoint);
+  float integralTerm     = valveKiConstant * (altitude - altitudeSinceLastVent);
+  return proportionalTerm + derivitveTerm + integralTerm;
 }
 
 /*
@@ -42,9 +42,9 @@ float Controller::getValveIncentive(float valveKpConstant, float valveKdConstant
  * -------------------
  * This function calculates the current incentive to actuate the balast.
  */
-float Controller::getBalastIncentive(float balastKpConstant, float balastKdConstant, float balastKiConstant, double ascentRate) {
-  float DAlt = 0;
-  float BALLAST_ALTITUDE_SETPOINT = 0;
-  float altitudeSinceLastDrop = 0;
-  return (-1 * balastKpConstant * ascentRate) + (balastKdConstant * (BALLAST_ALTITUDE_SETPOINT - DAlt)) + (balastKiConstant * (altitudeSinceLastDrop - DAlt));
+float Controller::getBalastIncentive(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKdConstant, float ballastKiConstant, double ascentRate, double altitude, double altitudeSinceLastDrop) {
+  float proportionalTerm = -1 * ballastKpConstant * ascentRate;
+  float derivitveTerm    = ballastKdConstant * (ballastAltitudeSetpoint - altitude);
+  float integralTerm     = ballastKiConstant * (altitudeSinceLastDrop - altitude);
+  return proportionalTerm + derivitveTerm + integralTerm;
 }

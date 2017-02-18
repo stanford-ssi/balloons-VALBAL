@@ -136,8 +136,8 @@ bool Avionics::calcState() {
   calcVitals();
   calcDebug();
   calcCutdown();
-  data.valveIncentive = computer.getBalastIncentive(data.valveKpConstant, data.valveKdConstant, data.valveKiConstant, data.ASCENT_RATE);
-  data.ballastIncentive = computer.getValveIncentive(data.balastKpConstant, data.balastKdConstant, data.balastKiConstant, data.ASCENT_RATE);
+  data.VALVE_INCENTIVE = computer.getBalastIncentive(data.VALVE_SETPOINT, data.VALVE_Kp_CONSTANT, data.VALVE_Kd_CONSTANT, data.VALVE_Ki_CONSTANT, data.ASCENT_RATE, data.ALTITUDE_BMP, data.VALVE_ALT_LAST);
+  data.BALLAST_INCENTIVE = computer.getValveIncentive(data.BALLAST_SETPOINT, data.BALLAST_Kp_CONSTANT, data.BALLAST_Kd_CONSTANT, data.BALLAST_Ki_CONSTANT, data.ASCENT_RATE, data.ALTITUDE_BMP, data.BALAST_ALT_LAST);
   return true;
 }
 
@@ -169,11 +169,12 @@ bool Avionics::runHeaters() {
  * This function actuates the valve based on the calcualted incentive.
  */
 bool Avionics::runValve() {
+  //FIND WAY TO ACURATLY SET data.VALVE_ALT_LAST
   if(data.FORCE_VALVE) {
     PCB.valve(true);
     data.FORCE_VALVE = false;
   }
-  else if(data.valveIncentive >= 1) PCB.valve(false);
+  else if(data.VALVE_INCENTIVE >= 1) PCB.valve(false);
   return true;
 }
 
@@ -183,11 +184,12 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the calcualted incentive.
  */
 bool Avionics::runBalast() {
+  //FIND WAY TO ACURATLY SET data.BALAST_ALT_LAST
   if(data.FORCE_BALAST) {
     PCB.balast(true);
     data.FORCE_BALAST = false;
   }
-  else if(data.ballastIncentive >= 1) PCB.balast(false);
+  else if(data.BALLAST_INCENTIVE >= 1) PCB.balast(false);
   return true;
 }
 

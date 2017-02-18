@@ -18,6 +18,8 @@
   This function initializes the RockBlock module.
 */
 bool RockBLOCK::init() {
+  pinMode(RB_GATE, OUTPUT);
+  digitalWrite(RB_GATE, HIGH);
   isbd.attachConsole(Serial);
   isbd.attachDiags(Serial);
   isbd.setPowerProfile(1);

@@ -28,7 +28,7 @@ public:
     PCB(),
     sensors(),
     gpsModule(GPS_ENABLE, GPS_BAUD, GPS_LOCK_TIME),
-    RBModule(RB_SLEEP, RB_BAUD) {
+    RBModule(RB_GATE, RB_SLEEP, RB_BAUD) {
   }
   void    init();
 /********************************  FUNCTIONS  *********************************/

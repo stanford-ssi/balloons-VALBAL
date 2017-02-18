@@ -151,7 +151,7 @@ boolean GPS::getUBX_ACK(uint8_t* MSG) {
     ackPacket[8] = ackPacket[8] + ackPacket[i];
     ackPacket[9] = ackPacket[9] + ackPacket[8];
   }
-  
+
   while (millis() - startTime < 3000) {
     if (ackByteID > 9) {
       Serial.println(" (SUCCESS!)");

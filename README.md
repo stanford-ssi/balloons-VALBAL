@@ -9,7 +9,7 @@ The avionics uses an Event Driven Programming model in order to clearly transiti
  - 1a. Startup initialization
  - 1b. Debug Mode
 2. Launch
- - 2a. Flight mode
+ - 2a. Flight Mode
  - 2b. Apogee
 3. Termination
  - 3a. Descent

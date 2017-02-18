@@ -169,7 +169,8 @@ bool Avionics::runHeaters() {
  * This function actuates the valve based on the calcualted incentive.
  */
 bool Avionics::runValve() {
-  PCB.cutDown(true);
+  if(data.FORCE_VALVE) PCB.valve(true);
+  else if(data.valveIncentive >= 1) PCB.valve(false);
   return true;
 }
 
@@ -179,7 +180,8 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the calcualted incentive.
  */
 bool Avionics::runBalast() {
-  PCB.cutDown(true);
+  if(data.FORCE_BALAST) PCB.balast(true);
+  else if(data.ballastIncentive >= 1) PCB.balast(false);
   return true;
 }
 

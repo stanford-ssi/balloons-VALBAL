@@ -38,8 +38,8 @@ public:
 /********************************  FUNCTIONS  *********************************/
   void faultLED();
   void heater(double temp);
-  void valve(bool on);
-  void balast(bool on);
+  void valve(bool force);
+  void balast(bool force);
   void cutDown(bool on);
 private:
 /*********************************  OBJECTS  **********************************/

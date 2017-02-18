@@ -46,6 +46,8 @@ struct DataFrame {
   bool         SETUP_STATE       =   true;
   bool         DEBUG_STATE       =   true;
   bool         SHOULD_CUTDOWN    =  false;
+  bool         FORCE_VALVE       =  false;;
+  bool         FORCE_BALAST      =  false;
   double       ALTITUDE_LAST     =      0;
   uint64_t     COMMS_LAST        =      0;
   uint64_t     WATCHDOG_LAST     =      0;

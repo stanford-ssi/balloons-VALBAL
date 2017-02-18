@@ -49,21 +49,22 @@ void Hardware::heater(double temp) {
 /*
   function: valve
   ---------------------------------
-  This function triggers the mechanical valve mechanism.
+  This function queues the mechanical valve mechanism.
 */
-void Hardware::valve(bool on) {
-  // if(on) // engage valve
-  // else //disengage valve
+void Hardware::valve(bool force) {
+  //add to priority queue
+  //look at state
 }
 
 /*
   function: balast
   ---------------------------------
-  This function triggers the mechanical balast mechanism.
+  This function queues the mechanical balast mechanism.
 */
-void Hardware::balast(bool on) {
-  // if(on) // engage balast
-  // else //disengage balast
+void Hardware::balast(bool force) {
+  //add to priority queue
+  //look at state
+  //change direction after time
 }
 
 /*
@@ -72,6 +73,10 @@ void Hardware::balast(bool on) {
   This function triggers the mechanical cutdown of the payload.
 */
 void Hardware::cutDown(bool on) {
+//ful motor engagement
+//do not hang
+//remeber to turn off so we do not waste power on stall torque
+//clear valve and balast quues cuz that doenst matter anymore
   // if(on) // engage cutdown
   // else //disengage cutdown
 }

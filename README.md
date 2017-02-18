@@ -7,12 +7,13 @@ The avionics uses an Event Driven Programming model in order to clearly transiti
 #### States
 1. Pre-Launch  
  - 1a. Startup initialization
- - 1b. System verification
+ - 1b. Debug Mode
 2. Launch
- - 2a. Liftoff
- - 2b. Flight mode
- - 2c. Apogee
- - 2d. Descent
+ - 2a. Flight mode
+ - 2b. Apogee
+3. Termination
+ - 3a. Descent
+ - 3b. Recovery
 
 #Code Architecture:
 The avionics flight software operates on a read-eval loop in order to change states and respond to its environment.

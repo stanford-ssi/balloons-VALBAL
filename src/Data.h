@@ -59,7 +59,7 @@ struct DataFrame {
   bool         FORCE_BALAST           =      false;
   double       ALTITUDE_LAST          =          0;
   double       VALVE_ALT_LAST         =          0;
-  double       BALAST_ALT_LAST        =          0;
+  double       BALAST_ALT_LAST        =   -90000.0;
   uint64_t     COMMS_LAST             =          0;
   uint64_t     WATCHDOG_LAST          =          0;
   uint64_t     LOOP_START             =          0;

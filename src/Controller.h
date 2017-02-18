@@ -23,8 +23,8 @@ public:
 /**********************************  SETUP  ***********************************/
   bool init();
 /********************************  FUNCTIONS  *********************************/
-  double getValveIncentive();
-  double getBalastIncentive();
+  float getValveIncentive(float valveKpConstant, float valveKdConstant, float valveKiConstant, double ascentRate);
+  float getBalastIncentive(float balastKpConstant, float balastKdConstant, float balastKiConstant, double ascentRate);
 private:
 /*********************************  OBJECTS  **********************************/
 };

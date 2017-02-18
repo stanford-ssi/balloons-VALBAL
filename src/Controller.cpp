@@ -30,8 +30,11 @@ bool Controller::init() {
  * -------------------
  * This function calculates the current incentive to actuate the valve.
  */
-double Controller::getValveIncentive() {
-  return 0;
+float Controller::getValveIncentive(float valveKpConstant, float valveKdConstant, float valveKiConstant, double ascentRate) {
+  float DAlt = 0;
+  float ALTITUDE_SETPOINT = 0;
+  float altitudeSinceLastVent = 0;
+  return (valveKpConstant * ascentRate) +  (valveKdConstant * (DAlt - ALTITUDE_SETPOINT)) + (valveKiConstant * (DAlt - altitudeSinceLastVent));
 }
 
 /*
@@ -39,6 +42,9 @@ double Controller::getValveIncentive() {
  * -------------------
  * This function calculates the current incentive to actuate the balast.
  */
-double Controller::getBalastIncentive() {
-  return 0;
+float Controller::getBalastIncentive(float balastKpConstant, float balastKdConstant, float balastKiConstant, double ascentRate) {
+  float DAlt = 0;
+  float BALLAST_ALTITUDE_SETPOINT = 0;
+  float altitudeSinceLastDrop = 0;
+  return (-1 * balastKpConstant * ascentRate) + (balastKdConstant * (BALLAST_ALTITUDE_SETPOINT - DAlt)) + (balastKiConstant * (altitudeSinceLastDrop - DAlt));
 }

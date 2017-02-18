@@ -43,10 +43,17 @@ struct DataFrame {
 
   float        valveIncentive    =    0.0;
   float        ballastIncentive  =    0.0;
+  float        valveKpConstant   =    1.0;
+  float        valveKdConstant   =  0.001;
+  float        valveKiConstant   =  0.001;
+  float        balastKpConstant  =    1.0;
+  float        balastKdConstant  =  0.001;
+  float        balastKiConstant  =  0.001;
+
   bool         SETUP_STATE       =   true;
   bool         DEBUG_STATE       =   true;
   bool         SHOULD_CUTDOWN    =  false;
-  bool         FORCE_VALVE       =  false;;
+  bool         FORCE_VALVE       =  false;
   bool         FORCE_BALAST      =  false;
   double       ALTITUDE_LAST     =      0;
   uint64_t     COMMS_LAST        =      0;

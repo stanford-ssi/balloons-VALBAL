@@ -136,8 +136,8 @@ bool Avionics::calcState() {
   calcVitals();
   calcDebug();
   calcCutdown();
-  data.valveIncentive = computer.getBalastIncentive();
-  data.ballastIncentive = computer.getValveIncentive();
+  data.valveIncentive = computer.getBalastIncentive(data.valveKpConstant, data.valveKdConstant, data.valveKiConstant, data.ASCENT_RATE);
+  data.ballastIncentive = computer.getValveIncentive(data.balastKpConstant, data.balastKdConstant, data.balastKiConstant, data.ASCENT_RATE);
   return true;
 }
 
@@ -169,7 +169,10 @@ bool Avionics::runHeaters() {
  * This function actuates the valve based on the calcualted incentive.
  */
 bool Avionics::runValve() {
-  if(data.FORCE_VALVE) PCB.valve(true);
+  if(data.FORCE_VALVE) {
+    PCB.valve(true);
+    data.FORCE_VALVE = false;
+  }
   else if(data.valveIncentive >= 1) PCB.valve(false);
   return true;
 }
@@ -180,7 +183,10 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the calcualted incentive.
  */
 bool Avionics::runBalast() {
-  if(data.FORCE_BALAST) PCB.balast(true);
+  if(data.FORCE_BALAST) {
+    PCB.balast(true);
+    data.FORCE_BALAST = false;
+  }
   else if(data.ballastIncentive >= 1) PCB.balast(false);
   return true;
 }
@@ -228,6 +234,12 @@ bool Avionics::sendSATCOMS() {
 void Avionics::parseCommand(int16_t len) {
   if(strncmp(COMMS_BUFFER, CUTDOWN_COMAND, len)) {
     data.SHOULD_CUTDOWN = true;
+  }
+  if(strncmp(COMMS_BUFFER, "SUDO VALVE", len)) {
+    data.FORCE_VALVE = true;
+  }
+  if(strncmp(COMMS_BUFFER, "SUDO BALAST", len)) {
+    data.FORCE_BALAST = true;
   }
 }
 

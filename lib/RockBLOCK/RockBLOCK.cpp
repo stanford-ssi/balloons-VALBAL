@@ -19,7 +19,7 @@
 */
 bool RockBLOCK::init() {
   pinMode(RB_GATE, OUTPUT);
-  digitalWrite(RB_GATE, HIGH);
+  digitalWrite(RB_GATE, LOW);
   isbd.attachConsole(Serial);
   isbd.attachDiags(Serial);
   isbd.setPowerProfile(1);

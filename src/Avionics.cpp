@@ -17,8 +17,8 @@
  * This function initializes the avionics flight controller.
  */
 void Avionics::init() {
-  Serial.begin(9600);
   PCB.init();
+  Serial.begin(CONSOLE_BAUD);
   printHeader();
   if(!SD.begin(SD_CS)) PCB.faultLED();
   logHeader();
@@ -31,7 +31,7 @@ void Avionics::init() {
 
 /********************************  FUNCTIONS  *********************************/
 /*
- * Function: updateData
+ * Function: updateState
  * -------------------
  * This function handles basic flight data collection.
  */

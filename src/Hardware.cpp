@@ -18,6 +18,8 @@
   This function initializes the PCB hardware.
 */
 void Hardware::init() {
+  pinMode(REBOOT_ENABLE, OUTPUT);
+  digitalWrite(REBOOT_ENABLE, LOW);
   pinMode(VALVE_REVERSE, OUTPUT);
   pinMode(VALVE_FORWARD, OUTPUT);
   pinMode(BALLAST_REVERSE, OUTPUT);
@@ -25,7 +27,12 @@ void Hardware::init() {
   pinMode(HEATER_INTERNAL_STRONG, OUTPUT);
   pinMode(HEATER_INTERNAL_WEAK, OUTPUT);
   pinMode(PAYLOAD_GATE, OUTPUT);
+  analogWrite(HEATER_INTERNAL_STRONG, 0);
+  analogWrite(HEATER_INTERNAL_WEAK, 0);
+  digitalWrite(FAULT_PIN, LOW);
   digitalWrite(PAYLOAD_GATE, LOW);
+  analogReference(INTERNAL);
+  analogReadResolution(12);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -61,6 +68,8 @@ void Hardware::queueValve(bool force) {
   //do not hang
   //add to priority queue
   //look at state
+  // ie if 10 valve commands are sent, do not concurrently actuate,
+  //but inteligently don't close valve to imidiatly open it again
 }
 
 /*
@@ -72,6 +81,8 @@ void Hardware::queueBallast(bool force) {
   //do not hang
   //add to priority queue
   //look at state
+  // ie if 10 ballast commands are sent, do not concurrently actuate,
+  //but inteligently don't close ballast to imidiatly open it again
 }
 
 /*

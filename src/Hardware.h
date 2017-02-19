@@ -13,20 +13,8 @@
 #define HARDWARE_H
 
 #include "Config.h"
+#include <EEPROM.h>
 #include <PID_v1.h>
-
-
-/**********************************  TODO  ************************************/
-//Add enablereeboot pin pulled low for 7.1
-
-//maintain queue of actons
-// ie if 10 valve commands are sent, do not concurrently actuate,
-//but inteligently don't close valve to imidiatly open it again
-
-//also make sure code does not hang, but is guarenteed to terminate
-
-//We only have history of states, no positon feedback from DC motors.
-/**********************************  TODO  ************************************/
 
 class Hardware {
 public:

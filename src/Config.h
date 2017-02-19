@@ -37,6 +37,7 @@ static const uint16_t  DEBUG_ALT               =    300;
 static const uint16_t  ANALOG_RES              =     12;
 static const uint16_t  ANALOG_MAX              =   4095;
 static const uint16_t  BUFFER_SIZE             =    200;
+static const uint32_t  FILE_RESET_TIME         =   7200;
 static const uint32_t  CONSOLE_BAUD            = 115200;
 static const uint32_t  GPS_BAUD                =   9600;
 static const uint32_t  RB_BAUD                 =  19200;

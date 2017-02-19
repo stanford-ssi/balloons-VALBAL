@@ -56,6 +56,7 @@ private:
   void    calcIncentives();
   void    calcCutdown();
   void    printHeader();
+  void    setupLog();
   void    logHeader();
   void    logAlert(const char*, bool fatal);
   void    printState();
@@ -65,6 +66,7 @@ private:
   char COMMS_BUFFER[BUFFER_SIZE];
   DataFrame data;
   File dataFile;
+  File logFile;
   Hardware PCB;
   Sensors sensors;
   Controller computer;

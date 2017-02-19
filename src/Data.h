@@ -16,6 +16,7 @@
 /**********************************  DATA  ************************************/
 struct DataFrame {
   uint32_t     TIME                           =          0;
+  double       MINUTES                        =          0;
   uint16_t     LOOP_RATE                      =          0;
   double       VOLTAGE                        =          0;
   double       CURRENT                        =          0;

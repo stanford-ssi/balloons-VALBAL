@@ -38,11 +38,16 @@ public:
 /********************************  FUNCTIONS  *********************************/
   void faultLED();
   void heater(double temp);
-  void valve(bool force);
-  void ballast(bool force);
+  void queueValve(bool force);
+  void queueBallast(bool force);
+  bool checkValve();
+  bool checkBallast();
   void cutDown(bool on);
 private:
 /*********************************  OBJECTS  **********************************/
+  bool     isValveOn = false;
+  bool     isBallastOn = false;
+  bool     ballastDirection = false;
   double   PIDSetVar;
   double   PIDOutVar;
   double   PIDTempVar;

@@ -63,7 +63,9 @@ double Sensors::getVoltage() {
   This function gets the total current draw.
 */
 double Sensors::getCurrent() {
-  return -1;
+  double currentMonitor = (double)analogRead(BATT_CURRENT) / (double)pow(2, 12) * 1.2 * 4.0 / 0.496;
+  double externalCurrentMonitor = (double)analogRead(EXTERNAL_CURRENT) / (double)pow(2, 12) * 1.2 * 4.0 / 0.496;
+  return currentMonitor + externalCurrentMonitor;
 }
 
 /*

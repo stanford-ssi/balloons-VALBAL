@@ -57,7 +57,7 @@ void Avionics::actuateState() {
   if(!debugState()) logAlert("unable to debug state", true);
   if(!runHeaters()) logAlert("unable to run heaters", true);
   if(!runValve())   logAlert("unable to run valve", true);
-  if(!runBallast())  logAlert("unable to run ballast", true);
+  if(!runBallast()) logAlert("unable to run ballast", true);
   if(!runCutdown()) logAlert("unable to run cutdown", true);
 }
 
@@ -169,14 +169,15 @@ bool Avionics::runHeaters() {
  */
 bool Avionics::runValve() {
   if(data.FORCE_VALVE) {
-    PCB.valve(true);
+    PCB.queueValve(true);
     data.FORCE_VALVE = false;
     data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
   }
   else if(data.VALVE_INCENTIVE >= 1) {
-    PCB.valve(false);
+    PCB.queueValve(false);
     data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
   }
+  data.VALVE_STATE = PCB.checkValve();
   return true;
 }
 
@@ -187,14 +188,15 @@ bool Avionics::runValve() {
  */
 bool Avionics::runBallast() {
   if(data.FORCE_BALLAST) {
-    PCB.ballast(true);
+    PCB.queueBallast(true);
     data.FORCE_BALLAST = false;
     data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
   }
   else if(data.BALLAST_INCENTIVE >= 1) {
-    PCB.ballast(false);
+    PCB.queueBallast(false);
     data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
   }
+  data.BALLAST_STATE = PCB.checkBallast();
   return true;
 }
 

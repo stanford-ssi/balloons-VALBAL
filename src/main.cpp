@@ -3,6 +3,7 @@
   Balloons | VALBAL | Febuary 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
+  Joan Creus-Costa | jcreus@stanford.edu
   Ella Hofmann-Coyle | ellahofm@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Jesus Cervantes | cerjesus@stanford.edu

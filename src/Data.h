@@ -41,6 +41,8 @@ struct DataFrame {
   bool         GPS_GOOD_STATE                 =      false;
   bool         LOOP_GOOD_STATE                =      false;
 
+  bool         VALVE_STATE                    =      false;
+  bool         BALLAST_STATE                  =      false;
   float        VALVE_INCENTIVE                =        0.0;
   float        BALLAST_INCENTIVE              =        0.0;
   float        VALVE_SETPOINT                 =    13500.0;
@@ -56,10 +58,10 @@ struct DataFrame {
   bool         DEBUG_STATE                    =       true;
   bool         SHOULD_CUTDOWN                 =      false;
   bool         FORCE_VALVE                    =      false;
-  bool         FORCE_BALLAST                   =      false;
+  bool         FORCE_BALLAST                  =      false;
   double       ALTITUDE_LAST                  =          0;
   double       VALVE_ALT_LAST                 =          0;
-  double       BALLAST_ALT_LAST                =   -90000.0;
+  double       BALLAST_ALT_LAST               =   -90000.0;
   uint64_t     COMMS_LAST                     =          0;
   uint64_t     WATCHDOG_LAST                  =          0;
   uint64_t     LOOP_START                     =          0;

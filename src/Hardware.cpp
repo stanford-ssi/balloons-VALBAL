@@ -24,6 +24,8 @@ void Hardware::init() {
   pinMode(BALLAST_FORWARD, OUTPUT);
   pinMode(HEATER_INTERNAL_STRONG, OUTPUT);
   pinMode(HEATER_INTERNAL_WEAK, OUTPUT);
+  pinMode(PAYLOAD_GATE, OUTPUT);
+  digitalWrite(PAYLOAD_GATE, LOW);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -55,7 +57,7 @@ void Hardware::heater(double temp) {
   ---------------------------------
   This function queues the mechanical valve mechanism.
 */
-void Hardware::valve(bool force) {
+void Hardware::queueValve(bool force) {
   //do not hang
   //add to priority queue
   //look at state
@@ -66,11 +68,29 @@ void Hardware::valve(bool force) {
   ---------------------------------
   This function queues the mechanical ballast mechanism.
 */
-void Hardware::ballast(bool force) {
+void Hardware::queueBallast(bool force) {
   //do not hang
   //add to priority queue
   //look at state
+}
+
+/*
+  function: checkValve
+  ---------------------------------
+  This function provides a non-hanging interface to check the hardware timers.
+*/
+bool Hardware::checkValve() {
+  return isValveOn;
+}
+
+/*
+  function: checkBallast
+  ---------------------------------
+  This function provides a non-hanging interface to check the hardware timers.
+*/
+bool Hardware::checkBallast() {
   //change direction after time
+  return isBallastOn;
 }
 
 /*
@@ -79,9 +99,9 @@ void Hardware::ballast(bool force) {
   This function triggers the mechanical cutdown of the payload.
 */
 void Hardware::cutDown(bool on) {
-//ful motor engagement
-//remeber to turn off so we do not waste power on stall torque
-//clear valve and ballast quues cuz that doenst matter anymore
+  //full motor engagement
+  //remeber to turn off so we do not waste power on stall torque
+  //clear valve and ballast quues cuz that doenst matter anymore
   // if(on) // engage cutdown
   // else //disengage cutdown
 }

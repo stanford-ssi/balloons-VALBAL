@@ -49,7 +49,6 @@ static const uint8_t   BMP_CS_ONE              =     9;
 static const uint8_t   BMP_CS_TWO              =    15;
 static const uint8_t   BMP_CS_THREE            =     5;
 static const uint8_t   BMP_CS_FOUR             =    32;
-static const uint8_t   VALVE_POT               =    A2;
 static const uint8_t   VBAT_PIN                =   A14;
 static const uint8_t   BATT_CURRENT            =   A10;
 static const uint8_t   EXTERNAL_CURRENT        =   A11;

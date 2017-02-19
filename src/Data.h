@@ -20,6 +20,10 @@ struct DataFrame {
   uint16_t     LOOP_RATE                      =          0;
   double       VOLTAGE                        =          0;
   double       CURRENT                        =          0;
+  double       CURRENT_GPS                    =          0;
+  double       CURRENT_RB                     =          0;
+  double       CURRENT_MOTORS                 =          0;
+  double       CURRENT_PAYLOAD                =          0;
   double       ALTITUDE_BMP                   =          0;
   double       ASCENT_RATE                    =          0;
   double       TEMP                           =          0;
@@ -64,7 +68,6 @@ struct DataFrame {
   double       VALVE_ALT_LAST                 =          0;
   double       BALLAST_ALT_LAST               =   -90000.0;
   uint64_t     COMMS_LAST                     =          0;
-  uint64_t     WATCHDOG_LAST                  =          0;
   uint64_t     LOOP_START                     =          0;
   uint16_t     COMMS_LENGTH                   =          0;
 };

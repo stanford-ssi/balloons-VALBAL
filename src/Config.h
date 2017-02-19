@@ -43,9 +43,8 @@ static const uint32_t  GPS_BAUD                =   9600;
 static const uint32_t  RB_BAUD                 =  19200;
 static const double    PID_SETPOINT            =      0;
 
-
 /*****************************  TEENSY PIN OUTS  ******************************/
-static const uint8_t   REBOOT_ENABLE           =      0;
+static const uint8_t   REBOOT_ENABLE           =     16;
 static const uint8_t   SD_CS                   =     10;
 static const uint8_t   FAULT_PIN               =     26;
 static const uint8_t   BMP_CS_ONE              =      9;

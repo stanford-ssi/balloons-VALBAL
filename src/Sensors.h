@@ -15,6 +15,7 @@
 #include "Config.h"
 #include <SPI.h>
 #include <Adafruit_BMP280.h>
+// #include <LTC2991.h>
 
 class Sensors {
 public:
@@ -31,6 +32,10 @@ public:
   uint32_t getTime();
   double   getVoltage();
   double   getCurrent();
+  double   getCurrentGPS();
+  double   getCurrentRB();
+  double   getCurrentMotors();
+  double   getCurrentPayload();
   double   getTemp();
   double   getPressure();
   double   getAltitude();

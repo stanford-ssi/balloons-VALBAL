@@ -43,7 +43,6 @@ public:
 private:
 /*********************************  HELPERS  **********************************/
   bool    readData();
-  bool    calcState();
   bool    debugState();
   bool    runHeaters();
   bool    runValve();
@@ -51,10 +50,10 @@ private:
   bool    runCutdown();
   bool    sendSATCOMS();
   void    parseCommand(int16_t len);
-  void    calcVitals();
-  void    calcDebug();
-  void    calcIncentives();
-  void    calcCutdown();
+  bool    calcVitals();
+  bool    calcDebug();
+  bool    calcIncentives();
+  bool    calcCutdown();
   void    printHeader();
   void    setupLog();
   void    logHeader();

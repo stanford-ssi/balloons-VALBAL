@@ -76,6 +76,42 @@ double Sensors::getCurrent() {
 }
 
 /*
+  function: getCurrentGPS
+  ---------------------------------
+  This function gets the GPS current draw.
+*/
+double Sensors::getCurrentGPS() {
+  return 0;
+}
+
+/*
+  function: getCurrentRB
+  ---------------------------------
+  This function gets the RockBLOCK current draw.
+*/
+double Sensors::getCurrentRB() {
+  return 0;
+}
+
+/*
+  function: getCurrentMotors
+  ---------------------------------
+  This function gets the motor current draw.
+*/
+double Sensors::getCurrentMotors() {
+  return 0;
+}
+
+/*
+  function: getCurrentPayload
+  ---------------------------------
+  This function gets the payload current draw.
+*/
+double Sensors::getCurrentPayload() {
+  return 0;
+}
+
+/*
   function: getTempIn
   ---------------------------------
   This function returns a sensor fused reading.

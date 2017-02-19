@@ -46,7 +46,10 @@ void Avionics::updateState() {
  * This function intelligently calculates the current state.
  */
 void Avionics::evaluateState() {
-  if(!calcState())  logAlert("unable to calculate state", true);
+  if(!calcVitals())     logAlert("unable to calculate vitals", true);
+  if(!calcDebug())      logAlert("unable to calculate debug", true);
+  if(!calcIncentives()) logAlert("unable to calculate incentives", true);
+  if(!calcCutdown())    logAlert("unable to calculate cutdown", true);
 }
 
 /*
@@ -55,7 +58,6 @@ void Avionics::evaluateState() {
  * This function intelligently reacts to the current data frame.
  */
 void Avionics::actuateState() {
-  if(!debugState()) logAlert("unable to debug state", true);
   if(!runHeaters()) logAlert("unable to run heaters", true);
   if(!runValve())   logAlert("unable to run valve", true);
   if(!runBallast()) logAlert("unable to run ballast", true);
@@ -70,6 +72,7 @@ void Avionics::actuateState() {
 void Avionics::logState() {
   if(compressData() < 0) logAlert("unable to compress Data", true);
   if(!logData())         logAlert("unable to log Data", true);
+  if(!debugState())      logAlert("unable to debug state", true);
   if (data.MINUTES > FILE_RESET_TIME) {
     dataFile.close();
     logFile.close();
@@ -121,6 +124,10 @@ bool Avionics::readData() {
   data.ALTITUDE_LAST   = data.ALTITUDE_BMP;
   data.VOLTAGE         = sensors.getVoltage();
   data.CURRENT         = sensors.getCurrent();
+  data.CURRENT_GPS     = sensors.getCurrentGPS();
+  data.CURRENT_RB      = sensors.getCurrentRB();
+  data.CURRENT_MOTORS  = sensors.getCurrentMotors();
+  data.CURRENT_PAYLOAD = sensors.getCurrentPayload();
   data.TEMP            = sensors.getTemp();
   data.PRESS_BMP       = sensors.getPressure();
   data.ALTITUDE_BMP    = sensors.getAltitude();
@@ -132,31 +139,6 @@ bool Avionics::readData() {
   data.SPEED_GPS       = gpsModule.getSpeed();
   data.NUM_SATS_GPS    = gpsModule.getSats();
   data.LOOP_GOOD_STATE = !data.LOOP_GOOD_STATE;
-  return true;
-}
-
-/*
- * Function: calcState
- * -------------------
- * This function sets the appropriate values and flags based on the current data frame.
- */
-bool Avionics::calcState() {
-  calcVitals();
-  calcDebug();
-  calcIncentives();
-  calcCutdown();
-  return true;
-}
-
-/*
- * Function: debugState
- * -------------------
- * This function provides debuging information.
- */
-bool Avionics::debugState() {
-  if(data.DEBUG_STATE) {
-    printState();
-  }
   return true;
 }
 
@@ -265,12 +247,13 @@ void Avionics::parseCommand(int16_t len) {
  * -------------------
  * This function calculates if the current state is within bounds.
  */
-void Avionics::calcVitals() {
+bool Avionics::calcVitals() {
   data.BAT_GOOD_STATE    = (data.VOLTAGE >= 3.63);
   data.CURR_GOOD_STATE   = (data.CURRENT > -5.0 && data.CURRENT <= 500.0);
   data.PRES_GOOD_STATE   = (data.ALTITUDE_BMP > -50 && data.ALTITUDE_BMP < 200);
   data.TEMP_GOOD_STATE   = (data.TEMP > 15 && data.TEMP < 50);
   data.GPS_GOOD_STATE    = (data.LAT_GPS != 1000.0 && data.LAT_GPS != 0.0 && data.LONG_GPS != 1000.0 && data.LONG_GPS != 0.0);
+  return true;
 }
 
 /*
@@ -278,10 +261,11 @@ void Avionics::calcVitals() {
  * -------------------
  * This function calculates if the avionics is in debug mode.
  */
-void Avionics::calcDebug() {
+bool Avionics::calcDebug() {
   if(data.DEBUG_STATE   && (data.ALTITUDE_LAST >= DEBUG_ALT) && (data.ALTITUDE_BMP >= DEBUG_ALT)) {
     data.DEBUG_STATE = false;
   }
+  return true;
 }
 
 /*
@@ -289,11 +273,12 @@ void Avionics::calcDebug() {
  * -------------------
  * This function gets the updated incentives from the flight computer.
  */
-void Avionics::calcIncentives() {
+bool Avionics::calcIncentives() {
   computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
   data.VALVE_INCENTIVE   = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE_BMP, data.VALVE_ALT_LAST);
   data.BALLAST_INCENTIVE = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE_BMP, data.BALLAST_ALT_LAST);
+  return true;
 }
 
 /*
@@ -301,7 +286,7 @@ void Avionics::calcIncentives() {
  * -------------------
  * This function calculates if the avionics should cutdown.
  */
-void Avionics::calcCutdown() {
+bool Avionics::calcCutdown() {
   if(CUTDOWN_GPS_ENABLE && data.GPS_GOOD_STATE &&
     (((data.LAT_GPS < GPS_FENCE_LAT_MIN) || (data.LAT_GPS > GPS_FENCE_LAT_MAX)) ||
     ((data.LONG_GPS < GPS_FENCE_LON_MIN) || (data.LONG_GPS > GPS_FENCE_LON_MAX)))
@@ -311,6 +296,7 @@ void Avionics::calcCutdown() {
     (data.ALTITUDE_LAST >= CUTDOWN_ALT) &&
     (data.ALTITUDE_BMP  >= CUTDOWN_ALT)
   ) data.SHOULD_CUTDOWN  = true;
+  return true;
 }
 
 /*
@@ -392,6 +378,18 @@ void Avionics::logAlert(const char* debug, bool fatal) {
     Serial.print(debug);
     Serial.print("...\n");
   }
+}
+
+/*
+ * Function: debugState
+ * -------------------
+ * This function provides debuging information.
+ */
+bool Avionics::debugState() {
+  if(data.DEBUG_STATE) {
+    printState();
+  }
+  return true;
 }
 
 /*

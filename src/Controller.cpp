@@ -28,23 +28,25 @@ bool Controller::init() {
 /*
  * Function: getValveIncentive
  * -------------------
- * This function calculates the current incentive to actuate the valve.
+ * This function calculates the incentive to actuate the valve based on a PID
+ * feedback controller.
  */
-float Controller::getValveIncentive(float valveAltitudeSetpoint, float valveKpConstant, float valveKdConstant, float valveKiConstant, double ascentRate, double altitude, double altitudeSinceLastVent) {
-  float proportionalTerm = valveKpConstant * (altitude - valveAltitudeSetpoint);
-  float derivitveTerm    = valveKdConstant * ascentRate;
-  float integralTerm     = valveKiConstant * (altitude - altitudeSinceLastVent);
-  return proportionalTerm + derivitveTerm + integralTerm;
+float Controller::getValveIncentive(float valveAltitudeSetpoint, float valveKpConstant, float valveKiConstant, float valveKdConstant, double ascentRate, double altitude, double altitudeSinceLastVent) {
+  float proportionalTerm = valveKpConstant * ascentRate;
+  float integralTerm     = valveKiConstant * (altitude - valveAltitudeSetpoint);
+  float derivitveTerm    = valveKdConstant * (altitude - altitudeSinceLastVent);
+  return proportionalTerm + integralTerm + derivitveTerm;
 }
 
 /*
  * Function: getBalastIncentive
  * -------------------
- * This function calculates the current incentive to actuate the balast.
+ * This function calculates the incentive to actuate the balast based on a PID
+ * feedback controller.
  */
-float Controller::getBalastIncentive(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKdConstant, float ballastKiConstant, double ascentRate, double altitude, double altitudeSinceLastDrop) {
-  float proportionalTerm = ballastKpConstant * (ballastAltitudeSetpoint - altitude);
-  float derivitveTerm    = ballastKdConstant * -1 * ascentRate;
-  float integralTerm     = ballastKiConstant * (altitudeSinceLastDrop - altitude);
-  return proportionalTerm + derivitveTerm + integralTerm;
+float Controller::getBalastIncentive(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKiConstant, float ballastKdConstant, double ascentRate, double altitude, double altitudeSinceLastDrop) {
+  float proportionalTerm = ballastKpConstant * -1 * ascentRate;
+  float integralTerm     = ballastKiConstant * (ballastAltitudeSetpoint - altitude);
+  float derivitveTerm    = ballastKdConstant * (altitudeSinceLastDrop - altitude);
+  return proportionalTerm + integralTerm + derivitveTerm;
 }

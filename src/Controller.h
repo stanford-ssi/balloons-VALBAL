@@ -23,8 +23,8 @@ public:
 /**********************************  SETUP  ***********************************/
   bool init();
 /********************************  FUNCTIONS  *********************************/
-  float getValveIncentive(float valveAltitudeSetpoint, float valveKpConstant, float valveKdConstant, float valveKiConstant, double ascentRate, double altitude, double altitudeSinceLastVent);
-  float getBalastIncentive(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKdConstant, float ballastKiConstant, double ascentRate, double altitude, double altitudeSinceLastDrop);
+  float getValveIncentive(float valveAltitudeSetpoint, float valveKpConstant, float valveKiConstant, float valveKdConstant, double ascentRate, double altitude, double altitudeSinceLastVent);
+  float getBalastIncentive(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKiConstant, float ballastKdConstant, double ascentRate, double altitude, double altitudeSinceLastDrop);
 private:
 /*********************************  OBJECTS  **********************************/
 };

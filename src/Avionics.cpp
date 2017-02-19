@@ -136,8 +136,8 @@ bool Avionics::calcState() {
   calcVitals();
   calcDebug();
   calcCutdown();
-  data.VALVE_INCENTIVE = computer.getBalastIncentive(data.VALVE_SETPOINT, data.VALVE_Kp_CONSTANT, data.VALVE_Kd_CONSTANT, data.VALVE_Ki_CONSTANT, data.ASCENT_RATE, data.ALTITUDE_BMP, data.VALVE_ALT_LAST);
-  data.BALLAST_INCENTIVE = computer.getValveIncentive(data.BALLAST_SETPOINT, data.BALLAST_Kp_CONSTANT, data.BALLAST_Kd_CONSTANT, data.BALLAST_Ki_CONSTANT, data.ASCENT_RATE, data.ALTITUDE_BMP, data.BALAST_ALT_LAST);
+  data.VALVE_INCENTIVE   = computer.getBalastIncentive(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT, data.ASCENT_RATE, data.ALTITUDE_BMP, data.VALVE_ALT_LAST);
+  data.BALLAST_INCENTIVE = computer.getValveIncentive(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT, data.ASCENT_RATE, data.ALTITUDE_BMP, data.BALAST_ALT_LAST);
   return true;
 }
 
@@ -169,12 +169,15 @@ bool Avionics::runHeaters() {
  * This function actuates the valve based on the calcualted incentive.
  */
 bool Avionics::runValve() {
-  //FIND WAY TO ACURATLY SET data.VALVE_ALT_LAST
   if(data.FORCE_VALVE) {
     PCB.valve(true);
     data.FORCE_VALVE = false;
+    data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
   }
-  else if(data.VALVE_INCENTIVE >= 1) PCB.valve(false);
+  else if(data.VALVE_INCENTIVE >= 1) {
+    PCB.valve(false);
+    data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
+  }
   return true;
 }
 
@@ -184,12 +187,15 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the calcualted incentive.
  */
 bool Avionics::runBalast() {
-  //FIND WAY TO ACURATLY SET data.BALAST_ALT_LAST
   if(data.FORCE_BALAST) {
     PCB.balast(true);
     data.FORCE_BALAST = false;
+    data.BALAST_ALT_LAST = data.ALTITUDE_BMP;
   }
-  else if(data.BALLAST_INCENTIVE >= 1) PCB.balast(false);
+  else if(data.BALLAST_INCENTIVE >= 1) {
+    PCB.balast(false);
+    data.BALAST_ALT_LAST = data.ALTITUDE_BMP;
+  }
   return true;
 }
 

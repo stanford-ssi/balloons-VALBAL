@@ -56,6 +56,7 @@ void Hardware::heater(double temp) {
   This function queues the mechanical valve mechanism.
 */
 void Hardware::valve(bool force) {
+  //do not hang
   //add to priority queue
   //look at state
 }
@@ -66,6 +67,7 @@ void Hardware::valve(bool force) {
   This function queues the mechanical balast mechanism.
 */
 void Hardware::balast(bool force) {
+  //do not hang
   //add to priority queue
   //look at state
   //change direction after time
@@ -78,7 +80,6 @@ void Hardware::balast(bool force) {
 */
 void Hardware::cutDown(bool on) {
 //ful motor engagement
-//do not hang
 //remeber to turn off so we do not waste power on stall torque
 //clear valve and balast quues cuz that doenst matter anymore
   // if(on) // engage cutdown

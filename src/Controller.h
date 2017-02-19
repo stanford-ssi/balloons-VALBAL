@@ -21,12 +21,22 @@
 class Controller {
 public:
 /**********************************  SETUP  ***********************************/
-  bool init();
+  bool  init();
 /********************************  FUNCTIONS  *********************************/
-  float getValveIncentive(float valveAltitudeSetpoint, float valveKpConstant, float valveKiConstant, float valveKdConstant, double ascentRate, double altitude, double altitudeSinceLastVent);
-  float getBalastIncentive(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKiConstant, float ballastKdConstant, double ascentRate, double altitude, double altitudeSinceLastDrop);
+  void  updateValveConstants(float valveAltitudeSetpoint, float valveKpConstant, float valveKiConstant, float valveKdConstant);
+  void  updateBallastConstants(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKiConstant, float ballastKdConstant);
+  float getValveIncentive(double ascentRate, double altitude, double altitudeSinceLastVent);
+  float getBallastIncentive(double ascentRate, double altitude, double altitudeSinceLastDrop);
 private:
 /*********************************  OBJECTS  **********************************/
+float VALVE_SETPOINT                 = 0;
+float VALVE_VELOCITY_CONSTANT        = 0;
+float VALVE_ALTITUDE_DIFF_CONSTANT   = 0;
+float VALVE_LAST_ACTION_CONSTANT     = 0;
+float BALLAST_SETPOINT               = 0;
+float BALLAST_VELOCITY_CONSTANT      = 0;
+float BALLAST_ALTITUDE_DIFF_CONSTANT = 0;
+float BALLAST_LAST_ACTION_CONSTANT   = 0;
 };
 
 #endif

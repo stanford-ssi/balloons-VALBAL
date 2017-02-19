@@ -1,5 +1,5 @@
 # SSI VALBAL:
-###A cost effective endurance platform using a valve and balast controller for high altitude balloons
+###A cost effective endurance platform using a valve and ballast controller for high altitude balloons
 
 #Flight States:
 The avionics uses an Event Driven Programming model in order to clearly transition between states of operation.
@@ -43,7 +43,7 @@ Here is the current status of the code:
 1. MicroSD logging of current data frame to data.txt.
 2. Altitude readings from filtered and error checked BMP280.
 3. Valve mechanical actuation
-4. Balast mechanical actuation
+4. Ballast mechanical actuation
 5. Feedback control algorithm to equilibrate at altitude
 6. PID Heating on inboard heater trace.
 7. Integration of uBlox M8Q GPS.

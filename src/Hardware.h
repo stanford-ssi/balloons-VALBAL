@@ -39,7 +39,7 @@ public:
   void faultLED();
   void heater(double temp);
   void valve(bool force);
-  void balast(bool force);
+  void ballast(bool force);
   void cutDown(bool on);
 private:
 /*********************************  OBJECTS  **********************************/

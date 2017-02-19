@@ -47,14 +47,14 @@ private:
   bool    debugState();
   bool    runHeaters();
   bool    runValve();
-  bool    runBalast();
+  bool    runBallast();
   bool    runCutdown();
   bool    sendSATCOMS();
   void    parseCommand(int16_t len);
   void    calcVitals();
   void    calcDebug();
+  void    calcIncentives();
   void    calcCutdown();
-  void    calcAscent();
   void    printHeader();
   void    logHeader();
   void    logAlert(const char*, bool fatal);

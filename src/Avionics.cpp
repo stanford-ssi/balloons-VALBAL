@@ -56,8 +56,8 @@ void Avionics::evaluateState() {
 void Avionics::actuateState() {
   if(!debugState()) logAlert("unable to debug state", true);
   if(!runHeaters()) logAlert("unable to run heaters", true);
-  if(!runValve()) logAlert("unable to run valve", true);
-  if(!runBalast()) logAlert("unable to run balast", true);
+  if(!runValve())   logAlert("unable to run valve", true);
+  if(!runBallast())  logAlert("unable to run ballast", true);
   if(!runCutdown()) logAlert("unable to run cutdown", true);
 }
 
@@ -135,9 +135,8 @@ bool Avionics::readData() {
 bool Avionics::calcState() {
   calcVitals();
   calcDebug();
+  calcIncentives();
   calcCutdown();
-  data.VALVE_INCENTIVE   = computer.getBalastIncentive(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT, data.ASCENT_RATE, data.ALTITUDE_BMP, data.VALVE_ALT_LAST);
-  data.BALLAST_INCENTIVE = computer.getValveIncentive(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT, data.ASCENT_RATE, data.ALTITUDE_BMP, data.BALAST_ALT_LAST);
   return true;
 }
 
@@ -182,19 +181,19 @@ bool Avionics::runValve() {
 }
 
 /*
- * Function: runBalast
+ * Function: runBallast
  * -------------------
  * This function actuates the valve based on the calcualted incentive.
  */
-bool Avionics::runBalast() {
-  if(data.FORCE_BALAST) {
-    PCB.balast(true);
-    data.FORCE_BALAST = false;
-    data.BALAST_ALT_LAST = data.ALTITUDE_BMP;
+bool Avionics::runBallast() {
+  if(data.FORCE_BALLAST) {
+    PCB.ballast(true);
+    data.FORCE_BALLAST = false;
+    data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
   }
   else if(data.BALLAST_INCENTIVE >= 1) {
-    PCB.balast(false);
-    data.BALAST_ALT_LAST = data.ALTITUDE_BMP;
+    PCB.ballast(false);
+    data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
   }
   return true;
 }
@@ -246,8 +245,8 @@ void Avionics::parseCommand(int16_t len) {
   if(strncmp(COMMS_BUFFER, "SUDO VALVE", len)) {
     data.FORCE_VALVE = true;
   }
-  if(strncmp(COMMS_BUFFER, "SUDO BALAST", len)) {
-    data.FORCE_BALAST = true;
+  if(strncmp(COMMS_BUFFER, "SUDO BALLAST", len)) {
+    data.FORCE_BALLAST = true;
   }
 }
 
@@ -273,6 +272,18 @@ void Avionics::calcDebug() {
   if(data.DEBUG_STATE   && (data.ALTITUDE_LAST >= DEBUG_ALT) && (data.ALTITUDE_BMP >= DEBUG_ALT)) {
     data.DEBUG_STATE = false;
   }
+}
+
+/*
+ * Function: calcIncentives
+ * -------------------
+ * This function gets the updated incentives from the flight computer.
+ */
+void Avionics::calcIncentives() {
+  computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
+  computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
+  data.VALVE_INCENTIVE   = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE_BMP, data.VALVE_ALT_LAST);
+  data.BALLAST_INCENTIVE = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE_BMP, data.BALLAST_ALT_LAST);
 }
 
 /*

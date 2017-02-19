@@ -62,11 +62,11 @@ void Hardware::valve(bool force) {
 }
 
 /*
-  function: balast
+  function: ballast
   ---------------------------------
-  This function queues the mechanical balast mechanism.
+  This function queues the mechanical ballast mechanism.
 */
-void Hardware::balast(bool force) {
+void Hardware::ballast(bool force) {
   //do not hang
   //add to priority queue
   //look at state
@@ -81,7 +81,7 @@ void Hardware::balast(bool force) {
 void Hardware::cutDown(bool on) {
 //ful motor engagement
 //remeber to turn off so we do not waste power on stall torque
-//clear valve and balast quues cuz that doenst matter anymore
+//clear valve and ballast quues cuz that doenst matter anymore
   // if(on) // engage cutdown
   // else //disengage cutdown
 }

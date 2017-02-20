@@ -43,6 +43,7 @@ public:
 private:
 /*********************************  HELPERS  **********************************/
   bool    readData();
+  bool    processData();
   bool    debugState();
   bool    runHeaters();
   bool    runValve();

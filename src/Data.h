@@ -13,6 +13,18 @@
 
 #include "Config.h"
 
+/****************************  RAW SENSORS  ***********************************/
+
+struct RawFrame{
+  double       PRESSURE_1                     =          0;
+  double       PRESSURE_2                     =          0;
+  double       PRESSURE_3                     =          0;
+  double       PRESSURE_4                     =          0;
+
+  //TODO: Add the rest of sensor values
+
+};
+
 /**********************************  DATA  ************************************/
 struct DataFrame {
   uint32_t     TIME                           =          0;
@@ -70,6 +82,10 @@ struct DataFrame {
   uint64_t     COMMS_LAST                     =          0;
   uint64_t     LOOP_START                     =          0;
   uint16_t     COMMS_LENGTH                   =          0;
+
+  RawFrame     RAW;
 };
+
+
 
 #endif

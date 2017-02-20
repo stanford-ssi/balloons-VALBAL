@@ -5,7 +5,7 @@
 
   File: Avionics.cpp
   --------------------------
-  Implimentation of Avionics.h
+  Implementation of Avionics.h
 */
 
 #include "Avionics.h"
@@ -38,6 +38,7 @@ void Avionics::init() {
  */
 void Avionics::updateState() {
   if(!readData()) logAlert("unable to read Data", true);
+  if(!processData()) logAlert("unable to process Data", true);
 }
 
 /*
@@ -143,9 +144,22 @@ bool Avionics::readData() {
 }
 
 /*
+ * Function: processData
+ * -------------------
+ * This function updates the current data frame with derived values
+ */
+bool Avionics::processData() {
+
+//Kalman filtering etc goes here
+
+
+  return true;
+}
+
+/*
  * Function: runHeaters
  * -------------------
- * This function thermaly regulates the avionics.
+ * This function thermally regulates the avionics.
  */
 bool Avionics::runHeaters() {
   PCB.heater(data.TEMP);
@@ -155,7 +169,7 @@ bool Avionics::runHeaters() {
 /*
  * Function: runValve
  * -------------------
- * This function actuates the valve based on the calcualted incentive.
+ * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runValve() {
   if(data.FORCE_VALVE) {
@@ -174,7 +188,7 @@ bool Avionics::runValve() {
 /*
  * Function: runBallast
  * -------------------
- * This function actuates the valve based on the calcualted incentive.
+ * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runBallast() {
   if(data.FORCE_BALLAST) {
@@ -193,7 +207,7 @@ bool Avionics::runBallast() {
 /*
  * Function: runCutdown
  * -------------------
- * This function cuts down the payload if nessisary.
+ * This function cuts down the payload if necessary.
  */
 bool Avionics::runCutdown() {
   if(data.CUTDOWN_STATE) return true;

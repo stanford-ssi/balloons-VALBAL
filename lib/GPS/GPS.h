@@ -17,10 +17,10 @@
 class GPS {
 public:
 /**********************************  SETUP  ***********************************/
-  GPS(uint8_t GPS_ENABLE_PIN, uint16_t GPS_BAUD_VAL, uint16_t GPS_LOCK_TIME_VAL) :
-    GPS_ENABLE(GPS_ENABLE_PIN),
-    GPS_BAUD(GPS_BAUD_VAL),
-    GPS_LOCK_TIME(GPS_LOCK_TIME_VAL) {
+  GPS(uint8_t GPS_EnablePinNum, uint16_t GPS_BaudVal, uint16_t GPS_LockTime) :
+    GPS_ENABLE_PIN(GPS_EnablePinNum),
+    GPS_BAUD(GPS_BaudVal),
+    GPS_LOCK_TIME(GPS_LockTime) {
   }
   bool     init();
 /********************************  FUNCTIONS  *********************************/
@@ -37,7 +37,7 @@ private:
   void     sendUBX(uint8_t* MSG, uint8_t len);
   bool     getUBX_ACK(uint8_t* MSG);
 /*********************************  OBJECTS  **********************************/
-  uint8_t  GPS_ENABLE;
+  uint8_t  GPS_ENABLE_PIN;
   uint16_t GPS_BAUD;
   uint16_t GPS_LOCK_TIME;
   TinyGPSPlus tinygps;

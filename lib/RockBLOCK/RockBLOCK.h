@@ -17,10 +17,10 @@
 class RockBLOCK {
 public:
 /**********************************  SETUP  ***********************************/
-  RockBLOCK(uint8_t RB_GATE_PIN, uint8_t RB_SLEEP_PIN, uint16_t RB_BAUD_VAL) :
-    RB_GATE(RB_GATE_PIN),
-    isbd(Serial3, RB_SLEEP_PIN),
-    RB_BAUD(RB_BAUD_VAL) {
+  RockBLOCK(uint8_t RB_GatePinNum, uint8_t RB_SleepPinNum, uint16_t RB_BaudVal) :
+    RB_GATE(RB_GatePinNum),
+    isbd(Serial3, RB_SleepPinNum),
+    RB_BAUD(RB_BaudVal) {
   }
   bool    init();
 /********************************  FUNCTIONS  *********************************/

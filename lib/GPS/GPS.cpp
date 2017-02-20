@@ -18,8 +18,8 @@
   This function initializes the Ublox NEO-M8Q GPS module.
 */
 bool GPS::init() {
-  pinMode(GPS_ENABLE, OUTPUT);
-  digitalWrite(GPS_ENABLE, LOW);
+  pinMode(GPS_ENABLE_PIN, OUTPUT);
+  digitalWrite(GPS_ENABLE_PIN, LOW);
   Serial1.begin(GPS_BAUD);
   setFlightMode(GPS_LOCK_TIME);
   return true;

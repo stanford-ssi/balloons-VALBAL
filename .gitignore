@@ -4,3 +4,4 @@
 .gcc-flags.json
 .travis.yml
 src/Cutdown.h
+.DS_Store

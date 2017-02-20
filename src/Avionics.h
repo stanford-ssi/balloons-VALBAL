@@ -15,6 +15,7 @@
 #include "Cutdown.h"
 #include "Data.h"
 #include "Sensors.h"
+#include "Filters.h"
 #include "Hardware.h"
 #include "Controller.h"
 #include <SD.h>
@@ -69,6 +70,7 @@ private:
   File logFile;
   Hardware PCB;
   Sensors sensors;
+  Filters filter;
   Controller computer;
   GPS gpsModule;
   RockBLOCK RBModule;

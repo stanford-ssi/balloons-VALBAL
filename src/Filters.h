@@ -4,9 +4,9 @@
   Davy Ragland | dragland@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
 
-  File: Sensors.h
+  File: Filters.h
   --------------------------
-  Interface to sensors on avionics hardware.
+  Interface to guarenteed good semsor values.
 */
 
 #ifndef FILTERS_H
@@ -18,8 +18,10 @@ class Filters {
 public:
 
 /**********************************  SETUP  ***********************************/
-  Filters() : {}
-  
+  Filters() :
+    temp(0) {
+  }
+
   bool     init();
 /********************************  FUNCTIONS  *********************************/
   uint32_t getTime();
@@ -36,7 +38,7 @@ public:
 private:
 /*********************************  HELPERS  **********************************/
 /*********************************  OBJECTS  **********************************/
-
+uint8_t temp;
 
 };
 

@@ -24,6 +24,7 @@ void Avionics::init() {
   setupLog();
   logHeader();
   if(!sensors.init())     logAlert("unable to initialize Sensors", true);
+  if(!filter.init())      logAlert("unable to initialize Filters", true);
   if(!computer.init())    logAlert("unable to initialize Flight Controller", true);
   if(!gpsModule.init())   logAlert("unable to initialize GPS", true);
   if(!RBModule.init())    logAlert("unable to initialize RockBlock", true);

@@ -30,7 +30,9 @@ The avionics flight software was written in compliance with NASA JPL's  Safety-C
 #### Classes
 `Avionics` - Implementation of flight logic.
 
-`Sensors` - Interface to filtered data from hardware.
+`Sensors` - Interface to raw data from hardware.
+
+`Filters` - Interface to corrected data from filters.
 
 `Hardware` - Interface to PCB mechatronics.
 

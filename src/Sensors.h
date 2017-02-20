@@ -47,10 +47,11 @@ private:
   Adafruit_BMP280 bme2;
   Adafruit_BMP280 bme3;
   Adafruit_BMP280 bme4;
-  float    ASCENT_BUFFER[BUFFER_SIZE];
-  double   ALTITUDE_CURR;
-  double   ALTITUDE_LAST;
-  uint64_t ASCENT_RATE_LAST;
+  float    ASCENT_RATE_BUFFER[BUFFER_SIZE];
+  uint16_t ascentRateIndex = 0;
+  double   altitudeCurr;
+  double   altitudeLast;
+  uint64_t ascentRateLast;
 
 };
 

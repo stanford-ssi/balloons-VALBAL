@@ -335,7 +335,7 @@ void Avionics::printHeader() {
  */
 void Avionics::setupLog() {
   Serial.println("Card Initialitzed");
-  char filename[] = "LOGGER00.CSV";
+  char filename[] = "LOGGER00.txt";
   for (uint8_t i = 0; i < 100; i++) {
     filename[6] = i / 10 + '0';
     filename[7] = i % 10 + '0';
@@ -344,7 +344,7 @@ void Avionics::setupLog() {
       break;
     }
   }
-  logFile = SD.open("log.txt", FILE_WRITE);
+  logFile = SD.open("EVENTS.txt", FILE_WRITE);
   if (!dataFile || !logFile) {
     PCB.faultLED();
     Serial.println ("ERROR: COULD NOT CREATE FILE");
@@ -453,8 +453,7 @@ void Avionics::printState() {
  * This function logs the current data frame.
  */
 bool Avionics::logData() {
-  dataFile = SD.open("data.txt", FILE_WRITE);
-  if(!dataFile) return false;
+  bool sucess = true;
   dataFile.print(data.TIME);
   dataFile.print(',');
   dataFile.print(data.LOOP_RATE);
@@ -484,11 +483,11 @@ bool Avionics::logData() {
   dataFile.print(data.NUM_SATS_GPS);
   dataFile.print(',');
   dataFile.print(data.RB_SENT_COMMS);
-  dataFile.print(',');
+  if(dataFile.print(',') != 1) sucess = false;
   dataFile.print(data.CUTDOWN_STATE);
   dataFile.print('\n');
   dataFile.flush();
-  return true;
+  return sucess;
 }
 
 /*

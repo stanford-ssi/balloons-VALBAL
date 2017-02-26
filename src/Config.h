@@ -65,4 +65,18 @@ static const uint8_t   RB_GATE                 =     28;
 static const uint8_t   RB_SLEEP                =     14;
 static const uint8_t   PAYLOAD_GATE            =     31;
 
+/*****************************  EEPROM CONSTANTS  *****************************/
+static const uint8_t   EEPROM_CLEAR_NUM        =      8;  // flag value for a "cleared" EEPROM byte
+
+static const uint8_t   EEPROM_VALVE_START      =      0;  // start byte for writing altitude since last vent
+static const uint8_t   EEPROM_VALVE_END        =      4;  // end byte for                 "
+static const uint8_t   EEPROM_BALLAST_START    =      5;   // start byte for writing altitude since last ballast
+static const uint8_t   EEPROM_BALLAST_END      =      9;   // end byte for                 "
+
+static const uint8_t   EEPROM_ROCKBLOCK        =     10;  // RB power state
+static const uint8_t   EEPROM_GPS              =     11;  // GPS power state
+static const uint8_t   EEPROM_HEATER           =     12;  // heater power state
+static const uint8_t   EEPROM_POWER_STATES_START =   10;
+static const uint8_t   EEPROM_POWER_STATES_END =     12;
+
 #endif

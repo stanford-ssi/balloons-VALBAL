@@ -10,6 +10,8 @@
 */
 
 #include "Hardware.h"
+#include "EEPROM.h"
+#include "Config.h"
 
 /**********************************  SETUP  ***********************************/
 /*
@@ -115,4 +117,42 @@ void Hardware::cutDown(bool on) {
   //clear valve and ballast quues cuz that doenst matter anymore
   // if(on) // engage cutdown
   // else //disengage cutdown
+}
+
+/*
+  function: writeToEEPROM
+  ---------------------------------
+  This helper function writes an integer digit-by-digit to EEPROM between the
+  specified bytes.
+*/
+void Hardware::writeToEEPROM(uint8_t startByte, uint8_t endByte, int num) {
+  // write from left to right (endByte to startByte) b/c writing from one's digit
+	for (int pos = endByte; pos >= startByte; pos--) {
+		int digit = num % 10;
+		num /= 10;
+		EEPROM.write(pos, digit);
+	}
+}
+
+/*
+  function: writeToEEPROM
+  ---------------------------------
+  This helper function reads an integer digit-by-digit from EEPROM between the
+  specified bytes, and then "clears" the data by writing the CLEAR_NUM sentinel.
+*/
+int Hardware::readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte) {
+  int num = 0;
+
+  // build up number
+  for (int i = startByte; i < endByte; i++) {
+    if (EEPROM.read(0) == EEPROM_CLEAR_NUM) break;
+    int digit = EEPROM.read(i);
+    num *= 10;
+    num += digit;
+  }
+
+  // clear EEPROM data
+  writeToEEPROM(startByte, endByte, EEPROM_CLEAR_NUM);
+
+  return num;
 }

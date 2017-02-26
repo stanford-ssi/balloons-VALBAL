@@ -29,14 +29,17 @@ public:
   float getBallastIncentive(double ascentRate, double altitude, double altitudeSinceLastDrop);
 private:
 /*********************************  OBJECTS  **********************************/
-float VALVE_SETPOINT                 = 0;
-float VALVE_VELOCITY_CONSTANT        = 0;
-float VALVE_ALTITUDE_DIFF_CONSTANT   = 0;
-float VALVE_LAST_ACTION_CONSTANT     = 0;
-float BALLAST_SETPOINT               = 0;
-float BALLAST_VELOCITY_CONSTANT      = 0;
-float BALLAST_ALTITUDE_DIFF_CONSTANT = 0;
-float BALLAST_LAST_ACTION_CONSTANT   = 0;
+float RE_ARM_CONSTANT                =    0;
+float I_THRESHOLD                    = 0.75;
+
+float VALVE_SETPOINT                 =    0;
+float VALVE_VELOCITY_CONSTANT        =    0;
+float VALVE_ALTITUDE_DIFF_CONSTANT   =    0;
+float VALVE_LAST_ACTION_CONSTANT     =    0;
+float BALLAST_SETPOINT               =    0;
+float BALLAST_VELOCITY_CONSTANT      =    0;
+float BALLAST_ALTITUDE_DIFF_CONSTANT =    0;
+float BALLAST_LAST_ACTION_CONSTANT   =    0;
 };
 
 #endif

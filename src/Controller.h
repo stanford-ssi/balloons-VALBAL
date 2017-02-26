@@ -23,15 +23,15 @@ public:
 /**********************************  SETUP  ***********************************/
   bool  init();
 /********************************  FUNCTIONS  *********************************/
+  void  updateControllerConstants(float incentiveThreshold, float reArmConstant);
   void  updateValveConstants(float valveAltitudeSetpoint, float valveKpConstant, float valveKiConstant, float valveKdConstant);
   void  updateBallastConstants(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKiConstant, float ballastKdConstant);
   float getValveIncentive(double ascentRate, double altitude, double altitudeSinceLastVent);
   float getBallastIncentive(double ascentRate, double altitude, double altitudeSinceLastDrop);
 private:
 /*********************************  OBJECTS  **********************************/
+float INCENTIVE_THRESHOLD            =    0;
 float RE_ARM_CONSTANT                =    0;
-float I_THRESHOLD                    = 0.75;
-
 float VALVE_SETPOINT                 =    0;
 float VALVE_VELOCITY_CONSTANT        =    0;
 float VALVE_ALTITUDE_DIFF_CONSTANT   =    0;

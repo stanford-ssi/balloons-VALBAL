@@ -26,6 +26,16 @@ bool Controller::init() {
 
 /********************************  FUNCTIONS  *********************************/
 /*
+ * Function: updateControllerConstants
+ * -------------------
+ * This function updates the constants to edit the algorythm.
+ */
+void Controller::updateControllerConstants(float incentiveThreshold, float reArmConstant) {
+  INCENTIVE_THRESHOLD = incentiveThreshold;
+  RE_ARM_CONSTANT     = reArmConstant;
+}
+
+/*
  * Function: updateValveConstants
  * -------------------
  * This function updates the constants to tune the algorythm.
@@ -49,6 +59,8 @@ void Controller::updateBallastConstants(float ballastAltitudeSetpoint, float bal
   BALLAST_LAST_ACTION_CONSTANT   = ballastKdConstant;
 }
 
+// RE_ARM_CONSTANT = INCENTIVE_THRESHOLD / (BALLAST_ALTITUDE_DIFF_CONSTANT + BALLAST_LAST_ACTION_CONSTANT);
+
 /*
  * Function: getValveIncentive
  * -------------------
@@ -56,6 +68,7 @@ void Controller::updateBallastConstants(float ballastAltitudeSetpoint, float bal
  * feedback controller.
  */
 float Controller::getValveIncentive(double ascentRate, double altitude, double altitudeSinceLastVent) {
+  // altitudeSinceLastVent = min(altitudeSinceLastVent, DAlt + reArmConst);
   float proportionalTerm = VALVE_VELOCITY_CONSTANT      * ascentRate;
   float integralTerm     = VALVE_ALTITUDE_DIFF_CONSTANT * (altitude - VALVE_SETPOINT);
   float derivativeTerm   = VALVE_LAST_ACTION_CONSTANT   * (altitude - altitudeSinceLastVent);
@@ -69,6 +82,7 @@ float Controller::getValveIncentive(double ascentRate, double altitude, double a
  * feedback controller.
  */
 float Controller::getBallastIncentive(double ascentRate, double altitude, double altitudeSinceLastDrop) {
+  // altitudeSinceLastDrop = max(altitudeSinceLastDrop, DAlt- reArmConst);
   float proportionalTerm = BALLAST_VELOCITY_CONSTANT * -1 * ascentRate;
   float integralTerm     = BALLAST_ALTITUDE_DIFF_CONSTANT * (BALLAST_SETPOINT - altitude);
   float derivativeTerm   = BALLAST_LAST_ACTION_CONSTANT   * (altitudeSinceLastDrop - altitude);

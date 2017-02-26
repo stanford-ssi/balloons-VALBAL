@@ -14,7 +14,6 @@
 #include "Config.h"
 
 /****************************  RAW SENSORS  ***********************************/
-
 struct RawFrame{
   double       PRESSURE_1                     =          0;
   double       PRESSURE_2                     =          0;
@@ -62,8 +61,11 @@ struct DataFrame {
   bool         BALLAST_STATE                  =      false;
   float        VALVE_INCENTIVE                =        0.0;
   float        BALLAST_INCENTIVE              =        0.0;
+
   float        VALVE_SETPOINT                 =    13500.0;
   float        BALLAST_SETPOINT               =    13000.0;
+  float        INCENTIVE_THRESHOLD            =       0.75;
+  float        RE_ARM_CONSTANT                =          0;
   float        VALVE_VELOCITY_CONSTANT        =        1.0;
   float        VALVE_ALTITUDE_DIFF_CONSTANT   = 1.0/1000.0;
   float        VALVE_LAST_ACTION_CONSTANT     = 1.0/1000.0;

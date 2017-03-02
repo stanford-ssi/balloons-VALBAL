@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | February 2017
+  Balloons | VALBAL | March 2017
   Davy Ragland | dragland@stanford.edu
 
   File: avionics.h
@@ -45,7 +45,6 @@ private:
 /*********************************  HELPERS  **********************************/
   bool    readData();
   bool    processData();
-  bool    debugState();
   bool    runHeaters();
   bool    runValve();
   bool    runBallast();
@@ -56,13 +55,15 @@ private:
   bool    calcDebug();
   bool    calcIncentives();
   bool    calcCutdown();
-  void    printHeader();
+  bool    debugState();
   void    setupLog();
+  void    printHeader();
   void    logHeader();
   void    logAlert(const char*, bool fatal);
   void    printState();
   bool    logData();
   int16_t compressData();
+  int16_t compressVariable(float var, float minimum, float maximum, int16_t resolution, int32_t length);
 /*********************************  OBJECTS  **********************************/
   char COMMS_BUFFER[BUFFER_SIZE];
   DataFrame data;

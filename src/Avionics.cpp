@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | February 2017
+  Balloons | VALBAL | March 2017
   Davy Ragland | dragland@stanford.edu
 
   File: Avionics.cpp
@@ -72,9 +72,8 @@ void Avionics::actuateState() {
  * This function logs the current data frame.
  */
 void Avionics::logState() {
-  if(compressData() < 0) logAlert("unable to compress Data", true);
-  if(!logData())         logAlert("unable to log Data", true);
-  if(!debugState())      logAlert("unable to debug state", true);
+  if(!logData())    logAlert("unable to log Data", true);
+  if(!debugState()) logAlert("unable to debug state", true);
   if (data.MINUTES > FILE_RESET_TIME) {
     dataFile.close();
     logFile.close();
@@ -90,6 +89,7 @@ void Avionics::logState() {
  */
 void Avionics::sendComms() {
   if((millis() - data.COMMS_LAST) < COMMS_RATE) return;
+  if(compressData() < 0) logAlert("unable to compress Data", true);
   if(!sendSATCOMS()) logAlert("unable to communicate over RB", true);
   data.COMMS_LAST = millis();
 }
@@ -147,13 +147,10 @@ bool Avionics::readData() {
 /*
  * Function: processData
  * -------------------
- * This function updates the current data frame with derived values
+ * This function updates the current data frame with derived values.
  */
 bool Avionics::processData() {
-
-//Kalman filtering etc goes here
-
-
+  //Kalman filtering etc goes here
   return true;
 }
 
@@ -263,11 +260,11 @@ void Avionics::parseCommand(int16_t len) {
  * This function calculates if the current state is within bounds.
  */
 bool Avionics::calcVitals() {
-  data.BAT_GOOD_STATE    = (data.VOLTAGE >= 3.63);
-  data.CURR_GOOD_STATE   = (data.CURRENT > -5.0 && data.CURRENT <= 500.0);
-  data.PRES_GOOD_STATE   = (data.ALTITUDE_BMP > -50 && data.ALTITUDE_BMP < 200);
-  data.TEMP_GOOD_STATE   = (data.TEMP > 15 && data.TEMP < 50);
-  data.GPS_GOOD_STATE    = (data.LAT_GPS != 1000.0 && data.LAT_GPS != 0.0 && data.LONG_GPS != 1000.0 && data.LONG_GPS != 0.0);
+  data.BAT_GOOD_STATE  = (data.VOLTAGE >= 3.63);
+  data.CURR_GOOD_STATE = (data.CURRENT > -5.0 && data.CURRENT <= 500.0);
+  data.PRES_GOOD_STATE = (data.ALTITUDE_BMP > -50 && data.ALTITUDE_BMP < 200);
+  data.TEMP_GOOD_STATE = (data.TEMP > 15 && data.TEMP < 50);
+  data.GPS_GOOD_STATE  = (data.LAT_GPS != 1000.0 && data.LAT_GPS != 0.0 && data.LONG_GPS != 1000.0 && data.LONG_GPS != 0.0);
   return true;
 }
 
@@ -294,6 +291,7 @@ bool Avionics::calcIncentives() {
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
   data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE_BMP, data.VALVE_ALT_LAST);
   data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE_BMP, data.BALLAST_ALT_LAST);
+  if (data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) return -1;
   return true;
 }
 
@@ -316,17 +314,15 @@ bool Avionics::calcCutdown() {
 }
 
 /*
- * Function: printHeader
+ * Function: debugState
  * -------------------
- * This function prints the CSV header.
+ * This function provides debuging information.
  */
-void Avionics::printHeader() {
-  if(!Serial) PCB.faultLED();
-  Serial.print("Stanford Student Space Initiative Balloons Launch ");
-  Serial.print(MISSION_NUMBER);
-  Serial.print('\n');
-  Serial.print(CSV_DATA_HEADER);
-  Serial.print('\n');
+bool Avionics::debugState() {
+  if(data.DEBUG_STATE) {
+    printState();
+  }
+  return true;
 }
 
 /*
@@ -354,6 +350,20 @@ void Avionics::setupLog() {
     Serial.print("Logging to: ");
     Serial.println(filename);
   }
+}
+
+/*
+ * Function: printHeader
+ * -------------------
+ * This function prints the CSV header.
+ */
+void Avionics::printHeader() {
+  if(!Serial) PCB.faultLED();
+  Serial.print("Stanford Student Space Initiative Balloons Launch ");
+  Serial.print(MISSION_NUMBER);
+  Serial.print('\n');
+  Serial.print(CSV_DATA_HEADER);
+  Serial.print('\n');
 }
 
 /*
@@ -394,18 +404,6 @@ void Avionics::logAlert(const char* debug, bool fatal) {
     Serial.print(debug);
     Serial.print("...\n");
   }
-}
-
-/*
- * Function: debugState
- * -------------------
- * This function provides debuging information.
- */
-bool Avionics::debugState() {
-  if(data.DEBUG_STATE) {
-    printState();
-  }
-  return true;
 }
 
 /*
@@ -497,87 +495,49 @@ bool Avionics::logData() {
  * This function compresses the data frame into a bit stream.
  */
 int16_t Avionics::compressData() {
-  int16_t length = 0;
-  size_t varSize = 0;
-
-  varSize = sizeof(data.TIME);
-  memcpy(COMMS_BUFFER + length, &data.TIME, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.LOOP_RATE);
-  memcpy(COMMS_BUFFER + length, &data.LOOP_RATE, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.VOLTAGE);
-  memcpy(COMMS_BUFFER + length, &data.VOLTAGE, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.CURRENT);
-  memcpy(COMMS_BUFFER + length, &data.CURRENT, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.ALTITUDE_BMP);
-  memcpy(COMMS_BUFFER + length, &data.ALTITUDE_BMP, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.ASCENT_RATE);
-  memcpy(COMMS_BUFFER + length, &data.ASCENT_RATE, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.TEMP);
-  memcpy(COMMS_BUFFER + length, &data.TEMP, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.LAT_GPS);
-  memcpy(COMMS_BUFFER + length, &data.LAT_GPS, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.LONG_GPS);
-  memcpy(COMMS_BUFFER + length, &data.LONG_GPS, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.SPEED_GPS);
-  memcpy(COMMS_BUFFER + length, &data.SPEED_GPS, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.HEADING_GPS);
-  memcpy(COMMS_BUFFER + length, &data.HEADING_GPS, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.ALTITUDE_GPS);
-  memcpy(COMMS_BUFFER + length, &data.ALTITUDE_GPS, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.PRESS_BMP);
-  memcpy(COMMS_BUFFER + length, &data.PRESS_BMP, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.NUM_SATS_GPS);
-  memcpy(COMMS_BUFFER + length, &data.NUM_SATS_GPS, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.RB_SENT_COMMS);
-  memcpy(COMMS_BUFFER + length, &data.RB_SENT_COMMS, varSize);
-  length += varSize;
-  COMMS_BUFFER[length] = ','; length++;
-
-  varSize = sizeof(data.CUTDOWN_STATE);
-  memcpy(COMMS_BUFFER + length, &data.CUTDOWN_STATE, varSize);
-  length += varSize;
+  int32_t lengthBits = 0;
+  for(uint16_t i = 0; i < BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
+  lengthBits += compressVariable(float(data.TIME),           0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(float(data.LOOP_RATE),      0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(float(data.VOLTAGE),        0,    5,       9,  lengthBits);
+  lengthBits += compressVariable(float(data.CURRENT),        0,    5000,    8,  lengthBits);
+  lengthBits += compressVariable(float(data.ALTITUDE_BMP),  -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(float(data.ASCENT_RATE),   -10,   10,      11, lengthBits);
+  lengthBits += compressVariable(float(data.TEMP),          -50,   100,     9,  lengthBits);
+  lengthBits += compressVariable(float(data.LAT_GPS),       -90,   90,      21, lengthBits);
+  lengthBits += compressVariable(float(data.LONG_GPS),      -180,  180,     22, lengthBits);
+  lengthBits += compressVariable(float(data.SPEED_GPS),     -100,  100,     9,  lengthBits);
+  lengthBits += compressVariable(float(data.HEADING_GPS),   -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(float(data.ALTITUDE_GPS),  -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(float(data.PRESS_BMP),      0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(float(data.NUM_SATS_GPS),   0,    10,      11, lengthBits);
+  lengthBits += compressVariable(float(data.RB_SENT_COMMS),  0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(float(data.CUTDOWN_STATE),  0,    1,       1,  lengthBits);
+  lengthBits += 8 - (lengthBits % 8);
+  int16_t length = lengthBits / 8;
   data.COMMS_LENGTH = length;
   return length;
+}
+
+/*
+ * Function: compressVariable
+ * -------------------
+ * This function compresses a single variable into a scaled digital bitmask.
+ */
+int16_t Avionics::compressVariable(float var, float minimum, float maximum, int16_t resolution, int32_t length) {
+  if (var < minimum) var = minimum;
+  if (var > maximum) var = maximum;
+  int32_t adc = round( (pow(2, resolution) - 1) * (var - minimum) / (maximum - minimum));
+  int16_t byteIndex = length / 8;
+  int16_t bitIndex = 7 - (length % 8);
+  for (int i = resolution - 1; i >= 0; i--) {
+    bool bit = adc & (1 << i);
+    if (bit) COMMS_BUFFER[byteIndex] |= (1 << bitIndex);
+    bitIndex -= 1;
+    if (bitIndex == 0) {
+      bitIndex = 7;
+      byteIndex++;
+    }
+  }
+  return resolution;
 }

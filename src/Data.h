@@ -88,6 +88,4 @@ struct DataFrame {
   RawFrame     RAW;
 };
 
-
-
 #endif

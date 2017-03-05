@@ -10,8 +10,6 @@
 */
 
 #include "Hardware.h"
-#include "EEPROM.h"
-#include "Config.h"
 
 /**********************************  SETUP  ***********************************/
 /*
@@ -54,57 +52,149 @@ void Hardware::faultLED() {
   ---------------------------------
   This function runs the PID heater within the board.
 */
-void Hardware::heater(double temp) {
+void Hardware::heater(double tempSetpoint, double temp) {
+  PIDSetVar = tempSetpoint;
   PIDTempVar = temp;
   pid.Compute();
   if (PIDOutVar != 0.0) analogWrite(HEATER_INTERNAL_STRONG, PIDOutVar / 2 + (ANALOG_MAX / 2));
   else analogWrite(HEATER_INTERNAL_STRONG, 0);
 }
 
+void Hardware::turnOffHeaters() {
+  analogWrite(HEATER_INTERNAL_STRONG, 0);
+  analogWrite(HEATER_INTERNAL_WEAK, 0);
+}
+
 /*
   function: valve
   ---------------------------------
-  This function queues the mechanical valve mechanism.
+  This function increments the timer queue for the mechanical valve mechanism.
 */
-void Hardware::queueValve(bool force) {
-  //do not hang
-  //add to priority queue
-  //look at state
-  // ie if 10 valve commands are sent, do not concurrently actuate,
-  //but inteligently don't close valve to imidiatly open it again
+void Hardware::queueValve(int duration) {
+  valveQueue += duration;
 }
 
 /*
   function: ballast
   ---------------------------------
-  This function queues the mechanical ballast mechanism.
+  This function increments the timer queue for the mechanical ballast mechanism.
 */
-void Hardware::queueBallast(bool force) {
-  //do not hang
-  //add to priority queue
-  //look at state
-  // ie if 10 ballast commands are sent, do not concurrently actuate,
-  //but inteligently don't close ballast to imidiatly open it again
+void Hardware::queueBallast(int duration) {
+  ballastQueue += duration;
 }
 
 /*
   function: checkValve
   ---------------------------------
-  This function provides a non-hanging interface to check the hardware timers.
+  This function provides a non-hanging interface to check the timer queue.
+  Called every loop; updates and acts on the current state of the valve.
 */
 bool Hardware::checkValve() {
-  return isValveOn;
+  if (valveState == OPENING) {
+    if (millis() - valveActionStartTime >= VALVE_OPENING_TIMEOUT) { // exceeded opening time
+      valveState = OPEN;
+    } else {
+      openValve();
+    }
+  } else if (valveState == OPEN) {
+    if (millis() - valveActionStartTime >= valveQueue) { // exceeded queued time
+      valveQueue = 0;
+      valveActionStartTime = millis();
+      valveState = CLOSING;
+    } else {
+      stopValve();
+    }
+  } else if (valveState == CLOSING) {
+    if (millis() - valveActionStartTime >= VALVE_CLOSING_TIMEOUT) { // exceeded closing time
+      valveState = CLOSED;
+    } else {
+      closeValve();
+    }
+  } else if (valveState == CLOSED) {
+    if (valveQueue > 0) { // we've got mail!
+      valveActionStartTime = millis();
+      valveState = OPENING;
+    } else {
+      stopValve();
+    }
+  }
+
+  return valveQueue == 0; // TODO: return this or the state var?
+}
+
+// Hardware helper functions that open, close, or stop the valve motor.
+void Hardware::openValve() {
+  analogWrite(VALVE_FORWARD, LOW);
+  analogWrite(VALVE_REVERSE, VALVE_MOTOR_SPEED);
+}
+
+void Hardware::closeValve() {
+  analogWrite(VALVE_FORWARD, VALVE_MOTOR_SPEED);
+  analogWrite(VALVE_REVERSE, LOW);
+}
+
+void Hardware::stopValve() {
+  analogWrite(VALVE_FORWARD, LOW);
+  analogWrite(VALVE_REVERSE, LOW);
 }
 
 /*
   function: checkBallast
   ---------------------------------
-  This function provides a non-hanging interface to check the hardware timers.
+  This function provides a non-hanging interface to check the timer queue.
+
 */
 bool Hardware::checkBallast() {
-  //change direction after time
-  return isBallastOn;
+  if (ballastState == OPEN) {
+    if (millis() - ballastActionStartTime >= ballastQueue) { // exceeded queued time
+      ballastQueue = 0;
+      ballastState = CLOSED;
+    } else {
+      // every BALLAST_REVERSE_TIMEOUT milliseconds, switch directions
+      if (((millis() - ballastActionStartTime) / BALLAST_REVERSE_TIMEOUT) % 2 == 0) {
+        ballastDirection = !ballastDirection;
+      }
+      dropBallast(ballastDirection);
+    }
+  } else if (ballastState == CLOSED) {
+    if (ballastQueue > 0) {
+      ballastActionStartTime = millis();
+      ballastState = OPEN;
+    } else {
+      stopBallast();
+    }
+  }
+
+  return ballastQueue == 0;
 }
+
+// Hardware helper functions that run or stop the ballast motor.
+void Hardware::stopBallast() {
+  analogWrite(BALLAST_FORWARD, LOW);
+  analogWrite(BALLAST_REVERSE, LOW);
+}
+
+void Hardware::dropBallast(bool direction) {
+  if (ballastDirection) {
+    analogWrite(BALLAST_FORWARD, BALLAST_MOTOR_SPEED);
+    analogWrite(BALLAST_REVERSE, LOW);
+  } else {
+    analogWrite(BALLAST_FORWARD, LOW);
+    analogWrite(BALLAST_REVERSE, BALLAST_MOTOR_SPEED);
+  }
+}
+
+bool Hardware::isValveRunning() {
+  return valveState == OPENING || valveState == CLOSING;
+}
+
+bool Hardware::isBallastRunning() {
+  return ballastState == OPEN;
+}
+
+void Hardware::clearValveQueue() { valveQueue = 0; }
+
+void Hardware::clearBallastQueue() { ballastQueue = 0; }
 
 /*
   function: cutDown

@@ -17,7 +17,7 @@
 
 /****************************  EDITABLE CONSTANTS  ****************************/
 static const char      MISSION_NUMBER[]              =    "SSI-51";
-static const char      CSV_DATA_HEADER[]             =      "TIME,LOOP_RATE,VOLTAGE,CURRENT,ALTITUDE_BMP,ASCENT_RATE,TEMP_IN,LAT_GPS,LONG_GPS,SPEED_GPS,HEADING_GPS,ALTITUDE_GPS,PRESS_BMP,RB_SENT_COMMS,CUTDOWN_STATE";
+static const char      CSV_DATA_HEADER[]             =    "TIME,LOOP_RATE,VOLTAGE,CURRENT,ALTITUDE_BMP,ASCENT_RATE,TEMP_IN,LAT_GPS,LONG_GPS,SPEED_GPS,HEADING_GPS,ALTITUDE_GPS,PRESS_BMP,RB_SENT_COMMS,CUTDOWN_STATE";
 
 static const bool      CUTDOWN_ALT_ENABLE            =        true;
 static const bool      CUTDOWN_GPS_ENABLE            =        true;
@@ -42,18 +42,31 @@ static const uint32_t  FILE_RESET_TIME               =        7200;
 static const uint32_t  CONSOLE_BAUD                  =      115200;
 static const uint32_t  GPS_BAUD                      =        9600;
 static const uint32_t  RB_BAUD                       =       19200;
-static const double    PID_SETPOINT                  =           0;
 
-static const float     VALVE_SETPOINT_DEFAULT        =     13500.0;
-static const float     BALLAST_SETPOINT_DEFAULT      =     13000.0;
+static const double    TEMP_SETPOINT_DEFAULT         =           0;
 static const float     INCENTIVE_THRESHOLD_DEFAULT   =        0.75;
 static const float     RE_ARM_DEFAULT                =           0;
+
+static const float     VALVE_SETPOINT_DEFAULT        =     13500.0;
+static const float     VALVE_ALT_LAST_DEFAULT        =           0;
 static const float     VALVE_VELOCITY_DEFAULT        =         1.0;
 static const float     VALVE_ALTITUDE_DIFF_DEFAULT   =  1.0/1000.0;
 static const float     VALVE_LAST_ACTION_DEFAULT     =  1.0/1000.0;
+
+static const float     BALLAST_SETPOINT_DEFAULT      =     13000.0;
+static const float     BALLAST_ALT_LAST_DEFAULT      =    -90000.0;
 static const float     BALLAST_VELOCITY_DEFAULT      =         1.0;
 static const float     BALLAST_ALTITUDE_DIFF_DEFAULT =  1.0/1000.0;
 static const float     BALLAST_LAST_ACTION_DEFAULT   =  1.0/1000.0;
+
+static const uint16_t  VALVE_DURATION                =        2000; // in milliseconds TODO: this is a semi-random value
+static const uint16_t  BALLAST_DURATION              =        2000; // in milliseconds TODO: this is a semi-random value
+static const uint16_t  VALVE_OPENING_TIMEOUT         =        1000; // TODO: confirm this is right (copied from VALVE_OPEN_BACKUP_TIMER)
+static const uint16_t  VALVE_CLOSING_TIMEOUT         =        2500; // TODO: confirm this is right (copied from VALVE_TIMEOUT)
+static const uint16_t  VALVE_CUTDOWN_TIMEOUT         =       10000; // TODO: confirm this is right (copied from VALVE_CUTDOWN_TIMEOUT)
+static const uint16_t  BALLAST_REVERSE_TIMEOUT       =       20000; // TODO: confirm this is right (copied from MAX_TIME_WITHOUT_ENCODER)
+static const uint16_t  VALVE_MOTOR_SPEED             =         255;
+static const uint16_t  BALLAST_MOTOR_SPEED           =         255;
 
 
 /*****************************  TEENSY PIN OUTS  ******************************/
@@ -83,8 +96,8 @@ static const uint8_t   EEPROM_CLEAR_NUM              =           8;  // flag val
 
 static const uint8_t   EEPROM_VALVE_START            =           0;  // start byte for writing altitude since last vent
 static const uint8_t   EEPROM_VALVE_END              =           4;  // end byte for                 "
-static const uint8_t   EEPROM_BALLAST_START          =           5;   // start byte for writing altitude since last ballast
-static const uint8_t   EEPROM_BALLAST_END            =           9;   // end byte for                 "
+static const uint8_t   EEPROM_BALLAST_START          =           5;  // start byte for writing altitude since last ballast
+static const uint8_t   EEPROM_BALLAST_END            =           9;  // end byte for                 "
 
 static const uint8_t   EEPROM_ROCKBLOCK              =          10;  // RB power state
 static const uint8_t   EEPROM_GPS                    =          11;  // GPS power state

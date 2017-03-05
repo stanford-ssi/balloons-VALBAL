@@ -15,7 +15,7 @@
 #include "Config.h"
 #include <SPI.h>
 #include <Adafruit_BMP280.h>
-// #include <LTC2991.h>
+#include <LTC2991.h>
 
 class Sensors {
 public:

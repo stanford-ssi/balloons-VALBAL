@@ -163,10 +163,15 @@ bool Avionics::processData() {
 /*
  * Function: runHeaters
  * -------------------
- * This function thermally regulates the avionics.
+ * This function thermally regulates the avionics. Disables heaters
+ * if either the ballast or valve is running.
  */
 bool Avionics::runHeaters() {
-  PCB.heater(data.TEMP);
+  if (PCB.isValveRunning() || PCB.isBallastRunning()) {
+    PCB.turnOffHeaters();
+  } else {
+    PCB.heater(data.TEMP_SETPOINT, data.TEMP);
+  }
   return true;
 }
 
@@ -177,12 +182,12 @@ bool Avionics::runHeaters() {
  */
 bool Avionics::runValve() {
   if(data.FORCE_VALVE) {
-    PCB.queueValve(true);
+    PCB.queueValve(VALVE_DURATION);
     data.FORCE_VALVE = false;
     data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
   }
   else if(data.VALVE_INCENTIVE >= 1) {
-    PCB.queueValve(false);
+    PCB.queueValve(VALVE_DURATION);
     data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
   }
   data.VALVE_STATE = PCB.checkValve();
@@ -196,12 +201,12 @@ bool Avionics::runValve() {
  */
 bool Avionics::runBallast() {
   if(data.FORCE_BALLAST) {
-    PCB.queueBallast(true);
+    PCB.queueBallast(BALLAST_DURATION);
     data.FORCE_BALLAST = false;
     data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
   }
   else if(data.BALLAST_INCENTIVE >= 1) {
-    PCB.queueBallast(false);
+    PCB.queueBallast(BALLAST_DURATION);
     data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
   }
   data.BALLAST_STATE = PCB.checkBallast();

@@ -37,9 +37,8 @@ public:
   double   getCurrentMotors();
   double   getCurrentPayload();
   double   getTemp();
-  double   getPressure();
-  double   getAltitude();
-  double   getAscentRate();
+  void   getRawPressure(double &RAW_PRESSURE_1,double &RAW_PRESSURE_2,double &RAW_PRESSURE_3,double &RAW_PRESSURE_4);
+  void   getRawAltitude(double &RAW_ALTITUDE_1,double &RAW_ALTITUDE_2,double &RAW_ALTITUDE_3,double &RAW_ALTITUDE_4);
 private:
 /*********************************  HELPERS  **********************************/
 /*********************************  OBJECTS  **********************************/
@@ -47,11 +46,7 @@ private:
   Adafruit_BMP280 bme2;
   Adafruit_BMP280 bme3;
   Adafruit_BMP280 bme4;
-  float    ASCENT_RATE_BUFFER[BUFFER_SIZE];
-  uint16_t ascentRateIndex = 0;
-  double   altitudeCurr;
-  double   altitudeLast;
-  uint64_t ascentRateLast;
+
 
 };
 

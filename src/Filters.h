@@ -24,21 +24,20 @@ public:
 
   bool     init();
 /********************************  FUNCTIONS  *********************************/
-  uint32_t getTime();
-  double   getVoltage();
-  double   getCurrent();
-  double   getCurrentGPS();
-  double   getCurrentRB();
-  double   getCurrentMotors();
-  double   getCurrentPayload();
-  double   getTemp();
-  double   getPressure();
-  double   getAltitude();
+
+  double   getPressure(double RAW_PRESSURE_1,double RAW_PRESSURE_2,double RAW_PRESSURE_3,double RAW_PRESSURE_4);
+  double   getAltitude(double RAW_ALTITUDE_1,double RAW_ALTITUDE_2,double RAW_ALTITUDE_3,double RAW_ALTITUDE_4);
   double   getAscentRate();
 private:
 /*********************************  HELPERS  **********************************/
 /*********************************  OBJECTS  **********************************/
 uint8_t temp;
+
+  float    ASCENT_RATE_BUFFER[BUFFER_SIZE];
+  uint16_t ascentRateIndex = 0;
+  double   altitudeCurr;
+  double   altitudeLast;
+  uint64_t ascentRateLast;
 
 };
 

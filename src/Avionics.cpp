@@ -132,9 +132,14 @@ bool Avionics::readData() {
   data.CURRENT_MOTORS  = sensors.getCurrentMotors();
   data.CURRENT_PAYLOAD = sensors.getCurrentPayload();
   data.TEMP            = sensors.getTemp();
-  data.PRESS_BMP       = sensors.getPressure();
-  data.ALTITUDE_BMP    = sensors.getAltitude();
-  data.ASCENT_RATE     = sensors.getAscentRate();
+
+  sensors.getRawPressure(data.RAW_PRESSURE_1,data.RAW_PRESSURE_2,data.RAW_PRESSURE_3,data.RAW_PRESSURE_4);
+  sensors.getRawAltitude(data.RAW_ALTITUDE_1,data.RAW_ALTITUDE_2,data.RAW_ALTITUDE_3,data.RAW_ALTITUDE_4);
+
+  data.PRESS_BMP       = filter.getPressure(data.RAW_PRESSURE_1,data.RAW_PRESSURE_2,data.RAW_PRESSURE_3,data.RAW_PRESSURE_4);
+  data.ALTITUDE_BMP    = filter.getAltitude(data.RAW_ALTITUDE_1,data.RAW_ALTITUDE_2,data.RAW_ALTITUDE_3,data.RAW_ALTITUDE_4);
+  data.ASCENT_RATE     = filter.getAscentRate();
+  
   data.LAT_GPS         = gpsModule.getLatitude();
   data.LONG_GPS        = gpsModule.getLongitude();
   data.ALTITUDE_GPS    = gpsModule.getAltitude();

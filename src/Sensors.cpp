@@ -125,44 +125,37 @@ double Sensors::getTemp() {
 }
 
 /*
-  function: getPressure
+  function: getRawPressure
   ---------------------------------
-  This function returns a sensor fused reading.
+  This function returns a raw reading from each of the sensors
 */
-double Sensors::getPressure() {
-  double press_1 = bme1.readPressure();
-  double press_2 = bme2.readPressure();
-  double press_3 = bme3.readPressure();
-  double press_4 = bme4.readPressure();
-  return (press_1 + press_2 + press_3 + press_4) / 4;
+void Sensors::getRawPressure(double &RAW_PRESSURE_1,
+                              double &RAW_PRESSURE_2,
+                              double &RAW_PRESSURE_3,
+                              double &RAW_PRESSURE_4) {
+  
+  RAW_PRESSURE_1 = bme1.readPressure();
+  RAW_PRESSURE_2 = bme2.readPressure();
+  RAW_PRESSURE_3 = bme3.readPressure();
+  RAW_PRESSURE_4 = bme4.readPressure();
+
 }
 
 /*
-  function: getAltitude
+  function: getRawAltitude
   ---------------------------------
-  This function returns a sensor fused reading.
+  This function returns a raw reading from each of the sensors
 */
-double Sensors::getAltitude() {
-  altitudeLast = altitudeCurr;
-  double altitude_1 = bme1.readAltitude(1013.25);
-  double altitude_2 = bme2.readAltitude(1013.25);
-  double altitude_3 = bme3.readAltitude(1013.25);
-  double altitude_4 = bme4.readAltitude(1013.25);
-  altitudeCurr = (altitude_1 + altitude_2 + altitude_3 + altitude_4) / 4;
-  return altitudeCurr;
+void Sensors::getRawAltitude(double &RAW_ALTITUDE_1,
+                              double &RAW_ALTITUDE_2,
+                              double &RAW_ALTITUDE_3,
+                              double &RAW_ALTITUDE_4) {
+
+  RAW_ALTITUDE_1 = bme1.readAltitude(1013.25);
+  RAW_ALTITUDE_2 = bme2.readAltitude(1013.25);
+  RAW_ALTITUDE_3 = bme3.readAltitude(1013.25);
+  RAW_ALTITUDE_4 = bme4.readAltitude(1013.25);
+
 }
 
-/*
-  function: getAscentRate
-  ---------------------------------
-  This function returns the current ascent rate.
-*/
-double Sensors::getAscentRate() {
-  ASCENT_RATE_BUFFER[ascentRateIndex] = (altitudeCurr - altitudeLast) / ((millis() - ascentRateLast) / 1000.0);
-  ascentRateLast = millis();
-  ascentRateIndex++;
-  ascentRateIndex %= BUFFER_SIZE;
-  float ascentRateTotal = 0;
-  for (int i = 0; i < BUFFER_SIZE; i++) ascentRateTotal += ASCENT_RATE_BUFFER[i];
-  return  ascentRateTotal / BUFFER_SIZE;
-}
+

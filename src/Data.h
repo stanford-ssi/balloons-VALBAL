@@ -13,19 +13,9 @@
 
 #include "Config.h"
 
-/****************************  RAW SENSORS  ***********************************/
-struct RawFrame{
-  double       PRESSURE_1                     =                               0;
-  double       PRESSURE_2                     =                               0;
-  double       PRESSURE_3                     =                               0;
-  double       PRESSURE_4                     =                               0;
-
-  //TODO: Add the rest of sensor values
-
-};
-
-/**********************************  DATA  ************************************/
+/**************************  CURRENT DATA FRAME  ******************************/
 struct DataFrame {
+/*****************************  FILTERED DATA  ********************************/
   uint32_t     TIME                           =                               0;
   double       MINUTES                        =                               0;
   uint16_t     LOOP_RATE                      =                               0;
@@ -48,6 +38,7 @@ struct DataFrame {
   uint16_t     RB_SENT_COMMS                  =                               0;
   bool         CUTDOWN_STATE                  =                           false;
 
+/*****************************  FLIGHT STATES  ********************************/
   bool         BAT_GOOD_STATE                 =                           false;
   bool         CURR_GOOD_STATE                =                           false;
   bool         PRES_GOOD_STATE                =                           false;
@@ -62,6 +53,7 @@ struct DataFrame {
   float        VALVE_INCENTIVE                =                             0.0;
   float        BALLAST_INCENTIVE              =                             0.0;
 
+/***************************  Flight Parameters  ******************************/
   float        VALVE_SETPOINT                 =   VALVE_SETPOINT_DEFAULT;
   float        BALLAST_SETPOINT               =   BALLAST_SETPOINT_DEFAULT;
   float        INCENTIVE_THRESHOLD            =   INCENTIVE_THRESHOLD_DEFAULT;
@@ -85,7 +77,29 @@ struct DataFrame {
   uint64_t     LOOP_START                     =                               0;
   uint16_t     COMMS_LENGTH                   =                               0;
 
-  RawFrame     RAW;
+/******************************  RAW SENSORS  *********************************/
+  double       RAW_ALTITUDE_1                 =                               0;
+  double       RAW_ALTITUDE_2                 =                               0;
+  double       RAW_ALTITUDE_3                 =                               0;
+  double       RAW_ALTITUDE_4                 =                               0;
+  double       RAW_TEMP_1                     =                               0;
+  double       RAW_TEMP_2                     =                               0;
+  double       RAW_TEMP_3                     =                               0;
+  double       RAW_TEMP_4                     =                               0;
+  double       RAW_PRESSURE_1                 =                               0;
+  double       RAW_PRESSURE_2                 =                               0;
+  double       RAW_PRESSURE_3                 =                               0;
+  double       RAW_PRESSURE_4                 =                               0;
+
+  uint16_t     BALLAST_TIME                   =                               0;
+  uint16_t     VALVE_TIME                     =                               0;
+  bool         CONTROL_MODE                   =                               0;
+  bool         REPORT_MODE                    =                               0;
+  double       SETPOINT                       =                               0;
+  double       JOULES                         =                               0;
+  uint32_t     BALLAST_QUEUE                  =                               0;
+  uint32_t     VALVE_QUEUE                    =                               0;
+  uint16_t     HEATER                         =                               0;
 };
 
 #endif

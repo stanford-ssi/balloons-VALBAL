@@ -88,7 +88,8 @@ void Avionics::logState() {
  * This function sends the current data frame down.
  */
 void Avionics::sendComms() {
-  if((millis() - data.COMMS_LAST) < COMMS_RATE) return;
+  if(data.DEBUG_STATE && ((millis() - data.COMMS_LAST) < COMMS_DEBUG_RATE)) return;
+  if(!data.DEBUG_STATE && ((millis() - data.COMMS_LAST) < COMMS_RATE)) return;
   if(compressData() < 0) logAlert("unable to compress Data", true);
   if(!sendSATCOMS()) logAlert("unable to communicate over RB", true);
   data.COMMS_LAST = millis();
@@ -243,13 +244,13 @@ bool Avionics::sendSATCOMS() {
  * This function parses the command received from the RockBLOCK.
  */
 void Avionics::parseCommand(int16_t len) {
-  if(strncmp(COMMS_BUFFER, CUTDOWN_COMAND, len)) {
+  if(strncmp(COMMS_BUFFER, CUTDOWN_COMAND, len) == 0) {
     data.SHOULD_CUTDOWN = true;
   }
-  if(strncmp(COMMS_BUFFER, "SUDO VALVE", len)) {
+  if(strncmp(COMMS_BUFFER, "SUDO VALVE", len) == 0) {
     data.FORCE_VALVE = true;
   }
-  if(strncmp(COMMS_BUFFER, "SUDO BALLAST", len)) {
+  if(strncmp(COMMS_BUFFER, "SUDO BALLAST", len) == 0) {
     data.FORCE_BALLAST = true;
   }
 }
@@ -532,7 +533,7 @@ int16_t Avionics::compressVariable(float var, float minimum, float maximum, int1
   int32_t adc = round( (pow(2, resolution) - 1) * (var - minimum) / (maximum - minimum));
   int16_t byteIndex = length / 8;
   int16_t bitIndex = 7 - (length % 8);
-  for (uint16_t i = resolution - 1; i >= 0; i--) {
+  for (int16_t i = resolution - 1; i >= 0; i--) {
     bool bit = adc & (1 << i);
     if (bit) COMMS_BUFFER[byteIndex] |= (1 << bitIndex);
     bitIndex -= 1;

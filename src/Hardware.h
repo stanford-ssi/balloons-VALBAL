@@ -25,20 +25,46 @@ public:
   void init();
 /********************************  FUNCTIONS  *********************************/
   void faultLED();
+
   void heater(double temp);
-  void queueValve(bool force);
-  void queueBallast(bool force);
+  void turnOffHeaters();
+
+  void queueValve(int duration);
+  void queueBallast(int duration);
+  void clearValveQueue();
+  void clearBallastQueue();
   bool checkValve();
   bool checkBallast();
+  bool isValveRunning();
+  bool isBallastRunning();
+
   void cutDown(bool on);
+
 private:
 /*********************************  HELPERS  **********************************/
   void writeToEEPROM(uint8_t startByte, uint8_t endByte, int num);
   int  readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte);
+
+  void stopValve();
+  void openValve();
+  void closeValve();
+
+  void stopBallast();
+  void dropBallast(bool direction);
+
 /*********************************  OBJECTS  **********************************/
-  bool     isValveOn = false;
-  bool     isBallastOn = false;
+  enum State { OPEN, OPENING, CLOSED, CLOSING };
+
+  // queues represent what Avionics told Hardware to do
+  int      valveQueue = 0;
+  int      ballastQueue = 0;
+  // State's represent the internal state of the Hardware
+  State    valveState = CLOSED;
+  State    ballastState = CLOSED;
   bool     ballastDirection = false;
+  int      valveActionStartTime = 0;
+  int      ballastActionStartTime = 0;
+
   double   PIDSetVar;
   double   PIDOutVar;
   double   PIDTempVar;

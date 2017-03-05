@@ -55,6 +55,15 @@ static const float     BALLAST_VELOCITY_DEFAULT      =         1.0;
 static const float     BALLAST_ALTITUDE_DIFF_DEFAULT =  1.0/1000.0;
 static const float     BALLAST_LAST_ACTION_DEFAULT   =  1.0/1000.0;
 
+static const uint16_t  VALVE_DURATION                =        2000; // in milliseconds TODO: this is a semi-random value
+static const uint16_t  BALLAST_DURATION              =        2000; // in milliseconds TODO: this is a semi-random value
+static const uint16_t  VALVE_OPENING_TIMEOUT         =        1000; // TODO: confirm this is right (copied from VALVE_OPEN_BACKUP_TIMER)
+static const uint16_t  VALVE_CLOSING_TIMEOUT         =        2500; // TODO: confirm this is right (copied from VALVE_TIMEOUT)
+static const uint16_t  VALVE_CUTDOWN_TIMEOUT         =       10000; // TODO: confirm this is right (copied from VALVE_CUTDOWN_TIMEOUT)
+static const uint16_t  BALLAST_REVERSE_TIMEOUT       =       20000; // TODO: confirm this is right (copied from MAX_TIME_WITHOUT_ENCODER)
+static const uint16_t  VALVE_MOTOR_SPEED             =         255;
+static const uint16_t  BALLAST_MOTOR_SPEED           =         255;
+
 
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   REBOOT_ENABLE                 =          16;
@@ -83,8 +92,8 @@ static const uint8_t   EEPROM_CLEAR_NUM              =           8;  // flag val
 
 static const uint8_t   EEPROM_VALVE_START            =           0;  // start byte for writing altitude since last vent
 static const uint8_t   EEPROM_VALVE_END              =           4;  // end byte for                 "
-static const uint8_t   EEPROM_BALLAST_START          =           5;   // start byte for writing altitude since last ballast
-static const uint8_t   EEPROM_BALLAST_END            =           9;   // end byte for                 "
+static const uint8_t   EEPROM_BALLAST_START          =           5;  // start byte for writing altitude since last ballast
+static const uint8_t   EEPROM_BALLAST_END            =           9;  // end byte for                 "
 
 static const uint8_t   EEPROM_ROCKBLOCK              =          10;  // RB power state
 static const uint8_t   EEPROM_GPS                    =          11;  // GPS power state

@@ -3,16 +3,16 @@ LTC2991: 14-bit Octal I2C Voltage, Current, and Temperature Monitor
 
 @verbatim
 
-The LTC2991 is used to monitor system temperatures, voltages and currents. 
-Through the I2C serial interface, the eight monitors can individually measure 
-supply voltages and can be paired for differential measurements of current sense 
-resistors or temperature sensing transistors. Additional measurements include 
-internal temperature and internal VCC. The internal 10ppm reference minimizes 
-the number of supporting components and area required. Selectable address and 
-configurable functionality give the LTC2991 flexibility to be incorporated in 
-various systems needing temperature, voltage or current data. The LTC2991 fits 
-well in systems needing submillivolt voltage resolution, 1% current measurement 
-and 1 degree Celsius temperature accuracy or any combination of the three. 
+The LTC2991 is used to monitor system temperatures, voltages and currents.
+Through the I2C serial interface, the eight monitors can individually measure
+supply voltages and can be paired for differential measurements of current sense
+resistors or temperature sensing transistors. Additional measurements include
+internal temperature and internal VCC. The internal 10ppm reference minimizes
+the number of supporting components and area required. Selectable address and
+configurable functionality give the LTC2991 flexibility to be incorporated in
+various systems needing temperature, voltage or current data. The LTC2991 fits
+well in systems needing submillivolt voltage resolution, 1% current measurement
+and 1 degree Celsius temperature accuracy or any combination of the three.
 
 @endverbatim
 
@@ -72,29 +72,29 @@ ongoing work.
 // Read a 16-bit word of data from register specified by "command"
 int8_t i2c_read_word_data(uint8_t address, uint8_t command, uint16_t *value)
 {
-    Wire.beginTransmission((uint8_t)address);
-    Wire.write((uint8_t)command);
-    Wire.endTransmission();
-    Wire.requestFrom((uint8_t)address, (byte)2);
-    *value = (Wire.read() << 8) | Wire.read();
+    WireNew.beginTransmission((uint8_t)address);
+    WireNew.write((uint8_t)command);
+    WireNew.endTransmission();
+    WireNew.requestFrom((uint8_t)address, (byte)2);
+    *value = (WireNew.read() << 8) | WireNew.read();
 return 0;
 }
 // Read a 16-bit word of data from register specified by "command"
 int8_t i2c_read_byte_data(uint8_t address, uint8_t command, uint8_t *value)
 {
-    Wire.beginTransmission((uint8_t)address);
-    Wire.write((uint8_t)command);
-    Wire.endTransmission();
-    Wire.requestFrom((uint8_t)address, (byte)1);
-    *value = Wire.read();
+    WireNew.beginTransmission((uint8_t)address);
+    WireNew.write((uint8_t)command);
+    WireNew.endTransmission();
+    WireNew.requestFrom((uint8_t)address, (byte)1);
+    *value = WireNew.read();
 return 0;
 }
 
 int8_t i2c_write_byte_data(uint8_t address, uint8_t command, uint8_t value) {
-    Wire.beginTransmission((uint8_t)address);
-    Wire.write((uint8_t)command);
-    Wire.write((uint8_t)value);
-    Wire.endTransmission();
+    WireNew.beginTransmission((uint8_t)address);
+    WireNew.write((uint8_t)command);
+    WireNew.write((uint8_t)value);
+    WireNew.endTransmission();
 return 0;
 }
 
@@ -105,11 +105,11 @@ int8_t LTC2991_adc_read(uint8_t i2c_address, uint8_t msb_register_address, int16
   int8_t ack = 0;
   uint16_t code;
   ack = i2c_read_word_data(i2c_address, msb_register_address, &code);
-  
+
   *data_valid = (code >> 15) & 0x01;   // Place Data Valid Bit in *data_valid
-  
+
   *adc_code = code & 0x7FFF;  // Removes data valid bit to return proper adc_code value
-  
+
   return(ack);
 }
 
@@ -136,21 +136,21 @@ int8_t LTC2991_adc_read_timeout(uint8_t i2c_address, uint8_t msb_register_addres
         }
         else {
             status_bit = 0;
-        }      
+        }
     }
-    
+
     if ((ack) || (((reg_data>>status_bit)&0x1)==1)){
         break;
     }
-    
+
     delay(1);
   }
-  
+
   ack |= LTC2991_adc_read(i2c_address, msb_register_address, &(*adc_code), &(*data_valid));   //! 2) It's either valid or it's timed out, we read anyways
   /*if(*data_valid  !=1){ lol fuk u
     Serial.println("Data not valid");
     Serial.println(*data_valid);
-    return (1); 
+    return (1);
   }*/
   return(ack);
 }
@@ -184,7 +184,7 @@ int8_t LTC2991_register_read(uint8_t i2c_address, uint8_t register_address, uint
 int8_t LTC2991_register_write(uint8_t i2c_address, uint8_t register_address, uint8_t register_data)
 {
   int8_t ack = 0;
-  
+
   ack = i2c_write_byte_data(i2c_address, register_address, register_data);
   return(ack);
 }
@@ -195,7 +195,7 @@ int8_t LTC2991_register_set_clear_bits(uint8_t i2c_address, uint8_t register_add
 {
   uint8_t register_data;
   int8_t ack = 0;
-    
+
   ack |= LTC2991_register_read(i2c_address, register_address, &register_data);  //! 1) Read register
   register_data = register_data & (~bits_to_clear); //! 2) Clear bits that were set to be cleared
   register_data = register_data | bits_to_set;
@@ -228,7 +228,7 @@ float LTC2991_code_to_vcc_voltage(int16_t adc_code, float LTC2991_single_ended_l
     adc_code = (adc_code ^ 0x7FFF) + 1;                 //! 1) Converts two's complement to binary
     sign = -1;
   }
-  
+
   voltage = (((float) adc_code) * LTC2991_single_ended_lsb * sign) + 2.5; //! 2) Convert code to Vcc Voltage from single-ended lsb
   return (voltage);
 }
@@ -259,7 +259,7 @@ float LTC2991_temperature(int16_t adc_code, float LTC2991_temperature_lsb, boole
     }
   }
   temperature = ((float) adc_code) * LTC2991_temperature_lsb;   //! 3) Converts code to temperature from temperature lsb
-  
+
   return (temperature);
 }
 

@@ -162,11 +162,10 @@ bool Avionics::processData() {
  * if either the ballast or valve is running.
  */
 bool Avionics::runHeaters() {
-  // TODO: might not be ok b/c keeping heaters off while not opening valve (but valve open)
   if (PCB.isValveRunning() || PCB.isBallastRunning()) {
     PCB.turnOffHeaters();
   } else {
-    PCB.heater(data.TEMP);
+    PCB.heater(data.TEMP_SETPOINT, data.TEMP);
   }
   return true;
 }

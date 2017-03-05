@@ -17,7 +17,7 @@
 
 /****************************  EDITABLE CONSTANTS  ****************************/
 static const char      MISSION_NUMBER[]              =    "SSI-51";
-static const char      CSV_DATA_HEADER[]             =      "TIME,LOOP_RATE,VOLTAGE,CURRENT,ALTITUDE_BMP,ASCENT_RATE,TEMP_IN,LAT_GPS,LONG_GPS,SPEED_GPS,HEADING_GPS,ALTITUDE_GPS,PRESS_BMP,RB_SENT_COMMS,CUTDOWN_STATE";
+static const char      CSV_DATA_HEADER[]             =    "TIME,LOOP_RATE,VOLTAGE,CURRENT,ALTITUDE_BMP,ASCENT_RATE,TEMP_IN,LAT_GPS,LONG_GPS,SPEED_GPS,HEADING_GPS,ALTITUDE_GPS,PRESS_BMP,RB_SENT_COMMS,CUTDOWN_STATE";
 
 static const bool      CUTDOWN_ALT_ENABLE            =        true;
 static const bool      CUTDOWN_GPS_ENABLE            =        true;
@@ -42,15 +42,19 @@ static const uint32_t  FILE_RESET_TIME               =        7200;
 static const uint32_t  CONSOLE_BAUD                  =      115200;
 static const uint32_t  GPS_BAUD                      =        9600;
 static const uint32_t  RB_BAUD                       =       19200;
-static const double    PID_SETPOINT                  =           0;
 
-static const float     VALVE_SETPOINT_DEFAULT        =     13500.0;
-static const float     BALLAST_SETPOINT_DEFAULT      =     13000.0;
+static const double    TEMP_SETPOINT_DEFAULT         =           0;
 static const float     INCENTIVE_THRESHOLD_DEFAULT   =        0.75;
 static const float     RE_ARM_DEFAULT                =           0;
+
+static const float     VALVE_SETPOINT_DEFAULT        =     13500.0;
+static const float     VALVE_ALT_LAST_DEFAULT        =           0;
 static const float     VALVE_VELOCITY_DEFAULT        =         1.0;
 static const float     VALVE_ALTITUDE_DIFF_DEFAULT   =  1.0/1000.0;
 static const float     VALVE_LAST_ACTION_DEFAULT     =  1.0/1000.0;
+
+static const float     BALLAST_SETPOINT_DEFAULT      =     13000.0;
+static const float     BALLAST_ALT_LAST_DEFAULT      =    -90000.0;
 static const float     BALLAST_VELOCITY_DEFAULT      =         1.0;
 static const float     BALLAST_ALTITUDE_DIFF_DEFAULT =  1.0/1000.0;
 static const float     BALLAST_LAST_ACTION_DEFAULT   =  1.0/1000.0;

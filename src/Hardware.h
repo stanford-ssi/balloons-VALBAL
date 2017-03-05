@@ -26,7 +26,7 @@ public:
 /********************************  FUNCTIONS  *********************************/
   void faultLED();
 
-  void heater(double temp);
+  void heater(double tempSetpoint, double temp);
   void turnOffHeaters();
 
   void queueValve(int duration);

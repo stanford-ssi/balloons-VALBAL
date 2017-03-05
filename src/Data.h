@@ -47,9 +47,10 @@ struct DataFrame {
   double       ALTITUDE_LAST                  =                               0;
   uint64_t     COMMS_LAST                     =                               0;
   uint64_t     LOOP_START                     =                               0;
-  uint16_t     COMMS_LENGTH                   =                               0;
   bool         CONTROL_MODE                   =                               0;
   bool         REPORT_MODE                    =                               0;
+
+  uint16_t     COMMS_LENGTH                   =                               0;
 
 /***************************  Flight Parameters  ******************************/
   bool         SHOULD_CUTDOWN                 =                           false;
@@ -77,7 +78,6 @@ struct DataFrame {
   bool         VALVE_STATE                    =                           false;
   bool         BALLAST_STATE                  =                           false;
   bool         CUTDOWN_STATE                  =                           false;
-
   bool         FORCE_VALVE                    =                           false;
   bool         FORCE_BALLAST                  =                           false;
 

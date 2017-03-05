@@ -81,7 +81,8 @@ double Sensors::getCurrent() {
   This function gets the GPS current draw.
 */
 double Sensors::getCurrentGPS() {
-  return 0;
+  float currentMonitor = readCurrent(1);
+  return currentMonitor;
 }
 
 /*
@@ -90,7 +91,8 @@ double Sensors::getCurrentGPS() {
   This function gets the RockBLOCK current draw.
 */
 double Sensors::getCurrentRB() {
-  return 0;
+  float currentMonitor = readCurrent(2);
+  return currentMonitor;
 }
 
 /*
@@ -99,7 +101,8 @@ double Sensors::getCurrentRB() {
   This function gets the motor current draw.
 */
 double Sensors::getCurrentMotors() {
-  return 0;
+  float currentMonitor = readCurrent(3);
+  return currentMonitor;
 }
 
 /*
@@ -108,7 +111,8 @@ double Sensors::getCurrentMotors() {
   This function gets the payload current draw.
 */
 double Sensors::getCurrentPayload() {
-  return 0;
+  float currentMonitor = readCurrent(4);
+  return currentMonitor;
 }
 
 /*
@@ -133,7 +137,7 @@ void Sensors::getRawPressure(double &RAW_PRESSURE_1,
                               double &RAW_PRESSURE_2,
                               double &RAW_PRESSURE_3,
                               double &RAW_PRESSURE_4) {
-  
+
   RAW_PRESSURE_1 = bme1.readPressure();
   RAW_PRESSURE_2 = bme2.readPressure();
   RAW_PRESSURE_3 = bme3.readPressure();
@@ -157,5 +161,3 @@ void Sensors::getRawAltitude(double &RAW_ALTITUDE_1,
   RAW_ALTITUDE_4 = bme4.readAltitude(1013.25);
 
 }
-
-

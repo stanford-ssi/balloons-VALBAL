@@ -54,7 +54,8 @@ void Hardware::faultLED() {
   ---------------------------------
   This function runs the PID heater within the board.
 */
-void Hardware::heater(double temp) {
+void Hardware::heater(double tempSetpoint, double temp) {
+  PIDSetVar = tempSetpoint;
   PIDTempVar = temp;
   pid.Compute();
   if (PIDOutVar != 0.0) analogWrite(HEATER_INTERNAL_STRONG, PIDOutVar / 2 + (ANALOG_MAX / 2));

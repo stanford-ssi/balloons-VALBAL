@@ -25,7 +25,7 @@ public:
   void init();
 /********************************  FUNCTIONS  *********************************/
   void faultLED();
-  void heater(double temp);
+  void heater(double tempSetpoint, double temp);
   void queueValve(bool force);
   void queueBallast(bool force);
   bool checkValve();

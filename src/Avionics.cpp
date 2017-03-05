@@ -161,7 +161,7 @@ bool Avionics::processData() {
  * This function thermally regulates the avionics.
  */
 bool Avionics::runHeaters() {
-  PCB.heater(data.TEMP);
+  PCB.heater(data.TEMP_SETPOINT, data.TEMP);
   return true;
 }
 

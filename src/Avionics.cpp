@@ -18,6 +18,10 @@
  */
 void Avionics::init() {
   PCB.init();
+  int valveAltLast = PCB.readFromEEPROMAndClear(EEPROM_VALVE_START, EEPROM_VALVE_END);
+  if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
+  int ballastAltLast = PCB.readFromEEPROMAndClear(EEPROM_BALLAST_START, EEPROM_BALLAST_END);
+  if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
   Serial.begin(CONSOLE_BAUD);
   printHeader();
   if(!SD.begin(SD_CS)) PCB.faultLED();
@@ -139,7 +143,7 @@ bool Avionics::readData() {
   data.PRESS_BMP       = filter.getPressure(data.RAW_PRESSURE_1,data.RAW_PRESSURE_2,data.RAW_PRESSURE_3,data.RAW_PRESSURE_4);
   data.ALTITUDE_BMP    = filter.getAltitude(data.RAW_ALTITUDE_1,data.RAW_ALTITUDE_2,data.RAW_ALTITUDE_3,data.RAW_ALTITUDE_4);
   data.ASCENT_RATE     = filter.getAscentRate();
-  
+
   data.LAT_GPS         = gpsModule.getLatitude();
   data.LONG_GPS        = gpsModule.getLongitude();
   data.ALTITUDE_GPS    = gpsModule.getAltitude();
@@ -187,10 +191,12 @@ bool Avionics::runValve() {
     PCB.queueValve(VALVE_DURATION);
     data.FORCE_VALVE = false;
     data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
+    PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE_BMP);
   }
   else if(data.VALVE_INCENTIVE >= 1) {
     PCB.queueValve(VALVE_DURATION);
     data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
+    PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE_BMP);
   }
   data.VALVE_STATE = PCB.checkValve();
   return true;
@@ -206,10 +212,12 @@ bool Avionics::runBallast() {
     PCB.queueBallast(BALLAST_DURATION);
     data.FORCE_BALLAST = false;
     data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
+    PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE_BMP);
   }
   else if(data.BALLAST_INCENTIVE >= 1) {
     PCB.queueBallast(BALLAST_DURATION);
     data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
+    PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE_BMP);
   }
   data.BALLAST_STATE = PCB.checkBallast();
   return true;

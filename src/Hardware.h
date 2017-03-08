@@ -40,11 +40,11 @@ public:
 
   void cutDown(bool on);
 
-private:
-/*********************************  HELPERS  **********************************/
   void writeToEEPROM(uint8_t startByte, uint8_t endByte, int num);
   int  readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte);
 
+private:
+/*********************************  HELPERS  **********************************/
   void stopValve();
   void openValve();
   void closeValve();

@@ -234,7 +234,7 @@ int Hardware::readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte) {
   int num = 0;
 
   // build up number
-  for (int i = startByte; i < endByte; i++) {
+  for (int i = startByte; i <= endByte; i++) {
     if (EEPROM.read(0) == EEPROM_CLEAR_NUM) break;
     int digit = EEPROM.read(i);
     num *= 10;

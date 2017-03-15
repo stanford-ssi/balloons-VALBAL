@@ -36,7 +36,7 @@ public:
   double   getCurrentRB();
   double   getCurrentMotors();
   double   getCurrentPayload();
-  double   getTemp();
+  void   getRawTemp(double &RAW_TEMP_1,double &RAW_TEMP_2,double &RAW_TEMP_3,double &RAW_TEMP_4);
   void   getRawPressure(double &RAW_PRESSURE_1,double &RAW_PRESSURE_2,double &RAW_PRESSURE_3,double &RAW_PRESSURE_4);
   void   getRawAltitude(double &RAW_ALTITUDE_1,double &RAW_ALTITUDE_2,double &RAW_ALTITUDE_3,double &RAW_ALTITUDE_4);
 private:

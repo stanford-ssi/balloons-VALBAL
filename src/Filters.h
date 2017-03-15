@@ -24,7 +24,7 @@ public:
 
   bool     init();
 /********************************  FUNCTIONS  *********************************/
-
+  double   getTemp(double RAW_TEMP_1,double RAW_TEMP_2,double RAW_TEMP_3,double RAW_TEMP_4);
   double   getPressure(double RAW_PRESSURE_1,double RAW_PRESSURE_2,double RAW_PRESSURE_3,double RAW_PRESSURE_4);
   double   getAltitude(double RAW_ALTITUDE_1,double RAW_ALTITUDE_2,double RAW_ALTITUDE_3,double RAW_ALTITUDE_4);
   double   getAscentRate();

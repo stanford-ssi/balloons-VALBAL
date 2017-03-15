@@ -25,6 +25,20 @@ bool Filters::init() {
 }
 
 /*
+  function: getTemp
+  ---------------------------------
+  This function returns a sensor fused temperature.
+*/
+
+double Filters::getTemp(double RAW_TEMP_1,
+                          double RAW_TEMP_2,
+                          double RAW_TEMP_3,
+                          double RAW_TEMP_4) {
+
+  return (RAW_TEMP_1 + RAW_TEMP_2 + RAW_TEMP_3 + RAW_TEMP_4) / 4;
+}
+
+/*
   function: getPressure
   ---------------------------------
   This function returns a sensor fused reading.

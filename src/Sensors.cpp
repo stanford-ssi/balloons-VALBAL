@@ -116,16 +116,19 @@ double Sensors::getCurrentPayload() {
 }
 
 /*
-  function: getTempIn
+  function: getRawTemp
   ---------------------------------
-  This function returns a sensor fused reading.
+  This function returns a raw reading from each of the sensors
 */
-double Sensors::getTemp() {
-  double temp_1 = bme1.readTemperature();
-  double temp_2 = bme2.readTemperature();
-  double temp_3 = bme3.readTemperature();
-  double temp_4 = bme4.readTemperature();
-  return (temp_1 + temp_2 + temp_3 + temp_4) / 4;
+void Sensors::getRawTemp(double &RAW_TEMP_1,
+                            double &RAW_TEMP_2,
+                            double &RAW_TEMP_3,
+                            double &RAW_TEMP_4) {
+
+  RAW_TEMP_1 = bme1.readTemperature();
+  RAW_TEMP_2 = bme2.readTemperature();
+  RAW_TEMP_3 = bme3.readTemperature();
+  RAW_TEMP_4 = bme4.readTemperature();
 }
 
 /*

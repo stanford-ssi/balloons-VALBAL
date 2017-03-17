@@ -19,8 +19,6 @@
 */
 bool Filters::init() {
   bool sucess = true;
-
-
   return sucess;
 }
 
@@ -36,6 +34,7 @@ void Filters::enableSensors(bool BMP1Enable, bool BMP2Enable, bool BMP3Enable, b
   enabledSensors[1] = BMP2Enable;
   enabledSensors[2] = BMP3Enable;
   enabledSensors[3] = BMP4Enable;
+  numSensors = 0;
   for (size_t i = 0; i < 4; i++) if (enabledSensors[i]) numSensors++;
 }
 
@@ -58,12 +57,13 @@ double Filters::getTemp(double RAW_TEMP_1, double RAW_TEMP_2, double RAW_TEMP_3,
   ---------------------------------
   This function returns a sensor fused reading.
 */
-double Filters::getPressure(double RAW_PRESSURE_1,
-                            double RAW_PRESSURE_2,
-                            double RAW_PRESSURE_3,
-                            double RAW_PRESSURE_4) {
-  // Need to add redundancy logic
-  return (RAW_PRESSURE_1 + RAW_PRESSURE_2 + RAW_PRESSURE_3 + RAW_PRESSURE_4) / numSensors;
+double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double RAW_PRESSURE_3, double RAW_PRESSURE_4) {
+  double press = 0;
+  if (enabledSensors[0]) press += RAW_PRESSURE_1;
+  if (enabledSensors[1]) press += RAW_PRESSURE_2;
+  if (enabledSensors[2]) press += RAW_PRESSURE_3;
+  if (enabledSensors[3]) press += RAW_PRESSURE_4;
+  return press / numSensors;
 }
 
 /*
@@ -71,22 +71,19 @@ double Filters::getPressure(double RAW_PRESSURE_1,
   ---------------------------------
   This function returns a sensor fused reading.
 */
-double Filters::getAltitude(double RAW_ALTITUDE_1,
-                            double RAW_ALTITUDE_2,
-                            double RAW_ALTITUDE_3,
-                            double RAW_ALTITUDE_4) {
+double Filters::getAltitude(double RAW_ALTITUDE_1, double RAW_ALTITUDE_2, double RAW_ALTITUDE_3, double RAW_ALTITUDE_4) {
   altitudeLast = altitudeCurr;
-
-  // Need to add redundancy logic here!
-  altitudeCurr = (RAW_ALTITUDE_1 + RAW_ALTITUDE_2 + RAW_ALTITUDE_3 + RAW_ALTITUDE_4) / numSensors;
-
+  double alt = 0;
+  if (enabledSensors[0]) alt += RAW_ALTITUDE_1;
+  if (enabledSensors[1]) alt += RAW_ALTITUDE_2;
+  if (enabledSensors[2]) alt += RAW_ALTITUDE_3;
+  if (enabledSensors[3]) alt += RAW_ALTITUDE_4;
+  altitudeCurr =  alt / numSensors;
+  //TODO Kalman FIltering here
   ASCENT_RATE_BUFFER[ascentRateIndex] = (altitudeCurr - altitudeLast) / ((millis() - ascentRateLast) / 1000.0);
   ascentRateLast = millis();
   ascentRateIndex++;
   ascentRateIndex %= BUFFER_SIZE;
-
-  //Add Kalman FIltering here
-
   return altitudeCurr;
 }
 

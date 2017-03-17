@@ -18,12 +18,9 @@ class Filters {
 public:
 
 /**********************************  SETUP  ***********************************/
-  Filters() :
-    temp(0) {
-  }
-
   bool     init();
 /********************************  FUNCTIONS  *********************************/
+  void     enableSensors(bool BMP1Enable, bool BMP2Enable, bool BMP3Enable, bool BMP4Enable);
   double   getTemp(double RAW_TEMP_1,double RAW_TEMP_2,double RAW_TEMP_3,double RAW_TEMP_4);
   double   getPressure(double RAW_PRESSURE_1,double RAW_PRESSURE_2,double RAW_PRESSURE_3,double RAW_PRESSURE_4);
   double   getAltitude(double RAW_ALTITUDE_1,double RAW_ALTITUDE_2,double RAW_ALTITUDE_3,double RAW_ALTITUDE_4);
@@ -31,8 +28,8 @@ public:
 private:
 /*********************************  HELPERS  **********************************/
 /*********************************  OBJECTS  **********************************/
-uint8_t temp;
-
+  bool     enabledSensors[4] = {true};
+  uint8_t  numSensors;
   float    ASCENT_RATE_BUFFER[BUFFER_SIZE];
   uint16_t ascentRateIndex = 0;
   double   altitudeCurr;

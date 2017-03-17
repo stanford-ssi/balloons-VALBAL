@@ -135,15 +135,10 @@ bool Avionics::readData() {
   data.CURRENT_RB      = sensors.getCurrentRB();
   data.CURRENT_MOTORS  = sensors.getCurrentMotors();
   data.CURRENT_PAYLOAD = sensors.getCurrentPayload();
-
+  //TODO REMOVE POINTERS********************************************************
   sensors.getRawTemp(data.RAW_TEMP_1,data.RAW_TEMP_2,data.RAW_TEMP_3,data.RAW_TEMP_4);
   sensors.getRawPressure(data.RAW_PRESSURE_1,data.RAW_PRESSURE_2,data.RAW_PRESSURE_3,data.RAW_PRESSURE_4);
   sensors.getRawAltitude(data.RAW_ALTITUDE_1,data.RAW_ALTITUDE_2,data.RAW_ALTITUDE_3,data.RAW_ALTITUDE_4);
-  data.TEMP            = filter.getTemp(data.RAW_TEMP_1,data.RAW_TEMP_2,data.RAW_TEMP_3,data.RAW_TEMP_4);
-  data.PRESS_BMP       = filter.getPressure(data.RAW_PRESSURE_1,data.RAW_PRESSURE_2,data.RAW_PRESSURE_3,data.RAW_PRESSURE_4);
-  data.ALTITUDE_BMP    = filter.getAltitude(data.RAW_ALTITUDE_1,data.RAW_ALTITUDE_2,data.RAW_ALTITUDE_3,data.RAW_ALTITUDE_4);
-  data.ASCENT_RATE     = filter.getAscentRate();
-
   data.LAT_GPS         = gpsModule.getLatitude();
   data.LONG_GPS        = gpsModule.getLongitude();
   data.ALTITUDE_GPS    = gpsModule.getAltitude();
@@ -160,8 +155,10 @@ bool Avionics::readData() {
  * This function updates the current data frame with derived values.
  */
 bool Avionics::processData() {
-  data.PRESS_BMP       = filter.getPressure(data.RAW_PRESSURE_1,data.RAW_PRESSURE_2,data.RAW_PRESSURE_3,data.RAW_PRESSURE_4);
-  data.ALTITUDE_BMP    = filter.getAltitude(data.RAW_ALTITUDE_1,data.RAW_ALTITUDE_2,data.RAW_ALTITUDE_3,data.RAW_ALTITUDE_4);
+  filter.enableSensors(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
+  data.TEMP            = filter.getTemp(data.RAW_TEMP_1, data.RAW_TEMP_2, data.RAW_TEMP_3, data.RAW_TEMP_4);
+  data.PRESS_BMP       = filter.getPressure(data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4);
+  data.ALTITUDE_BMP    = filter.getAltitude(data.RAW_ALTITUDE_1, data.RAW_ALTITUDE_2, data.RAW_ALTITUDE_3, data.RAW_ALTITUDE_4);
   data.ASCENT_RATE     = filter.getAscentRate();
   return true;
 }
@@ -312,7 +309,11 @@ bool Avionics::calcIncentives() {
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
   data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE_BMP, data.VALVE_ALT_LAST);
   data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE_BMP, data.BALLAST_ALT_LAST);
-  if (data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) return -1;
+  if (data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) {
+    data.VALVE_INCENTIVE = 0;
+    data.BALLAST_INCENTIVE = 0;
+    return -1;
+  }
   return true;
 }
 
@@ -340,9 +341,7 @@ bool Avionics::calcCutdown() {
  * This function provides debuging information.
  */
 bool Avionics::debugState() {
-  if(data.DEBUG_STATE) {
-    printState();
-  }
+  if(data.DEBUG_STATE) printState();
   return true;
 }
 

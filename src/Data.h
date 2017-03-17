@@ -72,6 +72,11 @@ struct DataFrame {
   float        BALLAST_ALTITUDE_DIFF_CONSTANT =   BALLAST_ALTITUDE_DIFF_DEFAULT;
   float        BALLAST_LAST_ACTION_CONSTANT   =     BALLAST_LAST_ACTION_DEFAULT;
 
+  bool         BMP_1_ENABLE                   =                            true;
+  bool         BMP_2_ENABLE                   =                            true;
+  bool         BMP_3_ENABLE                   =                            true;
+  bool         BMP_4_ENABLE                   =                            true;
+
 /*****************************  FLIGHT STATES  ********************************/
   bool         SETUP_STATE                    =                            true;
   bool         DEBUG_STATE                    =                            true;

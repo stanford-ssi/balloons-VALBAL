@@ -284,8 +284,6 @@ void Avionics::parseCommand(int16_t len) {
     data.SHOULD_CUTDOWN = true;
   }
   /* TODO
-    data.ALTITUDE_BMP
-    data.ASCENT_RATE
     data.VALVE_INCENTIVE
     data.BALLAST_INCENTIVE
     data.CONTROL_MODE
@@ -472,182 +470,6 @@ void Avionics::logAlert(const char* debug, bool fatal) {
 }
 
 /*
- * Function: printState
- * -------------------
- * This function prints the current avionics state.
- */
-void Avionics::printState() {
-  Serial.print(data.TIME);
-  Serial.print(',');
-  Serial.print(data.LOOP_RATE);
-  Serial.print(',');
-  Serial.print(data.VOLTAGE);
-  Serial.print(',');
-  Serial.print(data.CURRENT);
-  Serial.print(',');
-  Serial.print(data.ALTITUDE_BMP);
-  Serial.print(',');
-  Serial.print(data.ASCENT_RATE);
-  Serial.print(',');
-  Serial.print(data.TEMP);
-  Serial.print(',');
-  Serial.print(data.LAT_GPS, 4);
-  Serial.print(',');
-  Serial.print(data.LONG_GPS, 4);
-  Serial.print(',');
-  Serial.print(data.SPEED_GPS);
-  Serial.print(',');
-  Serial.print(data.HEADING_GPS);
-  Serial.print(',');
-  Serial.print(data.ALTITUDE_GPS);
-  Serial.print(',');
-  Serial.print(data.PRESS_BMP);
-  Serial.print(',');
-  Serial.print(data.NUM_SATS_GPS);
-  Serial.print(',');
-  Serial.print(data.RB_SENT_COMMS);
-  Serial.print(',');
-  Serial.print(data.CUTDOWN_STATE);
-  Serial.print('\n');
-}
-
-/*
- * Function: logData
- * -------------------
- * This function logs the current data frame.
- */
-bool Avionics::logData() {
-  bool sucess = true;
-  dataFile.print(data.TIME);
-  dataFile.print(',');
-  dataFile.print(data.LOOP_RATE);
-  dataFile.print(',');
-  dataFile.print(data.VOLTAGE);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT);
-  dataFile.print(',');
-  dataFile.print(data.ALTITUDE_BMP);
-  dataFile.print(',');
-  dataFile.print(data.ASCENT_RATE);
-  dataFile.print(',');
-  dataFile.print(data.TEMP);
-  dataFile.print(',');
-  dataFile.print(data.LAT_GPS, 4);
-  dataFile.print(',');
-  dataFile.print(data.LONG_GPS, 4);
-  dataFile.print(',');
-  dataFile.print(data.SPEED_GPS);
-  dataFile.print(',');
-  dataFile.print(data.HEADING_GPS);
-  dataFile.print(',');
-  dataFile.print(data.ALTITUDE_GPS);
-  dataFile.print(',');
-  dataFile.print(data.PRESS_BMP);
-  dataFile.print(',');
-  dataFile.print(data.NUM_SATS_GPS);
-  dataFile.print(',');
-  dataFile.print(data.RB_SENT_COMMS);
-  if(dataFile.print(',') != 1) sucess = false;
-  dataFile.print(data.CUTDOWN_STATE);
-  dataFile.print('\n');
-  dataFile.flush();
-  return sucess;
-}
-
-/*
- * Function: compressData
- * -------------------
- * This function compresses the data frame into a bit stream.
- */
-int16_t Avionics::compressData() {
-  int16_t lengthBits  = 0;
-  int16_t lengthBytes = 0;
-  for(uint16_t i = 0; i < BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
-  lengthBits += compressVariable(data.TIME,           0,    1000000, 19, lengthBits);
-  // data.MINUTES
-  lengthBits += compressVariable(data.ALTITUDE_BMP,  -2000, 40000,   16, lengthBits);
-  lengthBits += compressVariable(data.ASCENT_RATE,   -10,   10,      11, lengthBits);
-  // data.VALVE_INCENTIVE
-  // data.BALLAST_INCENTIVE
-  lengthBits += compressVariable(data.TEMP,          -50,   100,     9,  lengthBits);
-  lengthBits += compressVariable(data.VOLTAGE,        0,    5,       9,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT,        0,    5000,    8,  lengthBits);
-  // data.JOULES
-  // data.HEATER_PWM
-  lengthBits += compressVariable(data.LAT_GPS,       -90,   90,      21, lengthBits);
-  lengthBits += compressVariable(data.LONG_GPS,      -180,  180,     22, lengthBits);
-  lengthBits += compressVariable(data.LOOP_RATE,      0,    1000000, 19, lengthBits);
-  lengthBits += compressVariable(data.RB_SENT_COMMS,  0,    1000000, 19, lengthBits);
-  lengthBits += compressVariable(data.SPEED_GPS,     -100,  100,     9,  lengthBits);
-  lengthBits += compressVariable(data.HEADING_GPS,   -2000, 40000,   16, lengthBits);
-  lengthBits += compressVariable(data.ALTITUDE_GPS,  -2000, 40000,   16, lengthBits);
-  lengthBits += compressVariable(data.PRESS_BMP,      0,    1000000, 19, lengthBits);
-  lengthBits += compressVariable(data.NUM_SATS_GPS,   0,    10,      11, lengthBits);
-  // data.CURRENT_GPS
-  // data.CURRENT_RB
-  // data.CURRENT_MOTORS
-  // data.CURRENT_PAYLOAD
-  // data.INCENTIVE_THRESHOLD
-  // data.RE_ARM_CONSTANT
-  // data.VALVE_SETPOINT
-  // data.VALVE_TIME
-  // data.VALVE_ALT_LAST
-  // data.VALVE_VELOCITY_CONSTANT
-  // data.VALVE_ALTITUDE_DIFF_CONSTANT
-  // data.VALVE_LAST_ACTION_CONSTANT
-  // data.BALLAST_SETPOINT
-  // data.BALLAST_TIME
-  // data.BALLAST_ALT_LAST
-  // data.BALLAST_VELOCITY_CONSTANT
-  // data.BALLAST_ALTITUDE_DIFF_CONSTANT
-  // data.BALLAST_LAST_ACTION_CONSTANT
-  lengthBits += compressVariable(data.CUTDOWN_STATE,  0,    1,       1,  lengthBits);
-  // data.ALTITUDE_LAST
-  // data.COMMS_LAST
-  // data.LOOP_START
-  // data.CONTROL_MODE
-  // data.REPORT_MODE
-  // data.COMMS_LENGTH
-  // data.SHOULD_CUTDOWN
-  // data.PRESS_BASELINE
-  // data.TEMP_SETPOINT
-  // data.BMP_1_ENABLE
-  // data.BMP_2_ENABLE
-  // data.BMP_3_ENABLE
-  // data.BMP_4_ENABLE
-  // data.SETUP_STATE
-  // data.DEBUG_STATE
-  // data.VALVE_STATE
-  // data.BALLAST_STATE
-  // data.FORCE_VALVE
-  // data.FORCE_BALLAST
-  // data.BAT_GOOD_STATE
-  // data.CURR_GOOD_STATE
-  // data.PRES_GOOD_STATE
-  // data.TEMP_GOOD_STATE
-  // data.CAN_GOOD_STATE
-  // data.RB_GOOD_STATE
-  // data.GPS_GOOD_STATE
-  // data.LOOP_GOOD_STATE
-  // data.RAW_TEMP_1
-  // data.RAW_TEMP_2
-  // data.RAW_TEMP_3
-  // data.RAW_TEMP_4
-  // data.RAW_PRESSURE_1
-  // data.RAW_PRESSURE_2
-  // data.RAW_ALTITUDE_3
-  // data.RAW_PRESSURE_3
-  // data.RAW_ALTITUDE_1
-  // data.RAW_ALTITUDE_2
-  // data.RAW_ALTITUDE_4
-  // data.RAW_PRESSURE_4
-  lengthBits += 8 - (lengthBits % 8);
-  lengthBytes = lengthBits / 8;
-  data.COMMS_LENGTH = lengthBytes;
-  return lengthBytes;
-}
-
-/*
  * Function: compressVariable
  * -------------------
  * This function compresses a single variable into a scaled digital bitmask.
@@ -669,4 +491,424 @@ int16_t Avionics::compressVariable(float var, float minimum, float maximum, int1
     }
   }
   return resolution;
+}
+
+/*
+ * Function: printState
+ * -------------------
+ * This function prints the current avionics state.
+ */
+void Avionics::printState() {
+  Serial.print(data.TIME);
+  Serial.print(',');
+  Serial.print(data.MINUTES);
+  Serial.print(',');
+  Serial.print(data.ALTITUDE_BMP);
+  Serial.print(',');
+  Serial.print(data.ASCENT_RATE);
+  Serial.print(',');
+  Serial.print(data.VALVE_INCENTIVE);
+  Serial.print(',');
+  Serial.print(data.BALLAST_INCENTIVE);
+  Serial.print(',');
+  Serial.print(data.TEMP);
+  Serial.print(',');
+  Serial.print(data.VOLTAGE);
+  Serial.print(',');
+  Serial.print(data.CURRENT);
+  Serial.print(',');
+  Serial.print(data.JOULES);
+  Serial.print(',');
+  Serial.print(data.HEATER_PWM);
+  Serial.print(',');
+  Serial.print(data.LAT_GPS, 4);
+  Serial.print(',');
+  Serial.print(data.LONG_GPS, 4);
+  Serial.print(',');
+  Serial.print(data.LOOP_RATE);
+  Serial.print(',');
+  Serial.print(data.RB_SENT_COMMS);
+  Serial.print(',');
+  Serial.print(data.SPEED_GPS);
+  Serial.print(',');
+  Serial.print(data.HEADING_GPS);
+  Serial.print(',');
+  Serial.print(data.ALTITUDE_GPS);
+  Serial.print(',');
+  Serial.print(data.PRESS_BMP);
+  Serial.print(',');
+  Serial.print(data.NUM_SATS_GPS);
+  Serial.print(',');
+  Serial.print(data.CURRENT_GPS);
+  Serial.print(',');
+  Serial.print(data.CURRENT_RB);
+  Serial.print(',');
+  Serial.print(data.CURRENT_MOTORS);
+  Serial.print(',');
+  Serial.print(data.CURRENT_PAYLOAD);
+  Serial.print(',');
+  Serial.print(data.INCENTIVE_THRESHOLD);
+  Serial.print(',');
+  Serial.print(data.RE_ARM_CONSTANT);
+  Serial.print(',');
+  Serial.print(data.VALVE_SETPOINT);
+  Serial.print(',');
+  Serial.print(data.VALVE_TIME);
+  Serial.print(',');
+  Serial.print(data.VALVE_ALT_LAST);
+  Serial.print(',');
+  Serial.print(data.VALVE_VELOCITY_CONSTANT);
+  Serial.print(',');
+  Serial.print(data.VALVE_ALTITUDE_DIFF_CONSTANT);
+  Serial.print(',');
+  Serial.print(data.VALVE_LAST_ACTION_CONSTANT);
+  Serial.print(',');
+  Serial.print(data.BALLAST_SETPOINT);
+  Serial.print(',');
+  Serial.print(data.BALLAST_TIME);
+  Serial.print(',');
+  Serial.print(data.BALLAST_ALT_LAST);
+  Serial.print(',');
+  Serial.print(data.BALLAST_VELOCITY_CONSTANT);
+  Serial.print(',');
+  Serial.print(data.BALLAST_ALTITUDE_DIFF_CONSTANT);
+  Serial.print(',');
+  Serial.print(data.BALLAST_LAST_ACTION_CONSTANT);
+  Serial.print(',');
+  Serial.print(data.CUTDOWN_STATE);
+  Serial.print(',');
+  Serial.print(data.ALTITUDE_LAST);
+  Serial.print(',');
+  Serial.print(double(data.COMMS_LAST));
+  Serial.print(',');
+  Serial.print(double(data.LOOP_START));
+  Serial.print(',');
+  Serial.print(data.CONTROL_MODE);
+  Serial.print(',');
+  Serial.print(data.REPORT_MODE);
+  Serial.print(',');
+  Serial.print(data.COMMS_LENGTH);
+  Serial.print(',');
+  Serial.print(data.SHOULD_CUTDOWN);
+  Serial.print(',');
+  Serial.print(data.PRESS_BASELINE);
+  Serial.print(',');
+  Serial.print(data.TEMP_SETPOINT);
+  Serial.print(',');
+  Serial.print(data.BMP_1_ENABLE);
+  Serial.print(',');
+  Serial.print(data.BMP_2_ENABLE);
+  Serial.print(',');
+  Serial.print(data.BMP_3_ENABLE);
+  Serial.print(',');
+  Serial.print(data.BMP_4_ENABLE);
+  Serial.print(',');
+  Serial.print(data.SETUP_STATE);
+  Serial.print(',');
+  Serial.print(data.VALVE_STATE);
+  Serial.print(',');
+  Serial.print(data.BALLAST_STATE);
+  Serial.print(',');
+  Serial.print(data.FORCE_VALVE);
+  Serial.print(',');
+  Serial.print(data.FORCE_BALLAST);
+  Serial.print(',');
+  Serial.print(data.BAT_GOOD_STATE);
+  Serial.print(',');
+  Serial.print(data.CURR_GOOD_STATE);
+  Serial.print(',');
+  Serial.print(data.PRES_GOOD_STATE);
+  Serial.print(',');
+  Serial.print(data.TEMP_GOOD_STATE);
+  Serial.print(',');
+  Serial.print(data.CAN_GOOD_STATE);
+  Serial.print(',');
+  Serial.print(data.RB_GOOD_STATE);
+  Serial.print(',');
+  Serial.print(data.GPS_GOOD_STATE);
+  Serial.print(',');
+  Serial.print(data.LOOP_GOOD_STATE);
+  Serial.print(',');
+  Serial.print(data.RAW_TEMP_1);
+  Serial.print(',');
+  Serial.print(data.RAW_TEMP_2);
+  Serial.print(',');
+  Serial.print(data.RAW_TEMP_3);
+  Serial.print(',');
+  Serial.print(data.RAW_TEMP_4);
+  Serial.print(',');
+  Serial.print(data.RAW_PRESSURE_1);
+  Serial.print(',');
+  Serial.print(data.RAW_PRESSURE_2);
+  Serial.print(',');
+  Serial.print(data.RAW_PRESSURE_3);
+  Serial.print(',');
+  Serial.print(data.RAW_PRESSURE_4);
+  Serial.print(',');
+  Serial.print(data.RAW_ALTITUDE_1);
+  Serial.print(',');
+  Serial.print(data.RAW_ALTITUDE_2);
+  Serial.print(',');
+  Serial.print(data.RAW_ALTITUDE_3);
+  Serial.print(',');
+  Serial.print(data.RAW_ALTITUDE_4);
+  Serial.print('\n');
+}
+
+/*
+ * Function: logData
+ * -------------------
+ * This function logs the current data frame.
+ */
+bool Avionics::logData() {
+  bool sucess = true;
+  dataFile.print(data.TIME);
+  dataFile.print(',');
+  dataFile.print(data.MINUTES);
+  dataFile.print(',');
+  dataFile.print(data.ALTITUDE_BMP);
+  dataFile.print(',');
+  dataFile.print(data.ASCENT_RATE);
+  dataFile.print(',');
+  dataFile.print(data.VALVE_INCENTIVE);
+  dataFile.print(',');
+  dataFile.print(data.BALLAST_INCENTIVE);
+  dataFile.print(',');
+  dataFile.print(data.TEMP);
+  dataFile.print(',');
+  dataFile.print(data.VOLTAGE);
+  dataFile.print(',');
+  dataFile.print(data.CURRENT);
+  dataFile.print(',');
+  dataFile.print(data.JOULES);
+  dataFile.print(',');
+  dataFile.print(data.HEATER_PWM);
+  dataFile.print(',');
+  dataFile.print(data.LAT_GPS, 4);
+  dataFile.print(',');
+  dataFile.print(data.LONG_GPS, 4);
+  dataFile.print(',');
+  dataFile.print(data.LOOP_RATE);
+  dataFile.print(',');
+  dataFile.print(data.RB_SENT_COMMS);
+  dataFile.print(',');
+  dataFile.print(data.SPEED_GPS);
+  dataFile.print(',');
+  dataFile.print(data.HEADING_GPS);
+  dataFile.print(',');
+  dataFile.print(data.ALTITUDE_GPS);
+  dataFile.print(',');
+  dataFile.print(data.PRESS_BMP);
+  dataFile.print(',');
+  dataFile.print(data.NUM_SATS_GPS);
+  dataFile.print(',');
+  dataFile.print(data.CURRENT_GPS);
+  dataFile.print(',');
+  dataFile.print(data.CURRENT_RB);
+  dataFile.print(',');
+  dataFile.print(data.CURRENT_MOTORS);
+  dataFile.print(',');
+  dataFile.print(data.CURRENT_PAYLOAD);
+  dataFile.print(',');
+  dataFile.print(data.INCENTIVE_THRESHOLD);
+  dataFile.print(',');
+  dataFile.print(data.RE_ARM_CONSTANT);
+  dataFile.print(',');
+  dataFile.print(data.VALVE_SETPOINT);
+  dataFile.print(',');
+  dataFile.print(data.VALVE_TIME);
+  dataFile.print(',');
+  dataFile.print(data.VALVE_ALT_LAST);
+  dataFile.print(',');
+  dataFile.print(data.VALVE_VELOCITY_CONSTANT);
+  dataFile.print(',');
+  dataFile.print(data.VALVE_ALTITUDE_DIFF_CONSTANT);
+  dataFile.print(',');
+  dataFile.print(data.VALVE_LAST_ACTION_CONSTANT);
+  dataFile.print(',');
+  dataFile.print(data.BALLAST_SETPOINT);
+  dataFile.print(',');
+  dataFile.print(data.BALLAST_TIME);
+  dataFile.print(',');
+  dataFile.print(data.BALLAST_ALT_LAST);
+  dataFile.print(',');
+  dataFile.print(data.BALLAST_VELOCITY_CONSTANT);
+  dataFile.print(',');
+  dataFile.print(data.BALLAST_ALTITUDE_DIFF_CONSTANT);
+  dataFile.print(',');
+  dataFile.print(data.BALLAST_LAST_ACTION_CONSTANT);
+  dataFile.print(',');
+  dataFile.print(data.CUTDOWN_STATE);
+  dataFile.print(',');
+  dataFile.print(data.ALTITUDE_LAST);
+  dataFile.print(',');
+  dataFile.print(double(data.COMMS_LAST));
+  dataFile.print(',');
+  dataFile.print(double(data.LOOP_START));
+  dataFile.print(',');
+  dataFile.print(data.CONTROL_MODE);
+  dataFile.print(',');
+  dataFile.print(data.REPORT_MODE);
+  dataFile.print(',');
+  dataFile.print(data.COMMS_LENGTH);
+  dataFile.print(',');
+  dataFile.print(data.SHOULD_CUTDOWN);
+  dataFile.print(',');
+  dataFile.print(data.PRESS_BASELINE);
+  dataFile.print(',');
+  dataFile.print(data.TEMP_SETPOINT);
+  dataFile.print(',');
+  dataFile.print(data.BMP_1_ENABLE);
+  dataFile.print(',');
+  dataFile.print(data.BMP_2_ENABLE);
+  dataFile.print(',');
+  dataFile.print(data.BMP_3_ENABLE);
+  dataFile.print(',');
+  dataFile.print(data.BMP_4_ENABLE);
+  dataFile.print(',');
+  dataFile.print(data.SETUP_STATE);
+  dataFile.print(',');
+  dataFile.print(data.VALVE_STATE);
+  dataFile.print(',');
+  dataFile.print(data.BALLAST_STATE);
+  dataFile.print(',');
+  dataFile.print(data.FORCE_VALVE);
+  dataFile.print(',');
+  dataFile.print(data.FORCE_BALLAST);
+  dataFile.print(',');
+  dataFile.print(data.BAT_GOOD_STATE);
+  dataFile.print(',');
+  dataFile.print(data.CURR_GOOD_STATE);
+  dataFile.print(',');
+  dataFile.print(data.PRES_GOOD_STATE);
+  dataFile.print(',');
+  dataFile.print(data.TEMP_GOOD_STATE);
+  dataFile.print(',');
+  dataFile.print(data.CAN_GOOD_STATE);
+  dataFile.print(',');
+  dataFile.print(data.RB_GOOD_STATE);
+  dataFile.print(',');
+  dataFile.print(data.GPS_GOOD_STATE);
+  dataFile.print(',');
+  dataFile.print(data.LOOP_GOOD_STATE);
+  dataFile.print(',');
+  dataFile.print(data.RAW_TEMP_1);
+  dataFile.print(',');
+  dataFile.print(data.RAW_TEMP_2);
+  dataFile.print(',');
+  dataFile.print(data.RAW_TEMP_3);
+  dataFile.print(',');
+  dataFile.print(data.RAW_TEMP_4);
+  dataFile.print(',');
+  dataFile.print(data.RAW_PRESSURE_1);
+  dataFile.print(',');
+  dataFile.print(data.RAW_PRESSURE_2);
+  dataFile.print(',');
+  dataFile.print(data.RAW_PRESSURE_3);
+  dataFile.print(',');
+  dataFile.print(data.RAW_PRESSURE_4);
+  dataFile.print(',');
+  dataFile.print(data.RAW_ALTITUDE_1);
+  dataFile.print(',');
+  dataFile.print(data.RAW_ALTITUDE_2);
+  dataFile.print(',');
+  dataFile.print(data.RAW_ALTITUDE_3);
+  if(dataFile.print(',') != 1) sucess = false;
+  dataFile.print(data.RAW_ALTITUDE_4);
+  dataFile.print('\n');
+  dataFile.flush();
+  return sucess;
+}
+
+/*
+ * Function: compressData
+ * -------------------
+ * This function compresses the data frame into a bit stream.
+ */
+int16_t Avionics::compressData() {
+  int16_t lengthBits  = 0;
+  int16_t lengthBytes = 0;
+  for(uint16_t i = 0; i < BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
+  lengthBits += compressVariable(data.TIME,                           0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(data.MINUTES,                        0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(data.ALTITUDE_BMP,                  -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.ASCENT_RATE,                   -10,   10,      11, lengthBits);
+  lengthBits += compressVariable(data.VALVE_INCENTIVE,               -50,   10,      12, lengthBits);
+  lengthBits += compressVariable(data.BALLAST_INCENTIVE,             -50,   10,      12, lengthBits);
+  lengthBits += compressVariable(data.TEMP,                          -50,   100,     9,  lengthBits);
+  lengthBits += compressVariable(data.VOLTAGE,                        0,    5,       9,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT,                        0,    5000,    8,  lengthBits);
+  lengthBits += compressVariable(data.JOULES,                         0,    1500000, 18, lengthBits);
+  lengthBits += compressVariable(data.HEATER_PWM,                     0,    255,     8,  lengthBits);
+  lengthBits += compressVariable(data.LAT_GPS,                       -90,   90,      21, lengthBits);
+  lengthBits += compressVariable(data.LONG_GPS,                      -180,  180,     22, lengthBits);
+  lengthBits += compressVariable(data.LOOP_RATE,                      0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(data.RB_SENT_COMMS,                  0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(data.SPEED_GPS,                     -100,  100,     9,  lengthBits);
+  lengthBits += compressVariable(data.HEADING_GPS,                   -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.ALTITUDE_GPS,                  -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.PRESS_BMP,                      0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(data.NUM_SATS_GPS,                   0,    10,      11, lengthBits);
+  lengthBits += compressVariable(data.CURRENT_GPS,                    0,    1000,    6,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_RB,                     0,    1000,    6,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_MOTORS,                 0,    1000,    6,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_PAYLOAD,                0,    1000,    6,  lengthBits);
+  lengthBits += compressVariable(data.INCENTIVE_THRESHOLD,            0,    4,       8,  lengthBits);
+  lengthBits += compressVariable(data.RE_ARM_CONSTANT,                0,    4,       8,  lengthBits);
+  lengthBits += compressVariable(data.VALVE_SETPOINT,                -2000, 50000,   11, lengthBits);
+  lengthBits += compressVariable(data.VALVE_TIME,                     0,    50,      6,  lengthBits);
+  lengthBits += compressVariable(data.VALVE_ALT_LAST,                -2000, 50000,   11, lengthBits);
+  lengthBits += compressVariable(data.VALVE_VELOCITY_CONSTANT,        0,    1000,    8,  lengthBits);
+  lengthBits += compressVariable(data.VALVE_ALTITUDE_DIFF_CONSTANT,   0,    4000,    8,  lengthBits);
+  lengthBits += compressVariable(data.VALVE_LAST_ACTION_CONSTANT,     0,    4000,    8,  lengthBits);
+  lengthBits += compressVariable(data.BALLAST_SETPOINT,              -2000, 50000,   11, lengthBits);
+  lengthBits += compressVariable(data.BALLAST_TIME,                   0,    50,      6,  lengthBits);
+  lengthBits += compressVariable(data.BALLAST_ALT_LAST,              -2000, 50000,   11, lengthBits);
+  lengthBits += compressVariable(data.BALLAST_VELOCITY_CONSTANT,      0,    1000,    8,  lengthBits);
+  lengthBits += compressVariable(data.BALLAST_ALTITUDE_DIFF_CONSTANT, 0,    4000,    8,  lengthBits);
+  lengthBits += compressVariable(data.BALLAST_LAST_ACTION_CONSTANT,   0,    4000,    8,  lengthBits);
+  lengthBits += compressVariable(data.CUTDOWN_STATE,                  0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.ALTITUDE_LAST,                 -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.COMMS_LAST,                     0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(data.LOOP_START,                     0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(data.CONTROL_MODE,                   0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.REPORT_MODE,                    0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.COMMS_LENGTH,                   0,    200,     8,  lengthBits);
+  lengthBits += compressVariable(data.SHOULD_CUTDOWN,                 0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.PRESS_BASELINE,                 0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(data.TEMP_SETPOINT,                 -20,   40,      6,  lengthBits);
+  lengthBits += compressVariable(data.BMP_1_ENABLE,                   0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.BMP_2_ENABLE,                   0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.BMP_3_ENABLE,                   0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.BMP_4_ENABLE,                   0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.SETUP_STATE,                    0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.DEBUG_STATE,                    0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.VALVE_STATE,                    0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.BALLAST_STATE,                  0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.FORCE_VALVE,                    0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.FORCE_BALLAST,                  0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.BAT_GOOD_STATE,                 0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.CURR_GOOD_STATE,                0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.PRES_GOOD_STATE,                0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.TEMP_GOOD_STATE,                0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.CAN_GOOD_STATE,                 0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.RB_GOOD_STATE,                  0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.GPS_GOOD_STATE,                 0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.LOOP_GOOD_STATE,                0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.RAW_TEMP_1,                    -50,   100,     9,  lengthBits);
+  lengthBits += compressVariable(data.RAW_TEMP_2,                    -50,   100,     9,  lengthBits);
+  lengthBits += compressVariable(data.RAW_TEMP_3,                    -50,   100,     9,  lengthBits);
+  lengthBits += compressVariable(data.RAW_TEMP_4,                    -50,   100,     9,  lengthBits);
+  lengthBits += compressVariable(data.RAW_PRESSURE_1,                 0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(data.RAW_PRESSURE_2,                 0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(data.RAW_PRESSURE_3,                 0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(data.RAW_PRESSURE_4,                 0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(data.RAW_ALTITUDE_1,                -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.RAW_ALTITUDE_2,                -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.RAW_ALTITUDE_3,                -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.RAW_ALTITUDE_4,                -2000, 40000,   16, lengthBits);
+  lengthBits += 8 - (lengthBits % 8);
+  lengthBytes = lengthBits / 8;
+  data.COMMS_LENGTH = lengthBytes;
+  return lengthBytes;
 }

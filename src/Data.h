@@ -102,13 +102,13 @@ struct DataFrame {
 
   double       RAW_PRESSURE_1                 =                               0;
   double       RAW_PRESSURE_2                 =                               0;
-  double       RAW_ALTITUDE_3                 =                               0;
   double       RAW_PRESSURE_3                 =                               0;
+  double       RAW_PRESSURE_4                 =                               0;
 
   double       RAW_ALTITUDE_1                 =                               0;
   double       RAW_ALTITUDE_2                 =                               0;
+  double       RAW_ALTITUDE_3                 =                               0;
   double       RAW_ALTITUDE_4                 =                               0;
-  double       RAW_PRESSURE_4                 =                               0;
 };
 
 #endif

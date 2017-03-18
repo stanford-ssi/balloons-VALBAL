@@ -283,9 +283,38 @@ void Avionics::parseCommand(int16_t len) {
   if(strncmp(COMMS_BUFFER, CUTDOWN_COMAND, len) == 0) {
     data.SHOULD_CUTDOWN = true;
   }
-  //data.FORCE_VALVE
-  //data.FORCE_BALLAST
-  //data.PRESS_BASELINE_DEFAULT
+  /* TODO
+    data.ALTITUDE_BMP
+    data.ASCENT_RATE
+    data.VALVE_INCENTIVE
+    data.BALLAST_INCENTIVE
+    data.CONTROL_MODE
+    data.REPORT_MODE
+    data.SHOULD_CUTDOWN
+    data.PRESS_BASELINE
+    data.TEMP_SETPOINT
+    data.INCENTIVE_THRESHOLD
+    data.RE_ARM_CONSTANT
+    data.VALVE_SETPOINT
+    data.VALVE_TIME
+    data.VALVE_ALT_LAST
+    data.VALVE_VELOCITY_CONSTANT
+    data.VALVE_ALTITUDE_DIFF_CONSTANT
+    data.VALVE_LAST_ACTION_CONSTANT
+    data.BALLAST_SETPOINT
+    data.BALLAST_TIME
+    data.BALLAST_ALT_LAST
+    data.BALLAST_VELOCITY_CONSTANT
+    data.BALLAST_ALTITUDE_DIFF_CONSTANT
+    data.BALLAST_LAST_ACTION_CONSTANT
+    data.BMP_1_ENABLE
+    data.BMP_2_ENABLE
+    data.BMP_3_ENABLE
+    data.BMP_4_ENABLE
+    data.SETUP_STATE
+    data.FORCE_VALVE
+    data.FORCE_BALLAST
+  */
 }
 
 /*
@@ -535,21 +564,83 @@ int16_t Avionics::compressData() {
   int16_t lengthBytes = 0;
   for(uint16_t i = 0; i < BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
   lengthBits += compressVariable(data.TIME,           0,    1000000, 19, lengthBits);
-  lengthBits += compressVariable(data.LOOP_RATE,      0,    1000000, 19, lengthBits);
-  lengthBits += compressVariable(data.VOLTAGE,        0,    5,       9,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT,        0,    5000,    8,  lengthBits);
+  // data.MINUTES
   lengthBits += compressVariable(data.ALTITUDE_BMP,  -2000, 40000,   16, lengthBits);
   lengthBits += compressVariable(data.ASCENT_RATE,   -10,   10,      11, lengthBits);
+  // data.VALVE_INCENTIVE
+  // data.BALLAST_INCENTIVE
   lengthBits += compressVariable(data.TEMP,          -50,   100,     9,  lengthBits);
+  lengthBits += compressVariable(data.VOLTAGE,        0,    5,       9,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT,        0,    5000,    8,  lengthBits);
+  // data.JOULES
+  // data.HEATER_PWM
   lengthBits += compressVariable(data.LAT_GPS,       -90,   90,      21, lengthBits);
   lengthBits += compressVariable(data.LONG_GPS,      -180,  180,     22, lengthBits);
+  lengthBits += compressVariable(data.LOOP_RATE,      0,    1000000, 19, lengthBits);
+  lengthBits += compressVariable(data.RB_SENT_COMMS,  0,    1000000, 19, lengthBits);
   lengthBits += compressVariable(data.SPEED_GPS,     -100,  100,     9,  lengthBits);
   lengthBits += compressVariable(data.HEADING_GPS,   -2000, 40000,   16, lengthBits);
   lengthBits += compressVariable(data.ALTITUDE_GPS,  -2000, 40000,   16, lengthBits);
   lengthBits += compressVariable(data.PRESS_BMP,      0,    1000000, 19, lengthBits);
   lengthBits += compressVariable(data.NUM_SATS_GPS,   0,    10,      11, lengthBits);
-  lengthBits += compressVariable(data.RB_SENT_COMMS,  0,    1000000, 19, lengthBits);
+  // data.CURRENT_GPS
+  // data.CURRENT_RB
+  // data.CURRENT_MOTORS
+  // data.CURRENT_PAYLOAD
+  // data.INCENTIVE_THRESHOLD
+  // data.RE_ARM_CONSTANT
+  // data.VALVE_SETPOINT
+  // data.VALVE_TIME
+  // data.VALVE_ALT_LAST
+  // data.VALVE_VELOCITY_CONSTANT
+  // data.VALVE_ALTITUDE_DIFF_CONSTANT
+  // data.VALVE_LAST_ACTION_CONSTANT
+  // data.BALLAST_SETPOINT
+  // data.BALLAST_TIME
+  // data.BALLAST_ALT_LAST
+  // data.BALLAST_VELOCITY_CONSTANT
+  // data.BALLAST_ALTITUDE_DIFF_CONSTANT
+  // data.BALLAST_LAST_ACTION_CONSTANT
   lengthBits += compressVariable(data.CUTDOWN_STATE,  0,    1,       1,  lengthBits);
+  // data.ALTITUDE_LAST
+  // data.COMMS_LAST
+  // data.LOOP_START
+  // data.CONTROL_MODE
+  // data.REPORT_MODE
+  // data.COMMS_LENGTH
+  // data.SHOULD_CUTDOWN
+  // data.PRESS_BASELINE
+  // data.TEMP_SETPOINT
+  // data.BMP_1_ENABLE
+  // data.BMP_2_ENABLE
+  // data.BMP_3_ENABLE
+  // data.BMP_4_ENABLE
+  // data.SETUP_STATE
+  // data.DEBUG_STATE
+  // data.VALVE_STATE
+  // data.BALLAST_STATE
+  // data.FORCE_VALVE
+  // data.FORCE_BALLAST
+  // data.BAT_GOOD_STATE
+  // data.CURR_GOOD_STATE
+  // data.PRES_GOOD_STATE
+  // data.TEMP_GOOD_STATE
+  // data.CAN_GOOD_STATE
+  // data.RB_GOOD_STATE
+  // data.GPS_GOOD_STATE
+  // data.LOOP_GOOD_STATE
+  // data.RAW_TEMP_1
+  // data.RAW_TEMP_2
+  // data.RAW_TEMP_3
+  // data.RAW_TEMP_4
+  // data.RAW_PRESSURE_1
+  // data.RAW_PRESSURE_2
+  // data.RAW_ALTITUDE_3
+  // data.RAW_PRESSURE_3
+  // data.RAW_ALTITUDE_1
+  // data.RAW_ALTITUDE_2
+  // data.RAW_ALTITUDE_4
+  // data.RAW_PRESSURE_4
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
   data.COMMS_LENGTH = lengthBytes;

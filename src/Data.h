@@ -22,8 +22,6 @@ struct DataFrame {
   double       ASCENT_RATE                    =                               0;
   float        VALVE_INCENTIVE                =                               0;
   float        BALLAST_INCENTIVE              =                               0;
-  uint32_t     VALVE_QUEUE                    =                               0;
-  uint32_t     BALLAST_QUEUE                  =                               0;
   double       TEMP                           =                               0;
   double       VOLTAGE                        =                               0;
   double       CURRENT                        =                               0;
@@ -98,18 +96,17 @@ struct DataFrame {
 
 /******************************  RAW SENSORS  *********************************/
   double       RAW_TEMP_1                     =                               0;
-  double       RAW_ALTITUDE_1                 =                               0;
-  double       RAW_PRESSURE_1                 =                               0;
-
   double       RAW_TEMP_2                     =                               0;
-  double       RAW_ALTITUDE_2                 =                               0;
-  double       RAW_PRESSURE_2                 =                               0;
-
   double       RAW_TEMP_3                     =                               0;
+  double       RAW_TEMP_4                     =                               0;
+
+  double       RAW_PRESSURE_1                 =                               0;
+  double       RAW_PRESSURE_2                 =                               0;
   double       RAW_ALTITUDE_3                 =                               0;
   double       RAW_PRESSURE_3                 =                               0;
 
-  double       RAW_TEMP_4                     =                               0;
+  double       RAW_ALTITUDE_1                 =                               0;
+  double       RAW_ALTITUDE_2                 =                               0;
   double       RAW_ALTITUDE_4                 =                               0;
   double       RAW_PRESSURE_4                 =                               0;
 };

@@ -18,15 +18,12 @@
  */
 void Avionics::init() {
   PCB.init();
-  double valveAltLast = PCB.readFromEEPROMAndClear(EEPROM_VALVE_START, EEPROM_VALVE_END);
-  if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
-  double ballastAltLast = PCB.readFromEEPROMAndClear(EEPROM_BALLAST_START, EEPROM_BALLAST_END);
-  if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
   Serial.begin(CONSOLE_BAUD);
   printHeader();
   if(!SD.begin(SD_CS)) PCB.faultLED();
   setupLog();
   logHeader();
+  if(!  readHistory())    logAlert("unable to read from EEPROM", true);
   if(!sensors.init())     logAlert("unable to initialize Sensors", true);
   if(!filter.init())      logAlert("unable to initialize Filters", true);
   if(!computer.init())    logAlert("unable to initialize Flight Controller", true);
@@ -42,7 +39,7 @@ void Avionics::init() {
  * This function handles basic flight data collection.
  */
 void Avionics::updateState() {
-  if(!readData()) logAlert("unable to read Data", true);
+  if(!readData())    logAlert("unable to read Data", true);
   if(!processData()) logAlert("unable to process Data", true);
 }
 
@@ -118,6 +115,20 @@ bool Avionics::finishedSetup() {
 }
 
 /*********************************  HELPERS  **********************************/
+/*
+ * Function: readHistory
+ * -------------------
+ * This function updates the data frame with values from EEPROM
+ * if avionics is restarted mid flight.
+ */
+bool Avionics::readHistory() {
+  double valveAltLast = PCB.readFromEEPROMAndClear(EEPROM_VALVE_START, EEPROM_VALVE_END);
+  if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
+  double ballastAltLast = PCB.readFromEEPROMAndClear(EEPROM_BALLAST_START, EEPROM_BALLAST_END);
+  if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
+  return true;
+}
+
 /*
  * Function: readData
  * -------------------

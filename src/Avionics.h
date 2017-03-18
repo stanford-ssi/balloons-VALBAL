@@ -43,6 +43,7 @@ public:
 
 private:
 /*********************************  HELPERS  **********************************/
+  bool    readHistory();
   bool    readData();
   bool    processData();
   bool    runHeaters();

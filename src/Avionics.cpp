@@ -18,9 +18,9 @@
  */
 void Avionics::init() {
   PCB.init();
-  int valveAltLast = PCB.readFromEEPROMAndClear(EEPROM_VALVE_START, EEPROM_VALVE_END);
+  double valveAltLast = PCB.readFromEEPROMAndClear(EEPROM_VALVE_START, EEPROM_VALVE_END);
   if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
-  int ballastAltLast = PCB.readFromEEPROMAndClear(EEPROM_BALLAST_START, EEPROM_BALLAST_END);
+  double ballastAltLast = PCB.readFromEEPROMAndClear(EEPROM_BALLAST_START, EEPROM_BALLAST_END);
   if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
   Serial.begin(CONSOLE_BAUD);
   printHeader();
@@ -135,10 +135,14 @@ bool Avionics::readData() {
   data.CURRENT_RB      = sensors.getCurrentRB();
   data.CURRENT_MOTORS  = sensors.getCurrentMotors();
   data.CURRENT_PAYLOAD = sensors.getCurrentPayload();
-  //TODO REMOVE POINTERS********************************************************
-  sensors.getRawTemp(data.RAW_TEMP_1,data.RAW_TEMP_2,data.RAW_TEMP_3,data.RAW_TEMP_4);
-  sensors.getRawPressure(data.RAW_PRESSURE_1,data.RAW_PRESSURE_2,data.RAW_PRESSURE_3,data.RAW_PRESSURE_4);
-  sensors.getRawAltitude(data.RAW_ALTITUDE_1,data.RAW_ALTITUDE_2,data.RAW_ALTITUDE_3,data.RAW_ALTITUDE_4);
+  data.RAW_TEMP_1      = sensors.getRawTemp(1);
+  data.RAW_TEMP_2      = sensors.getRawTemp(2);
+  data.RAW_TEMP_3      = sensors.getRawTemp(3);
+  data.RAW_TEMP_4      = sensors.getRawTemp(4);
+  data.RAW_PRESSURE_1  = sensors.getRawPressure(1);
+  data.RAW_PRESSURE_2  = sensors.getRawPressure(2);
+  data.RAW_PRESSURE_3  = sensors.getRawPressure(3);
+  data.RAW_PRESSURE_4  = sensors.getRawPressure(4);
   data.LAT_GPS         = gpsModule.getLatitude();
   data.LONG_GPS        = gpsModule.getLongitude();
   data.ALTITUDE_GPS    = gpsModule.getAltitude();
@@ -156,6 +160,10 @@ bool Avionics::readData() {
  */
 bool Avionics::processData() {
   filter.enableSensors(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
+  data.RAW_ALTITUDE_1  = filter.getCalculatedAltitude(data.RAW_PRESSURE_1, data.PRESS_BASELINE);
+  data.RAW_ALTITUDE_2  = filter.getCalculatedAltitude(data.RAW_PRESSURE_2, data.PRESS_BASELINE);
+  data.RAW_ALTITUDE_3  = filter.getCalculatedAltitude(data.RAW_PRESSURE_3, data.PRESS_BASELINE);
+  data.RAW_ALTITUDE_4  = filter.getCalculatedAltitude(data.RAW_PRESSURE_4, data.PRESS_BASELINE);
   data.TEMP            = filter.getTemp(data.RAW_TEMP_1, data.RAW_TEMP_2, data.RAW_TEMP_3, data.RAW_TEMP_4);
   data.PRESS_BMP       = filter.getPressure(data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4);
   data.ALTITUDE_BMP    = filter.getAltitude(data.RAW_ALTITUDE_1, data.RAW_ALTITUDE_2, data.RAW_ALTITUDE_3, data.RAW_ALTITUDE_4);
@@ -264,12 +272,9 @@ void Avionics::parseCommand(int16_t len) {
   if(strncmp(COMMS_BUFFER, CUTDOWN_COMAND, len) == 0) {
     data.SHOULD_CUTDOWN = true;
   }
-  if(strncmp(COMMS_BUFFER, "SUDO VALVE", len) == 0) {
-    data.FORCE_VALVE = true;
-  }
-  if(strncmp(COMMS_BUFFER, "SUDO BALLAST", len) == 0) {
-    data.FORCE_BALLAST = true;
-  }
+  //data.FORCE_VALVE
+  //data.FORCE_BALLAST
+  //data.PRESS_BASELINE_DEFAULT
 }
 
 /*
@@ -304,7 +309,7 @@ bool Avionics::calcDebug() {
  * This function gets the updated incentives from the flight computer.
  */
 bool Avionics::calcIncentives() {
-  computer.updateControllerConstants( data.INCENTIVE_THRESHOLD, data.RE_ARM_CONSTANT);
+  computer.updateControllerConstants(data.INCENTIVE_THRESHOLD, data.RE_ARM_CONSTANT);
   computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
   data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE_BMP, data.VALVE_ALT_LAST);

@@ -36,9 +36,9 @@ public:
   double   getCurrentRB();
   double   getCurrentMotors();
   double   getCurrentPayload();
-  void   getRawTemp(double &RAW_TEMP_1,double &RAW_TEMP_2,double &RAW_TEMP_3,double &RAW_TEMP_4);
-  void   getRawPressure(double &RAW_PRESSURE_1,double &RAW_PRESSURE_2,double &RAW_PRESSURE_3,double &RAW_PRESSURE_4);
-  void   getRawAltitude(double &RAW_ALTITUDE_1,double &RAW_ALTITUDE_2,double &RAW_ALTITUDE_3,double &RAW_ALTITUDE_4);
+  double   getRawTemp(uint8_t sensor);
+  double   getRawPressure(uint8_t sensor);
+  double   getRawAltitude(uint8_t sensor);
 private:
 /*********************************  HELPERS  **********************************/
 /*********************************  OBJECTS  **********************************/
@@ -46,7 +46,6 @@ private:
   Adafruit_BMP280 bme2;
   Adafruit_BMP280 bme3;
   Adafruit_BMP280 bme4;
-
 
 };
 

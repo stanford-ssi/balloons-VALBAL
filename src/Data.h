@@ -54,6 +54,7 @@ struct DataFrame {
 
 /***************************  Flight Parameters  ******************************/
   bool         SHOULD_CUTDOWN                 =                           false;
+  double       PRESS_BASELINE                 =          PRESS_BASELINE_DEFAULT;
   double       TEMP_SETPOINT                  =           TEMP_SETPOINT_DEFAULT;
   float        INCENTIVE_THRESHOLD            =     INCENTIVE_THRESHOLD_DEFAULT;
   float        RE_ARM_CONSTANT                =                  RE_ARM_DEFAULT;

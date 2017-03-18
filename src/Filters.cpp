@@ -67,6 +67,15 @@ double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double
 }
 
 /*
+  function: getCalculatedAltitude
+  ---------------------------------
+  This function returns a higher precision altitude value.
+*/
+float Filters::getCalculatedAltitude(float pressure, float pressureBaseline) {
+  return (44330.0 * (1 - pow(pressure / pressureBaseline, 1 / 5.255)));
+}
+
+/*
   function: getAltitude
   ---------------------------------
   This function returns a sensor fused reading.

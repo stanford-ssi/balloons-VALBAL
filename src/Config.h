@@ -43,6 +43,7 @@ static const uint32_t  CONSOLE_BAUD                  =      115200;
 static const uint32_t  GPS_BAUD                      =        9600;
 static const uint32_t  RB_BAUD                       =       19200;
 
+static const double    PRESS_BASELINE_DEFAULT        =     1013.25;
 static const double    TEMP_SETPOINT_DEFAULT         =           0;
 static const float     INCENTIVE_THRESHOLD_DEFAULT   =        0.75;
 static const float     RE_ARM_DEFAULT                =           0;

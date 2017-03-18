@@ -36,7 +36,7 @@ bool Sensors::init() {
     sucess = false;
   }
   WireNew.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
-  WireNew.setDefaultTimeout(5 * 1000);
+  WireNew.setDefaultTimeout(5000);
   int8_t ack = 0;
   ack |= LTC2991_register_write(LTC2991_I2C_ADDRESS, LTC2991_CHANNEL_ENABLE_REG, LTC2991_ENABLE_ALL_CHANNELS);
   ack |= LTC2991_register_write(LTC2991_I2C_ADDRESS, LTC2991_CONTROL_V1234_REG, 0x00);
@@ -118,49 +118,41 @@ double Sensors::getCurrentPayload() {
 /*
   function: getRawTemp
   ---------------------------------
-  This function returns a raw reading from each of the sensors
+  This function returns a raw reading from each of the sensors.
 */
-void Sensors::getRawTemp(double &RAW_TEMP_1,
-                            double &RAW_TEMP_2,
-                            double &RAW_TEMP_3,
-                            double &RAW_TEMP_4) {
-
-  RAW_TEMP_1 = bme1.readTemperature();
-  RAW_TEMP_2 = bme2.readTemperature();
-  RAW_TEMP_3 = bme3.readTemperature();
-  RAW_TEMP_4 = bme4.readTemperature();
+double Sensors::getRawTemp(uint8_t sensor) {
+  double value =  -1;
+  if (sensor == 1) value = bme1.readTemperature();
+  if (sensor == 2) value = bme2.readTemperature();
+  if (sensor == 3) value = bme3.readTemperature();
+  if (sensor == 4) value = bme4.readTemperature();
+  return value;
 }
 
 /*
   function: getRawPressure
   ---------------------------------
-  This function returns a raw reading from each of the sensors
+  This function returns a raw reading from each of the sensors.
 */
-void Sensors::getRawPressure(double &RAW_PRESSURE_1,
-                              double &RAW_PRESSURE_2,
-                              double &RAW_PRESSURE_3,
-                              double &RAW_PRESSURE_4) {
-
-  RAW_PRESSURE_1 = bme1.readPressure();
-  RAW_PRESSURE_2 = bme2.readPressure();
-  RAW_PRESSURE_3 = bme3.readPressure();
-  RAW_PRESSURE_4 = bme4.readPressure();
-
+double Sensors::getRawPressure(uint8_t sensor) {
+  double value =  -1;
+  if (sensor == 1) value = bme1.readPressure();
+  if (sensor == 2) value = bme2.readPressure();
+  if (sensor == 3) value = bme3.readPressure();
+  if (sensor == 4) value = bme4.readPressure();
+  return value;
 }
 
 /*
   function: getRawAltitude
   ---------------------------------
-  This function returns a raw reading from each of the sensors
+  This function returns a raw reading from each of the sensors.
 */
-void Sensors::getRawAltitude(double &RAW_ALTITUDE_1,
-                              double &RAW_ALTITUDE_2,
-                              double &RAW_ALTITUDE_3,
-                              double &RAW_ALTITUDE_4) {
-
-  RAW_ALTITUDE_1 = bme1.readAltitude(1013.25);
-  RAW_ALTITUDE_2 = bme2.readAltitude(1013.25);
-  RAW_ALTITUDE_3 = bme3.readAltitude(1013.25);
-  RAW_ALTITUDE_4 = bme4.readAltitude(1013.25);
-
+double Sensors::getRawAltitude(uint8_t sensor) {
+  double value =  -1;
+  if (sensor == 1) value = bme1.readAltitude();
+  if (sensor == 2) value = bme2.readAltitude();
+  if (sensor == 3) value = bme3.readAltitude();
+  if (sensor == 4) value = bme4.readAltitude();
+  return value;
 }

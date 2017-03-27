@@ -153,9 +153,7 @@ bool Hardware::checkBallast() {
       ballastState = CLOSED;
     } else {
       // every BALLAST_REVERSE_TIMEOUT milliseconds, switch directions
-      if (((millis() - ballastActionStartTime) / BALLAST_REVERSE_TIMEOUT) % 2 == 0) {
-        ballastDirection = !ballastDirection;
-      }
+      ballastDirection = ((millis() - ballastActionStartTime) / BALLAST_REVERSE_TIMEOUT) % 2;
       dropBallast(ballastDirection);
     }
   } else if (ballastState == CLOSED) {

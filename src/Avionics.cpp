@@ -23,12 +23,14 @@ void Avionics::init() {
   if(!SD.begin(SD_CS)) PCB.faultLED();
   setupLog();
   logHeader();
-  if(!  readHistory())    logAlert("unable to read from EEPROM", true);
-  if(!sensors.init())     logAlert("unable to initialize Sensors", true);
-  if(!filter.init())      logAlert("unable to initialize Filters", true);
-  if(!computer.init())    logAlert("unable to initialize Flight Controller", true);
-  if(!gpsModule.init())   logAlert("unable to initialize GPS", true);
-  if(!RBModule.init())    logAlert("unable to initialize RockBlock", true);
+  if(!  readHistory())                    logAlert("unable to read from EEPROM", true);
+  if(!sensors.init())                     logAlert("unable to initialize Sensors", true);
+  if(!filter.init())                      logAlert("unable to initialize Filters", true);
+  if(!computer.init())                    logAlert("unable to initialize Flight Controller", true);
+  if(!gpsModule.init())                   logAlert("unable to initialize GPS", true);
+  if(!RBModule.init(data.POWER_STATE_RB)) logAlert("unable to initialize RockBlock", true);
+  // testValve(10); //TODO******************************************************
+  // testBallast(2); //TODO*****************************************************
   data.SETUP_STATE = false;
 }
 
@@ -146,6 +148,7 @@ bool Avionics::readData() {
   data.CURRENT_RB      = sensors.getCurrentRB();
   data.CURRENT_MOTORS  = sensors.getCurrentMotors();
   data.CURRENT_PAYLOAD = sensors.getCurrentPayload();
+  data.TEMP_NECK       = sensors.getNeckTemp();
   data.RAW_TEMP_1      = sensors.getRawTemp(1);
   data.RAW_TEMP_2      = sensors.getRawTemp(2);
   data.RAW_TEMP_3      = sensors.getRawTemp(3);
@@ -189,6 +192,7 @@ bool Avionics::processData() {
  * if either the ballast or valve is running.
  */
 bool Avionics::runHeaters() {
+  if(data.POWER_STATE_HEATER != POWER_STATE_TURNED_ON) return false;
   if (PCB.isValveRunning() || PCB.isBallastRunning()) {
     PCB.turnOffHeaters();
   } else {
@@ -283,7 +287,7 @@ void Avionics::parseCommand(int16_t len) {
   if(strncmp(COMMS_BUFFER, CUTDOWN_COMAND, len) == 0) {
     data.SHOULD_CUTDOWN = true;
   }
-  /* TODO
+  /* TODO***********************************************************************
     data.VALVE_INCENTIVE
     data.BALLAST_INCENTIVE
     data.CONTROL_MODE
@@ -501,7 +505,7 @@ int16_t Avionics::compressVariable(float var, float minimum, float maximum, int1
 void Avionics::printState() {
   Serial.print(data.TIME);
   Serial.print(',');
-  Serial.print(data.MINUTES);
+  Serial.print(data.MINUTES, 6);
   Serial.print(',');
   Serial.print(data.ALTITUDE_BMP);
   Serial.print(',');
@@ -513,9 +517,11 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(data.TEMP);
   Serial.print(',');
+  Serial.print(data.TEMP_NECK);
+  Serial.print(',');
   Serial.print(data.VOLTAGE);
   Serial.print(',');
-  Serial.print(data.CURRENT);
+  Serial.print(data.CURRENT * 1000);
   Serial.print(',');
   Serial.print(data.JOULES);
   Serial.print(',');
@@ -574,6 +580,12 @@ void Avionics::printState() {
   Serial.print(data.BALLAST_ALTITUDE_DIFF_CONSTANT);
   Serial.print(',');
   Serial.print(data.BALLAST_LAST_ACTION_CONSTANT);
+  Serial.print(',');
+  Serial.print(data.POWER_STATE_RB);
+  Serial.print(',');
+  Serial.print(data.POWER_STATE_GPS);
+  Serial.print(',');
+  Serial.print(data.POWER_STATE_HEATER);
   Serial.print(',');
   Serial.print(data.CUTDOWN_STATE);
   Serial.print(',');
@@ -664,7 +676,7 @@ bool Avionics::logData() {
   bool sucess = true;
   dataFile.print(data.TIME);
   dataFile.print(',');
-  dataFile.print(data.MINUTES);
+  dataFile.print(data.MINUTES, 6);
   dataFile.print(',');
   dataFile.print(data.ALTITUDE_BMP);
   dataFile.print(',');
@@ -676,9 +688,11 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.TEMP);
   dataFile.print(',');
+  dataFile.print(data.TEMP_NECK);
+  dataFile.print(',');
   dataFile.print(data.VOLTAGE);
   dataFile.print(',');
-  dataFile.print(data.CURRENT);
+  dataFile.print(data.CURRENT * 1000);
   dataFile.print(',');
   dataFile.print(data.JOULES);
   dataFile.print(',');
@@ -737,6 +751,12 @@ bool Avionics::logData() {
   dataFile.print(data.BALLAST_ALTITUDE_DIFF_CONSTANT);
   dataFile.print(',');
   dataFile.print(data.BALLAST_LAST_ACTION_CONSTANT);
+  dataFile.print(',');
+  dataFile.print(data.POWER_STATE_RB);
+  dataFile.print(',');
+  dataFile.print(data.POWER_STATE_GPS);
+  dataFile.print(',');
+  dataFile.print(data.POWER_STATE_HEATER);
   dataFile.print(',');
   dataFile.print(data.CUTDOWN_STATE);
   dataFile.print(',');
@@ -836,6 +856,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.VALVE_INCENTIVE,               -50,   10,      12, lengthBits);
   lengthBits += compressVariable(data.BALLAST_INCENTIVE,             -50,   10,      12, lengthBits);
   lengthBits += compressVariable(data.TEMP,                          -50,   100,     9,  lengthBits);
+  lengthBits += compressVariable(data.TEMP_NECK,                     -50,   100,     9,  lengthBits);
   lengthBits += compressVariable(data.VOLTAGE,                        0,    5,       9,  lengthBits);
   lengthBits += compressVariable(data.CURRENT,                        0,    5000,    8,  lengthBits);
   lengthBits += compressVariable(data.JOULES,                         0,    1500000, 18, lengthBits);
@@ -867,6 +888,9 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.BALLAST_VELOCITY_CONSTANT,      0,    1000,    8,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_ALTITUDE_DIFF_CONSTANT, 0,    4000,    8,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_LAST_ACTION_CONSTANT,   0,    4000,    8,  lengthBits);
+  lengthBits += compressVariable(data.POWER_STATE_RB,                 0,       3,    3,  lengthBits);
+  lengthBits += compressVariable(data.POWER_STATE_GPS,                0,       3,    3,  lengthBits);
+  lengthBits += compressVariable(data.POWER_STATE_HEATER,             0,       3,    3,  lengthBits);
   lengthBits += compressVariable(data.CUTDOWN_STATE,                  0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.ALTITUDE_LAST,                 -2000, 40000,   16, lengthBits);
   lengthBits += compressVariable(data.COMMS_LAST,                     0,    1000000, 19, lengthBits);

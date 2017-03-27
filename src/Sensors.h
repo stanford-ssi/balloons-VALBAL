@@ -36,6 +36,7 @@ public:
   double   getCurrentRB();
   double   getCurrentMotors();
   double   getCurrentPayload();
+  double   getNeckTemp();
   double   getRawTemp(uint8_t sensor);
   double   getRawPressure(uint8_t sensor);
   double   getRawAltitude(uint8_t sensor);

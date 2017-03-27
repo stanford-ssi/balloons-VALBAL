@@ -17,15 +17,19 @@
   ---------------------------------
   This function initializes the RockBlock module.
 */
-bool RockBLOCK::init() {
+bool RockBLOCK::init(uint8_t powerState) {
+  if (powerState != 0) return true;
   pinMode(RB_GATE, OUTPUT);
   digitalWrite(RB_GATE, LOW);
   isbd.attachConsole(Serial);
   isbd.attachDiags(Serial);
   isbd.setPowerProfile(1);
   Serial3.begin(RB_BAUD);
+  EEPROM.write(10, 1);
+  digitalWrite(RB_GATE, HIGH);
   delay(1000);
   isbd.begin();
+  EEPROM.write(10, 2);
   return true;
 }
 

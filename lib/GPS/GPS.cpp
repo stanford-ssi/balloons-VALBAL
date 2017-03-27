@@ -98,6 +98,7 @@ void GPS::smartDelay(uint64_t ms) {
   This function sets the GPS module into flight mode.
 */
 void GPS::setFlightMode(uint16_t GPS_LOCK_TIME){
+  // if (powerStates[1] != 2) return; TODO**************************************
   Serial.println("Setting uBlox nav mode: ");
   uint8_t gps_set_sucess = 0;
   uint8_t setNav[] = {

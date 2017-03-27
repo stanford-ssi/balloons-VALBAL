@@ -19,20 +19,22 @@
 */
 void Hardware::init() {
   pinMode(REBOOT_ENABLE, OUTPUT);
-  digitalWrite(REBOOT_ENABLE, LOW);
-  pinMode(VALVE_REVERSE, OUTPUT);
+  digitalWrite(REBOOT_ENABLE, HIGH);
+  pinMode(LED_PIN, OUTPUT);
   pinMode(VALVE_FORWARD, OUTPUT);
-  pinMode(BALLAST_REVERSE, OUTPUT);
+  pinMode(VALVE_REVERSE, OUTPUT);
   pinMode(BALLAST_FORWARD, OUTPUT);
+  pinMode(BALLAST_REVERSE, OUTPUT);
   pinMode(HEATER_INTERNAL_STRONG, OUTPUT);
   pinMode(HEATER_INTERNAL_WEAK, OUTPUT);
   pinMode(PAYLOAD_GATE, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
   analogWrite(HEATER_INTERNAL_STRONG, 0);
   analogWrite(HEATER_INTERNAL_WEAK, 0);
-  digitalWrite(FAULT_PIN, LOW);
   digitalWrite(PAYLOAD_GATE, LOW);
   analogReference(INTERNAL);
   analogReadResolution(12);
+  delay(PCB_STARTUP_TIME);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -42,9 +44,9 @@ void Hardware::init() {
  * This function alerts the user if there has been a fatal error.
  */
 void Hardware::faultLED() {
-  digitalWrite(FAULT_PIN, HIGH);
+  digitalWrite(LED_PIN, HIGH);
   delay(LOOP_RATE);
-  digitalWrite(FAULT_PIN, LOW);
+  digitalWrite(LED_PIN, LOW);
 }
 
 /*

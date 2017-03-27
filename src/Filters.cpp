@@ -69,10 +69,12 @@ double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double
 /*
   function: getCalculatedAltitude
   ---------------------------------
-  This function returns a higher precision altitude value.
+  This function returns a higher precision altitude value
+  based on the US 1976 Standard Atmosphere.
 */
 float Filters::getCalculatedAltitude(float pressure, float pressureBaseline) {
-  return (44330.0 * (1 - pow(pressure / pressureBaseline, 1 / 5.255)));
+  if (pressure > 22632.1) return (44330.7 * (1 - pow(pressure / pressureBaseline, 0.190266)));
+  return -6341.73 * log((0.176481 * pressure) / 22632.1);
 }
 
 /*

@@ -23,6 +23,7 @@ struct DataFrame {
   float        VALVE_INCENTIVE                =                               0;
   float        BALLAST_INCENTIVE              =                               0;
   double       TEMP                           =                               0;
+  double       TEMP_NECK                      =                               0;
   double       VOLTAGE                        =                               0;
   double       CURRENT                        =                               0;
   double       JOULES                         =                               0;
@@ -70,6 +71,10 @@ struct DataFrame {
   float        BALLAST_VELOCITY_CONSTANT      =        BALLAST_VELOCITY_DEFAULT;
   float        BALLAST_ALTITUDE_DIFF_CONSTANT =   BALLAST_ALTITUDE_DIFF_DEFAULT;
   float        BALLAST_LAST_ACTION_CONSTANT   =     BALLAST_LAST_ACTION_DEFAULT;
+
+  uint8_t      POWER_STATE_RB                 =                               0;
+  uint8_t      POWER_STATE_GPS                =                               0;
+  uint8_t      POWER_STATE_HEATER             =                               0;
 
   bool         BMP_1_ENABLE                   =                            true;
   bool         BMP_2_ENABLE                   =                            true;

@@ -17,12 +17,17 @@
 
 /****************************  EDITABLE CONSTANTS  ****************************/
 static const char      MISSION_NUMBER[]              =    "SSI-51";
-static const char      CSV_DATA_HEADER[]             =    ",ALTITUDE_BMP,ASCENT_RATE,VALVE_INCENTIVE,BALLAST_INCENTIVE,TEMP,VOLTAGE,CURRENT,JOULES,HEATER_PWM,LAT_GPS,LONG_GPS,LOOP_RATE,RB_SENT_COMMS,SPEED_GPS,HEADING_GPS,ALTITUDE_GPS,PRESS_BMP,NUM_SATS_GPS,CURRENT_GPS,CURRENT_RB,CURRENT_MOTORS,CURRENT_PAYLOAD,INCENTIVE_THRESHOLD,RE_ARM_CONSTANT,VALVE_SETPOINT,VALVE_TIME,VALVE_ALT_LAST,VALVE_VELOCITY_CONSTANT,VALVE_ALTITUDE_DIFF_CONSTANT,VALVE_LAST_ACTION_CONSTANT,BALLAST_SETPOINT,BALLAST_TIME,BALLAST_ALT_LAST,BALLAST_VELOCITY_CONSTANT,BALLAST_ALTITUDE_DIFF_CONSTANT,BALLAST_LAST_ACTION_CONSTANT,CUTDOWN_STATE,ALTITUDE_LAST,COMMS_LAST,LOOP_START,CONTROL_MODE,REPORT_MODE,COMMS_LENGTH,SHOULD_CUTDOWN,PRESS_BASELINE,TEMP_SETPOINT,BMP_1_ENABLE,BMP_2_ENABLE,BMP_3_ENABLE,BMP_4_ENABLE,SETUP_STATE,DEBUG_STATE,VALVE_STATE,BALLAST_STATE,FORCE_VALVE,FORCE_BALLAST,BAT_GOOD_STATE,CURR_GOOD_STATE,PRES_GOOD_STATE,TEMP_GOOD_STATE,CAN_GOOD_STATE,RB_GOOD_STATE,GPS_GOOD_STATE,LOOP_GOOD_STATE,RAW_TEMP_1,RAW_TEMP_2,RAW_TEMP_3,RAW_TEMP_4,RAW_PRESSURE_1,RAW_PRESSURE_2,RAW_PRESSURE_3,RAW_PRESSURE_4,RAW_ALTITUDE_1,RAW_ALTITUDE_2,RAW_ALTITUDE_3,RAW_ALTITUDE_4";
+static const char      CSV_DATA_HEADER[]             =    "TIME,MINUTES,ALTITUDE_BMP,ASCENT_RATE,VALVE_INCENTIVE,BALLAST_INCENTIVE,TEMP,TEMP_NECK,VOLTAGE,CURRENT,JOULES,HEATER_PWM,LAT_GPS,LONG_GPS,LOOP_RATE,RB_SENT_COMMS,SPEED_GPS,HEADING_GPS,ALTITUDE_GPS,PRESS_BMP,NUM_SATS_GPS,CURRENT_GPS,CURRENT_RB,CURRENT_MOTORS,CURRENT_PAYLOAD,INCENTIVE_THRESHOLD,RE_ARM_CONSTANT,VALVE_SETPOINT,VALVE_TIME,VALVE_ALT_LAST,VALVE_VELOCITY_CONSTANT,VALVE_ALTITUDE_DIFF_CONSTANT,VALVE_LAST_ACTION_CONSTANT,BALLAST_SETPOINT,BALLAST_TIME,BALLAST_ALT_LAST,BALLAST_VELOCITY_CONSTANT,BALLAST_ALTITUDE_DIFF_CONSTANT,BALLAST_LAST_ACTION_CONSTANT,POWER_STATE_RB,POWER_STATE_GPS,POWER_STATE_HEATER,CUTDOWN_STATE,ALTITUDE_LAST,COMMS_LAST,LOOP_START,CONTROL_MODE,REPORT_MODE,COMMS_LENGTH,SHOULD_CUTDOWN,PRESS_BASELINE,TEMP_SETPOINT,BMP_1_ENABLE,BMP_2_ENABLE,BMP_3_ENABLE,BMP_4_ENABLE,SETUP_STATE,DEBUG_STATE,VALVE_STATE,BALLAST_STATE,FORCE_VALVE,FORCE_BALLAST,BAT_GOOD_STATE,CURR_GOOD_STATE,PRES_GOOD_STATE,TEMP_GOOD_STATE,CAN_GOOD_STATE,RB_GOOD_STATE,GPS_GOOD_STATE,LOOP_GOOD_STATE,RAW_TEMP_1,RAW_TEMP_2,RAW_TEMP_3,RAW_TEMP_4,RAW_PRESSURE_1,RAW_PRESSURE_2,RAW_PRESSURE_3,RAW_PRESSURE_4,RAW_ALTITUDE_1,RAW_ALTITUDE_2,RAW_ALTITUDE_3,RAW_ALTITUDE_4";
 
 static const bool      CUTDOWN_ALT_ENABLE            =        true;
 static const bool      CUTDOWN_GPS_ENABLE            =        true;
 static const uint16_t  CUTDOWN_ALT                   =       20000;
 static const uint16_t  CUTDOWN_TIME                  =        5000;
+
+static const uint8_t   POWER_STATE_RESET             =           0;
+static const uint8_t   POWER_STATE_TURNING_ON        =           1;
+static const uint8_t   POWER_STATE_TURNED_ON         =           2;
+static const uint8_t   POWER_STATE_SKIP              =           3;
 
 static const uint16_t  GPS_LOCK_TIME                 =         500;
 static const float     GPS_FENCE_LAT_MIN             =       -9999;
@@ -39,11 +44,12 @@ static const uint16_t  ANALOG_RES                    =          12;
 static const uint16_t  ANALOG_MAX                    =        4095;
 static const uint16_t  BUFFER_SIZE                   =         200;
 static const uint32_t  FILE_RESET_TIME               =        7200;
+static const uint32_t  PCB_STARTUP_TIME              =        2000;
 static const uint32_t  CONSOLE_BAUD                  =      115200;
 static const uint32_t  GPS_BAUD                      =        9600;
 static const uint32_t  RB_BAUD                       =       19200;
 
-static const double    PRESS_BASELINE_DEFAULT        =     1013.25;
+static const double    PRESS_BASELINE_DEFAULT        =    101325.0;
 static const double    TEMP_SETPOINT_DEFAULT         =           0;
 static const float     INCENTIVE_THRESHOLD_DEFAULT   =        0.75;
 static const float     RE_ARM_DEFAULT                =           0;
@@ -69,28 +75,28 @@ static const uint16_t  BALLAST_REVERSE_TIMEOUT       =       20000; // TODO: con
 static const uint16_t  VALVE_MOTOR_SPEED             =         255;
 static const uint16_t  BALLAST_MOTOR_SPEED           =         255;
 
-
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   REBOOT_ENABLE                 =          16;
-static const uint8_t   SD_CS                         =          10;
-static const uint8_t   FAULT_PIN                     =          26;
-static const uint8_t   BMP_CS_ONE                    =           9;
-static const uint8_t   BMP_CS_TWO                    =          15;
-static const uint8_t   BMP_CS_THREE                  =           5;
-static const uint8_t   BMP_CS_FOUR                   =          32;
-static const uint8_t   VBAT_PIN                      =         A14;
-static const uint8_t   BATT_CURRENT                  =         A10;
-static const uint8_t   EXTERNAL_CURRENT              =         A11;
-static const uint8_t   VALVE_REVERSE                 =           6;
-static const uint8_t   VALVE_FORWARD                 =           0;
-static const uint8_t   BALLAST_REVERSE               =           5;
+static const uint8_t   SD_CS                         =          23;
+static const uint8_t   LED_PIN                       =          33;
+static const uint8_t   BMP_CS_ONE                    =          32;
+static const uint8_t   BMP_CS_TWO                    =          25;
+static const uint8_t   BMP_CS_THREE                  =          15;
+static const uint8_t   BMP_CS_FOUR                   =          22;
+static const uint8_t   VALVE_FORWARD                 =           6;
+static const uint8_t   VALVE_REVERSE                 =          20;
 static const uint8_t   BALLAST_FORWARD               =          21;
+static const uint8_t   BALLAST_REVERSE               =           5;
 static const uint8_t   HEATER_INTERNAL_STRONG        =           4;
 static const uint8_t   HEATER_INTERNAL_WEAK          =           3;
 static const uint8_t   GPS_ENABLE                    =          17;
 static const uint8_t   RB_GATE                       =          28;
 static const uint8_t   RB_SLEEP                      =          14;
-static const uint8_t   PAYLOAD_GATE                  =          31;
+static const uint8_t   PAYLOAD_GATE                  =          24;
+static const uint8_t   BATT_VOLTAGE_PIN              =         A14;
+static const uint8_t   BATT_CURRENT_PIN              =         A10;
+static const uint8_t   EXTERNAL_CURRENT              =         A11;
+static const uint8_t   NECK_TEMP_SENSOR              =          A2;
 
 /*****************************  EEPROM CONSTANTS  *****************************/
 static const uint8_t   EEPROM_CLEAR_NUM              =           8;  // flag value for a "cleared" EEPROM byte

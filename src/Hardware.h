@@ -53,7 +53,7 @@ private:
   void dropBallast(bool direction);
 
 /*********************************  OBJECTS  **********************************/
-  enum State { OPEN, OPENING, CLOSED, CLOSING };
+  enum State {OPEN, OPENING, CLOSED, CLOSING };
 
   // queues represent what Avionics told Hardware to do
   int      valveQueue = 0;

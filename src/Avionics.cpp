@@ -28,7 +28,7 @@ void Avionics::init() {
   if(!filter.init())                      logAlert("unable to initialize Filters", true);
   if(!computer.init())                    logAlert("unable to initialize Flight Controller", true);
   if(!gpsModule.init())                   logAlert("unable to initialize GPS", true);
-  if(!RBModule.init(data.POWER_STATE_RB)) logAlert("unable to initialize RockBlock", true);
+  if(!RBModule.init()) logAlert("unable to initialize RockBlock", true);
   // testValve(10); //TODO******************************************************
   // testBallast(2); //TODO*****************************************************
   data.SETUP_STATE = false;
@@ -192,7 +192,6 @@ bool Avionics::processData() {
  * if either the ballast or valve is running.
  */
 bool Avionics::runHeaters() {
-  if(data.POWER_STATE_HEATER != POWER_STATE_TURNED_ON) return false;
   if (PCB.isValveRunning() || PCB.isBallastRunning()) {
     PCB.turnOffHeaters();
   } else {
@@ -309,6 +308,9 @@ void Avionics::parseCommand(int16_t len) {
     data.BALLAST_VELOCITY_CONSTANT
     data.BALLAST_ALTITUDE_DIFF_CONSTANT
     data.BALLAST_LAST_ACTION_CONSTANT
+    data.RB_SHOULD_USE
+    data.GPS_SHOULD_USE
+    data.HEATER_SHOULD_USE
     data.BMP_1_ENABLE
     data.BMP_2_ENABLE
     data.BMP_3_ENABLE
@@ -581,11 +583,11 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(data.BALLAST_LAST_ACTION_CONSTANT);
   Serial.print(',');
-  Serial.print(data.POWER_STATE_RB);
+  Serial.print(data.RB_SHOULD_USE);
   Serial.print(',');
-  Serial.print(data.POWER_STATE_GPS);
+  Serial.print(data.GPS_SHOULD_USE);
   Serial.print(',');
-  Serial.print(data.POWER_STATE_HEATER);
+  Serial.print(data.HEATER_SHOULD_USE);
   Serial.print(',');
   Serial.print(data.CUTDOWN_STATE);
   Serial.print(',');
@@ -752,11 +754,11 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.BALLAST_LAST_ACTION_CONSTANT);
   dataFile.print(',');
-  dataFile.print(data.POWER_STATE_RB);
+  dataFile.print(data.RB_SHOULD_USE);
   dataFile.print(',');
-  dataFile.print(data.POWER_STATE_GPS);
+  dataFile.print(data.GPS_SHOULD_USE);
   dataFile.print(',');
-  dataFile.print(data.POWER_STATE_HEATER);
+  dataFile.print(data.HEATER_SHOULD_USE);
   dataFile.print(',');
   dataFile.print(data.CUTDOWN_STATE);
   dataFile.print(',');
@@ -888,9 +890,9 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.BALLAST_VELOCITY_CONSTANT,      0,    1000,    8,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_ALTITUDE_DIFF_CONSTANT, 0,    4000,    8,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_LAST_ACTION_CONSTANT,   0,    4000,    8,  lengthBits);
-  lengthBits += compressVariable(data.POWER_STATE_RB,                 0,       3,    3,  lengthBits);
-  lengthBits += compressVariable(data.POWER_STATE_GPS,                0,       3,    3,  lengthBits);
-  lengthBits += compressVariable(data.POWER_STATE_HEATER,             0,       3,    3,  lengthBits);
+  lengthBits += compressVariable(data.RB_SHOULD_USE,                  0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.GPS_SHOULD_USE,                 0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.HEATER_SHOULD_USE,              0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.CUTDOWN_STATE,                  0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.ALTITUDE_LAST,                 -2000, 40000,   16, lengthBits);
   lengthBits += compressVariable(data.COMMS_LAST,                     0,    1000000, 19, lengthBits);

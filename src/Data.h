@@ -72,9 +72,9 @@ struct DataFrame {
   float        BALLAST_ALTITUDE_DIFF_CONSTANT =   BALLAST_ALTITUDE_DIFF_DEFAULT;
   float        BALLAST_LAST_ACTION_CONSTANT   =     BALLAST_LAST_ACTION_DEFAULT;
 
-  uint8_t      POWER_STATE_RB                 =                               0;
-  uint8_t      POWER_STATE_GPS                =                               0;
-  uint8_t      POWER_STATE_HEATER             =                               0;
+  bool         RB_SHOULD_USE                  =                            true;
+  bool         GPS_SHOULD_USE                 =                            true;
+  bool         HEATER_SHOULD_USE              =                            true;
 
   bool         BMP_1_ENABLE                   =                            true;
   bool         BMP_2_ENABLE                   =                            true;

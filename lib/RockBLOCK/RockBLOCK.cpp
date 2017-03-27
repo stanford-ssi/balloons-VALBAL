@@ -17,8 +17,7 @@
   ---------------------------------
   This function initializes the RockBlock module.
 */
-bool RockBLOCK::init(uint8_t powerState) {
-  if (powerState != 0) return true;
+bool RockBLOCK::init() {
   pinMode(RB_GATE, OUTPUT);
   digitalWrite(RB_GATE, LOW);
   isbd.attachConsole(Serial);

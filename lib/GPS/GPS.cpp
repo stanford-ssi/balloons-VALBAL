@@ -20,7 +20,17 @@
 bool GPS::init() {
   pinMode(GPS_ENABLE_PIN, OUTPUT);
   digitalWrite(GPS_ENABLE_PIN, LOW);
+  delay(2000);
   Serial1.begin(GPS_BAUD);
+
+
+//EEPROM_GPS TODO***************************************************************
+  EEPROM.write(11, 1);
+  digitalWrite(GPS_ENABLE_PIN, HIGH);
+  EEPROM.write(11, 2);
+
+
+
   setFlightMode(GPS_LOCK_TIME);
   return true;
 }

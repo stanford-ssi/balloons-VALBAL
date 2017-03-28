@@ -23,7 +23,7 @@ public:
     RB_BAUD(RB_BaudVal),
     isbd(Serial3, RB_SleepPinNum) {
   }
-  bool    init();
+  bool    init(uint8_t EEPROMAddress);
 /********************************  FUNCTIONS  *********************************/
   int16_t writeRead(char* buff, uint16_t len);
 private:

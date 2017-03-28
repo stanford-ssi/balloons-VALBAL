@@ -28,7 +28,7 @@ void Avionics::init() {
   if(!filter.init())                      logAlert("unable to initialize Filters", true);
   if(!computer.init())                    logAlert("unable to initialize Flight Controller", true);
   if(!gpsModule.init())                   logAlert("unable to initialize GPS", true);
-  if(!RBModule.init()) logAlert("unable to initialize RockBlock", true);
+  if(!RBModule.init(EEPROM_ROCKBLOCK)) logAlert("unable to initialize RockBlock", true);
   // testValve(10); //TODO******************************************************
   // testBallast(2); //TODO*****************************************************
   data.SETUP_STATE = false;
@@ -124,6 +124,9 @@ bool Avionics::finishedSetup() {
  * if avionics is restarted mid flight.
  */
 bool Avionics::readHistory() {
+  data.RB_SHOULD_USE     = EEPROM.read(EEPROM_ROCKBLOCK);
+  data.GPS_SHOULD_USE    = EEPROM.read(EEPROM_GPS);
+  data.HEATER_SHOULD_USE = EEPROM.read(EEPROM_HEATER);
   double valveAltLast = PCB.readFromEEPROMAndClear(EEPROM_VALVE_START, EEPROM_VALVE_END);
   if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
   double ballastAltLast = PCB.readFromEEPROMAndClear(EEPROM_BALLAST_START, EEPROM_BALLAST_END);

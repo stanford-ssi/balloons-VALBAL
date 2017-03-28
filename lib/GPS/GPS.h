@@ -13,6 +13,7 @@
 #define GPS_H
 
 #include <TinyGPS++.h>
+#include <EEPROM.h>
 
 class GPS {
 public:

@@ -104,7 +104,5 @@ static const uint8_t   EEPROM_BALLAST_END            =           9;  // end byte
 static const uint8_t   EEPROM_ROCKBLOCK              =          10;  // RB power state
 static const uint8_t   EEPROM_GPS                    =          11;  // GPS power state
 static const uint8_t   EEPROM_HEATER                 =          12;  // heater power state
-static const uint8_t   EEPROM_POWER_STATES_START     =          10;
-static const uint8_t   EEPROM_POWER_STATES_END       =          12;
 
 #endif

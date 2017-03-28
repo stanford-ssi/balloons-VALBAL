@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | February 2017
+  Balloons | VALBAL | March 2017
   Davy Ragland | dragland@stanford.edu
 
   File: Config.h
@@ -17,7 +17,7 @@
 
 /****************************  EDITABLE CONSTANTS  ****************************/
 static const char      MISSION_NUMBER[]              =    "SSI-51";
-static const char      CSV_DATA_HEADER[]             =    "TIME,MINUTES,ALTITUDE_BMP,ASCENT_RATE,VALVE_INCENTIVE,BALLAST_INCENTIVE,TEMP,TEMP_NECK,VOLTAGE,CURRENT,JOULES,HEATER_PWM,LAT_GPS,LONG_GPS,LOOP_RATE,RB_SENT_COMMS,SPEED_GPS,HEADING_GPS,ALTITUDE_GPS,PRESS_BMP,NUM_SATS_GPS,CURRENT_GPS,CURRENT_RB,CURRENT_MOTORS,CURRENT_PAYLOAD,INCENTIVE_THRESHOLD,RE_ARM_CONSTANT,VALVE_SETPOINT,VALVE_TIME,VALVE_ALT_LAST,VALVE_VELOCITY_CONSTANT,VALVE_ALTITUDE_DIFF_CONSTANT,VALVE_LAST_ACTION_CONSTANT,BALLAST_SETPOINT,BALLAST_TIME,BALLAST_ALT_LAST,BALLAST_VELOCITY_CONSTANT,BALLAST_ALTITUDE_DIFF_CONSTANT,BALLAST_LAST_ACTION_CONSTANT,RB_SHOULD_USE,GPS_SHOULD_USE,HEATER_SHOULD_USE,CUTDOWN_STATE,ALTITUDE_LAST,COMMS_LAST,LOOP_START,CONTROL_MODE,REPORT_MODE,COMMS_LENGTH,SHOULD_CUTDOWN,PRESS_BASELINE,TEMP_SETPOINT,BMP_1_ENABLE,BMP_2_ENABLE,BMP_3_ENABLE,BMP_4_ENABLE,SETUP_STATE,DEBUG_STATE,VALVE_STATE,BALLAST_STATE,FORCE_VALVE,FORCE_BALLAST,BAT_GOOD_STATE,CURR_GOOD_STATE,PRES_GOOD_STATE,TEMP_GOOD_STATE,CAN_GOOD_STATE,RB_GOOD_STATE,GPS_GOOD_STATE,LOOP_GOOD_STATE,RAW_TEMP_1,RAW_TEMP_2,RAW_TEMP_3,RAW_TEMP_4,RAW_PRESSURE_1,RAW_PRESSURE_2,RAW_PRESSURE_3,RAW_PRESSURE_4,RAW_ALTITUDE_1,RAW_ALTITUDE_2,RAW_ALTITUDE_3,RAW_ALTITUDE_4";
+static const char      CSV_DATA_HEADER[]             =    "TIME,MINUTES,ALTITUDE_BMP,ASCENT_RATE,VALVE_INCENTIVE,BALLAST_INCENTIVE,TEMP,TEMP_NECK,VOLTAGE,CURRENT,JOULES,HEATER_PWM,LAT_GPS,LONG_GPS,LOOP_RATE,RB_SENT_COMMS,SPEED_GPS,HEADING_GPS,ALTITUDE_GPS,PRESS_BMP,NUM_SATS_GPS,CURRENT_GPS,CURRENT_RB,CURRENT_MOTORS,CURRENT_PAYLOAD,INCENTIVE_THRESHOLD,RE_ARM_CONSTANT,VALVE_SETPOINT,VALVE_TIME,VALVE_ALT_LAST,VALVE_VELOCITY_CONSTANT,VALVE_ALTITUDE_DIFF_CONSTANT,VALVE_LAST_ACTION_CONSTANT,BALLAST_SETPOINT,BALLAST_TIME,BALLAST_ALT_LAST,BALLAST_VELOCITY_CONSTANT,BALLAST_ALTITUDE_DIFF_CONSTANT,BALLAST_LAST_ACTION_CONSTANT,RB_SHOULD_USE,GPS_SHOULD_USE,HEATER_SHOULD_USE,CUTDOWN_STATE,ALTITUDE_LAST,GPS_LAST,COMMS_LAST,LOOP_START,CONTROL_MODE,REPORT_MODE,COMMS_LENGTH,SHOULD_CUTDOWN,PRESS_BASELINE,TEMP_SETPOINT,BMP_1_ENABLE,BMP_2_ENABLE,BMP_3_ENABLE,BMP_4_ENABLE,SETUP_STATE,DEBUG_STATE,VALVE_STATE,BALLAST_STATE,FORCE_VALVE,FORCE_BALLAST,BAT_GOOD_STATE,CURR_GOOD_STATE,PRES_GOOD_STATE,TEMP_GOOD_STATE,CAN_GOOD_STATE,RB_GOOD_STATE,GPS_GOOD_STATE,LOOP_GOOD_STATE,RAW_TEMP_1,RAW_TEMP_2,RAW_TEMP_3,RAW_TEMP_4,RAW_PRESSURE_1,RAW_PRESSURE_2,RAW_PRESSURE_3,RAW_PRESSURE_4,RAW_ALTITUDE_1,RAW_ALTITUDE_2,RAW_ALTITUDE_3,RAW_ALTITUDE_4";
 
 static const bool      CUTDOWN_ALT_ENABLE            =        true;
 static const bool      CUTDOWN_GPS_ENABLE            =        true;
@@ -30,6 +30,7 @@ static const float     GPS_FENCE_LAT_MAX             =        9999;
 static const float     GPS_FENCE_LON_MIN             =       -9999;
 static const float     GPS_FENCE_LON_MAX             =        9999;
 
+static const uint32_t  GPS_RATE                      =       12000;
 static const uint32_t  COMMS_RATE                    =      300000;
 static const uint32_t  COMMS_DEBUG_RATE              =       60000;
 static const uint16_t  LOOP_RATE                     =          50;
@@ -39,7 +40,6 @@ static const uint16_t  ANALOG_RES                    =          12;
 static const uint16_t  ANALOG_MAX                    =        4095;
 static const uint16_t  BUFFER_SIZE                   =         200;
 static const uint32_t  FILE_RESET_TIME               =        7200;
-static const uint32_t  PCB_STARTUP_TIME              =        2000;
 static const uint32_t  CONSOLE_BAUD                  =      115200;
 static const uint32_t  GPS_BAUD                      =        9600;
 static const uint32_t  RB_BAUD                       =       19200;
@@ -94,16 +94,16 @@ static const uint8_t   EXTERNAL_CURRENT              =         A11;
 static const uint8_t   NECK_TEMP_SENSOR              =          A2;
 
 /*****************************  EEPROM CONSTANTS  *****************************/
-static const uint8_t   EEPROM_CLEAR_NUM              =           8;  // flag value for a "cleared" EEPROM byte
+static const uint8_t   EEPROM_CLEAR_NUM              =           8;
 
-static const uint8_t   EEPROM_VALVE_START            =           0;  // start byte for writing altitude since last vent
-static const uint8_t   EEPROM_VALVE_END              =           4;  // end byte for                 "
-static const uint8_t   EEPROM_BALLAST_START          =           5;  // start byte for writing altitude since last ballast
-static const uint8_t   EEPROM_BALLAST_END            =           9;  // end byte for                 "
+static const uint8_t   EEPROM_VALVE_START            =           0;
+static const uint8_t   EEPROM_VALVE_END              =           4;
+static const uint8_t   EEPROM_BALLAST_START          =           5;
+static const uint8_t   EEPROM_BALLAST_END            =           9;
 
-static const uint8_t   EEPROM_ROCKBLOCK              =          10;  // RB power state
-static const uint8_t   EEPROM_GPS                    =          11;  // GPS power state
-static const uint8_t   EEPROM_HEATER                 =          12;  // heater power state
+static const uint8_t   EEPROM_ROCKBLOCK              =          10;
+static const uint8_t   EEPROM_GPS                    =          11;
+static const uint8_t   EEPROM_HEATER                 =          12;
 
 /***************************  RB COMMAND INDEXES  *****************************/
 static const uint8_t   CUTDOWN_INDEX                 =          99;

@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | February 2017
+  Balloons | VALBAL | March 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
 
@@ -17,22 +17,22 @@
   ---------------------------------
   This function initializes the Ublox NEO-M8Q GPS module.
 */
-bool GPS::init() {
+bool GPS::init(bool shouldStartup) {
+  bool success = false;
   pinMode(GPS_ENABLE_PIN, OUTPUT);
   digitalWrite(GPS_ENABLE_PIN, LOW);
   delay(2000);
   Serial1.begin(GPS_BAUD);
-
-
-//EEPROM_GPS TODO***************************************************************
-  EEPROM.write(11, 1);
-  digitalWrite(GPS_ENABLE_PIN, HIGH);
-  EEPROM.write(11, 2);
-
-
-
-  setFlightMode(GPS_LOCK_TIME);
-  return true;
+  if (shouldStartup) {
+    EEPROM.write(EEPROMAddress, false);
+    digitalWrite(GPS_ENABLE_PIN, HIGH);
+    delay(1000);
+    EEPROM.write(EEPROMAddress, true);
+    delay(3000);
+    setFlightMode(GPS_LOCK_TIME);
+    success = true;
+  }
+  return success;
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -108,7 +108,6 @@ void GPS::smartDelay(uint64_t ms) {
   This function sets the GPS module into flight mode.
 */
 void GPS::setFlightMode(uint16_t GPS_LOCK_TIME){
-  // if (powerStates[1] != 2) return; TODO**************************************
   Serial.println("Setting uBlox nav mode: ");
   uint8_t gps_set_sucess = 0;
   uint8_t setNav[] = {

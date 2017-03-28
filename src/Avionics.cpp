@@ -23,14 +23,13 @@ void Avionics::init() {
   if(!SD.begin(SD_CS)) PCB.faultLED();
   setupLog();
   logHeader();
-  if(!  readHistory())                    logAlert("unable to read from EEPROM", true);
-  if(!sensors.init())                     logAlert("unable to initialize Sensors", true);
-  if(!filter.init())                      logAlert("unable to initialize Filters", true);
-  if(!computer.init())                    logAlert("unable to initialize Flight Controller", true);
-  if(!gpsModule.init())                   logAlert("unable to initialize GPS", true);
-  if(!RBModule.init(EEPROM_ROCKBLOCK))    logAlert("unable to initialize RockBlock", true);
-  // testValve(10); //TODO******************************************************
-  // testBallast(2); //TODO*****************************************************
+  if(!readHistory())                              logAlert("unable to read from EEPROM", true);
+  if(!sensors.init())                             logAlert("unable to initialize Sensors", true);
+  if(!filter.init())                              logAlert("unable to initialize Filters", true);
+  if(!computer.init())                            logAlert("unable to initialize Flight Controller", true);
+  if(!gpsModule.init(data.GPS_SHOULD_USE))        logAlert("unable to initialize GPS", true);
+  if(!RBModule.init(data.RB_SHOULD_USE))          logAlert("unable to initialize RockBlock", true);
+  if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE)) logAlert("unable to initialize Heaters", true);
   data.SETUP_STATE = false;
 }
 
@@ -104,7 +103,10 @@ void Avionics::sendComms() {
  * This function sleeps at the end of the loop.
  */
 void Avionics::sleep() {
-  gpsModule.smartDelay(LOOP_RATE);
+  uint64_t loopTime = millis() - data.LOOP_START;
+  if (loopTime < LOOP_RATE) {
+    gpsModule.smartDelay(LOOP_RATE - loopTime);
+  }
 }
 
 /*
@@ -124,9 +126,9 @@ bool Avionics::finishedSetup() {
  * if avionics is restarted mid flight.
  */
 bool Avionics::readHistory() {
-  data.RB_SHOULD_USE     = EEPROM.read(EEPROM_ROCKBLOCK);
-  data.GPS_SHOULD_USE    = EEPROM.read(EEPROM_GPS);
-  data.HEATER_SHOULD_USE = EEPROM.read(EEPROM_HEATER);
+  if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.RB_SHOULD_USE = false;
+  if(!EEPROM.read(EEPROM_GPS)) data.GPS_SHOULD_USE = false;
+  if(!EEPROM.read(EEPROM_HEATER)) data.HEATER_SHOULD_USE = false;
   double valveAltLast = PCB.readFromEEPROMAndClear(EEPROM_VALVE_START, EEPROM_VALVE_END);
   if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
   double ballastAltLast = PCB.readFromEEPROMAndClear(EEPROM_BALLAST_START, EEPROM_BALLAST_END);
@@ -160,12 +162,16 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_2  = sensors.getRawPressure(2);
   data.RAW_PRESSURE_3  = sensors.getRawPressure(3);
   data.RAW_PRESSURE_4  = sensors.getRawPressure(4);
-  data.LAT_GPS         = gpsModule.getLatitude();
-  data.LONG_GPS        = gpsModule.getLongitude();
-  data.ALTITUDE_GPS    = gpsModule.getAltitude();
-  data.HEADING_GPS     = gpsModule.getCourse();
-  data.SPEED_GPS       = gpsModule.getSpeed();
-  data.NUM_SATS_GPS    = gpsModule.getSats();
+  if ((millis() - data.GPS_LAST) >= GPS_RATE) {
+    gpsModule.smartDelay(GPS_LOCK_TIME);
+    data.LAT_GPS         = gpsModule.getLatitude();
+    data.LONG_GPS        = gpsModule.getLongitude();
+    data.ALTITUDE_GPS    = gpsModule.getAltitude();
+    data.HEADING_GPS     = gpsModule.getCourse();
+    data.SPEED_GPS       = gpsModule.getSpeed();
+    data.NUM_SATS_GPS    = gpsModule.getSats();
+    data.GPS_LAST = millis();
+  }
   data.LOOP_GOOD_STATE = !data.LOOP_GOOD_STATE;
   return true;
 }
@@ -195,7 +201,7 @@ bool Avionics::processData() {
  * if either the ballast or valve is running.
  */
 bool Avionics::runHeaters() {
-  if (PCB.isValveRunning() || PCB.isBallastRunning()) {
+  if (!data.HEATER_SHOULD_USE || PCB.isValveRunning() || PCB.isBallastRunning()) {
     PCB.turnOffHeaters();
   } else {
     PCB.heater(data.TEMP_SETPOINT, data.TEMP);
@@ -209,13 +215,8 @@ bool Avionics::runHeaters() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runValve() {
-  if(data.FORCE_VALVE) {
-    PCB.queueValve(VALVE_DURATION);
+  if(data.FORCE_VALVE || (data.VALVE_INCENTIVE >= 1)) {
     data.FORCE_VALVE = false;
-    data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
-    PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE_BMP);
-  }
-  else if(data.VALVE_INCENTIVE >= 1) {
     PCB.queueValve(VALVE_DURATION);
     data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE_BMP);
@@ -230,13 +231,8 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runBallast() {
-  if(data.FORCE_BALLAST) {
-    PCB.queueBallast(BALLAST_DURATION);
+  if(data.FORCE_BALLAST || (data.BALLAST_INCENTIVE >= 1)) {
     data.FORCE_BALLAST = false;
-    data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
-    PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE_BMP);
-  }
-  else if(data.BALLAST_INCENTIVE >= 1) {
     PCB.queueBallast(BALLAST_DURATION);
     data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE_BMP);
@@ -703,6 +699,8 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(data.ALTITUDE_LAST);
   Serial.print(',');
+  Serial.print(double(data.GPS_LAST));
+  Serial.print(',');
   Serial.print(double(data.COMMS_LAST));
   Serial.print(',');
   Serial.print(double(data.LOOP_START));
@@ -874,6 +872,8 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.ALTITUDE_LAST);
   dataFile.print(',');
+  dataFile.print(double(data.GPS_LAST));
+  dataFile.print(',');
   dataFile.print(double(data.COMMS_LAST));
   dataFile.print(',');
   dataFile.print(double(data.LOOP_START));
@@ -1005,6 +1005,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.HEATER_SHOULD_USE,              0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.CUTDOWN_STATE,                  0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.ALTITUDE_LAST,                 -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.GPS_LAST,                       0,    1000000, 19, lengthBits);
   lengthBits += compressVariable(data.COMMS_LAST,                     0,    1000000, 19, lengthBits);
   lengthBits += compressVariable(data.LOOP_START,                     0,    1000000, 19, lengthBits);
   lengthBits += compressVariable(data.CONTROL_MODE,                   0,    1,       1,  lengthBits);

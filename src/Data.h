@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | February 2017
+  Balloons | VALBAL | March 2017
   Davy Ragland | dragland@stanford.edu
 
   File: data.h
@@ -44,6 +44,7 @@ struct DataFrame {
   double       CURRENT_PAYLOAD                =                               0;
 
   double       ALTITUDE_LAST                  =                               0;
+  uint64_t     GPS_LAST                       =                               0;
   uint64_t     COMMS_LAST                     =                               0;
   uint64_t     LOOP_START                     =                               0;
   bool         CONTROL_MODE                   =                               0;

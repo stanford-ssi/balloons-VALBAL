@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | February 2017
+  Balloons | VALBAL | March 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
 
@@ -17,7 +17,8 @@
   ---------------------------------
   This function initializes the RockBlock module.
 */
-bool RockBLOCK::init(uint8_t EEPROMAddress) {
+bool RockBLOCK::init(bool shouldStartup) {
+  bool success = false;
   pinMode(RB_GATE, OUTPUT);
   digitalWrite(RB_GATE, LOW);
   delay(2000);
@@ -25,20 +26,15 @@ bool RockBLOCK::init(uint8_t EEPROMAddress) {
   isbd.attachDiags(Serial);
   isbd.setPowerProfile(1);
   Serial3.begin(RB_BAUD);
-
-
-
-
-  
-  bool shouldStartup = true;
   if (shouldStartup) {
     EEPROM.write(EEPROMAddress, false);
     digitalWrite(RB_GATE, HIGH);
     delay(1000);
     isbd.begin();
     EEPROM.write(EEPROMAddress, true);
+    success = true;
   }
-  return true;
+  return success;
 }
 
 /********************************  FUNCTIONS  *********************************/

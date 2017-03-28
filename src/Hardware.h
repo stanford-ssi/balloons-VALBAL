@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | February 2017
+  Balloons | VALBAL | March 2017
   Davy Ragland | dragland@stanford.edu
   Matthew Tan | mratan@stanford.edu
 
@@ -19,13 +19,15 @@
 class Hardware {
 public:
 /**********************************  SETUP  ***********************************/
-  Hardware() :
+  Hardware(uint8_t EEPROMAddressVal) :
+    EEPROMAddress(EEPROMAddressVal),
     pid(&PIDTempVar, &PIDOutVar, &PIDSetVar, 2, 5, 1, DIRECT) {
   }
   void init();
 /********************************  FUNCTIONS  *********************************/
   void faultLED();
 
+  bool startUpHeaters(bool shouldStartup);
   void heater(double tempSetpoint, double temp);
   void turnOffHeaters();
 
@@ -54,16 +56,17 @@ private:
 
 /*********************************  OBJECTS  **********************************/
   enum State {OPEN, OPENING, CLOSED, CLOSING };
+  uint8_t  EEPROMAddress;
 
   // queues represent what Avionics told Hardware to do
-  int      valveQueue = 0;
-  int      ballastQueue = 0;
+  uint64_t valveQueue = 0;
+  uint64_t ballastQueue = 0;
   // State's represent the internal state of the Hardware
   State    valveState = CLOSED;
   State    ballastState = CLOSED;
   bool     ballastDirection = false;
-  int      valveActionStartTime = 0;
-  int      ballastActionStartTime = 0;
+  uint64_t valveActionStartTime = 0;
+  uint64_t ballastActionStartTime = 0;
 
   double   PIDSetVar;
   double   PIDOutVar;

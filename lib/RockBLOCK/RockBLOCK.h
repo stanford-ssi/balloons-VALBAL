@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | February 2017
+  Balloons | VALBAL | March 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
 
@@ -18,12 +18,13 @@
 class RockBLOCK {
 public:
 /**********************************  SETUP  ***********************************/
-  RockBLOCK(uint8_t RB_GatePinNum, uint8_t RB_SleepPinNum, uint16_t RB_BaudVal) :
+  RockBLOCK(uint8_t RB_GatePinNum, uint8_t RB_SleepPinNum, uint16_t RB_BaudVal, uint8_t EEPROMAddressVal) :
     RB_GATE(RB_GatePinNum),
     RB_BAUD(RB_BaudVal),
+    EEPROMAddress(EEPROMAddressVal),
     isbd(Serial3, RB_SleepPinNum) {
   }
-  bool    init(uint8_t EEPROMAddress);
+  bool    init(bool shouldStartup);
 /********************************  FUNCTIONS  *********************************/
   int16_t writeRead(char* buff, uint16_t len);
 private:
@@ -35,6 +36,7 @@ private:
   uint8_t    rxBuffer[BUFFER_SIZE] = {0};
   uint8_t    RB_GATE;
   uint16_t   RB_BAUD;
+  uint8_t    EEPROMAddress;
   IridiumSBD isbd;
 };
 

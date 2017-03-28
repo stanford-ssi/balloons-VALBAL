@@ -23,12 +23,13 @@ void Avionics::init() {
   if(!SD.begin(SD_CS)) PCB.faultLED();
   setupLog();
   logHeader();
-  if(!  readHistory())                    logAlert("unable to read from EEPROM", true);
-  if(!sensors.init())                     logAlert("unable to initialize Sensors", true);
-  if(!filter.init())                      logAlert("unable to initialize Filters", true);
-  if(!computer.init())                    logAlert("unable to initialize Flight Controller", true);
-  if(!gpsModule.init())                   logAlert("unable to initialize GPS", true);
-  if(!RBModule.init(EEPROM_ROCKBLOCK)) logAlert("unable to initialize RockBlock", true);
+  if(!readHistory())                              logAlert("unable to read from EEPROM", true);
+  if(!sensors.init())                             logAlert("unable to initialize Sensors", true);
+  if(!filter.init())                              logAlert("unable to initialize Filters", true);
+  if(!computer.init())                            logAlert("unable to initialize Flight Controller", true);
+  if(!gpsModule.init(data.GPS_SHOULD_USE))        logAlert("unable to initialize GPS", true);
+  if(!RBModule.init(data.RB_SHOULD_USE))          logAlert("unable to initialize RockBlock", true);
+  if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE)) logAlert("unable to initialize Heaters", true);
   // testValve(10); //TODO******************************************************
   // testBallast(2); //TODO*****************************************************
   data.SETUP_STATE = false;

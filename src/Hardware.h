@@ -19,13 +19,15 @@
 class Hardware {
 public:
 /**********************************  SETUP  ***********************************/
-  Hardware() :
+  Hardware(uint8_t EEPROMAddressVal) :
+    EEPROMAddress(EEPROMAddressVal),
     pid(&PIDTempVar, &PIDOutVar, &PIDSetVar, 2, 5, 1, DIRECT) {
   }
   void init();
 /********************************  FUNCTIONS  *********************************/
   void faultLED();
 
+  bool startUpHeaters(bool shouldStartup);
   void heater(double tempSetpoint, double temp);
   void turnOffHeaters();
 
@@ -54,6 +56,7 @@ private:
 
 /*********************************  OBJECTS  **********************************/
   enum State {OPEN, OPENING, CLOSED, CLOSING };
+  uint8_t  EEPROMAddress;
 
   // queues represent what Avionics told Hardware to do
   int      valveQueue = 0;

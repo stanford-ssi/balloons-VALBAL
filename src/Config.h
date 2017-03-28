@@ -39,7 +39,6 @@ static const uint16_t  ANALOG_RES                    =          12;
 static const uint16_t  ANALOG_MAX                    =        4095;
 static const uint16_t  BUFFER_SIZE                   =         200;
 static const uint32_t  FILE_RESET_TIME               =        7200;
-static const uint32_t  PCB_STARTUP_TIME              =        2000;
 static const uint32_t  CONSOLE_BAUD                  =      115200;
 static const uint32_t  GPS_BAUD                      =        9600;
 static const uint32_t  RB_BAUD                       =       19200;
@@ -94,15 +93,15 @@ static const uint8_t   EXTERNAL_CURRENT              =         A11;
 static const uint8_t   NECK_TEMP_SENSOR              =          A2;
 
 /*****************************  EEPROM CONSTANTS  *****************************/
-static const uint8_t   EEPROM_CLEAR_NUM              =           8;  // flag value for a "cleared" EEPROM byte
+static const uint8_t   EEPROM_CLEAR_NUM              =           8;
 
-static const uint8_t   EEPROM_VALVE_START            =           0;  // start byte for writing altitude since last vent
-static const uint8_t   EEPROM_VALVE_END              =           4;  // end byte for                 "
-static const uint8_t   EEPROM_BALLAST_START          =           5;  // start byte for writing altitude since last ballast
-static const uint8_t   EEPROM_BALLAST_END            =           9;  // end byte for                 "
+static const uint8_t   EEPROM_VALVE_START            =           0;
+static const uint8_t   EEPROM_VALVE_END              =           4;
+static const uint8_t   EEPROM_BALLAST_START          =           5;
+static const uint8_t   EEPROM_BALLAST_END            =           9;
 
-static const uint8_t   EEPROM_ROCKBLOCK              =          10;  // RB power state
-static const uint8_t   EEPROM_GPS                    =          11;  // GPS power state
-static const uint8_t   EEPROM_HEATER                 =          12;  // heater power state
+static const uint8_t   EEPROM_ROCKBLOCK              =          10;
+static const uint8_t   EEPROM_GPS                    =          11;
+static const uint8_t   EEPROM_HEATER                 =          12;
 
 #endif

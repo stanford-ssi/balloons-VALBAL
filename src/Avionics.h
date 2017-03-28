@@ -26,10 +26,10 @@ class Avionics {
 public:
 /**********************************  SETUP  ***********************************/
   Avionics() :
-    PCB(),
+    PCB(EEPROM_HEATER),
     sensors(),
-    gpsModule(GPS_ENABLE, GPS_BAUD, GPS_LOCK_TIME),
-    RBModule(RB_GATE, RB_SLEEP, RB_BAUD) {
+    gpsModule(GPS_ENABLE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIME),
+    RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK) {
   }
   void    init();
 /********************************  FUNCTIONS  *********************************/

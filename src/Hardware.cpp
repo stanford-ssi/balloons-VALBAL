@@ -34,7 +34,6 @@ void Hardware::init() {
   digitalWrite(PAYLOAD_GATE, LOW);
   analogReference(INTERNAL);
   analogReadResolution(12);
-  delay(PCB_STARTUP_TIME);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -47,6 +46,26 @@ void Hardware::faultLED() {
   digitalWrite(LED_PIN, HIGH);
   delay(LOOP_RATE);
   digitalWrite(LED_PIN, LOW);
+}
+
+/*
+  function: startUpHeaters
+  ---------------------------------
+  This function starts up the heaters.
+*/
+bool Hardware::startUpHeaters(bool shouldStartup) {
+  bool success = false;
+  if (shouldStartup) {
+    EEPROM.write(EEPROMAddress, false);
+    analogWrite(HEATER_INTERNAL_STRONG, 255);
+    analogWrite(HEATER_INTERNAL_WEAK, 255);
+    delay(1000);
+    analogWrite(HEATER_INTERNAL_STRONG, 0);
+    analogWrite(HEATER_INTERNAL_WEAK, 0);
+    EEPROM.write(EEPROMAddress, true);
+    success = true;
+  }
+  return success;
 }
 
 /*

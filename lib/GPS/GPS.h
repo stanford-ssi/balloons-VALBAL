@@ -18,12 +18,13 @@
 class GPS {
 public:
 /**********************************  SETUP  ***********************************/
-  GPS(uint8_t GPS_EnablePinNum, uint16_t GPS_BaudVal, uint16_t GPS_LockTime) :
+  GPS(uint8_t GPS_EnablePinNum, uint16_t GPS_BaudVal, uint8_t EEPROMAddressVal, uint16_t GPS_LockTime) :
     GPS_ENABLE_PIN(GPS_EnablePinNum),
     GPS_BAUD(GPS_BaudVal),
+    EEPROMAddress(EEPROMAddressVal),
     GPS_LOCK_TIME(GPS_LockTime) {
   }
-  bool     init();
+  bool     init(bool shouldStartup);
 /********************************  FUNCTIONS  *********************************/
   float    getLatitude();
   float    getLongitude();
@@ -40,6 +41,7 @@ private:
 /*********************************  OBJECTS  **********************************/
   uint8_t  GPS_ENABLE_PIN;
   uint16_t GPS_BAUD;
+  uint8_t  EEPROMAddress;
   uint16_t GPS_LOCK_TIME;
   TinyGPSPlus tinygps;
 };

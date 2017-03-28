@@ -125,9 +125,9 @@ bool Avionics::finishedSetup() {
  * if avionics is restarted mid flight.
  */
 bool Avionics::readHistory() {
-  data.RB_SHOULD_USE     = EEPROM.read(EEPROM_ROCKBLOCK);
-  data.GPS_SHOULD_USE    = EEPROM.read(EEPROM_GPS);
-  data.HEATER_SHOULD_USE = EEPROM.read(EEPROM_HEATER);
+  if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.RB_SHOULD_USE = false;
+  if(!EEPROM.read(EEPROM_GPS)) data.GPS_SHOULD_USE = false;
+  if(!EEPROM.read(EEPROM_HEATER)) data.HEATER_SHOULD_USE = false;
   double valveAltLast = PCB.readFromEEPROMAndClear(EEPROM_VALVE_START, EEPROM_VALVE_END);
   if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
   double ballastAltLast = PCB.readFromEEPROMAndClear(EEPROM_BALLAST_START, EEPROM_BALLAST_END);
@@ -196,7 +196,7 @@ bool Avionics::processData() {
  * if either the ballast or valve is running.
  */
 bool Avionics::runHeaters() {
-  if (PCB.isValveRunning() || PCB.isBallastRunning()) {
+  if (!data.HEATER_SHOULD_USE || PCB.isValveRunning() || PCB.isBallastRunning()) {
     PCB.turnOffHeaters();
   } else {
     PCB.heater(data.TEMP_SETPOINT, data.TEMP);
@@ -211,8 +211,8 @@ bool Avionics::runHeaters() {
  */
 bool Avionics::runValve() {
   if(data.FORCE_VALVE) {
-    PCB.queueValve(VALVE_DURATION);
     data.FORCE_VALVE = false;
+    PCB.queueValve(VALVE_DURATION);
     data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE_BMP);
   }
@@ -232,8 +232,8 @@ bool Avionics::runValve() {
  */
 bool Avionics::runBallast() {
   if(data.FORCE_BALLAST) {
-    PCB.queueBallast(BALLAST_DURATION);
     data.FORCE_BALLAST = false;
+    PCB.queueBallast(BALLAST_DURATION);
     data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE_BMP);
   }

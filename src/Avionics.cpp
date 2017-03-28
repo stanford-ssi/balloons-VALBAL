@@ -28,7 +28,7 @@ void Avionics::init() {
   if(!filter.init())                      logAlert("unable to initialize Filters", true);
   if(!computer.init())                    logAlert("unable to initialize Flight Controller", true);
   if(!gpsModule.init())                   logAlert("unable to initialize GPS", true);
-  if(!RBModule.init(EEPROM_ROCKBLOCK)) logAlert("unable to initialize RockBlock", true);
+  if(!RBModule.init(EEPROM_ROCKBLOCK))    logAlert("unable to initialize RockBlock", true);
   // testValve(10); //TODO******************************************************
   // testBallast(2); //TODO*****************************************************
   data.SETUP_STATE = false;
@@ -286,9 +286,117 @@ bool Avionics::sendSATCOMS() {
  * This function parses the command received from the RockBLOCK.
  */
 void Avionics::parseCommand(int16_t len) {
-  if(strncmp(COMMS_BUFFER, CUTDOWN_COMAND, len) == 0) {
-    data.SHOULD_CUTDOWN = true;
+  // split incoming string into up to eight commands
+  const char* commandStrFormat = "%d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s";
+  uint8_t commandIndexes[8] = {0};
+  char commandStrings[8][100] = {{0},{0},{0},{0},{0},{0},{0},{0}};
+
+  uint8_t numScanned = sscanf(COMMS_BUFFER, commandStrFormat,
+                              commandIndexes[0], commandStrings[0],
+                              commandIndexes[1], commandStrings[1],
+                              commandIndexes[2], commandStrings[2],
+                              commandIndexes[2], commandStrings[2],
+                              commandIndexes[3], commandStrings[3],
+                              commandIndexes[4], commandStrings[4],
+                              commandIndexes[5], commandStrings[5],
+                              commandIndexes[6], commandStrings[6],
+                              commandIndexes[7], commandStrings[7]);
+
+  // we should always gets pairs of indexes and command strings
+  if (numScanned % 2 != 0) return;
+
+  // parse each command
+  for (uint8_t i = 0; i < numScanned / 2; i++) {
+    uint8_t index = commandIndexes[i];
+
+    // if index and command string match cutdown command, tell hardware to cut down
+    if (index == CUTDOWN_INDEX && strncmp(commandStrings[i], CUTDOWN_COMMAND, strlen(commandStrings[i])) == 0) {
+      data.SHOULD_CUTDOWN = true;
+    }
+
+    // if index is out of bounds, stop parsing
+    if (index < 0 || index > 80) return;
+
+    // otherwise, convert the command into a numerical value
+    char* charAfterNumbers;
+    float commandValue = (float) strtod(commandStrings[i], &charAfterNumbers);
+    if (*charAfterNumbers) return; // if there are non-numeric characters after our number, then invalid command value; stop parsing
+    updateConstant(index, commandValue);
   }
+}
+
+void Avionics::updateConstant(uint8_t index, float value) {
+  if (index == 0) data.VALVE_ALT_LAST = value;
+  else if (index == 1) data.BALLAST_ALT_LAST = value;
+
+  else if (index == 2) data.VALVE_SETPOINT = value;
+  else if (index == 3) data.BALLAST_SETPOINT = value;
+  else if (index == 4) data.TEMP_SETPOINT = value;
+  // else if (index == 5) ALTITUDE_CHANGE_BALLAST = value; // TODO: ???
+
+  else if (index == 6) data.VALVE_VELOCITY_CONSTANT = value;
+  else if (index == 7) data.VALVE_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
+  else if (index == 8) data.VALVE_LAST_ACTION_CONSTANT = 1.0 / value;
+  else if (index == 9) data.BALLAST_VELOCITY_CONSTANT = value;
+  else if (index == 10) data.BALLAST_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
+  else if (index == 11) data.BALLAST_LAST_ACTION_CONSTANT = 1.0 / value;
+
+  // TODO: not sure if we have equivalents for these four values here
+  // else if (index == 12) COMM_BEACON_INTERVAL = valuee;
+  // else if (index == 13) GPS_BEACON_INTERVAL = valuee;
+  // else if (index == 14) IridiumVentTime = valuee;
+  // else if (index == 15) IridiumBallastTime = valuee;
+  // else if (index == 16) activeSensors = (int)valuee;
+
+  else if (index == 17) parseAvionicsModeCommand((int) value);
+  else if (index == 30) data.FORCE_VALVE = true;
+  else if (index == 31) data.FORCE_BALLAST = true;
+  // else if (index == 33) LEDon = (bool) valuee; // TODO: we don't use this, right?
+  else if (index == 34) parseRockBlockCommand((bool) value);
+  else if (index == 35) parseGPSCommand((int) value);
+  else if (index == 36) parseHeaterCommand((bool) value);
+
+  else if (index == 37) data.PRESS_BASELINE = value;
+  // else if (index == 38) DO_NOTHING_TIMER = valuee; // TODO: we don't use this, right?
+  else if (index == 42) VALVE_MOTOR_SPEED = value;
+  // else if (index == 43) VALVE_OPEN_BACKUP_TIMER = valuee; // TODO: we don't use this, right?
+  else if (index == 44) parseHeaterModeCommand((int) value);
+  else if (index == 45) data.INCENTIVE_THRESHOLD = value;
+}
+
+// TODO: I don't understand what the 0, 2, and else mode settings mean
+void Avionics::parseAvionicsModeCommand(int command) {
+  if (command == 0) {          // bad things?
+    data.REPORT_MODE = false;
+    data.CONTROL_MODE = false;
+  } else if (command == 1) {   // normal flight mode
+    data.REPORT_MODE = false;
+    data.CONTROL_MODE = true;
+  } else if (command == 2) {   // more bad things?
+    data.REPORT_MODE = true;
+    data.CONTROL_MODE = false;
+  } else if (command == 3) {   // launch / data gathering mode
+    data.REPORT_MODE = true;
+    data.CONTROL_MODE = true;
+  } else {                     // more bad things?
+    data.REPORT_MODE = true;
+    data.CONTROL_MODE = false;
+  }
+}
+
+void Avionics::parseRockBlockCommand(bool command) {
+
+}
+void Avionics::parseGPSCommand(int command) {
+
+}
+void Avionics::parseHeaterCommand(bool command) {
+
+}
+void Avionics::parseHeaterModeCommand(int command) {
+
+}
+
   /* TODO***********************************************************************
     data.VALVE_INCENTIVE
     data.BALLAST_INCENTIVE
@@ -322,7 +430,6 @@ void Avionics::parseCommand(int16_t len) {
     data.FORCE_VALVE
     data.FORCE_BALLAST
   */
-}
 
 /*
  * Function: calcVitals

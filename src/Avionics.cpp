@@ -30,8 +30,6 @@ void Avionics::init() {
   if(!gpsModule.init(data.GPS_SHOULD_USE))        logAlert("unable to initialize GPS", true);
   if(!RBModule.init(data.RB_SHOULD_USE))          logAlert("unable to initialize RockBlock", true);
   if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE)) logAlert("unable to initialize Heaters", true);
-  // testValve(10); //TODO******************************************************
-  // testBallast(2); //TODO*****************************************************
   data.SETUP_STATE = false;
 }
 
@@ -217,13 +215,8 @@ bool Avionics::runHeaters() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runValve() {
-  if(data.FORCE_VALVE) {
+  if(data.FORCE_VALVE || (data.VALVE_INCENTIVE >= 1)) {
     data.FORCE_VALVE = false;
-    PCB.queueValve(VALVE_DURATION);
-    data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
-    PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE_BMP);
-  }
-  else if(data.VALVE_INCENTIVE >= 1) {
     PCB.queueValve(VALVE_DURATION);
     data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE_BMP);
@@ -238,13 +231,8 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runBallast() {
-  if(data.FORCE_BALLAST) {
+  if(data.FORCE_BALLAST || (data.BALLAST_INCENTIVE >= 1)) {
     data.FORCE_BALLAST = false;
-    PCB.queueBallast(BALLAST_DURATION);
-    data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
-    PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE_BMP);
-  }
-  else if(data.BALLAST_INCENTIVE >= 1) {
     PCB.queueBallast(BALLAST_DURATION);
     data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE_BMP);

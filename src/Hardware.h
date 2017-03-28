@@ -59,14 +59,14 @@ private:
   uint8_t  EEPROMAddress;
 
   // queues represent what Avionics told Hardware to do
-  int      valveQueue = 0;
-  int      ballastQueue = 0;
+  uint64_t valveQueue = 0;
+  uint64_t ballastQueue = 0;
   // State's represent the internal state of the Hardware
   State    valveState = CLOSED;
   State    ballastState = CLOSED;
   bool     ballastDirection = false;
-  int      valveActionStartTime = 0;
-  int      ballastActionStartTime = 0;
+  uint64_t valveActionStartTime = 0;
+  uint64_t ballastActionStartTime = 0;
 
   double   PIDSetVar;
   double   PIDOutVar;

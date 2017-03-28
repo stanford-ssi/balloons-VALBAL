@@ -81,6 +81,11 @@ void Hardware::heater(double tempSetpoint, double temp) {
   else analogWrite(HEATER_INTERNAL_STRONG, 0);
 }
 
+/*
+  function: turnOffHeaters
+  ---------------------------------
+  This function shuts down the heaters.
+*/
 void Hardware::turnOffHeaters() {
   analogWrite(HEATER_INTERNAL_STRONG, 0);
   analogWrite(HEATER_INTERNAL_WEAK, 0);
@@ -102,6 +107,24 @@ void Hardware::queueValve(int duration) {
 */
 void Hardware::queueBallast(int duration) {
   ballastQueue += duration;
+}
+
+/*
+  function: clearValveQueue
+  ---------------------------------
+  This clears any queued valve times.
+*/
+void Hardware::clearValveQueue() {
+  valveQueue = 0;
+}
+
+/*
+  function: clearBallastQueue
+  ---------------------------------
+  This clears any queued ballast times.
+*/
+void Hardware::clearBallastQueue() {
+  ballastQueue = 0;
 }
 
 /*
@@ -139,31 +162,14 @@ bool Hardware::checkValve() {
       stopValve();
     }
   }
-
-  return valveQueue == 0; // TODO: return this or the state var?
-}
-
-// Hardware helper functions that open, close, or stop the valve motor.
-void Hardware::openValve() {
-  analogWrite(VALVE_FORWARD, LOW);
-  analogWrite(VALVE_REVERSE, VALVE_MOTOR_SPEED);
-}
-
-void Hardware::closeValve() {
-  analogWrite(VALVE_FORWARD, VALVE_MOTOR_SPEED);
-  analogWrite(VALVE_REVERSE, LOW);
-}
-
-void Hardware::stopValve() {
-  analogWrite(VALVE_FORWARD, LOW);
-  analogWrite(VALVE_REVERSE, LOW);
+  return valveQueue > 0;
 }
 
 /*
   function: checkBallast
   ---------------------------------
   This function provides a non-hanging interface to check the timer queue.
-
+  Called every loop; updates and acts on the current state of the valve.
 */
 bool Hardware::checkBallast() {
   if (ballastState == OPEN) {
@@ -183,37 +189,26 @@ bool Hardware::checkBallast() {
       stopBallast();
     }
   }
-
-  return ballastQueue == 0;
+  return ballastQueue > 0;
 }
 
-// Hardware helper functions that run or stop the ballast motor.
-void Hardware::stopBallast() {
-  analogWrite(BALLAST_FORWARD, LOW);
-  analogWrite(BALLAST_REVERSE, LOW);
-}
-
-void Hardware::dropBallast(bool direction) {
-  if (ballastDirection) {
-    analogWrite(BALLAST_FORWARD, BALLAST_MOTOR_SPEED);
-    analogWrite(BALLAST_REVERSE, LOW);
-  } else {
-    analogWrite(BALLAST_FORWARD, LOW);
-    analogWrite(BALLAST_REVERSE, BALLAST_MOTOR_SPEED);
-  }
-}
-
+/*
+  function: isValveRunning
+  ---------------------------------
+  This function checks if the valve is running.
+*/
 bool Hardware::isValveRunning() {
   return valveState == OPENING || valveState == CLOSING;
 }
 
+/*
+  function: isBallastRunning
+  ---------------------------------
+  This function checks if the ballast is running.
+*/
 bool Hardware::isBallastRunning() {
   return ballastState == OPEN;
 }
-
-void Hardware::clearValveQueue() { valveQueue = 0; }
-
-void Hardware::clearBallastQueue() { ballastQueue = 0; }
 
 /*
   function: cutDown
@@ -221,6 +216,7 @@ void Hardware::clearBallastQueue() { ballastQueue = 0; }
   This function triggers the mechanical cutdown of the payload.
 */
 void Hardware::cutDown(bool on) {
+  turnOffHeaters();
   //full motor engagement
   //remeber to turn off so we do not waste power on stall torque
   //clear valve and ballast quues cuz that doenst matter anymore
@@ -251,7 +247,6 @@ void Hardware::writeToEEPROM(uint8_t startByte, uint8_t endByte, int num) {
 */
 int Hardware::readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte) {
   int num = 0;
-
   // build up number
   for (int i = startByte; i <= endByte; i++) {
     if (EEPROM.read(0) == EEPROM_CLEAR_NUM) break;
@@ -259,9 +254,63 @@ int Hardware::readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte) {
     num *= 10;
     num += digit;
   }
-
   // clear EEPROM data
   writeToEEPROM(startByte, endByte, EEPROM_CLEAR_NUM);
-
   return num;
+}
+
+/*********************************  HELPERS  **********************************/
+/*
+  function: stopValve
+  ---------------------------------
+  This function stops the valve.
+*/
+void Hardware::stopValve() {
+  analogWrite(VALVE_FORWARD, LOW);
+  analogWrite(VALVE_REVERSE, LOW);
+}
+
+/*
+  function: openValve
+  ---------------------------------
+  This function starts opening the valve.
+*/
+void Hardware::openValve() {
+  analogWrite(VALVE_FORWARD, LOW);
+  analogWrite(VALVE_REVERSE, VALVE_MOTOR_SPEED);
+}
+
+/*
+  function: closeValve
+  ---------------------------------
+  This function starts closing the valve.
+*/
+void Hardware::closeValve() {
+  analogWrite(VALVE_FORWARD, VALVE_MOTOR_SPEED);
+  analogWrite(VALVE_REVERSE, LOW);
+}
+
+/*
+  function: stopBallast
+  ---------------------------------
+  This function stops the ballast.
+*/
+void Hardware::stopBallast() {
+  analogWrite(BALLAST_FORWARD, LOW);
+  analogWrite(BALLAST_REVERSE, LOW);
+}
+
+/*
+  function: dropBallast
+  ---------------------------------
+  This function drops ballast.
+*/
+void Hardware::dropBallast(bool direction) {
+  if (ballastDirection) {
+    analogWrite(BALLAST_FORWARD, BALLAST_MOTOR_SPEED);
+    analogWrite(BALLAST_REVERSE, LOW);
+  } else {
+    analogWrite(BALLAST_FORWARD, LOW);
+    analogWrite(BALLAST_REVERSE, BALLAST_MOTOR_SPEED);
+  }
 }

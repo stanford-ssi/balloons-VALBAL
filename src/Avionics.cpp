@@ -105,7 +105,10 @@ void Avionics::sendComms() {
  * This function sleeps at the end of the loop.
  */
 void Avionics::sleep() {
-  gpsModule.smartDelay(LOOP_RATE);
+  uint64_t loopTime = millis() - data.LOOP_START;
+  if (loopTime < LOOP_RATE) {
+    gpsModule.smartDelay(LOOP_RATE - loopTime);
+  }
 }
 
 /*

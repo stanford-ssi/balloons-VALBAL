@@ -161,12 +161,16 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_2  = sensors.getRawPressure(2);
   data.RAW_PRESSURE_3  = sensors.getRawPressure(3);
   data.RAW_PRESSURE_4  = sensors.getRawPressure(4);
-  data.LAT_GPS         = gpsModule.getLatitude();
-  data.LONG_GPS        = gpsModule.getLongitude();
-  data.ALTITUDE_GPS    = gpsModule.getAltitude();
-  data.HEADING_GPS     = gpsModule.getCourse();
-  data.SPEED_GPS       = gpsModule.getSpeed();
-  data.NUM_SATS_GPS    = gpsModule.getSats();
+  if ((millis() - data.GPS_LAST) >= GPS_RATE) {
+    gpsModule.smartDelay(GPS_LOCK_TIME);
+    data.LAT_GPS         = gpsModule.getLatitude();
+    data.LONG_GPS        = gpsModule.getLongitude();
+    data.ALTITUDE_GPS    = gpsModule.getAltitude();
+    data.HEADING_GPS     = gpsModule.getCourse();
+    data.SPEED_GPS       = gpsModule.getSpeed();
+    data.NUM_SATS_GPS    = gpsModule.getSats();
+    data.GPS_LAST = millis();
+  }
   data.LOOP_GOOD_STATE = !data.LOOP_GOOD_STATE;
   return true;
 }
@@ -597,6 +601,8 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(data.ALTITUDE_LAST);
   Serial.print(',');
+  Serial.print(double(data.GPS_LAST));
+  Serial.print(',');
   Serial.print(double(data.COMMS_LAST));
   Serial.print(',');
   Serial.print(double(data.LOOP_START));
@@ -768,6 +774,8 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.ALTITUDE_LAST);
   dataFile.print(',');
+  dataFile.print(double(data.GPS_LAST));
+  dataFile.print(',');
   dataFile.print(double(data.COMMS_LAST));
   dataFile.print(',');
   dataFile.print(double(data.LOOP_START));
@@ -899,6 +907,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.HEATER_SHOULD_USE,              0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.CUTDOWN_STATE,                  0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.ALTITUDE_LAST,                 -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.GPS_LAST,                       0,    1000000, 19, lengthBits);
   lengthBits += compressVariable(data.COMMS_LAST,                     0,    1000000, 19, lengthBits);
   lengthBits += compressVariable(data.LOOP_START,                     0,    1000000, 19, lengthBits);
   lengthBits += compressVariable(data.CONTROL_MODE,                   0,    1,       1,  lengthBits);

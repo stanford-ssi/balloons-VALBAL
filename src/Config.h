@@ -105,6 +105,4 @@ static const uint8_t   EEPROM_ROCKBLOCK              =          10;
 static const uint8_t   EEPROM_GPS                    =          11;
 static const uint8_t   EEPROM_HEATER                 =          12;
 
-/***************************  RB COMMAND INDEXES  *****************************/
-
 #endif

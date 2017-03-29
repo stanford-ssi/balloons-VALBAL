@@ -52,6 +52,13 @@ private:
   bool    runCutdown();
   bool    sendSATCOMS();
   void    parseCommand(int16_t len);
+  void    updateConstant(uint8_t index, float value);
+  void    parseSensorsCommand(uint8_t command);
+  void    parseAvionicsModeCommand(uint8_t command);
+  void    parseRockBLOCKCommand(bool command);
+  void    parseGPSCommand(uint8_t command);
+  void    parseHeaterCommand(bool command);
+  void    parseHeaterModeCommand(uint8_t command);
   bool    calcVitals();
   bool    calcDebug();
   bool    calcIncentives();
@@ -65,12 +72,7 @@ private:
   void    printState();
   bool    logData();
   int16_t compressData();
-  void    updateConstant(uint8_t index, float value);
-  void    parseAvionicsModeCommand(int command);
-  void    parseRockBlockCommand(bool command);
-  void    parseGPSCommand(int command);
-  void    parseHeaterCommand(bool command);
-  void    parseHeaterModeCommand(int command);
+
 /*********************************  OBJECTS  **********************************/
   char COMMS_BUFFER[BUFFER_SIZE];
   DataFrame data;

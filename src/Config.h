@@ -106,8 +106,5 @@ static const uint8_t   EEPROM_GPS                    =          11;
 static const uint8_t   EEPROM_HEATER                 =          12;
 
 /***************************  RB COMMAND INDEXES  *****************************/
-static const uint8_t   CUTDOWN_INDEX                 =          99;
-
-static const char*     CUTDOWN_COMMAND               =   "CUTDOWN";
 
 #endif

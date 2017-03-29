@@ -11,7 +11,10 @@
 #ifndef CUTDOWN_H
 #define CUTDOWN_H
 
+#include <stdint.h>
+
 /****************************  EDITABLE CONSTANTS  ****************************/
-static const char CUTDOWN_COMAND[]   = "NOT REAL STRING";
+static const uint8_t   CUTDOWN_INDEX       =          99;
+static const char      CUTDOWN_COMMAND[]   =   "I QUIT.";
 
 #endif

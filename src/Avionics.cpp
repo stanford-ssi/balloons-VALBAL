@@ -164,13 +164,13 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_4  = sensors.getRawPressure(4);
   if ((millis() - data.GPS_LAST) >= GPS_RATE) {
     gpsModule.smartDelay(GPS_LOCK_TIME);
-    data.LAT_GPS         = gpsModule.getLatitude();
-    data.LONG_GPS        = gpsModule.getLongitude();
-    data.ALTITUDE_GPS    = gpsModule.getAltitude();
-    data.HEADING_GPS     = gpsModule.getCourse();
-    data.SPEED_GPS       = gpsModule.getSpeed();
-    data.NUM_SATS_GPS    = gpsModule.getSats();
-    data.GPS_LAST = millis();
+    data.LAT_GPS       = gpsModule.getLatitude();
+    data.LONG_GPS      = gpsModule.getLongitude();
+    data.ALTITUDE_GPS  = gpsModule.getAltitude();
+    data.HEADING_GPS   = gpsModule.getCourse();
+    data.SPEED_GPS     = gpsModule.getSpeed();
+    data.NUM_SATS_GPS  = gpsModule.getSats();
+    data.GPS_LAST      = millis();
   }
   data.LOOP_GOOD_STATE = !data.LOOP_GOOD_STATE;
   return true;
@@ -286,33 +286,26 @@ void Avionics::parseCommand(int16_t len) {
   const char* commandStrFormat = "%d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s";
   uint8_t commandIndexes[8] = {0};
   char commandStrings[8][100] = {{0},{0},{0},{0},{0},{0},{0},{0}};
-
   uint8_t numScanned = sscanf(COMMS_BUFFER, commandStrFormat,
-                              commandIndexes[0], commandStrings[0],
-                              commandIndexes[1], commandStrings[1],
-                              commandIndexes[2], commandStrings[2],
-                              commandIndexes[2], commandStrings[2],
-                              commandIndexes[3], commandStrings[3],
-                              commandIndexes[4], commandStrings[4],
-                              commandIndexes[5], commandStrings[5],
-                              commandIndexes[6], commandStrings[6],
-                              commandIndexes[7], commandStrings[7]);
-
-  // we should always gets pairs of indexes and command strings
+                              &commandIndexes[0], commandStrings[0],
+                              &commandIndexes[1], commandStrings[1],
+                              &commandIndexes[2], commandStrings[2],
+                              &commandIndexes[2], commandStrings[2],
+                              &commandIndexes[3], commandStrings[3],
+                              &commandIndexes[4], commandStrings[4],
+                              &commandIndexes[5], commandStrings[5],
+                              &commandIndexes[6], commandStrings[6],
+                              &commandIndexes[7], commandStrings[7]);
   if (numScanned % 2 != 0) return;
 
   // parse each command
   for (uint8_t i = 0; i < numScanned / 2; i++) {
     uint8_t index = commandIndexes[i];
-
-    // if index and command string match cutdown command, tell hardware to cut down
     if (index == CUTDOWN_INDEX && strncmp(commandStrings[i], CUTDOWN_COMMAND, strlen(commandStrings[i])) == 0) {
       data.SHOULD_CUTDOWN = true;
     }
-
     // if index is out of bounds, stop parsing
     if (index < 0 || index > 80) return;
-
     // otherwise, convert the command into a numerical value
     char* charAfterNumbers;
     float commandValue = (float) strtod(commandStrings[i], &charAfterNumbers);
@@ -321,8 +314,14 @@ void Avionics::parseCommand(int16_t len) {
   }
 }
 
+/*
+ * Function: updateConstant
+ * -------------------
+ * This function updates the state appropriate state variable
+ * based on the command index.
+ */
 void Avionics::updateConstant(uint8_t index, float value) {
-  if (index == 0) data.VALVE_ALT_LAST = value;
+  if      (index == 0) data.VALVE_ALT_LAST = value;
   else if (index == 1) data.BALLAST_ALT_LAST = value;
 
   else if (index == 2) data.VALVE_SETPOINT = value;
@@ -337,62 +336,30 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 10) data.BALLAST_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
   else if (index == 11) data.BALLAST_LAST_ACTION_CONSTANT = 1.0 / value;
 
-  // TODO: not sure if we have equivalents for these four values here
   // else if (index == 12) COMM_BEACON_INTERVAL = valuee;
   // else if (index == 13) GPS_BEACON_INTERVAL = valuee;
   // else if (index == 14) IridiumVentTime = valuee;
   // else if (index == 15) IridiumBallastTime = valuee;
-  // else if (index == 16) activeSensors = (int)valuee;
+  else if (index == 16) parseSensorsCommand((uint8_t)value);
+  else if (index == 17) parseAvionicsModeCommand((uint8_t)value);
 
-  else if (index == 17) parseAvionicsModeCommand((int) value);
   else if (index == 30) data.FORCE_VALVE = true;
   else if (index == 31) data.FORCE_BALLAST = true;
+
   // else if (index == 33) LEDon = (bool) valuee; // TODO: we don't use this, right?
-  else if (index == 34) parseRockBlockCommand((bool) value);
-  else if (index == 35) parseGPSCommand((int) value);
-  else if (index == 36) parseHeaterCommand((bool) value);
+  else if (index == 34) parseRockBLOCKCommand((bool)value);
+  else if (index == 35) parseGPSCommand((uint8_t)value);
+  else if (index == 36) parseHeaterCommand((bool)value);
 
   else if (index == 37) data.PRESS_BASELINE = value;
   // else if (index == 38) DO_NOTHING_TIMER = valuee; // TODO: we don't use this, right?
+
   else if (index == 42) VALVE_MOTOR_SPEED = value;
   // else if (index == 43) VALVE_OPEN_BACKUP_TIMER = valuee; // TODO: we don't use this, right?
-  else if (index == 44) parseHeaterModeCommand((int) value);
+  else if (index == 44) parseHeaterModeCommand((uint8_t)value);
   else if (index == 45) data.INCENTIVE_THRESHOLD = value;
-}
 
-// TODO: I don't understand what the 0, 2, and else mode settings mean
-void Avionics::parseAvionicsModeCommand(int command) {
-  if (command == 0) {          // bad things?
-    data.REPORT_MODE = false;
-    data.CONTROL_MODE = false;
-  } else if (command == 1) {   // normal flight mode
-    data.REPORT_MODE = false;
-    data.CONTROL_MODE = true;
-  } else if (command == 2) {   // more bad things?
-    data.REPORT_MODE = true;
-    data.CONTROL_MODE = false;
-  } else if (command == 3) {   // launch / data gathering mode
-    data.REPORT_MODE = true;
-    data.CONTROL_MODE = true;
-  } else {                     // more bad things?
-    data.REPORT_MODE = true;
-    data.CONTROL_MODE = false;
-  }
-}
-
-void Avionics::parseRockBlockCommand(bool command) {
-
-}
-void Avionics::parseGPSCommand(int command) {
-
-}
-void Avionics::parseHeaterCommand(bool command) {
-
-}
-void Avionics::parseHeaterModeCommand(int command) {
-
-}
-
+  else if (index == 54) data.REPORT_MODE = true;
   /* TODO***********************************************************************
     data.VALVE_INCENTIVE
     data.BALLAST_INCENTIVE
@@ -426,6 +393,79 @@ void Avionics::parseHeaterModeCommand(int command) {
     data.FORCE_VALVE
     data.FORCE_BALLAST
   */
+}
+
+/*
+ * Function: parseSensorsCommand
+ * -------------------
+ * This function parses the active sensors.
+ */
+void Avionics::parseSensorsCommand(uint8_t command) {
+  data.BMP_1_ENABLE = command & 0b0001;
+  data.BMP_2_ENABLE = command & 0b0010;
+  data.BMP_3_ENABLE = command & 0b0100;
+  data.BMP_4_ENABLE = command & 0b1000;
+}
+
+/*
+ * Function: parseAvionicsModeCommand
+ * -------------------
+ * This function parses the avionics mode setting.
+ */
+void Avionics::parseAvionicsModeCommand(uint8_t command) {
+  if (command == 0) {          // bad things?
+    data.REPORT_MODE = false;
+    data.CONTROL_MODE = false;
+  } else if (command == 1) {   // normal flight mode
+    data.REPORT_MODE = false;
+    data.CONTROL_MODE = true;
+  } else if (command == 2) {   // more bad things?
+    data.REPORT_MODE = true;
+    data.CONTROL_MODE = false;
+  } else if (command == 3) {   // launch / data gathering mode
+    data.REPORT_MODE = true;
+    data.CONTROL_MODE = true;
+  } else {                     // more bad things?
+    data.REPORT_MODE = true;
+    data.CONTROL_MODE = false;
+  }
+}
+
+/*
+ * Function: parseRockBLOCKCommand
+ * -------------------
+ * This function parses the RockBLOCK commands.
+ */
+void Avionics::parseRockBLOCKCommand(bool command) {
+
+}
+
+/*
+ * Function: parseGPSCommand
+ * -------------------
+ * This function parses the GPS commands.
+ */
+void Avionics::parseGPSCommand(uint8_t command) {
+
+}
+
+/*
+ * Function: parseHeaterCommand
+ * -------------------
+ * This function parses the heater commands.
+ */
+void Avionics::parseHeaterCommand(bool command) {
+  data.HEATER_SHOULD_USE = command;
+}
+
+/*
+ * Function: parseHeaterModeCommand
+ * -------------------
+ * This function parses the heater mode.
+ */
+void Avionics::parseHeaterModeCommand(uint8_t command) {
+
+}
 
 /*
  * Function: calcVitals

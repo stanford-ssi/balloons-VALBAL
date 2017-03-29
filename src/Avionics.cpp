@@ -272,6 +272,7 @@ bool Avionics::sendSATCOMS() {
     return false;
   }
   data.RB_GOOD_STATE  = true;
+  data.REPORT_MODE = false;
   if(ret > 0) parseCommand(ret);
   return true;
 }
@@ -297,6 +298,7 @@ void Avionics::parseCommand(int16_t len) {
                               &commandIndexes[6], commandStrings[6],
                               &commandIndexes[7], commandStrings[7]);
   if (numScanned % 2 != 0) return;
+  data.REPORT_MODE = true;
 
   // parse each command
   for (uint8_t i = 0; i < numScanned / 2; i++) {
@@ -323,19 +325,16 @@ void Avionics::parseCommand(int16_t len) {
 void Avionics::updateConstant(uint8_t index, float value) {
   if      (index == 0) data.VALVE_ALT_LAST = value;
   else if (index == 1) data.BALLAST_ALT_LAST = value;
-
   else if (index == 2) data.VALVE_SETPOINT = value;
   else if (index == 3) data.BALLAST_SETPOINT = value;
   else if (index == 4) data.TEMP_SETPOINT = value;
   // else if (index == 5) ALTITUDE_CHANGE_BALLAST = value; // TODO: ???
-
   else if (index == 6) data.VALVE_VELOCITY_CONSTANT = value;
   else if (index == 7) data.VALVE_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
   else if (index == 8) data.VALVE_LAST_ACTION_CONSTANT = 1.0 / value;
   else if (index == 9) data.BALLAST_VELOCITY_CONSTANT = value;
   else if (index == 10) data.BALLAST_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
   else if (index == 11) data.BALLAST_LAST_ACTION_CONSTANT = 1.0 / value;
-
   // else if (index == 12) COMM_BEACON_INTERVAL = valuee;
   // else if (index == 13) GPS_BEACON_INTERVAL = valuee;
   // else if (index == 14) IridiumVentTime = valuee;
@@ -343,14 +342,13 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 16) parseSensorsCommand((uint8_t)value);
   else if (index == 17) parseAvionicsModeCommand((uint8_t)value);
 
-  else if (index == 30) data.FORCE_VALVE = true;
-  else if (index == 31) data.FORCE_BALLAST = true;
+  else if (index == 30) data.FORCE_VALVE = true; // TODO
+  else if (index == 31) data.FORCE_BALLAST = true; // TODO
 
   // else if (index == 33) LEDon = (bool) valuee; // TODO: we don't use this, right?
   else if (index == 34) parseRockBLOCKCommand((bool)value);
   else if (index == 35) parseGPSCommand((uint8_t)value);
   else if (index == 36) parseHeaterCommand((bool)value);
-
   else if (index == 37) data.PRESS_BASELINE = value;
   // else if (index == 38) DO_NOTHING_TIMER = valuee; // TODO: we don't use this, right?
 
@@ -358,40 +356,38 @@ void Avionics::updateConstant(uint8_t index, float value) {
   // else if (index == 43) VALVE_OPEN_BACKUP_TIMER = valuee; // TODO: we don't use this, right?
   else if (index == 44) parseHeaterModeCommand((uint8_t)value);
   else if (index == 45) data.INCENTIVE_THRESHOLD = value;
-
-  else if (index == 54) data.REPORT_MODE = true;
   /* TODO***********************************************************************
-    data.VALVE_INCENTIVE
-    data.BALLAST_INCENTIVE
-    data.CONTROL_MODE
-    data.REPORT_MODE
+    data.VALVE_INCENTIVE                TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.BALLAST_INCENTIVE              TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.CONTROL_MODE                   TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.REPORT_MODE                    TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     data.SHOULD_CUTDOWN
     data.PRESS_BASELINE
     data.TEMP_SETPOINT
     data.INCENTIVE_THRESHOLD
-    data.RE_ARM_CONSTANT
-    data.VALVE_SETPOINT
-    data.VALVE_TIME
-    data.VALVE_ALT_LAST
-    data.VALVE_VELOCITY_CONSTANT
-    data.VALVE_ALTITUDE_DIFF_CONSTANT
-    data.VALVE_LAST_ACTION_CONSTANT
-    data.BALLAST_SETPOINT
-    data.BALLAST_TIME
-    data.BALLAST_ALT_LAST
-    data.BALLAST_VELOCITY_CONSTANT
-    data.BALLAST_ALTITUDE_DIFF_CONSTANT
-    data.BALLAST_LAST_ACTION_CONSTANT
-    data.RB_SHOULD_USE
-    data.GPS_SHOULD_USE
-    data.HEATER_SHOULD_USE
+    data.RE_ARM_CONSTANT                TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.VALVE_SETPOINT                 TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.VALVE_TIME                     TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.VALVE_ALT_LAST                 TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.VALVE_VELOCITY_CONSTANT        TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.VALVE_ALTITUDE_DIFF_CONSTANT   TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.VALVE_LAST_ACTION_CONSTANT     TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~s~~~~~~
+    data.BALLAST_SETPOINT               TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.BALLAST_TIME                   TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.BALLAST_ALT_LAST               TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.BALLAST_VELOCITY_CONSTANT      TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.BALLAST_ALTITUDE_DIFF_CONSTANT TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.BALLAST_LAST_ACTION_CONSTANT   TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.RB_SHOULD_USE                  TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.GPS_SHOULD_USE                 TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.HEATER_SHOULD_USE              TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     data.BMP_1_ENABLE
     data.BMP_2_ENABLE
     data.BMP_3_ENABLE
     data.BMP_4_ENABLE
-    data.SETUP_STATE
-    data.FORCE_VALVE
-    data.FORCE_BALLAST
+    data.SETUP_STATE                    TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.FORCE_VALVE                    TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.FORCE_BALLAST                  TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   */
 }
 
@@ -437,7 +433,7 @@ void Avionics::parseAvionicsModeCommand(uint8_t command) {
  * This function parses the RockBLOCK commands.
  */
 void Avionics::parseRockBLOCKCommand(bool command) {
-
+  //restart
 }
 
 /*
@@ -446,7 +442,7 @@ void Avionics::parseRockBLOCKCommand(bool command) {
  * This function parses the GPS commands.
  */
 void Avionics::parseGPSCommand(uint8_t command) {
-
+ //restart
 }
 
 /*
@@ -507,7 +503,7 @@ bool Avionics::calcIncentives() {
   if (data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) {
     data.VALVE_INCENTIVE = 0;
     data.BALLAST_INCENTIVE = 0;
-    return -1;
+    return false;
   }
   return true;
 }

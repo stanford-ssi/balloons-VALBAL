@@ -31,6 +31,7 @@ public:
   bool startUpHeaters(bool shouldStartup);
   void heater(double tempSetpoint, double temp, bool strong, bool weak);
   void turnOffHeaters();
+  void setHeaterMode(bool on);
 
   void queueValve(int duration);
   void queueBallast(int duration);

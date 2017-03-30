@@ -64,13 +64,13 @@ void Hardware::faultLED() {
 bool Hardware::startUpHeaters(bool shouldStartup) {
   bool success = false;
   if (shouldStartup) {
-    EEPROM.write(EEPROMAddress, false);
+    setHeaterMode(false);
     analogWrite(HEATER_INTERNAL_STRONG, 255);
     analogWrite(HEATER_INTERNAL_WEAK, 255);
     delay(1000);
     analogWrite(HEATER_INTERNAL_STRONG, 0);
     analogWrite(HEATER_INTERNAL_WEAK, 0);
-    EEPROM.write(EEPROMAddress, true);
+    setHeaterMode(true);
     success = true;
   }
   return success;
@@ -107,6 +107,15 @@ void Hardware::heater(double tempSetpoint, double temp, bool strong, bool weak) 
 void Hardware::turnOffHeaters() {
   analogWrite(HEATER_INTERNAL_STRONG, 0);
   analogWrite(HEATER_INTERNAL_WEAK, 0);
+}
+
+/*
+  function: setHeaterMode
+  ---------------------------------
+  This function sets the heater mode that persists through system restarts.
+*/
+void Hardware::setHeaterMode(bool on) {
+  EEPROM.write(EEPROMAddress, on);
 }
 
 /*

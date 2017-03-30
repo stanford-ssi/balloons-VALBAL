@@ -87,8 +87,8 @@ static const float     BALLAST_VELOCITY_DEFAULT      =         1.0;
 static const float     BALLAST_ALTITUDE_DIFF_DEFAULT =  1.0/1000.0;
 static const float     BALLAST_LAST_ACTION_DEFAULT   =  1.0/1000.0;
 
-static const uint16_t  VALVE_DURATION_DEFAULT        =        2000;
-static const uint16_t  BALLAST_DURATION_DEFAULT      =        2000;
+static const uint16_t  VALVE_DURATION_DEFAULT        =       20000;
+static const uint16_t  BALLAST_DURATION_DEFAULT      =       20000;
 static const uint16_t  VALVE_OPENING_TIMEOUT         =        1000; // TODO: confirm this is right (copied from VALVE_OPEN_BACKUP_TIMER)
 static const uint16_t  VALVE_CLOSING_TIMEOUT         =        2500; // TODO: confirm this is right (copied from VALVE_TIMEOUT)
 static const uint16_t  VALVE_CUTDOWN_TIMEOUT         =       10000; // TODO: confirm this is right (copied from VALVE_CUTDOWN_TIMEOUT)

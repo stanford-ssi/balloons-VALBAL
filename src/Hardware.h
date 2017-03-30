@@ -57,7 +57,7 @@ private:
   void dropBallast(bool direction);
 
 /*********************************  OBJECTS  **********************************/
-  enum State {OPEN, OPENING, CLOSED, CLOSING };
+  enum State {OPEN, OPENING, CLOSED, CLOSING};
   uint8_t  EEPROMAddress;
 
   // queues represent what Avionics told Hardware to do

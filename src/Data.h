@@ -81,7 +81,7 @@ struct DataFrame {
   bool         GPS_SHOULD_USE                 =                            true;
   bool         HEATER_SHOULD_USE              =                            true;
   bool         HEATER_STRONG_ENABLE           =                            true;//TODO*******************************************************
-  bool         HEATER_WEEK_ENABLE             =                            true;//TODO*******************************************************
+  bool         HEATER_WEEK_ENABLE             =                           false;//TODO*******************************************************
 
   bool         BMP_1_ENABLE                   =                            true;
   bool         BMP_2_ENABLE                   =                            true;
@@ -117,10 +117,10 @@ struct DataFrame {
   double       RAW_PRESSURE_3                 =                               0;
   double       RAW_PRESSURE_4                 =                               0;
 
-  double       RAW_ALTITUDE_1                 =                               0;
-  double       RAW_ALTITUDE_2                 =                               0;
-  double       RAW_ALTITUDE_3                 =                               0;
-  double       RAW_ALTITUDE_4                 =                               0;
+  double       ALTITUDE_1                     =                               0;
+  double       ALTITUDE_2                     =                               0;
+  double       ALTITUDE_3                     =                               0;
+  double       ALTITUDE_4                     =                               0;
 };
 
 #endif

@@ -187,13 +187,13 @@ bool Avionics::readGPS() {
  */
 bool Avionics::processData() {
   filter.enableSensors(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
-  data.RAW_ALTITUDE_1  = filter.getCalculatedAltitude(data.RAW_PRESSURE_1, data.PRESS_BASELINE);
-  data.RAW_ALTITUDE_2  = filter.getCalculatedAltitude(data.RAW_PRESSURE_2, data.PRESS_BASELINE);
-  data.RAW_ALTITUDE_3  = filter.getCalculatedAltitude(data.RAW_PRESSURE_3, data.PRESS_BASELINE);
-  data.RAW_ALTITUDE_4  = filter.getCalculatedAltitude(data.RAW_PRESSURE_4, data.PRESS_BASELINE);
+  data.ALTITUDE_1  = filter.getCalculatedAltitude(data.RAW_PRESSURE_1, data.PRESS_BASELINE);
+  data.ALTITUDE_2  = filter.getCalculatedAltitude(data.RAW_PRESSURE_2, data.PRESS_BASELINE);
+  data.ALTITUDE_3  = filter.getCalculatedAltitude(data.RAW_PRESSURE_3, data.PRESS_BASELINE);
+  data.ALTITUDE_4  = filter.getCalculatedAltitude(data.RAW_PRESSURE_4, data.PRESS_BASELINE);
   data.TEMP            = filter.getTemp(data.RAW_TEMP_1, data.RAW_TEMP_2, data.RAW_TEMP_3, data.RAW_TEMP_4);
   data.PRESS_BMP       = filter.getPressure(data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4);
-  data.ALTITUDE_BMP    = filter.getAltitude(data.RAW_ALTITUDE_1, data.RAW_ALTITUDE_2, data.RAW_ALTITUDE_3, data.RAW_ALTITUDE_4);
+  data.ALTITUDE_BMP    = filter.getAltitude(data.ALTITUDE_1, data.ALTITUDE_2, data.ALTITUDE_3, data.ALTITUDE_4);
   data.ASCENT_RATE     = filter.getAscentRate();
   return true;
 }
@@ -269,12 +269,8 @@ bool Avionics::runCutdown() {
  * This function blinks the 1HZ LED required by the FAA.
  */
 bool Avionics::runLED() {
-  if (data.SHOULD_LED && (uint32_t(millis() / 1000.0) % 2 == 1)) {
-    PCB.runLED(true);
-  }
-  else {
-    PCB.runLED(false);
-  }
+  if (data.SHOULD_LED && (uint32_t(millis() / 1000.0) % 2 == 1)) PCB.runLED(true);
+  else PCB.runLED(false);
   return true;
 }
 
@@ -303,35 +299,31 @@ bool Avionics::sendSATCOMS() {
  * This function parses the command received from the RockBLOCK.
  */
 void Avionics::parseCommand(int16_t len) {
-  // split incoming string into up to eight commands
   const char* commandStrFormat = "%d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s";
   uint8_t commandIndexes[8] = {0};
   char commandStrings[8][100] = {{0},{0},{0},{0},{0},{0},{0},{0}};
   uint8_t numScanned = sscanf(COMMS_BUFFER, commandStrFormat,
-                              &commandIndexes[0], commandStrings[0],
-                              &commandIndexes[1], commandStrings[1],
-                              &commandIndexes[2], commandStrings[2],
-                              &commandIndexes[2], commandStrings[2],
-                              &commandIndexes[3], commandStrings[3],
-                              &commandIndexes[4], commandStrings[4],
-                              &commandIndexes[5], commandStrings[5],
-                              &commandIndexes[6], commandStrings[6],
-                              &commandIndexes[7], commandStrings[7]);
+    &commandIndexes[0], commandStrings[0],
+    &commandIndexes[1], commandStrings[1],
+    &commandIndexes[2], commandStrings[2],
+    &commandIndexes[2], commandStrings[2],
+    &commandIndexes[3], commandStrings[3],
+    &commandIndexes[4], commandStrings[4],
+    &commandIndexes[5], commandStrings[5],
+    &commandIndexes[6], commandStrings[6],
+    &commandIndexes[7], commandStrings[7]);
   if (numScanned % 2 != 0) return;
   data.REPORT_MODE = true;
 
-  // parse each command
   for (uint8_t i = 0; i < numScanned / 2; i++) {
     uint8_t index = commandIndexes[i];
     if (index == CUTDOWN_INDEX && strncmp(commandStrings[i], CUTDOWN_COMMAND, strlen(commandStrings[i])) == 0) {
       data.SHOULD_CUTDOWN = true;
     }
-    // if index is out of bounds, stop parsing
     if (index < 0 || index > 80) return;
-    // otherwise, convert the command into a numerical value
     char* charAfterNumbers;
     float commandValue = (float) strtod(commandStrings[i], &charAfterNumbers);
-    if (*charAfterNumbers) return; // if there are non-numeric characters after our number, then invalid command value; stop parsing
+    if (*charAfterNumbers) return;
     updateConstant(index, commandValue);
   }
 }
@@ -368,7 +360,7 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 22) parseGPSCommand(value);
   else if (index == 23) parseHeaterCommand(value);
   else if (index == 24) data.PRESS_BASELINE = value;
-  else if (index == 25) data.DO_NOTHING_INTERVAL = value;
+  else if (index == 25) data.DO_NOTHING_INTERVAL = value * 60000;
   else if (index == 26) parseHeaterModeCommand(value);
   else if (index == 27) data.INCENTIVE_THRESHOLD = value;
   else if (index == 28) data.RE_ARM_CONSTANT = value;
@@ -598,7 +590,7 @@ void Avionics::logHeader() {
  * This function logs important information whenever a specific event occurs.
  */
 void Avionics::logAlert(const char* debug, bool fatal) {
-  if(fatal) PCB.faultLED();
+  if(fatal && data.DEBUG_STATE) PCB.faultLED();
   if(logFile) {
     logFile.print(data.TIME);
     logFile.print(',');
@@ -806,13 +798,13 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(data.RAW_PRESSURE_4);
   Serial.print(',');
-  Serial.print(data.RAW_ALTITUDE_1);
+  Serial.print(data.ALTITUDE_1);
   Serial.print(',');
-  Serial.print(data.RAW_ALTITUDE_2);
+  Serial.print(data.ALTITUDE_2);
   Serial.print(',');
-  Serial.print(data.RAW_ALTITUDE_3);
+  Serial.print(data.ALTITUDE_3);
   Serial.print(',');
-  Serial.print(data.RAW_ALTITUDE_4);
+  Serial.print(data.ALTITUDE_4);
   Serial.print('\n');
 }
 
@@ -981,13 +973,13 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.RAW_PRESSURE_4);
   dataFile.print(',');
-  dataFile.print(data.RAW_ALTITUDE_1);
+  dataFile.print(data.ALTITUDE_1);
   dataFile.print(',');
-  dataFile.print(data.RAW_ALTITUDE_2);
+  dataFile.print(data.ALTITUDE_2);
   dataFile.print(',');
-  dataFile.print(data.RAW_ALTITUDE_3);
+  dataFile.print(data.ALTITUDE_3);
   if(dataFile.print(',') != 1) sucess = false;
-  dataFile.print(data.RAW_ALTITUDE_4);
+  dataFile.print(data.ALTITUDE_4);
   dataFile.print('\n');
   dataFile.flush();
   return sucess;
@@ -1082,10 +1074,10 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.RAW_PRESSURE_2,                 0,    1000000, 19, lengthBits);
   lengthBits += compressVariable(data.RAW_PRESSURE_3,                 0,    1000000, 19, lengthBits);
   lengthBits += compressVariable(data.RAW_PRESSURE_4,                 0,    1000000, 19, lengthBits);
-  lengthBits += compressVariable(data.RAW_ALTITUDE_1,                -2000, 40000,   16, lengthBits);
-  lengthBits += compressVariable(data.RAW_ALTITUDE_2,                -2000, 40000,   16, lengthBits);
-  lengthBits += compressVariable(data.RAW_ALTITUDE_3,                -2000, 40000,   16, lengthBits);
-  lengthBits += compressVariable(data.RAW_ALTITUDE_4,                -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.ALTITUDE_1,                    -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.ALTITUDE_2,                    -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.ALTITUDE_3,                    -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.ALTITUDE_4,                    -2000, 40000,   16, lengthBits);
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
   data.COMMS_LENGTH = lengthBytes;

@@ -147,7 +147,7 @@ bool Avionics::readData() {
   data.LOOP_RATE       = millis() - data.LOOP_START;
   data.LOOP_START      = millis();
   data.MINUTES         += (double)(((double)data.LOOP_RATE) / 1000.0 / 60.0);
-  data.ALTITUDE_LAST   = data.ALTITUDE_BMP;
+  data.ALTITUDE_LAST   = data.ALTITUDE;
   data.VOLTAGE         = sensors.getVoltage();
   data.CURRENT         = sensors.getCurrent();
   data.CURRENT_GPS     = sensors.getCurrentGPS();
@@ -193,7 +193,7 @@ bool Avionics::processData() {
   data.ALTITUDE_4  = filter.getCalculatedAltitude(data.RAW_PRESSURE_4, data.PRESS_BASELINE);
   data.TEMP            = filter.getTemp(data.RAW_TEMP_1, data.RAW_TEMP_2, data.RAW_TEMP_3, data.RAW_TEMP_4);
   data.PRESS_BMP       = filter.getPressure(data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4);
-  data.ALTITUDE_BMP    = filter.getAltitude(data.ALTITUDE_1, data.ALTITUDE_2, data.ALTITUDE_3, data.ALTITUDE_4);
+  data.ALTITUDE        = filter.getAltitude(data.ALTITUDE_1, data.ALTITUDE_2, data.ALTITUDE_3, data.ALTITUDE_4);
   data.ASCENT_RATE     = filter.getAscentRate();
   return true;
 }
@@ -221,8 +221,8 @@ bool Avionics::runHeaters() {
 bool Avionics::runValve() {
   if(data.FORCE_VALVE || (data.VALVE_INCENTIVE >= 1)) {
     PCB.queueValve(data.VALVE_DURATION);
-    data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
-    PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE_BMP);
+    data.VALVE_ALT_LAST = data.ALTITUDE;
+    PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
     if(data.FORCE_VALVE) data.VALVE_DURATION = VALVE_DURATION_DEFAULT;
     data.FORCE_VALVE = false;
   }
@@ -238,8 +238,8 @@ bool Avionics::runValve() {
 bool Avionics::runBallast() {
   if(data.FORCE_BALLAST || (data.BALLAST_INCENTIVE >= 1)) {
     PCB.queueBallast(data.BALLAST_DURATION);
-    data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
-    PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE_BMP);
+    data.BALLAST_ALT_LAST = data.ALTITUDE;
+    PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
     data.FORCE_BALLAST = false;
   }
   data.BALLAST_STATE = PCB.checkBallast();
@@ -463,7 +463,7 @@ void Avionics::parseHeaterModeCommand(uint8_t command) {
 bool Avionics::calcVitals() {
   data.BAT_GOOD_STATE  = (data.VOLTAGE >= 3.63);
   data.CURR_GOOD_STATE = (data.CURRENT > -5.0 && data.CURRENT <= 500.0);
-  data.PRES_GOOD_STATE = (data.ALTITUDE_BMP > -50 && data.ALTITUDE_BMP < 200);
+  data.PRES_GOOD_STATE = (data.ALTITUDE > -50 && data.ALTITUDE < 200);
   data.TEMP_GOOD_STATE = (data.TEMP > 15 && data.TEMP < 50);
   data.GPS_GOOD_STATE  = (data.LAT_GPS != 1000.0 && data.LAT_GPS != 0.0 && data.LONG_GPS != 1000.0 && data.LONG_GPS != 0.0);
   return true;
@@ -475,7 +475,7 @@ bool Avionics::calcVitals() {
  * This function calculates if the avionics is in debug mode.
  */
 bool Avionics::calcDebug() {
-  if(data.DEBUG_STATE   && (data.ALTITUDE_LAST >= DEBUG_ALT) && (data.ALTITUDE_BMP >= DEBUG_ALT)) {
+  if(data.DEBUG_STATE   && (data.ALTITUDE_LAST >= DEBUG_ALT) && (data.ALTITUDE >= DEBUG_ALT)) {
     data.DEBUG_STATE = false;
   }
   return true;
@@ -490,8 +490,8 @@ bool Avionics::calcIncentives() {
   computer.updateControllerConstants(data.INCENTIVE_THRESHOLD, data.RE_ARM_CONSTANT, data.BALLAST_ARM_ALT);
   computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
-  data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE_BMP, data.VALVE_ALT_LAST);
-  data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE_BMP, data.BALLAST_ALT_LAST);
+  data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE, data.VALVE_ALT_LAST);
+  data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE, data.BALLAST_ALT_LAST);
   if (data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) {
     data.VALVE_INCENTIVE = 0;
     data.BALLAST_INCENTIVE = 0;
@@ -514,7 +514,7 @@ bool Avionics::calcCutdown() {
 
   if(CUTDOWN_ALT_ENABLE && !data.CUTDOWN_STATE &&
     (data.ALTITUDE_LAST >= CUTDOWN_ALT) &&
-    (data.ALTITUDE_BMP  >= CUTDOWN_ALT)
+    (data.ALTITUDE      >= CUTDOWN_ALT)
   ) data.SHOULD_CUTDOWN  = true;
   return true;
 }
@@ -644,7 +644,7 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(data.MINUTES, 6);
   Serial.print(',');
-  Serial.print(data.ALTITUDE_BMP);
+  Serial.print(data.ALTITUDE);
   Serial.print(',');
   Serial.print(data.ASCENT_RATE);
   Serial.print(',');
@@ -819,7 +819,7 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.MINUTES, 6);
   dataFile.print(',');
-  dataFile.print(data.ALTITUDE_BMP);
+  dataFile.print(data.ALTITUDE);
   dataFile.print(',');
   dataFile.print(data.ASCENT_RATE);
   dataFile.print(',');
@@ -996,7 +996,7 @@ int16_t Avionics::compressData() {
   for(uint16_t i = 0; i < BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
   lengthBits += compressVariable(data.TIME,                           0,    1000000, 19, lengthBits);
   lengthBits += compressVariable(data.MINUTES,                        0,    1000000, 19, lengthBits);
-  lengthBits += compressVariable(data.ALTITUDE_BMP,                  -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.ALTITUDE,                      -2000, 40000,   16, lengthBits);
   lengthBits += compressVariable(data.ASCENT_RATE,                   -10,   10,      11, lengthBits);
   lengthBits += compressVariable(data.VALVE_INCENTIVE,               -50,   10,      12, lengthBits);
   lengthBits += compressVariable(data.BALLAST_INCENTIVE,             -50,   10,      12, lengthBits);

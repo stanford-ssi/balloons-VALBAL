@@ -28,7 +28,7 @@ public:
   Avionics() :
     PCB(EEPROM_HEATER),
     sensors(),
-    gpsModule(GPS_ENABLE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIME),
+    gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIME),
     RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK) {
   }
   void    init();

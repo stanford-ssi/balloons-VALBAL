@@ -19,24 +19,24 @@
 */
 bool Sensors::init() {
   bool sucess = true;
-  pinMode(BATT_VOLTAGE_PIN, INPUT);
-  pinMode(BATT_CURRENT_PIN, INPUT);
+  pinMode(BATT_VOLTAGE,     INPUT);
+  pinMode(BATT_CURRENT,     INPUT);
   pinMode(EXTERNAL_CURRENT, INPUT);
   pinMode(NECK_TEMP_SENSOR, INPUT);
   if (!bme1.begin()) {
-    Serial.println("Could not find a valid BMP280 sensor, check wiring!");
+    Serial.println("Could not initialize BMP280 sensor 1, check wiring!");
     sucess = false;
   }
   if (!bme2.begin()) {
-    Serial.println("Could not find a valid BMP280 sensor, check wiring!");
+    Serial.println("Could not initialize BMP280 sensor 2, check wiring!");
     sucess = false;
   }
   if (!bme3.begin()) {
-    Serial.println("Could not find a valid BMP280 sensor, check wiring!");
+    Serial.println("Could not initialize BMP280 sensor 3, check wiring!");
     sucess = false;
   }
   if (!bme4.begin()) {
-    Serial.println("Could not find a valid BMP280 sensor, check wiring!");
+    Serial.println("Could not initialize BMP280 sensor 4, check wiring!");
     sucess = false;
   }
   Serial.println(bme1.readPressure());
@@ -57,7 +57,7 @@ bool Sensors::init() {
 /*
   function: getTime
   ---------------------------------
-  This function returns the time as a fixed length string.
+  This function returns the time.
 */
 uint32_t Sensors::getTime() {
   return millis();
@@ -69,7 +69,7 @@ uint32_t Sensors::getTime() {
   This function gets the battery voltage.
 */
 double Sensors::getVoltage() {
-  return (double)analogRead(BATT_VOLTAGE_PIN) * 1.2 * 4.0 / (double)pow(2, 12);
+  return (double)analogRead(BATT_VOLTAGE) * 1.2 * 4.0 / (double)pow(2, 12);
 }
 
 /*
@@ -78,9 +78,9 @@ double Sensors::getVoltage() {
   This function gets the total current draw.
 */
 double Sensors::getCurrent() {
-  double currentMonitor = (double)analogRead(BATT_CURRENT_PIN) / (double)pow(2, 12) * 1.2 * 4.0 / 0.496;
+  double internalCurrentMonitor = (double)analogRead(BATT_CURRENT)     / (double)pow(2, 12) * 1.2 * 4.0 / 0.496;
   double externalCurrentMonitor = (double)analogRead(EXTERNAL_CURRENT) / (double)pow(2, 12) * 1.2 * 4.0 / 0.496;
-  return currentMonitor + externalCurrentMonitor;
+  return internalCurrentMonitor + externalCurrentMonitor;
 }
 
 /*

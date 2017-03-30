@@ -205,7 +205,7 @@ bool Avionics::runHeaters() {
   if (!data.HEATER_SHOULD_USE || PCB.isValveRunning() || PCB.isBallastRunning()) {
     PCB.turnOffHeaters();
   } else {
-    PCB.heater(data.TEMP_SETPOINT, data.TEMP);
+    PCB.heater(data.TEMP_SETPOINT, data.TEMP, data.HEATER_STRONG_ENABLE, data.HEATER_WEEK_ENABLE);
   }
   return true;
 }
@@ -445,6 +445,14 @@ void Avionics::parseBallastCommand(float command) {
  * This function parses the RockBLOCK commands.
  */
 void Avionics::parseRockBLOCKCommand(bool command) {
+  data.RB_SHOULD_USE = false;
+  data.RB_SHOULD_USE = true;
+  if (command) {
+
+  }
+  else {
+
+  }
   //restart
   // if (valuee == 2) {
   //   if (powerStates[0] == 0 || powerStates[0] == 1 || powerStates[0] == 3) {
@@ -470,6 +478,8 @@ void Avionics::parseRockBLOCKCommand(bool command) {
  * This function parses the GPS commands.
  */
 void Avionics::parseGPSCommand(uint8_t command) {
+  data.GPS_SHOULD_USE = false;
+  data.GPS_SHOULD_USE = true;
  //restart
  // if (valuee == 0 || valuee == 1) {
  //   powerStates[1] = valuee;
@@ -514,20 +524,8 @@ void Avionics::parseHeaterCommand(bool command) {
  * This function parses the heater mode.
  */
 void Avionics::parseHeaterModeCommand(uint8_t command) {
-  // int vall = valuee;
-  // if (vall == 0) {
-  //   strongHeaterOn = false;
-  //   weakHeaterOn = false;
-  // } else if (vall == 1) {
-  //   strongHeaterOn = false;
-  //   weakHeaterOn = true;
-  // } else if (vall == 2) {
-  //   strongHeaterOn = true;
-  //   weakHeaterOn = false;
-  // } else if (vall == 3) {
-  //   strongHeaterOn = true;
-  //   weakHeaterOn = true;
-  // }
+  data.HEATER_STRONG_ENABLE = command & 0b0001;
+  data.HEATER_WEEK_ENABLE = command & 0b0010;
 }
 
 /*

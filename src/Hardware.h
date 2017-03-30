@@ -29,7 +29,7 @@ public:
   void faultLED();
 
   bool startUpHeaters(bool shouldStartup);
-  void heater(double tempSetpoint, double temp);
+  void heater(double tempSetpoint, double temp, bool strong, bool weak);
   void turnOffHeaters();
 
   void queueValve(int duration);

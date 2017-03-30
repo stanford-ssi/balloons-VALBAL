@@ -80,6 +80,8 @@ struct DataFrame {
   bool         RB_SHOULD_USE                  =                            true;
   bool         GPS_SHOULD_USE                 =                            true;
   bool         HEATER_SHOULD_USE              =                            true;
+  bool         HEATER_STRONG_ENABLE           =                            true;//TODO*******************************************************
+  bool         HEATER_WEEK_ENABLE             =                            true;//TODO*******************************************************
 
   bool         BMP_1_ENABLE                   =                            true;
   bool         BMP_2_ENABLE                   =                            true;

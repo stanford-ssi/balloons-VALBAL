@@ -81,12 +81,22 @@ bool Hardware::startUpHeaters(bool shouldStartup) {
   ---------------------------------
   This function runs the PID heater within the board.
 */
-void Hardware::heater(double tempSetpoint, double temp) {
+void Hardware::heater(double tempSetpoint, double temp, bool strong, bool weak) {
   PIDSetVar = tempSetpoint;
   PIDTempVar = temp;
   pid.Compute();
-  if (PIDOutVar != 0.0) analogWrite(HEATER_INTERNAL_STRONG, PIDOutVar / 2 + (ANALOG_MAX / 2));
-  else analogWrite(HEATER_INTERNAL_STRONG, 0);
+  if (PIDOutVar != 0.0) {
+    if (strong)  analogWrite(HEATER_INTERNAL_STRONG, PIDOutVar / 2 + (ANALOG_MAX / 2));
+    if (!strong) analogWrite(HEATER_INTERNAL_STRONG, 0);
+    if (weak)    analogWrite(HEATER_INTERNAL_WEAK, PIDOutVar / 2 + (ANALOG_MAX / 2));
+    if (!weak)   analogWrite(HEATER_INTERNAL_WEAK, 0);
+    // if (strong) RBheatJ += batteryVoltage * batteryVoltage * (elapsedSeconds + overflowSeconds) / 5.; // V^2/R * dt //TODO*******************************************
+    // if (weak) RBheatJ += batteryVoltage * batteryVoltage * (elapsedSeconds + overflowSeconds) / 10.; // V^2/R * dt  //TODO*******************************************
+  }
+  else {
+    analogWrite(HEATER_INTERNAL_STRONG, 0);
+    analogWrite(HEATER_INTERNAL_WEAK, 0);
+  }
 }
 
 /*

@@ -26,6 +26,8 @@ public:
   }
   bool    init(bool shouldStartup);
 /********************************  FUNCTIONS  *********************************/
+  void    restart();
+  void    shutdown();
   int16_t writeRead(char* buff, uint16_t len);
 private:
 /*********************************  HELPERS  **********************************/

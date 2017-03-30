@@ -50,11 +50,13 @@ private:
   bool    runValve();
   bool    runBallast();
   bool    runCutdown();
+  bool    runLED();
   bool    sendSATCOMS();
   void    parseCommand(int16_t len);
   void    updateConstant(uint8_t index, float value);
   void    parseSensorsCommand(uint8_t command);
-  void    parseAvionicsModeCommand(uint8_t command);
+  void    parseValveCommand(float command);
+  void    parseBallastCommand(float command);
   void    parseRockBLOCKCommand(bool command);
   void    parseGPSCommand(uint8_t command);
   void    parseHeaterCommand(bool command);

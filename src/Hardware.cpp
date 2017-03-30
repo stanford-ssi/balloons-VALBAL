@@ -38,6 +38,14 @@ void Hardware::init() {
 
 /********************************  FUNCTIONS  *********************************/
 /*
+ * Function: runLED
+ * -------------------
+ * This function turns the LED on or off.
+ */
+void Hardware::runLED(bool on) {
+  digitalWrite(LED_PIN, on);
+}
+/*
  * Function: faultLED
  * -------------------
  * This function alerts the user if there has been a fatal error.

@@ -25,6 +25,7 @@ public:
   }
   void init();
 /********************************  FUNCTIONS  *********************************/
+  void runLED(bool on);
   void faultLED();
 
   bool startUpHeaters(bool shouldStartup);

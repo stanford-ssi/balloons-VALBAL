@@ -30,9 +30,10 @@ bool Controller::init() {
  * -------------------
  * This function updates the constants to edit the algorythm.
  */
-void Controller::updateControllerConstants(float incentiveThreshold, float reArmConstant) {
+void Controller::updateControllerConstants(float incentiveThreshold, float reArmConstant, float BallastArmAlt) {
   INCENTIVE_THRESHOLD = incentiveThreshold;
   RE_ARM_CONSTANT     = reArmConstant;
+  BALLAST_ARM_ALT     = BallastArmAlt;
 }
 
 /*

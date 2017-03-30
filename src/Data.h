@@ -49,25 +49,29 @@ struct DataFrame {
   uint64_t     LOOP_START                     =                               0;
   bool         CONTROL_MODE                   =                               0;
   bool         REPORT_MODE                    =                               0;
-
   uint16_t     COMMS_LENGTH                   =                               0;
 
 /***************************  Flight Parameters  ******************************/
   bool         SHOULD_CUTDOWN                 =                           false;
+  bool         SHOULD_LED                     =                           false;//TODO*******************************************************
+  uint32_t     GPS_INTERVAL                   =            GPS_INTERVAL_DEFAULT;//TODO*******************************************************
+  uint32_t     COMMS_INTERVAL                 =          COMMS_INTERVAL_DEFAULT;//TODO*******************************************************
+  uint32_t     DO_NOTHING_INTERVAL            =     DO_NOTHING_INTERVAL_DEFAULT;//TODO*******************************************************
   double       PRESS_BASELINE                 =          PRESS_BASELINE_DEFAULT;
   double       TEMP_SETPOINT                  =           TEMP_SETPOINT_DEFAULT;
   float        INCENTIVE_THRESHOLD            =     INCENTIVE_THRESHOLD_DEFAULT;
   float        RE_ARM_CONSTANT                =                  RE_ARM_DEFAULT;
+  float        BALLAST_ARM_ALT                =         BALLAST_ARM_ALT_DEFAULT;
 
   float        VALVE_SETPOINT                 =          VALVE_SETPOINT_DEFAULT;
-  uint16_t     VALVE_TIME                     =                               0;
+  uint16_t     VALVE_DURATION                 =          VALVE_DURATION_DEFAULT;
   double       VALVE_ALT_LAST                 =          VALVE_ALT_LAST_DEFAULT;
   float        VALVE_VELOCITY_CONSTANT        =          VALVE_VELOCITY_DEFAULT;
   float        VALVE_ALTITUDE_DIFF_CONSTANT   =     VALVE_ALTITUDE_DIFF_DEFAULT;
   float        VALVE_LAST_ACTION_CONSTANT     =       VALVE_LAST_ACTION_DEFAULT;
 
   float        BALLAST_SETPOINT               =        BALLAST_SETPOINT_DEFAULT;
-  uint16_t     BALLAST_TIME                   =                               0;
+  uint16_t     BALLAST_DURATION               =        BALLAST_DURATION_DEFAULT;
   double       BALLAST_ALT_LAST               =        BALLAST_ALT_LAST_DEFAULT;
   float        BALLAST_VELOCITY_CONSTANT      =        BALLAST_VELOCITY_DEFAULT;
   float        BALLAST_ALTITUDE_DIFF_CONSTANT =   BALLAST_ALTITUDE_DIFF_DEFAULT;

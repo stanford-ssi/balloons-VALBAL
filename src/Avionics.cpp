@@ -66,6 +66,7 @@ void Avionics::actuateState() {
   if(!runValve())   logAlert("unable to run valve", true);
   if(!runBallast()) logAlert("unable to run ballast", true);
   if(!runCutdown()) logAlert("unable to run cutdown", true);
+  if(!runLED())     logAlert("unable to run LED", true);
 }
 
 /*
@@ -91,7 +92,7 @@ void Avionics::logState() {
  */
 void Avionics::sendComms() {
   if(data.DEBUG_STATE && ((millis() - data.COMMS_LAST) < COMMS_DEBUG_RATE)) return;
-  if(!data.DEBUG_STATE && ((millis() - data.COMMS_LAST) < COMMS_RATE)) return;
+  if(!data.DEBUG_STATE && ((millis() - data.COMMS_LAST) < data.COMMS_INTERVAL)) return;
   if(compressData() < 0) logAlert("unable to compress Data", true);
   if(!sendSATCOMS()) logAlert("unable to communicate over RB", true);
   data.COMMS_LAST = millis();
@@ -162,7 +163,7 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_2  = sensors.getRawPressure(2);
   data.RAW_PRESSURE_3  = sensors.getRawPressure(3);
   data.RAW_PRESSURE_4  = sensors.getRawPressure(4);
-  if ((millis() - data.GPS_LAST) >= GPS_RATE) {
+  if ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) {
     gpsModule.smartDelay(GPS_LOCK_TIME);
     data.LAT_GPS       = gpsModule.getLatitude();
     data.LONG_GPS      = gpsModule.getLongitude();
@@ -216,10 +217,11 @@ bool Avionics::runHeaters() {
  */
 bool Avionics::runValve() {
   if(data.FORCE_VALVE || (data.VALVE_INCENTIVE >= 1)) {
-    data.FORCE_VALVE = false;
-    PCB.queueValve(VALVE_DURATION);
+    PCB.queueValve(data.VALVE_DURATION);
     data.VALVE_ALT_LAST = data.ALTITUDE_BMP;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE_BMP);
+    if(data.FORCE_VALVE) data.VALVE_DURATION = VALVE_DURATION_DEFAULT;
+    data.FORCE_VALVE = false;
   }
   data.VALVE_STATE = PCB.checkValve();
   return true;
@@ -232,10 +234,10 @@ bool Avionics::runValve() {
  */
 bool Avionics::runBallast() {
   if(data.FORCE_BALLAST || (data.BALLAST_INCENTIVE >= 1)) {
-    data.FORCE_BALLAST = false;
-    PCB.queueBallast(BALLAST_DURATION);
+    PCB.queueBallast(data.BALLAST_DURATION);
     data.BALLAST_ALT_LAST = data.ALTITUDE_BMP;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE_BMP);
+    data.FORCE_BALLAST = false;
   }
   data.BALLAST_STATE = PCB.checkBallast();
   return true;
@@ -254,6 +256,21 @@ bool Avionics::runCutdown() {
     PCB.cutDown(false);
     data.CUTDOWN_STATE = true;
     logAlert("completed cutdown", false);
+  }
+  return true;
+}
+
+/*
+ * Function: runLED
+ * -------------------
+ * This function blinks the 1HZ LED required by the FAA.
+ */
+bool Avionics::runLED() {
+  if (data.SHOULD_LED && (uint32_t(millis() / 1000.0) % 2 == 1)) {
+    PCB.runLED(true);
+  }
+  else {
+    PCB.runLED(false);
   }
   return true;
 }
@@ -323,61 +340,60 @@ void Avionics::parseCommand(int16_t len) {
  * based on the command index.
  */
 void Avionics::updateConstant(uint8_t index, float value) {
-  if      (index == 0) data.VALVE_ALT_LAST = value;
-  else if (index == 1) data.BALLAST_ALT_LAST = value;
-  else if (index == 2) data.VALVE_SETPOINT = value;
-  else if (index == 3) data.BALLAST_SETPOINT = value;
-  else if (index == 4) data.TEMP_SETPOINT = value;
-  // else if (index == 5) ALTITUDE_CHANGE_BALLAST = value; // TODO: ???
-  else if (index == 6) data.VALVE_VELOCITY_CONSTANT = value;
-  else if (index == 7) data.VALVE_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
-  else if (index == 8) data.VALVE_LAST_ACTION_CONSTANT = 1.0 / value;
-  else if (index == 9) data.BALLAST_VELOCITY_CONSTANT = value;
+  if      (index == 0)  data.VALVE_ALT_LAST = value;
+  else if (index == 1)  data.BALLAST_ALT_LAST = value;
+  else if (index == 2)  data.VALVE_SETPOINT = value;
+  else if (index == 3)  data.BALLAST_SETPOINT = value;
+  else if (index == 4)  data.TEMP_SETPOINT = value;
+  else if (index == 5)  data.BALLAST_ARM_ALT = value;
+  else if (index == 6)  data.VALVE_VELOCITY_CONSTANT = value;
+  else if (index == 7)  data.VALVE_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
+  else if (index == 8)  data.VALVE_LAST_ACTION_CONSTANT = 1.0 / value;
+  else if (index == 9)  data.BALLAST_VELOCITY_CONSTANT = value;
   else if (index == 10) data.BALLAST_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
   else if (index == 11) data.BALLAST_LAST_ACTION_CONSTANT = 1.0 / value;
-  // else if (index == 12) COMM_BEACON_INTERVAL = valuee;
-  // else if (index == 13) GPS_BEACON_INTERVAL = valuee;
-  // else if (index == 14) IridiumVentTime = valuee;
-  // else if (index == 15) IridiumBallastTime = valuee;
-  else if (index == 16) parseSensorsCommand((uint8_t)value);
-  else if (index == 17) parseAvionicsModeCommand((uint8_t)value);
+  else if (index == 12) data.COMMS_INTERVAL = value * 60000;
+  else if (index == 13) data.GPS_INTERVAL = value * 60000;
+  else if (index == 14) data.VALVE_DURATION = value;
+  else if (index == 15) data.BALLAST_DURATION = value;
+  else if (index == 16) parseSensorsCommand(value);
+  else if (index == 17) data.CONTROL_MODE = value;
 
-  else if (index == 30) data.FORCE_VALVE = true; // TODO
-  else if (index == 31) data.FORCE_BALLAST = true; // TODO
+  else if (index == 30) parseValveCommand(value);
+  else if (index == 31) parseBallastCommand(value);
 
-  // else if (index == 33) LEDon = (bool) valuee; // TODO: we don't use this, right?
-  else if (index == 34) parseRockBLOCKCommand((bool)value);
-  else if (index == 35) parseGPSCommand((uint8_t)value);
-  else if (index == 36) parseHeaterCommand((bool)value);
+  else if (index == 33) data.SHOULD_LED = value;
+  else if (index == 34) parseRockBLOCKCommand(value);
+  else if (index == 35) parseGPSCommand(value);
+  else if (index == 36) parseHeaterCommand(value);
   else if (index == 37) data.PRESS_BASELINE = value;
-  // else if (index == 38) DO_NOTHING_TIMER = valuee; // TODO: we don't use this, right?
+  else if (index == 38) data.DO_NOTHING_INTERVAL = value;
 
-  else if (index == 42) VALVE_MOTOR_SPEED = value;
-  // else if (index == 43) VALVE_OPEN_BACKUP_TIMER = valuee; // TODO: we don't use this, right?
-  else if (index == 44) parseHeaterModeCommand((uint8_t)value);
+  else if (index == 44) parseHeaterModeCommand(value);
   else if (index == 45) data.INCENTIVE_THRESHOLD = value;
   /* TODO***********************************************************************
     data.VALVE_INCENTIVE                TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     data.BALLAST_INCENTIVE              TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    data.CONTROL_MODE                   TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    data.REPORT_MODE                    TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.CONTROL_MODE
+    data.REPORT_MODE
     data.SHOULD_CUTDOWN
     data.PRESS_BASELINE
     data.TEMP_SETPOINT
     data.INCENTIVE_THRESHOLD
     data.RE_ARM_CONSTANT                TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    data.VALVE_SETPOINT                 TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    data.VALVE_TIME                     TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.BALLAST_ARM_ALT
+    data.VALVE_SETPOINT
+    data.VALVE_DURATION
     data.VALVE_ALT_LAST                 TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    data.VALVE_VELOCITY_CONSTANT        TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    data.VALVE_ALTITUDE_DIFF_CONSTANT   TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    data.VALVE_LAST_ACTION_CONSTANT     TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~s~~~~~~
-    data.BALLAST_SETPOINT               TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    data.BALLAST_TIME                   TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.VALVE_VELOCITY_CONSTANT
+    data.VALVE_ALTITUDE_DIFF_CONSTANT
+    data.VALVE_LAST_ACTION_CONSTANT
+    data.BALLAST_SETPOINT
+    data.BALLAST_DURATION
     data.BALLAST_ALT_LAST               TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    data.BALLAST_VELOCITY_CONSTANT      TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    data.BALLAST_ALTITUDE_DIFF_CONSTANT TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    data.BALLAST_LAST_ACTION_CONSTANT   TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.BALLAST_VELOCITY_CONSTANT
+    data.BALLAST_ALTITUDE_DIFF_CONSTANT
+    data.BALLAST_LAST_ACTION_CONSTANT
     data.RB_SHOULD_USE                  TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     data.GPS_SHOULD_USE                 TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     data.HEATER_SHOULD_USE              TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -386,8 +402,8 @@ void Avionics::updateConstant(uint8_t index, float value) {
     data.BMP_3_ENABLE
     data.BMP_4_ENABLE
     data.SETUP_STATE                    TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    data.FORCE_VALVE                    TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    data.FORCE_BALLAST                  TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.FORCE_VALVE
+    data.FORCE_BALLAST
   */
 }
 
@@ -404,27 +420,23 @@ void Avionics::parseSensorsCommand(uint8_t command) {
 }
 
 /*
- * Function: parseAvionicsModeCommand
+ * Function: parseValveCommand
  * -------------------
- * This function parses the avionics mode setting.
+ * This function parses a forced valve command.
  */
-void Avionics::parseAvionicsModeCommand(uint8_t command) {
-  if (command == 0) {          // bad things?
-    data.REPORT_MODE = false;
-    data.CONTROL_MODE = false;
-  } else if (command == 1) {   // normal flight mode
-    data.REPORT_MODE = false;
-    data.CONTROL_MODE = true;
-  } else if (command == 2) {   // more bad things?
-    data.REPORT_MODE = true;
-    data.CONTROL_MODE = false;
-  } else if (command == 3) {   // launch / data gathering mode
-    data.REPORT_MODE = true;
-    data.CONTROL_MODE = true;
-  } else {                     // more bad things?
-    data.REPORT_MODE = true;
-    data.CONTROL_MODE = false;
-  }
+void Avionics::parseValveCommand(float command) {
+  data.FORCE_VALVE = true;
+  data.VALVE_DURATION = command;
+}
+
+/*
+ * Function: parseBallastCommand
+ * -------------------
+ * This function parses a forced valve command.
+ */
+void Avionics::parseBallastCommand(float command) {
+  data.FORCE_BALLAST = true;
+  data.BALLAST_DURATION = command;
 }
 
 /*
@@ -434,6 +446,22 @@ void Avionics::parseAvionicsModeCommand(uint8_t command) {
  */
 void Avionics::parseRockBLOCKCommand(bool command) {
   //restart
+  // if (valuee == 2) {
+  //   if (powerStates[0] == 0 || powerStates[0] == 1 || powerStates[0] == 3) {
+  //     powerStates[0] = 1;
+  //     EEPROM.write(10, 1);
+  //     digitalWrite(RB_GATE, HIGH);
+  //     delay(1000);
+  //     isbd.begin();
+  //     powerStates[0] = 2;
+  //     EEPROM.write(10, 2);
+  //   }
+  // } else if (valuee == 0 || valuee == 1 || valuee == 3) {
+  //   digitalWrite(RB_GATE, LOW);
+  //   powerStates[0] = valuee;
+  //   EEPROM.write(10, valuee);
+  //   isbd.begin();
+  // }
 }
 
 /*
@@ -443,6 +471,26 @@ void Avionics::parseRockBLOCKCommand(bool command) {
  */
 void Avionics::parseGPSCommand(uint8_t command) {
  //restart
+ // if (valuee == 0 || valuee == 1) {
+ //   powerStates[1] = valuee;
+ //   digitalWrite(GPS_ENABLE, LOW);
+ //   EEPROM.write(11, valuee);
+ // } else if (valuee == 2) {
+ //   EEPROM.write(11, 1);
+ //   digitalWrite(GPS_ENABLE, HIGH);
+ //   delay(500);
+ //   EEPROM.write(11, 2);
+ //   powerStates[1] = 2;
+ //   setGPSFlightMode();
+ // } else if (valuee == 3) {
+ //   hsGPS.println("$PUBX,00*33");
+ //   delay(1000);
+ //   smartdelay2(GPS_ACQUISITION_TIME_2);
+ //   age1 = 0;
+ //   lati = tinygps.location.lat();
+ //   longi = tinygps.location.lng();
+ //   alt = tinygps.altitude.meters();
+ // }
 }
 
 /*
@@ -452,6 +500,12 @@ void Avionics::parseGPSCommand(uint8_t command) {
  */
 void Avionics::parseHeaterCommand(bool command) {
   data.HEATER_SHOULD_USE = command;
+  // powerStates[2] = valuee;
+  // EEPROM.write(12, valuee);
+  // if (valuee == 0 || valuee == 1 || valuee == 3) {
+  //   analogWrite(HEATER_INTERNAL_STRONG, 0);
+  //   analogWrite(HEATER_INTERNAL_WEAK, 0);
+  // }
 }
 
 /*
@@ -460,7 +514,20 @@ void Avionics::parseHeaterCommand(bool command) {
  * This function parses the heater mode.
  */
 void Avionics::parseHeaterModeCommand(uint8_t command) {
-
+  // int vall = valuee;
+  // if (vall == 0) {
+  //   strongHeaterOn = false;
+  //   weakHeaterOn = false;
+  // } else if (vall == 1) {
+  //   strongHeaterOn = false;
+  //   weakHeaterOn = true;
+  // } else if (vall == 2) {
+  //   strongHeaterOn = true;
+  //   weakHeaterOn = false;
+  // } else if (vall == 3) {
+  //   strongHeaterOn = true;
+  //   weakHeaterOn = true;
+  // }
 }
 
 /*
@@ -495,7 +562,7 @@ bool Avionics::calcDebug() {
  * This function gets the updated incentives from the flight computer.
  */
 bool Avionics::calcIncentives() {
-  computer.updateControllerConstants(data.INCENTIVE_THRESHOLD, data.RE_ARM_CONSTANT);
+  computer.updateControllerConstants(data.INCENTIVE_THRESHOLD, data.RE_ARM_CONSTANT, data.BALLAST_ARM_ALT);
   computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
   data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE_BMP, data.VALVE_ALT_LAST);
@@ -505,6 +572,7 @@ bool Avionics::calcIncentives() {
     data.BALLAST_INCENTIVE = 0;
     return false;
   }
+  //data.DO_NOTHING_INTERVAL
   return true;
 }
 
@@ -701,9 +769,11 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(data.RE_ARM_CONSTANT);
   Serial.print(',');
+  Serial.print(data.BALLAST_ARM_ALT);
+  Serial.print(',');
   Serial.print(data.VALVE_SETPOINT);
   Serial.print(',');
-  Serial.print(data.VALVE_TIME);
+  Serial.print(data.VALVE_DURATION);
   Serial.print(',');
   Serial.print(data.VALVE_ALT_LAST);
   Serial.print(',');
@@ -715,7 +785,7 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(data.BALLAST_SETPOINT);
   Serial.print(',');
-  Serial.print(data.BALLAST_TIME);
+  Serial.print(data.BALLAST_DURATION);
   Serial.print(',');
   Serial.print(data.BALLAST_ALT_LAST);
   Serial.print(',');
@@ -874,9 +944,11 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.RE_ARM_CONSTANT);
   dataFile.print(',');
+  dataFile.print(data.BALLAST_ARM_ALT);
+  dataFile.print(',');
   dataFile.print(data.VALVE_SETPOINT);
   dataFile.print(',');
-  dataFile.print(data.VALVE_TIME);
+  dataFile.print(data.VALVE_DURATION);
   dataFile.print(',');
   dataFile.print(data.VALVE_ALT_LAST);
   dataFile.print(',');
@@ -888,7 +960,7 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.BALLAST_SETPOINT);
   dataFile.print(',');
-  dataFile.print(data.BALLAST_TIME);
+  dataFile.print(data.BALLAST_DURATION);
   dataFile.print(',');
   dataFile.print(data.BALLAST_ALT_LAST);
   dataFile.print(',');
@@ -1024,14 +1096,15 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.CURRENT_PAYLOAD,                0,    1000,    6,  lengthBits);
   lengthBits += compressVariable(data.INCENTIVE_THRESHOLD,            0,    4,       8,  lengthBits);
   lengthBits += compressVariable(data.RE_ARM_CONSTANT,                0,    4,       8,  lengthBits);
+  lengthBits += compressVariable(data.BALLAST_ARM_ALT,               -2000, 40000,   16, lengthBits);
   lengthBits += compressVariable(data.VALVE_SETPOINT,                -2000, 50000,   11, lengthBits);
-  lengthBits += compressVariable(data.VALVE_TIME,                     0,    50,      6,  lengthBits);
+  lengthBits += compressVariable(data.VALVE_DURATION,                     0,    50,      6,  lengthBits);
   lengthBits += compressVariable(data.VALVE_ALT_LAST,                -2000, 50000,   11, lengthBits);
   lengthBits += compressVariable(data.VALVE_VELOCITY_CONSTANT,        0,    1000,    8,  lengthBits);
   lengthBits += compressVariable(data.VALVE_ALTITUDE_DIFF_CONSTANT,   0,    4000,    8,  lengthBits);
   lengthBits += compressVariable(data.VALVE_LAST_ACTION_CONSTANT,     0,    4000,    8,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_SETPOINT,              -2000, 50000,   11, lengthBits);
-  lengthBits += compressVariable(data.BALLAST_TIME,                   0,    50,      6,  lengthBits);
+  lengthBits += compressVariable(data.BALLAST_DURATION,                   0,    50,      6,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_ALT_LAST,              -2000, 50000,   11, lengthBits);
   lengthBits += compressVariable(data.BALLAST_VELOCITY_CONSTANT,      0,    1000,    8,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_ALTITUDE_DIFF_CONSTANT, 0,    4000,    8,  lengthBits);

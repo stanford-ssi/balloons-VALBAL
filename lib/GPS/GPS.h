@@ -26,6 +26,9 @@ public:
   }
   bool     init(bool shouldStartup);
 /********************************  FUNCTIONS  *********************************/
+  void     restart();
+  void     hotstart();
+  void     shutdown();
   float    getLatitude();
   float    getLongitude();
   double   getAltitude();

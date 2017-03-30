@@ -45,6 +45,7 @@ private:
 /*********************************  HELPERS  **********************************/
   bool    readHistory();
   bool    readData();
+  bool    readGPS();
   bool    processData();
   bool    runHeaters();
   bool    runValve();

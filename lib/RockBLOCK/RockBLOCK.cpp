@@ -27,17 +27,37 @@ bool RockBLOCK::init(bool shouldStartup) {
   isbd.setPowerProfile(1);
   Serial3.begin(RB_BAUD);
   if (shouldStartup) {
-    EEPROM.write(EEPROMAddress, false);
-    digitalWrite(RB_GATE, HIGH);
-    delay(1000);
-    isbd.begin();
-    EEPROM.write(EEPROMAddress, true);
+    restart();
     success = true;
   }
   return success;
 }
 
 /********************************  FUNCTIONS  *********************************/
+/*
+  function: restart
+  ---------------------------------
+  This function restarts the RockBLOCK.
+*/
+void RockBLOCK::restart() {
+  EEPROM.write(EEPROMAddress, false);
+  digitalWrite(RB_GATE, HIGH);
+  delay(1000);
+  isbd.begin();
+  EEPROM.write(EEPROMAddress, true);
+}
+
+/*
+  function: shutdown
+  ---------------------------------
+  This function shutdown the RockBLOCK.
+*/
+void RockBLOCK::shutdown() {
+  digitalWrite(RB_GATE, LOW);
+  EEPROM.write(EEPROMAddress, false);
+  isbd.begin();
+}
+
 /*
   function: writeRead
   ---------------------------------

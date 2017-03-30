@@ -24,18 +24,47 @@ bool GPS::init(bool shouldStartup) {
   delay(2000);
   Serial1.begin(GPS_BAUD);
   if (shouldStartup) {
-    EEPROM.write(EEPROMAddress, false);
-    digitalWrite(GPS_ENABLE_PIN, HIGH);
-    delay(1000);
-    EEPROM.write(EEPROMAddress, true);
-    delay(3000);
-    setFlightMode(GPS_LOCK_TIME);
+    restart();
     success = true;
   }
   return success;
 }
 
 /********************************  FUNCTIONS  *********************************/
+/*
+  function: restart
+  ---------------------------------
+  This function restarts the GPS.
+*/
+void GPS::restart() {
+  EEPROM.write(EEPROMAddress, false);
+  digitalWrite(GPS_ENABLE_PIN, HIGH);
+  delay(1000);
+  EEPROM.write(EEPROMAddress, true);
+  delay(3000);
+  setFlightMode(GPS_LOCK_TIME);
+}
+
+/*
+  function: hotstart
+  ---------------------------------
+  This function hotstarts the GPS.
+*/
+void GPS::hotstart() {
+  Serial1.println("$PUBX,00*33");
+  delay(1000);
+}
+
+/*
+  function: shutdown
+  ---------------------------------
+  This function shutsdown the GPS.
+*/
+void GPS::shutdown() {
+  digitalWrite(GPS_ENABLE_PIN, LOW);
+  EEPROM.write(EEPROMAddress, false);
+}
+
 /*
   function: getLatitude
   ---------------------------------

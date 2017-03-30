@@ -163,17 +163,20 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_2  = sensors.getRawPressure(2);
   data.RAW_PRESSURE_3  = sensors.getRawPressure(3);
   data.RAW_PRESSURE_4  = sensors.getRawPressure(4);
-  if ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) {
-    gpsModule.smartDelay(GPS_LOCK_TIME);
-    data.LAT_GPS       = gpsModule.getLatitude();
-    data.LONG_GPS      = gpsModule.getLongitude();
-    data.ALTITUDE_GPS  = gpsModule.getAltitude();
-    data.HEADING_GPS   = gpsModule.getCourse();
-    data.SPEED_GPS     = gpsModule.getSpeed();
-    data.NUM_SATS_GPS  = gpsModule.getSats();
-    data.GPS_LAST      = millis();
-  }
+  if ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) readGPS();
   data.LOOP_GOOD_STATE = !data.LOOP_GOOD_STATE;
+  return true;
+}
+
+bool Avionics::readGPS() {
+  gpsModule.smartDelay(GPS_LOCK_TIME);
+  data.LAT_GPS         = gpsModule.getLatitude();
+  data.LONG_GPS        = gpsModule.getLongitude();
+  data.ALTITUDE_GPS    = gpsModule.getAltitude();
+  data.HEADING_GPS     = gpsModule.getCourse();
+  data.SPEED_GPS       = gpsModule.getSpeed();
+  data.NUM_SATS_GPS    = gpsModule.getSats();
+  data.GPS_LAST        = millis();
   return true;
 }
 
@@ -394,8 +397,8 @@ void Avionics::updateConstant(uint8_t index, float value) {
     data.BALLAST_VELOCITY_CONSTANT
     data.BALLAST_ALTITUDE_DIFF_CONSTANT
     data.BALLAST_LAST_ACTION_CONSTANT
-    data.RB_SHOULD_USE                  TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    data.GPS_SHOULD_USE                 TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    data.RB_SHOULD_USE
+    data.GPS_SHOULD_USE
     data.HEATER_SHOULD_USE              TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     data.BMP_1_ENABLE
     data.BMP_2_ENABLE
@@ -445,31 +448,14 @@ void Avionics::parseBallastCommand(float command) {
  * This function parses the RockBLOCK commands.
  */
 void Avionics::parseRockBLOCKCommand(bool command) {
-  data.RB_SHOULD_USE = false;
-  data.RB_SHOULD_USE = true;
-  if (command) {
-
+  if (command && !data.RB_SHOULD_USE ) {
+    data.RB_SHOULD_USE = true;
+    RBModule.restart();
   }
-  else {
-
+  else if (!command) {
+    data.RB_SHOULD_USE = false;
+    RBModule.shutdown();
   }
-  //restart
-  // if (valuee == 2) {
-  //   if (powerStates[0] == 0 || powerStates[0] == 1 || powerStates[0] == 3) {
-  //     powerStates[0] = 1;
-  //     EEPROM.write(10, 1);
-  //     digitalWrite(RB_GATE, HIGH);
-  //     delay(1000);
-  //     isbd.begin();
-  //     powerStates[0] = 2;
-  //     EEPROM.write(10, 2);
-  //   }
-  // } else if (valuee == 0 || valuee == 1 || valuee == 3) {
-  //   digitalWrite(RB_GATE, LOW);
-  //   powerStates[0] = valuee;
-  //   EEPROM.write(10, valuee);
-  //   isbd.begin();
-  // }
 }
 
 /*
@@ -478,29 +464,18 @@ void Avionics::parseRockBLOCKCommand(bool command) {
  * This function parses the GPS commands.
  */
 void Avionics::parseGPSCommand(uint8_t command) {
-  data.GPS_SHOULD_USE = false;
-  data.GPS_SHOULD_USE = true;
- //restart
- // if (valuee == 0 || valuee == 1) {
- //   powerStates[1] = valuee;
- //   digitalWrite(GPS_ENABLE, LOW);
- //   EEPROM.write(11, valuee);
- // } else if (valuee == 2) {
- //   EEPROM.write(11, 1);
- //   digitalWrite(GPS_ENABLE, HIGH);
- //   delay(500);
- //   EEPROM.write(11, 2);
- //   powerStates[1] = 2;
- //   setGPSFlightMode();
- // } else if (valuee == 3) {
- //   hsGPS.println("$PUBX,00*33");
- //   delay(1000);
- //   smartdelay2(GPS_ACQUISITION_TIME_2);
- //   age1 = 0;
- //   lati = tinygps.location.lat();
- //   longi = tinygps.location.lng();
- //   alt = tinygps.altitude.meters();
- // }
+  if (command == 0) {
+    data.GPS_SHOULD_USE = false;
+    gpsModule.shutdown();
+  }
+  else if (command == 1) {
+    data.GPS_SHOULD_USE = true;
+    gpsModule.restart();
+  }
+  else if (command == 3) {
+    gpsModule.hotstart();
+    readGPS();
+  }
 }
 
 /*

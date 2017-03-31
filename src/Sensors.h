@@ -40,7 +40,6 @@ public:
   double   getNeckTemp();
   double   getRawTemp(uint8_t sensor);
   double   getRawPressure(uint8_t sensor);
-  double   getRawAltitude(uint8_t sensor);
 private:
 /*********************************  HELPERS  **********************************/
 /*********************************  OBJECTS  **********************************/
@@ -48,7 +47,11 @@ private:
   Adafruit_BMP280 bme2;
   Adafruit_BMP280 bme3;
   Adafruit_BMP280 bme4;
-
+  uint32_t lastJoulesCall = 0;
+  double internalCurrentMonitor = 0;
+  double externalCurrentMonitor = 0;
+  double voltage = 0;
+  double joules = 0;
 };
 
 #endif

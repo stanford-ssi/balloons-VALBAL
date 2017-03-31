@@ -61,7 +61,8 @@ bool Sensors::init() {
   This function gets the battery voltage.
 */
 double Sensors::getVoltage() {
-  return (double)analogRead(BATT_VOLTAGE) * 1.2 * 4.0 / (double)pow(2, 12);
+  voltage = analogRead(BATT_VOLTAGE) * 1.2 * 4.0 / (double)pow(2, 12);
+  return voltage;
 }
 
 /*
@@ -70,11 +71,10 @@ double Sensors::getVoltage() {
   This function gets the total current draw.
 */
 double Sensors::getCurrent() {
-  double internalCurrentMonitor = (double)analogRead(BATT_CURRENT)     / (double)pow(2, 12) * 1.2 * 4.0 / 0.496;
-  double externalCurrentMonitor = (double)analogRead(EXTERNAL_CURRENT) / (double)pow(2, 12) * 1.2 * 4.0 / 0.496;
-  return (internalCurrentMonitor + externalCurrentMonitor) * 1000;
+  internalCurrentMonitor = ((double)analogRead(BATT_CURRENT)     / (double)pow(2, 12) * 1.2 * 4.0 / 0.496) * 1000;
+  externalCurrentMonitor = ((double)analogRead(EXTERNAL_CURRENT) / (double)pow(2, 12) * 1.2 * 4.0 / 0.496) * 1000;
+  return internalCurrentMonitor + externalCurrentMonitor;
 }
-
 
 /*
   function: getJoules
@@ -82,9 +82,9 @@ double Sensors::getCurrent() {
   This function gets the total joules.
 */
 double Sensors::getJoules() {
-  // if (strong) RBheatJ += batteryVoltage * batteryVoltage * (elapsedSeconds + overflowSeconds) / 5.; // V^2/R * dt //TODO*******************************************
-  // if (weak) RBheatJ += batteryVoltage * batteryVoltage * (elapsedSeconds + overflowSeconds) / 10.; // V^2/R * dt  //TODO*******************************************
-  return 0;
+  joules += internalCurrentMonitor * voltage * (millis() - lastJoulesCall) / 1000;
+  lastJoulesCall = millis();
+  return joules;
 }
 
 /*
@@ -169,19 +169,5 @@ double Sensors::getRawPressure(uint8_t sensor) {
   if (sensor == 2) value = bme2.readPressure();
   if (sensor == 3) value = bme3.readPressure();
   if (sensor == 4) value = bme4.readPressure();
-  return value;
-}
-
-/*
-  function: getRawAltitude
-  ---------------------------------
-  This function returns a raw reading from each of the sensors.
-*/
-double Sensors::getRawAltitude(uint8_t sensor) {
-  double value =  -1;
-  if (sensor == 1) value = bme1.readAltitude();
-  if (sensor == 2) value = bme2.readAltitude();
-  if (sensor == 3) value = bme3.readAltitude();
-  if (sensor == 4) value = bme4.readAltitude();
   return value;
 }

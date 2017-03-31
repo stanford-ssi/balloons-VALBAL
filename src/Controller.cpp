@@ -4,7 +4,6 @@
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
   Joan Creus-Costa | jcreus@stanford.edu
-  Ella Hofmann-Coyle | ellahofm@stanford.edu
   Claire Huang | chuang20@stanford.edu
 
   File: Controller.cpp

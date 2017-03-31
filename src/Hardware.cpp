@@ -2,6 +2,7 @@
   Stanford Student Space Initiative
   Balloons | VALBAL | March 2017
   Davy Ragland | dragland@stanford.edu
+  Claire Huang | chuang20@stanford.edu
   Matthew Tan | mratan@stanford.edu
 
   File: Hardware.cpp
@@ -52,7 +53,7 @@ void Hardware::runLED(bool on) {
  */
 void Hardware::faultLED() {
   digitalWrite(LED_PIN, HIGH);
-  delay(LOOP_RATE);
+  delay(LOOP_INTERVAL);
   digitalWrite(LED_PIN, LOW);
 }
 
@@ -86,12 +87,10 @@ void Hardware::heater(double tempSetpoint, double temp, bool strong, bool weak) 
   PIDTempVar = temp;
   pid.Compute();
   if (PIDOutVar != 0.0) {
-    if (strong)  analogWrite(HEATER_INTERNAL_STRONG, PIDOutVar / 2 + (ANALOG_MAX / 2));
+    if (strong)  analogWrite(HEATER_INTERNAL_STRONG, PIDOutVar / 2 + 127.5);
     if (!strong) analogWrite(HEATER_INTERNAL_STRONG, 0);
-    if (weak)    analogWrite(HEATER_INTERNAL_WEAK, PIDOutVar / 2 + (ANALOG_MAX / 2));
+    if (weak)    analogWrite(HEATER_INTERNAL_WEAK, PIDOutVar / 2 + 127.5);
     if (!weak)   analogWrite(HEATER_INTERNAL_WEAK, 0);
-    // if (strong) RBheatJ += batteryVoltage * batteryVoltage * (elapsedSeconds + overflowSeconds) / 5.; // V^2/R * dt //TODO*******************************************
-    // if (weak) RBheatJ += batteryVoltage * batteryVoltage * (elapsedSeconds + overflowSeconds) / 10.; // V^2/R * dt  //TODO*******************************************
   }
   else {
     analogWrite(HEATER_INTERNAL_STRONG, 0);

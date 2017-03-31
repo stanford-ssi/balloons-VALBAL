@@ -2,6 +2,7 @@
   Stanford Student Space Initiative
   Balloons | VALBAL | March 2017
   Davy Ragland | dragland@stanford.edu
+  Claire Huang | chuang20@stanford.edu
   Matthew Tan | mratan@stanford.edu
 
   File: Hardware.h

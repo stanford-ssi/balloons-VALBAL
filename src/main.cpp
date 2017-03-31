@@ -4,10 +4,9 @@
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
   Joan Creus-Costa | jcreus@stanford.edu
-  Ella Hofmann-Coyle | ellahofm@stanford.edu
   Claire Huang | chuang20@stanford.edu
-  Jesus Cervantes | cerjesus@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
+  Jesus Cervantes | cerjesus@stanford.edu
   Matthew Tan | mratan@stanford.edu
 
   File: main.cpp

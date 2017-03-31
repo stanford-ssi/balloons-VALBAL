@@ -2,6 +2,9 @@
   Stanford Student Space Initiative
   Balloons | VALBAL | March 2017
   Davy Ragland | dragland@stanford.edu
+  Claire Huang | chuang20@stanford.edu
+  Aria Tedjarati | satedjarati@stanford.edu
+  Joan Creus-Costa | jcreus@stanford.edu
 
   File: avionics.h
   --------------------------
@@ -43,6 +46,7 @@ public:
 
 private:
 /*********************************  HELPERS  **********************************/
+  bool    setupSDCard();
   bool    readHistory();
   bool    readData();
   bool    readGPS();

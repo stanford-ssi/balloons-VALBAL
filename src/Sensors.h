@@ -3,6 +3,7 @@
   Balloons | VALBAL | February 2017
   Davy Ragland | dragland@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
+  Jesus Cervantes | cerjesus@stanford.edu
 
   File: Sensors.h
   --------------------------
@@ -29,9 +30,9 @@ public:
   }
   bool     init();
 /********************************  FUNCTIONS  *********************************/
-  uint32_t getTime();
   double   getVoltage();
   double   getCurrent();
+  double   getJoules();
   double   getCurrentGPS();
   double   getCurrentRB();
   double   getCurrentMotors();

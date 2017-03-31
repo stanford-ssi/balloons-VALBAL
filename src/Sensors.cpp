@@ -3,6 +3,7 @@
   Balloons | VALBAL | February 2017
   Davy Ragland | dragland@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
+  Jesus Cervantes | cerjesus@stanford.edu
 
   File: Sensors.cpp
   --------------------------
@@ -55,15 +56,6 @@ bool Sensors::init() {
 
 /********************************  FUNCTIONS  *********************************/
 /*
-  function: getTime
-  ---------------------------------
-  This function returns the time.
-*/
-uint32_t Sensors::getTime() {
-  return millis();
-}
-
-/*
   function: getVoltage
   ---------------------------------
   This function gets the battery voltage.
@@ -80,7 +72,19 @@ double Sensors::getVoltage() {
 double Sensors::getCurrent() {
   double internalCurrentMonitor = (double)analogRead(BATT_CURRENT)     / (double)pow(2, 12) * 1.2 * 4.0 / 0.496;
   double externalCurrentMonitor = (double)analogRead(EXTERNAL_CURRENT) / (double)pow(2, 12) * 1.2 * 4.0 / 0.496;
-  return internalCurrentMonitor + externalCurrentMonitor;
+  return (internalCurrentMonitor + externalCurrentMonitor) * 1000;
+}
+
+
+/*
+  function: getJoules
+  ---------------------------------
+  This function gets the total joules.
+*/
+double Sensors::getJoules() {
+  // if (strong) RBheatJ += batteryVoltage * batteryVoltage * (elapsedSeconds + overflowSeconds) / 5.; // V^2/R * dt //TODO*******************************************
+  // if (weak) RBheatJ += batteryVoltage * batteryVoltage * (elapsedSeconds + overflowSeconds) / 10.; // V^2/R * dt  //TODO*******************************************
+  return 0;
 }
 
 /*

@@ -93,6 +93,10 @@ void Avionics::logState() {
 void Avionics::sendComms() {
   if(data.DEBUG_STATE && ((millis() - data.COMMS_LAST) < COMMS_DEBUG_RATE)) return;
   if(!data.DEBUG_STATE && ((millis() - data.COMMS_LAST) < data.COMMS_INTERVAL)) return;
+  if (!data.RB_SHOULD_USE && ((millis() - data.COMMS_LAST) < COMMS_RESTART_INTERVAL)) {
+    data.RB_SHOULD_USE = true;
+    RBModule.restart();
+  }
   if(compressData() < 0) logAlert("unable to compress Data", true);
   if(!sendSATCOMS()) logAlert("unable to communicate over RB", true);
   data.COMMS_LAST = millis();

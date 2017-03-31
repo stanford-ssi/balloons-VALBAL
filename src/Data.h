@@ -85,11 +85,6 @@ struct DataFrame {
   float        BALLAST_ALTITUDE_DIFF_CONSTANT  =  BALLAST_ALTITUDE_DIFF_DEFAULT;
   float        BALLAST_LAST_ACTION_CONSTANT    =    BALLAST_LAST_ACTION_DEFAULT;
 
-  bool         BMP_1_ENABLE                    =                           true;
-  bool         BMP_2_ENABLE                    =                           true;
-  bool         BMP_3_ENABLE                    =                           true;
-  bool         BMP_4_ENABLE                    =                           true;
-
   bool         SHOULD_CUTDOWN                  =                          false;
   bool         SHOULD_LED                      =                          false;
   bool         SETUP_STATE                     =                           true;
@@ -98,10 +93,10 @@ struct DataFrame {
   bool         FORCE_BALLAST                   =                          false;
   bool         REPORT_MODE                     =                          false;
 
-  double       ALTITUDE_LAST                   =                              0;
-  uint64_t     GPS_LAST                        =                              0;
-  uint64_t     COMMS_LAST                      =                              0;
-  uint16_t     COMMS_LENGTH                    =                              0;
+  bool         BMP_1_ENABLE                    =                           true;
+  bool         BMP_2_ENABLE                    =                           true;
+  bool         BMP_3_ENABLE                    =                           true;
+  bool         BMP_4_ENABLE                    =                           true;
 
   double       RAW_TEMP_1                      =                              0;
   double       RAW_TEMP_2                      =                              0;
@@ -113,10 +108,10 @@ struct DataFrame {
   double       RAW_PRESSURE_3                  =                              0;
   double       RAW_PRESSURE_4                  =                              0;
 
-  double       ALTITUDE_1                      =                              0;
-  double       ALTITUDE_2                      =                              0;
-  double       ALTITUDE_3                      =                              0;
-  double       ALTITUDE_4                      =                              0;
+  double       ALTITUDE_LAST                   =                              0;
+  uint64_t     GPS_LAST                        =                              0;
+  uint64_t     COMMS_LAST                      =                              0;
+  uint16_t     COMMS_LENGTH                    =                              0;
 };
 
 #endif

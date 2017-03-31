@@ -6,13 +6,14 @@
 
   File: Filters.h
   --------------------------
-  Interface to guarenteed good semsor values.
+  Interface to guarenteed good sensor values.
 */
 
 #ifndef FILTERS_H
 #define FILTERS_H
 
 #include "Config.h"
+#include <Eigen30.h>
 
 class Filters {
 public:

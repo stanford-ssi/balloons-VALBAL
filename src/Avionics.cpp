@@ -217,6 +217,72 @@ bool Avionics::processData() {
 }
 
 /*
+ * Function: calcVitals
+ * -------------------
+ * This function calculates if the current state is within bounds.
+ */
+bool Avionics::calcVitals() {
+  data.REPORT_MODE     = (data.ASCENT_RATE >= 10);
+  data.MANUAL_MODE     = (data.ASCENT_RATE >= 10);
+  data.BAT_GOOD_STATE  = (data.VOLTAGE >= 3.63);
+  data.CURR_GOOD_STATE = (data.CURRENT > -5.0 && data.CURRENT <= 500.0);
+  data.PRES_GOOD_STATE = (data.ALTITUDE > -50 && data.ALTITUDE < 200);
+  data.TEMP_GOOD_STATE = (data.TEMP > 15 && data.TEMP < 50);
+  data.GPS_GOOD_STATE  = (data.LAT_GPS != 1000.0 && data.LAT_GPS != 0.0 && data.LONG_GPS != 1000.0 && data.LONG_GPS != 0.0);
+  return true;
+}
+
+/*
+ * Function: calcDebug
+ * -------------------
+ * This function calculates if the avionics is in debug mode.
+ */
+bool Avionics::calcDebug() {
+  if(data.DEBUG_STATE   && (data.ALTITUDE_LAST >= DEBUG_ALT) && (data.ALTITUDE >= DEBUG_ALT)) {
+    data.DEBUG_STATE = false;
+  }
+  return true;
+}
+
+/*
+ * Function: calcIncentives
+ * -------------------
+ * This function gets the updated incentives from the flight computer.
+ */
+bool Avionics::calcIncentives() {
+  computer.updateControllerConstants(data.INCENTIVE_THRESHOLD, data.RE_ARM_CONSTANT, data.BALLAST_ARM_ALT);
+  computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
+  computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
+  data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE, data.VALVE_ALT_LAST);
+  data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE, data.BALLAST_ALT_LAST);
+  if (data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) {
+    data.VALVE_INCENTIVE = 0;
+    data.BALLAST_INCENTIVE = 0;
+    return false;
+  }
+  //data.DO_NOTHING_INTERVAL // TODO *******************************************
+  return true;
+}
+
+/*
+ * Function: calcCutdown
+ * -------------------
+ * This function calculates if the avionics should cutdown.
+ */
+bool Avionics::calcCutdown() {
+  if(CUTDOWN_GPS_ENABLE && data.GPS_GOOD_STATE &&
+    (((data.LAT_GPS < GPS_FENCE_LAT_MIN) || (data.LAT_GPS > GPS_FENCE_LAT_MAX)) ||
+    ((data.LONG_GPS < GPS_FENCE_LON_MIN) || (data.LONG_GPS > GPS_FENCE_LON_MAX)))
+  ) data.SHOULD_CUTDOWN  = true;
+
+  if(CUTDOWN_ALT_ENABLE && !data.CUTDOWN_STATE &&
+    (data.ALTITUDE_LAST >= CUTDOWN_ALT) &&
+    (data.ALTITUDE      >= CUTDOWN_ALT)
+  ) data.SHOULD_CUTDOWN  = true;
+  return true;
+}
+
+/*
  * Function: runHeaters
  * -------------------
  * This function thermally regulates the avionics. Disables heaters
@@ -238,6 +304,7 @@ bool Avionics::runHeaters() {
  */
 bool Avionics::runValve() {
   if(data.FORCE_VALVE || (data.VALVE_INCENTIVE >= 1)) {
+    data.NUM_VALVES++;
     PCB.queueValve(data.VALVE_DURATION);
     data.VALVE_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
@@ -255,6 +322,7 @@ bool Avionics::runValve() {
  */
 bool Avionics::runBallast() {
   if(data.FORCE_BALLAST || (data.BALLAST_INCENTIVE >= 1)) {
+    data.NUM_BALLASTS++;
     PCB.queueBallast(data.BALLAST_DURATION);
     data.BALLAST_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
@@ -475,72 +543,6 @@ void Avionics::parseHeaterModeCommand(uint8_t command) {
 }
 
 /*
- * Function: calcVitals
- * -------------------
- * This function calculates if the current state is within bounds.
- */
-bool Avionics::calcVitals() {
-  data.REPORT_MODE     = (data.ASCENT_RATE >= 10);
-  data.MANUAL_MODE     = (data.ASCENT_RATE >= 10);
-  data.BAT_GOOD_STATE  = (data.VOLTAGE >= 3.63);
-  data.CURR_GOOD_STATE = (data.CURRENT > -5.0 && data.CURRENT <= 500.0);
-  data.PRES_GOOD_STATE = (data.ALTITUDE > -50 && data.ALTITUDE < 200);
-  data.TEMP_GOOD_STATE = (data.TEMP > 15 && data.TEMP < 50);
-  data.GPS_GOOD_STATE  = (data.LAT_GPS != 1000.0 && data.LAT_GPS != 0.0 && data.LONG_GPS != 1000.0 && data.LONG_GPS != 0.0);
-  return true;
-}
-
-/*
- * Function: calcDebug
- * -------------------
- * This function calculates if the avionics is in debug mode.
- */
-bool Avionics::calcDebug() {
-  if(data.DEBUG_STATE   && (data.ALTITUDE_LAST >= DEBUG_ALT) && (data.ALTITUDE >= DEBUG_ALT)) {
-    data.DEBUG_STATE = false;
-  }
-  return true;
-}
-
-/*
- * Function: calcIncentives
- * -------------------
- * This function gets the updated incentives from the flight computer.
- */
-bool Avionics::calcIncentives() {
-  computer.updateControllerConstants(data.INCENTIVE_THRESHOLD, data.RE_ARM_CONSTANT, data.BALLAST_ARM_ALT);
-  computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
-  computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
-  data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE, data.VALVE_ALT_LAST);
-  data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE, data.BALLAST_ALT_LAST);
-  if (data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) {
-    data.VALVE_INCENTIVE = 0;
-    data.BALLAST_INCENTIVE = 0;
-    return false;
-  }
-  //data.DO_NOTHING_INTERVAL // TODO *******************************************
-  return true;
-}
-
-/*
- * Function: calcCutdown
- * -------------------
- * This function calculates if the avionics should cutdown.
- */
-bool Avionics::calcCutdown() {
-  if(CUTDOWN_GPS_ENABLE && data.GPS_GOOD_STATE &&
-    (((data.LAT_GPS < GPS_FENCE_LAT_MIN) || (data.LAT_GPS > GPS_FENCE_LAT_MAX)) ||
-    ((data.LONG_GPS < GPS_FENCE_LON_MIN) || (data.LONG_GPS > GPS_FENCE_LON_MAX)))
-  ) data.SHOULD_CUTDOWN  = true;
-
-  if(CUTDOWN_ALT_ENABLE && !data.CUTDOWN_STATE &&
-    (data.ALTITUDE_LAST >= CUTDOWN_ALT) &&
-    (data.ALTITUDE      >= CUTDOWN_ALT)
-  ) data.SHOULD_CUTDOWN  = true;
-  return true;
-}
-
-/*
  * Function: debugState
  * -------------------
  * This function provides debuging information.
@@ -680,6 +682,10 @@ void Avionics::printState() {
   Serial.print(data.VALVE_STATE);
   Serial.print(',');
   Serial.print(data.BALLAST_STATE);
+  Serial.print(',');
+  Serial.print(data.NUM_VALVES);
+  Serial.print(',');
+  Serial.print(data.NUM_BALLASTS);
   Serial.print(',');
   Serial.print(data.CUTDOWN_STATE);
   Serial.print(',');
@@ -860,6 +866,10 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.BALLAST_STATE);
   dataFile.print(',');
+  dataFile.print(data.NUM_VALVES);
+  dataFile.print(',');
+  dataFile.print(data.NUM_BALLASTS);
+  dataFile.print(',');
   dataFile.print(data.CUTDOWN_STATE);
   dataFile.print(',');
   dataFile.print(data.PRESS);
@@ -1033,6 +1043,8 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.BALLAST_INCENTIVE,               -50,   10,      12, lengthBits);
   lengthBits += compressVariable(data.VALVE_STATE,                      0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_STATE,                    0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.NUM_VALVES,                       0,    10000,   14, lengthBits);
+  lengthBits += compressVariable(data.NUM_BALLASTS,                     0,    10000,   14, lengthBits);
   lengthBits += compressVariable(data.CUTDOWN_STATE,                    0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.PRESS,                            0,    1000000, 19, lengthBits);
   lengthBits += compressVariable(data.TEMP,                            -50,   100,     9,  lengthBits);

@@ -48,14 +48,22 @@ private:
 /*********************************  HELPERS  **********************************/
   bool    setupSDCard();
   bool    readHistory();
+
   bool    readData();
   bool    readGPS();
   bool    processData();
+
+  bool    calcVitals();
+  bool    calcDebug();
+  bool    calcIncentives();
+  bool    calcCutdown();
+
   bool    runHeaters();
   bool    runValve();
   bool    runBallast();
   bool    runCutdown();
   bool    runLED();
+
   bool    sendSATCOMS();
   void    parseCommand(int16_t len);
   void    updateConstant(uint8_t index, float value);
@@ -66,10 +74,7 @@ private:
   void    parseGPSCommand(uint8_t command);
   void    parseHeaterCommand(bool command);
   void    parseHeaterModeCommand(uint8_t command);
-  bool    calcVitals();
-  bool    calcDebug();
-  bool    calcIncentives();
-  bool    calcCutdown();
+
   bool    debugState();
   void    setupLog();
   void    printHeader();

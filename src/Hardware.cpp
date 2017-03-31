@@ -35,6 +35,7 @@ void Hardware::init() {
   digitalWrite(PAYLOAD_GATE, LOW);
   analogReference(INTERNAL);
   analogReadResolution(12);
+  pid.SetMode(AUTOMATIC);
 }
 
 /********************************  FUNCTIONS  *********************************/

@@ -105,6 +105,6 @@ double Filters::getAltitude(double RAW_ALTITUDE_1, double RAW_ALTITUDE_2, double
 */
 double Filters::getAscentRate() {
   float ascentRateTotal = 0;
-  for (int i = 0; i < BUFFER_SIZE; i++) ascentRateTotal += ASCENT_RATE_BUFFER[i];
+  for (size_t i = 0; i < BUFFER_SIZE; i++) ascentRateTotal += ASCENT_RATE_BUFFER[i];
   return  ascentRateTotal / BUFFER_SIZE;
 }

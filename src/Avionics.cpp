@@ -251,7 +251,7 @@ bool Avionics::calcIncentives() {
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
   data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE, data.VALVE_ALT_LAST);
   data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE, data.BALLAST_ALT_LAST);
-  if (data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) {
+  if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) {
     data.VALVE_INCENTIVE = 0;
     data.BALLAST_INCENTIVE = 0;
     return false;
@@ -302,15 +302,14 @@ bool Avionics::runHeaters() {
 bool Avionics::runValve() {
   if(data.FORCE_VALVE || (data.VALVE_INCENTIVE >= 1)) {
     data.NUM_VALVE_ATTEMPTS++;
+    data.VALVE_ALT_LAST = data.ALTITUDE;
+    PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
+    data.FORCE_VALVE = false;
     if(!data.MANUAL_MODE) {
       data.NUM_VALVES++;
       PCB.queueValve(data.VALVE_DURATION);
     }
-    data.VALVE_ALT_LAST = data.ALTITUDE;
-    PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
-    data.FORCE_VALVE = false;
   }
-  //TODO CLEAR QUEUE IF INCENTIVE IS LESS THAN ONE
   data.VALVE_STATE = PCB.checkValve();
   return true;
 }
@@ -323,16 +322,15 @@ bool Avionics::runValve() {
 bool Avionics::runBallast() {
   if(data.FORCE_BALLAST || (data.BALLAST_INCENTIVE >= 1)) {
     data.NUM_VALVE_ATTEMPTS++;
+    data.BALLAST_ALT_LAST = data.ALTITUDE;
+    PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
+    data.FORCE_BALLAST = false;
     if(!data.MANUAL_MODE) {
       data.NUM_BALLASTS++;
       PCB.queueBallast(data.BALLAST_DURATION);
     }
-    data.BALLAST_ALT_LAST = data.ALTITUDE;
-    PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
-    data.FORCE_BALLAST = false;
   }
   data.BALLAST_STATE = PCB.checkBallast();
-  //TODO CLEAR QUEUE IF INCENTIVE IS LESS THAN ONE
   return true;
 }
 

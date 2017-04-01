@@ -166,10 +166,10 @@ bool Avionics::readData() {
   data.VOLTAGE         = sensors.getVoltage();
   data.CURRENT         = sensors.getCurrent();
   data.JOULES          = sensors.getJoules();
-  data.CURRENT_GPS     = sensors.getCurrentGPS();
-  data.CURRENT_RB      = sensors.getCurrentRB();
-  data.CURRENT_MOTORS  = sensors.getCurrentMotors();
-  data.CURRENT_PAYLOAD = sensors.getCurrentPayload();
+  data.CURRENT_GPS     = sensors.getCurrentSubsystem(GPS_CURRENT);
+  data.CURRENT_RB      = sensors.getCurrentSubsystem(RB_CURRENT);
+  data.CURRENT_MOTORS  = sensors.getCurrentSubsystem(Motors_CURRENT);
+  data.CURRENT_PAYLOAD = sensors.getCurrentSubsystem(Payload_CURRENT);
   data.TEMP_NECK       = sensors.getNeckTemp();
   data.RAW_TEMP_1      = sensors.getRawTemp(1);
   data.RAW_TEMP_2      = sensors.getRawTemp(2);
@@ -257,6 +257,7 @@ bool Avionics::calcIncentives() {
     return false;
   }
   //data.DO_NOTHING_INTERVAL // TODO *******************************************
+  //data.MANUAL_MODE // TODO *******************************************
   return true;
 }
 

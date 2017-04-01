@@ -27,7 +27,6 @@ public:
   float    getAltitude(float pressure, float pressureBaseline);
   double   getAscentRate();
 private:
-/*********************************  HELPERS  **********************************/
 /*********************************  OBJECTS  **********************************/
   bool     enabledSensors[4] = {true};
   uint8_t  numSensors;

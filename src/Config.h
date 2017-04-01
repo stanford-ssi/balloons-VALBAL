@@ -36,6 +36,10 @@ static const uint8_t   PAYLOAD_GATE                  =                       24;
 static const uint8_t   BATT_VOLTAGE                  =                      A14;
 static const uint8_t   BATT_CURRENT                  =                      A10;
 static const uint8_t   EXTERNAL_CURRENT              =                      A11;
+static const uint8_t   GPS_CURRENT                   =                        1;
+static const uint8_t   RB_CURRENT                    =                        2;
+static const uint8_t   Motors_CURRENT                =                        3;
+static const uint8_t   Payload_CURRENT               =                        4;
 static const uint8_t   NECK_TEMP_SENSOR              =                       A2;
 
 /****************************  EDITABLE CONSTANTS  ****************************/

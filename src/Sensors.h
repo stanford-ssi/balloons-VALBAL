@@ -32,16 +32,12 @@ public:
 /********************************  FUNCTIONS  *********************************/
   double   getVoltage();
   double   getCurrent();
+  double   getCurrentSubsystem(uint8_t subsystem);
   double   getJoules();
-  double   getCurrentGPS();
-  double   getCurrentRB();
-  double   getCurrentMotors();
-  double   getCurrentPayload();
   double   getNeckTemp();
   double   getRawTemp(uint8_t sensor);
   double   getRawPressure(uint8_t sensor);
 private:
-/*********************************  HELPERS  **********************************/
 /*********************************  OBJECTS  **********************************/
   Adafruit_BMP280 bme1;
   Adafruit_BMP280 bme2;

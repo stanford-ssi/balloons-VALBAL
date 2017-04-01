@@ -59,14 +59,11 @@ private:
 
 /*********************************  OBJECTS  **********************************/
   enum State {OPEN, OPENING, CLOSED, CLOSING};
-  uint8_t  EEPROMAddress;
-
-  // queues represent what Avionics told Hardware to do
-  uint64_t valveQueue = 0;
-  uint64_t ballastQueue = 0;
-  // State's represent the internal state of the Hardware
   State    valveState = CLOSED;
   State    ballastState = CLOSED;
+  uint8_t  EEPROMAddress;
+  uint64_t valveQueue = 0;
+  uint64_t ballastQueue = 0;
   bool     ballastDirection = false;
   uint64_t valveActionStartTime = 0;
   uint64_t ballastActionStartTime = 0;

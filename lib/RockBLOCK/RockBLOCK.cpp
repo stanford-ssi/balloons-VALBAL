@@ -13,10 +13,10 @@
 
 /**********************************  SETUP  ***********************************/
 /*
-  function: init
-  ---------------------------------
-  This function initializes the RockBlock module.
-*/
+ * Function: init
+ * -------------------
+ * This function initializes the RockBlock module.
+ */
 bool RockBLOCK::init(bool shouldStartup) {
   bool success = false;
   pinMode(RB_GATE, OUTPUT);
@@ -35,10 +35,10 @@ bool RockBLOCK::init(bool shouldStartup) {
 
 /********************************  FUNCTIONS  *********************************/
 /*
-  function: restart
-  ---------------------------------
-  This function restarts the RockBLOCK.
-*/
+ * Function: restart
+ * -------------------
+ * This function restarts the RockBLOCK.
+ */
 void RockBLOCK::restart() {
   EEPROM.write(EEPROMAddress, false);
   digitalWrite(RB_GATE, HIGH);
@@ -48,10 +48,10 @@ void RockBLOCK::restart() {
 }
 
 /*
-  function: shutdown
-  ---------------------------------
-  This function shutdown the RockBLOCK.
-*/
+ * Function: shutdown
+ * -------------------
+ * This function shutdown the RockBLOCK.
+ */
 void RockBLOCK::shutdown() {
   digitalWrite(RB_GATE, LOW);
   EEPROM.write(EEPROMAddress, false);
@@ -59,11 +59,11 @@ void RockBLOCK::shutdown() {
 }
 
 /*
-  function: writeRead
-  ---------------------------------
-  This function writes a bitstream across the communication interface.
-  It returns the length of a read message.
-*/
+ * Function: writeRead
+ * -------------------
+ * This function writes a bitstream across the communication interface.
+ * It returns the length of a read message.
+ */
 int16_t RockBLOCK::writeRead(char* buff, uint16_t len) {
   if(len > BUFFER_SIZE) return -1;
   if(len < 0) return -1;
@@ -78,10 +78,10 @@ int16_t RockBLOCK::writeRead(char* buff, uint16_t len) {
 
 /*********************************  HELPERS  **********************************/
 /*
-  function: write
-  ---------------------------------
-  This function writes a bitstream to the rockblock buffer.
-*/
+ * Function: write
+ * -------------------
+ * This function writes a bitstream to the rockblock buffer.
+ */
 void RockBLOCK::write(char* buff, uint16_t len) {
   for(size_t i = 0; i < len; i++) {
     rxBuffer[i] = buff[i];
@@ -89,10 +89,10 @@ void RockBLOCK::write(char* buff, uint16_t len) {
 }
 
 /*
-  function: read
-  ---------------------------------
-  This function reads a bitstream from the rockblock buffer.
-*/
+ * Function: read
+ * -------------------
+ * This function reads a bitstream from the rockblock buffer.
+ */
 void RockBLOCK::read(char* buff, uint16_t len) {
   for(size_t i = 0; i < len; i++) {
     buff[i] = rxBuffer[i];

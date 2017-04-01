@@ -14,10 +14,10 @@
 
 /**********************************  SETUP  ***********************************/
 /*
-  function: init
-  ---------------------------------
-  This function initializes the sensor hardware.
-*/
+ * Function: init
+ * -------------------
+ * This function initializes the sensor hardware.
+ */
 bool Sensors::init() {
   bool sucess = true;
   pinMode(BATT_VOLTAGE,     INPUT);
@@ -56,20 +56,20 @@ bool Sensors::init() {
 
 /********************************  FUNCTIONS  *********************************/
 /*
-  function: getVoltage
-  ---------------------------------
-  This function gets the battery voltage.
-*/
+ * Function: getVoltage
+ * -------------------
+ * This function gets the battery voltage.
+ */
 double Sensors::getVoltage() {
   voltage = analogRead(BATT_VOLTAGE) * 1.2 * 4.0 / (double)pow(2, 12);
   return voltage;
 }
 
 /*
-  function: getCurrent
-  ---------------------------------
-  This function gets the total current draw.
-*/
+ * Function: getCurrent
+ * -------------------
+ * This function gets the total current draw.
+ */
 double Sensors::getCurrent() {
   internalCurrentMonitor = ((double)analogRead(BATT_CURRENT)     / (double)pow(2, 12) * 1.2 * 4.0 / 0.496) * 1000;
   externalCurrentMonitor = ((double)analogRead(EXTERNAL_CURRENT) / (double)pow(2, 12) * 1.2 * 4.0 / 0.496) * 1000;
@@ -77,10 +77,20 @@ double Sensors::getCurrent() {
 }
 
 /*
-  function: getJoules
-  ---------------------------------
-  This function gets the total joules.
-*/
+ * Function: getCurrentSubsystem
+ * -------------------
+ * This function gets the subsystem current draw.
+ */
+double Sensors::getCurrentSubsystem(uint8_t subsystem) {
+  float currentMonitor = readCurrent(subsystem);
+  return currentMonitor;
+}
+
+/*
+ * Function: getJoules
+ * -------------------
+ * This function gets the total joules.
+ */
 double Sensors::getJoules() {
   joules += internalCurrentMonitor * voltage * (millis() - lastJoulesCall) / 1000;
   lastJoulesCall = millis();
@@ -88,53 +98,13 @@ double Sensors::getJoules() {
 }
 
 /*
-  function: getCurrentGPS
-  ---------------------------------
-  This function gets the GPS current draw.
-*/
-double Sensors::getCurrentGPS() {
-  float currentMonitor = readCurrent(1);
-  return currentMonitor;
-}
-
-/*
-  function: getCurrentRB
-  ---------------------------------
-  This function gets the RockBLOCK current draw.
-*/
-double Sensors::getCurrentRB() {
-  float currentMonitor = readCurrent(2);
-  return currentMonitor;
-}
-
-/*
-  function: getCurrentMotors
-  ---------------------------------
-  This function gets the motor current draw.
-*/
-double Sensors::getCurrentMotors() {
-  float currentMonitor = readCurrent(3);
-  return currentMonitor;
-}
-
-/*
-  function: getCurrentPayload
-  ---------------------------------
-  This function gets the payload current draw.
-*/
-double Sensors::getCurrentPayload() {
-  float currentMonitor = readCurrent(4);
-  return currentMonitor;
-}
-
-/*
-  function: getNeckTemp
-  ---------------------------------
-  This function gets the balloon neck temperature.
-*/
+ * Function: getNeckTemp
+ * -------------------
+ * This function gets the balloon neck temperature.
+ */
 double Sensors::getNeckTemp() {
   double vA = analogRead(NECK_TEMP_SENSOR) * 1.2 / (pow(2.0, 12.0));
-  double x = log(vA * 100000.0 / (1.0 - vA));
+  double x = log(vA * 100000.0 / (3.3 - vA));
   double a =   4.00141132e+02;
   double b =  -9.94189235e+01;
   double c =   1.16421122e+01;
@@ -145,10 +115,10 @@ double Sensors::getNeckTemp() {
 }
 
 /*
-  function: getRawTemp
-  ---------------------------------
-  This function returns a raw reading from each of the sensors.
-*/
+ * Function: getRawTemp
+ * -------------------
+ * This function returns a raw reading from each of the sensors.
+ */
 double Sensors::getRawTemp(uint8_t sensor) {
   double value =  -1;
   if (sensor == 1) value = bme1.readTemperature();
@@ -159,10 +129,10 @@ double Sensors::getRawTemp(uint8_t sensor) {
 }
 
 /*
-  function: getRawPressure
-  ---------------------------------
-  This function returns a raw reading from each of the sensors.
-*/
+ * Function: getRawPressure
+ * -------------------
+ * This function returns a raw reading from each of the sensors.
+ */
 double Sensors::getRawPressure(uint8_t sensor) {
   double value =  -1;
   if (sensor == 1) value = bme1.readPressure();

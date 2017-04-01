@@ -15,10 +15,10 @@
 
 /**********************************  SETUP  ***********************************/
 /*
-  function: init
-  ---------------------------------
-  This function initializes the flight controller.
-*/
+ * Function: init
+ * -------------------
+ * This function initializes the flight controller.
+ */
 bool Controller::init() {
   return true;
 }

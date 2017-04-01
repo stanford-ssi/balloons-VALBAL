@@ -13,10 +13,10 @@
 
 /**********************************  SETUP  ***********************************/
 /*
-  function: init
-  ---------------------------------
-  This function initializes the Ublox NEO-M8Q GPS module.
-*/
+ * Function: init
+ * -------------------
+ * This function initializes the Ublox NEO-M8Q GPS module.
+ */
 bool GPS::init(bool shouldStartup) {
   bool success = false;
   pinMode(GPS_ENABLE_PIN, OUTPUT);
@@ -32,10 +32,10 @@ bool GPS::init(bool shouldStartup) {
 
 /********************************  FUNCTIONS  *********************************/
 /*
-  function: restart
-  ---------------------------------
-  This function restarts the GPS.
-*/
+ * Function: restart
+ * -------------------
+ * This function restarts the GPS.
+ */
 void GPS::restart() {
   EEPROM.write(EEPROMAddress, false);
   digitalWrite(GPS_ENABLE_PIN, HIGH);
@@ -46,82 +46,84 @@ void GPS::restart() {
 }
 
 /*
-  function: hotstart
-  ---------------------------------
-  This function hotstarts the GPS.
-*/
+ * Function: hotstart
+ * -------------------
+ * This function hotstarts the GPS.
+ */
 void GPS::hotstart() {
   Serial1.println("$PUBX,00*33");
   delay(1000);
 }
 
 /*
-  function: shutdown
-  ---------------------------------
-  This function shutsdown the GPS.
-*/
+ * Function: shutdown
+ * -------------------
+ * This function shutsdown the GPS.
+ */
 void GPS::shutdown() {
   digitalWrite(GPS_ENABLE_PIN, LOW);
   EEPROM.write(EEPROMAddress, false);
 }
 
 /*
-  function: getLatitude
-  ---------------------------------
-  This function returns the current latitude.
-*/
+ * Function: getLatitude
+ * -------------------
+ * This function returns the current latitude.
+ */
 float GPS::getLatitude() {
   return tinygps.location.lat();
 }
 
 /*
-  function: getLongitude
-  ---------------------------------
-  This function returns the current longitude.
-*/
+ * Function: getLongitude
+ * -------------------
+ * This function returns the current longitude.
+ */
 float GPS::getLongitude() {
   return tinygps.location.lng();
 }
 
 /*
-  function: getAltitude
-  ---------------------------------
-  This function returns the current altitude in meters.
-*/
+ * Function: getAltitude
+ * -------------------
+ * This function returns the current altitude in meters.
+ */
 double GPS::getAltitude() {
   return tinygps.altitude.meters();
 }
 
 /*
-  function: getSpeed
-  ---------------------------------
-  This function returns the current speed in mph.
-*/
+ * Function: getSpeed
+ * -------------------
+ * This function returns the current speed in mph.
+ */
 double GPS::getSpeed() {
   return tinygps.speed.mph();
 }
 
 /*
-  function: getCourse
-  ---------------------------------
-  This function returns the current heading in degrees.
-*/
+ * Function: getCourse
+ * -------------------
+ * This function returns the current heading in degrees.
+ */
 double GPS::getCourse() {
   return tinygps.course.deg();
 }
 
 /*
-  function: getSats
-  ---------------------------------
-  This function returns the number of satelites detected.
-*/
+ * Function: getSats
+ * -------------------
+ * This function returns the number of satelites detected.
+ */
 uint32_t GPS::getSats() {
   return tinygps.satellites.value();
 }
+
 /*
  * Function: smartDelay
  * -------------------
- * This function pauses the main thread while still communicating with the comms interface.
+ * This function pauses the main thread while
+ * still communicating with the comms interface.
  */
 void GPS::smartDelay(uint64_t ms) {
   uint64_t startt = millis();
@@ -132,10 +134,10 @@ void GPS::smartDelay(uint64_t ms) {
 
 /*********************************  HELPERS  **********************************/
 /*
-  function: setFlightMode
-  ---------------------------------
-  This function sets the GPS module into flight mode.
-*/
+ * Function: setFlightMode
+ * -------------------
+ * This function sets the GPS module into flight mode.
+ */
 void GPS::setFlightMode(uint16_t GPS_LOCK_TIME){
   Serial.println("Setting uBlox nav mode: ");
   uint8_t gps_set_sucess = 0;
@@ -151,10 +153,10 @@ void GPS::setFlightMode(uint16_t GPS_LOCK_TIME){
 }
 
 /*
-  function: sendUBX
-  ---------------------------------
-  This function sends a byte array of UBX protocol to the GPS.
-*/
+ * Function: sendUBX
+ * -------------------
+ * This function sends a byte array of UBX protocol to the GPS.
+ */
 void GPS::sendUBX(uint8_t* MSG, uint8_t len) {
   for(int i = 0; i < len; i++) {
     Serial1.write(MSG[i]);
@@ -164,10 +166,10 @@ void GPS::sendUBX(uint8_t* MSG, uint8_t len) {
 }
 
 /*
-  function: getUBX_ACK
-  ---------------------------------
-  This function calculates the expected UBX ACK packet and parses the UBX response from GPS.
-*/
+ * Function: getUBX_ACK
+ * -------------------
+ * This function calculates the expected UBX ACK packet and parses the UBX response from GPS.
+ */
 boolean GPS::getUBX_ACK(uint8_t* MSG) {
   uint8_t  b;
   uint8_t  ackByteID = 0;

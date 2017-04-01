@@ -14,10 +14,10 @@
 
 /**********************************  SETUP  ***********************************/
 /*
-  function: init
-  ---------------------------------
-  This function initializes the PCB hardware.
-*/
+ * Function: init
+ * -------------------
+ * This function initializes the PCB hardware.
+ */
 void Hardware::init() {
   pinMode(REBOOT_ENABLE, OUTPUT);
   digitalWrite(REBOOT_ENABLE, HIGH);
@@ -59,10 +59,10 @@ void Hardware::faultLED() {
 }
 
 /*
-  function: startUpHeaters
-  ---------------------------------
-  This function starts up the heaters.
-*/
+ * Function: startUpHeaters
+ * -------------------
+ * This function starts up the heaters.
+ */
 bool Hardware::startUpHeaters(bool shouldStartup) {
   bool success = false;
   if (shouldStartup) {
@@ -79,10 +79,10 @@ bool Hardware::startUpHeaters(bool shouldStartup) {
 }
 
 /*
-  function: heater
-  ---------------------------------
-  This function runs the PID heater within the board.
-*/
+ * Function: heater
+ * -------------------
+ * This function runs the PID heater within the board.
+ */
 void Hardware::heater(double tempSetpoint, double temp, bool strong, bool weak) {
   PIDSetVar = tempSetpoint;
   PIDTempVar = temp;
@@ -100,66 +100,69 @@ void Hardware::heater(double tempSetpoint, double temp, bool strong, bool weak) 
 }
 
 /*
-  function: turnOffHeaters
-  ---------------------------------
-  This function shuts down the heaters.
-*/
+ * Function: turnOffHeaters
+ * -------------------
+ * This function shuts down the heaters.
+ */
 void Hardware::turnOffHeaters() {
   analogWrite(HEATER_INTERNAL_STRONG, 0);
   analogWrite(HEATER_INTERNAL_WEAK, 0);
 }
 
 /*
-  function: setHeaterMode
-  ---------------------------------
-  This function sets the heater mode that persists through system restarts.
-*/
+ * Function: setHeaterMode
+ * -------------------
+ * This function sets the heater mode that
+ * persists through system restarts.
+ */
 void Hardware::setHeaterMode(bool on) {
   EEPROM.write(EEPROMAddress, on);
 }
 
 /*
-  function: valve
-  ---------------------------------
-  This function increments the timer queue for the mechanical valve mechanism.
-*/
+ * Function: queueValve
+ * -------------------
+ * This function increments the timer queue
+ * for the mechanical valve mechanism.
+ */
 void Hardware::queueValve(int duration) {
   valveQueue += duration;
 }
 
 /*
-  function: ballast
-  ---------------------------------
-  This function increments the timer queue for the mechanical ballast mechanism.
-*/
+ * Function: queueBallast
+ * -------------------
+ * This function increments the timer queue
+ * for the mechanical ballast mechanism.
+ */
 void Hardware::queueBallast(int duration) {
   ballastQueue += duration;
 }
 
 /*
-  function: clearValveQueue
-  ---------------------------------
-  This clears any queued valve times.
-*/
+ * Function: clearValveQueue
+ * -------------------
+ * This clears any queued valve times.
+ */
 void Hardware::clearValveQueue() {
   valveQueue = 0;
 }
 
 /*
-  function: clearBallastQueue
-  ---------------------------------
-  This clears any queued ballast times.
-*/
+ * Function: clearBallastQueue
+ * -------------------
+ * This clears any queued ballast times.
+ */
 void Hardware::clearBallastQueue() {
   ballastQueue = 0;
 }
 
 /*
-  function: checkValve
-  ---------------------------------
-  This function provides a non-hanging interface to check the timer queue.
-  Called every loop; updates and acts on the current state of the valve.
-*/
+ * Function: checkValve
+ * -------------------
+ * This function provides a non-hanging interface to check the timer queue.
+ * Called every loop; updates and acts on the current state of the valve.
+ */
 bool Hardware::checkValve() {
   if (valveState == OPENING) {
     if (millis() - valveActionStartTime >= VALVE_OPENING_TIMEOUT) { // exceeded opening time
@@ -193,11 +196,11 @@ bool Hardware::checkValve() {
 }
 
 /*
-  function: checkBallast
-  ---------------------------------
-  This function provides a non-hanging interface to check the timer queue.
-  Called every loop; updates and acts on the current state of the valve.
-*/
+ * Function: checkBallast
+ * -------------------
+ * This function provides a non-hanging interface to check the timer queue.
+ * Called every loop; updates and acts on the current state of the ballast.
+ */
 bool Hardware::checkBallast() {
   if (ballastState == OPEN) {
     if (millis() - ballastActionStartTime >= ballastQueue) { // exceeded queued time
@@ -220,28 +223,28 @@ bool Hardware::checkBallast() {
 }
 
 /*
-  function: isValveRunning
-  ---------------------------------
-  This function checks if the valve is running.
-*/
+ * Function: isValveRunning
+ * -------------------
+ * This function checks if the valve is running.
+ */
 bool Hardware::isValveRunning() {
   return valveState == OPENING || valveState == CLOSING;
 }
 
 /*
-  function: isBallastRunning
-  ---------------------------------
-  This function checks if the ballast is running.
-*/
+ * Function: isBallastRunning
+ * -------------------
+ * This function checks if the ballast is running.
+ */
 bool Hardware::isBallastRunning() {
   return ballastState == OPEN;
 }
 
 /*
-  function: cutDown
-  ---------------------------------
-  This function triggers the mechanical cutdown of the payload.
-*/
+ * Function: cutDown
+ * -------------------
+ * This function triggers the mechanical cutdown of the payload.
+ */
 void Hardware::cutDown(bool on) {
   turnOffHeaters();
   //full motor engagement
@@ -252,11 +255,11 @@ void Hardware::cutDown(bool on) {
 }
 
 /*
-  function: writeToEEPROM
-  ---------------------------------
-  This helper function writes an integer digit-by-digit to EEPROM between the
-  specified bytes.
-*/
+ * Function: writeToEEPROM
+ * -------------------
+ * This helper function writes an integer digit-by-digit
+ * to EEPROM between the specified bytes.
+ */
 void Hardware::writeToEEPROM(uint8_t startByte, uint8_t endByte, int num) {
   // write from left to right (endByte to startByte) b/c writing from one's digit
 	for (int pos = endByte; pos >= startByte; pos--) {
@@ -267,11 +270,12 @@ void Hardware::writeToEEPROM(uint8_t startByte, uint8_t endByte, int num) {
 }
 
 /*
-  function: writeToEEPROM
-  ---------------------------------
-  This helper function reads an integer digit-by-digit from EEPROM between the
-  specified bytes, and then "clears" the data by writing the CLEAR_NUM sentinel.
-*/
+ * Function: writeToEEPROM
+ * -------------------
+ * This helper function reads an integer digit-by-digit
+ * from EEPROM between the specified bytes, and then "clears"
+ * the data by writing the CLEAR_NUM sentinel.
+ */
 int Hardware::readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte) {
   int num = 0;
   // build up number
@@ -288,50 +292,50 @@ int Hardware::readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte) {
 
 /*********************************  HELPERS  **********************************/
 /*
-  function: stopValve
-  ---------------------------------
-  This function stops the valve.
-*/
+ * Function: stopValve
+ * -------------------
+ * This function stops the valve.
+ */
 void Hardware::stopValve() {
   analogWrite(VALVE_FORWARD, LOW);
   analogWrite(VALVE_REVERSE, LOW);
 }
 
 /*
-  function: openValve
-  ---------------------------------
-  This function starts opening the valve.
-*/
+ * Function: openValve
+ * -------------------
+ * This function starts opening the valve.
+ */
 void Hardware::openValve() {
   analogWrite(VALVE_FORWARD, LOW);
   analogWrite(VALVE_REVERSE, VALVE_MOTOR_SPEED);
 }
 
 /*
-  function: closeValve
-  ---------------------------------
-  This function starts closing the valve.
-*/
+ * Function: closeValve
+ * -------------------
+ * This function starts closing the valve.
+ */
 void Hardware::closeValve() {
   analogWrite(VALVE_FORWARD, VALVE_MOTOR_SPEED);
   analogWrite(VALVE_REVERSE, LOW);
 }
 
 /*
-  function: stopBallast
-  ---------------------------------
-  This function stops the ballast.
-*/
+ * Function: stopBallast
+ * -------------------
+ * This function stops the ballast.
+ */
 void Hardware::stopBallast() {
   analogWrite(BALLAST_FORWARD, LOW);
   analogWrite(BALLAST_REVERSE, LOW);
 }
 
 /*
-  function: dropBallast
-  ---------------------------------
-  This function drops ballast.
-*/
+ * Function: dropBallast
+ * -------------------
+ * This function drops ballast.
+ */
 void Hardware::dropBallast(bool direction) {
   if (ballastDirection) {
     analogWrite(BALLAST_FORWARD, BALLAST_MOTOR_SPEED);

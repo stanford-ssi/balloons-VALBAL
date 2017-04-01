@@ -256,9 +256,6 @@ bool Avionics::calcIncentives() {
     data.BALLAST_INCENTIVE = 0;
     return false;
   }
-  //data.RE_ARM_CONSTANT // TODO************************************************
-  //data.DO_NOTHING_INTERVAL // TODO *******************************************
-  //data.MANUAL_MODE // TODO ***************************************************
   return true;
 }
 
@@ -425,35 +422,34 @@ void Avionics::parseCommand(int16_t len) {
  * based on the command index.
  */
 void Avionics::updateConstant(uint8_t index, float value) {
-  if      (index ==  0) data.VALVE_ALT_LAST = value;
-  else if (index ==  1) data.BALLAST_ALT_LAST = value;
-  else if (index ==  2) data.VALVE_SETPOINT = value;
-  else if (index ==  3) data.BALLAST_SETPOINT = value;
-  else if (index ==  4) data.TEMP_SETPOINT = value;
+  if      (index ==  0) data.MANUAL_MODE = value;
+  else if (index ==  1) data.VALVE_ALT_LAST = value;
+  else if (index ==  2) data.BALLAST_ALT_LAST = value;
+  else if (index ==  3) data.VALVE_SETPOINT = value;
+  else if (index ==  4) data.BALLAST_SETPOINT = value;
   else if (index ==  5) data.BALLAST_ARM_ALT = value;
-  else if (index ==  6) data.VALVE_VELOCITY_CONSTANT = value;
-  else if (index ==  7) data.VALVE_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
-  else if (index ==  8) data.VALVE_LAST_ACTION_CONSTANT = 1.0 / value;
-  else if (index ==  9) data.BALLAST_VELOCITY_CONSTANT = value;
-  else if (index == 10) data.BALLAST_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
-  else if (index == 11) data.BALLAST_LAST_ACTION_CONSTANT = 1.0 / value;
-  else if (index == 12) data.COMMS_INTERVAL = value * 60000;
-  else if (index == 13) data.GPS_INTERVAL = value * 60000;
+  else if (index ==  6) data.RE_ARM_CONSTANT = value;
+  else if (index ==  7) data.INCENTIVE_THRESHOLD = value;
+  else if (index ==  8) data.VALVE_VELOCITY_CONSTANT = value;
+  else if (index ==  9) data.VALVE_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
+  else if (index == 10) data.VALVE_LAST_ACTION_CONSTANT = 1.0 / value;
+  else if (index == 11) data.BALLAST_VELOCITY_CONSTANT = value;
+  else if (index == 12) data.BALLAST_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
+  else if (index == 13) data.BALLAST_LAST_ACTION_CONSTANT = 1.0 / value;
   else if (index == 14) data.VALVE_DURATION = value;
   else if (index == 15) data.BALLAST_DURATION = value;
-  else if (index == 16) parseSensorsCommand(value);
-  else if (index == 17) data.MANUAL_MODE = value;
-  else if (index == 18) parseValveCommand(value);
-  else if (index == 19) parseBallastCommand(value);
-  else if (index == 20) data.SHOULD_LED = value;
-  else if (index == 21) parseRockBLOCKCommand(value);
-  else if (index == 22) parseGPSCommand(value);
-  else if (index == 23) parseHeaterCommand(value);
-  else if (index == 24) data.PRESS_BASELINE = value;
-  else if (index == 25) data.DO_NOTHING_INTERVAL = value * 60000;
-  else if (index == 26) parseHeaterModeCommand(value);
-  else if (index == 27) data.INCENTIVE_THRESHOLD = value;
-  else if (index == 28) data.RE_ARM_CONSTANT = value;
+  else if (index == 16) data.PRESS_BASELINE = value;
+  else if (index == 17) data.TEMP_SETPOINT = value;
+  else if (index == 18) data.SHOULD_LED = value;
+  else if (index == 19) data.COMMS_INTERVAL = value * 60000;
+  else if (index == 20) data.GPS_INTERVAL = value * 60000;
+  else if (index == 21) parseSensorsCommand(value);
+  else if (index == 22) parseValveCommand(value);
+  else if (index == 23) parseBallastCommand(value);
+  else if (index == 24) parseRockBLOCKCommand(value);
+  else if (index == 25) parseGPSCommand(value);
+  else if (index == 26) parseHeaterCommand(value);
+  else if (index == 27) parseHeaterModeCommand(value);
 }
 
 /*
@@ -769,8 +765,6 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(data.PRESS_BASELINE);
   Serial.print(',');
-  Serial.print(data.DO_NOTHING_INTERVAL);
-  Serial.print(',');
   Serial.print(data.INCENTIVE_THRESHOLD);
   Serial.print(',');
   Serial.print(data.RE_ARM_CONSTANT);
@@ -952,8 +946,6 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.PRESS_BASELINE);
   dataFile.print(',');
-  dataFile.print(data.DO_NOTHING_INTERVAL);
-  dataFile.print(',');
   dataFile.print(data.INCENTIVE_THRESHOLD);
   dataFile.print(',');
   dataFile.print(data.RE_ARM_CONSTANT);
@@ -1092,7 +1084,6 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.GPS_GOOD_STATE,                   0,    1,       1,  lengthBits);
   if (data.REPORT_MODE) {
     lengthBits += compressVariable(data.PRESS_BASELINE,                 0,    1000000, 19, lengthBits);
-    lengthBits += compressVariable(data.DO_NOTHING_INTERVAL,            0,    1000000, 19, lengthBits);
     lengthBits += compressVariable(data.INCENTIVE_THRESHOLD,            0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.RE_ARM_CONSTANT,                0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_ARM_ALT,               -2000, 40000,   16, lengthBits);

@@ -372,7 +372,6 @@ bool Avionics::sendSATCOMS() {
     return false;
   }
   data.RB_GOOD_STATE  = true;
-  data.REPORT_MODE = false;
   if(ret > 0) parseCommand(ret);
   return true;
 }

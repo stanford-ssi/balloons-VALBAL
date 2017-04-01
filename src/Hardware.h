@@ -65,6 +65,7 @@ private:
   uint64_t valveQueue = 0;
   uint64_t ballastQueue = 0;
   bool     ballastDirection = false;
+  uint64_t valveLeakStartTime = 0;
   uint64_t valveActionStartTime = 0;
   uint64_t ballastActionStartTime = 0;
 

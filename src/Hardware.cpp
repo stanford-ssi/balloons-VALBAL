@@ -192,7 +192,11 @@ bool Hardware::checkValve() {
       stopValve();
     }
   }
-  return valveQueue > 0;
+  if((valveState == CLOSED) && (millis() - valveLeakStartTime) >= VALVE_LEAK_TIMEOUT) {
+    valveLeakStartTime = millis();
+    closeValve();
+  }
+  return valveState != CLOSED;
 }
 
 /*
@@ -219,7 +223,7 @@ bool Hardware::checkBallast() {
       stopBallast();
     }
   }
-  return ballastQueue > 0;
+  return ballastState != CLOSED;
 }
 
 /*

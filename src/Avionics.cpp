@@ -305,7 +305,6 @@ bool Avionics::runValve() {
     PCB.queueValve(data.VALVE_DURATION);
     data.VALVE_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
-    if(data.FORCE_VALVE) data.VALVE_DURATION = VALVE_DURATION_DEFAULT;
     data.FORCE_VALVE = false;
   }
   data.VALVE_STATE = PCB.checkValve();
@@ -323,7 +322,6 @@ bool Avionics::runBallast() {
     PCB.queueBallast(data.BALLAST_DURATION);
     data.BALLAST_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
-    if(data.FORCE_BALLAST) data.BALLAST_DURATION = BALLAST_DURATION_DEFAULT;
     data.FORCE_BALLAST = false;
   }
   data.BALLAST_STATE = PCB.checkBallast();

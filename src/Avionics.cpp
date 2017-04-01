@@ -246,9 +246,9 @@ bool Avionics::calcDebug() {
  * This function gets the updated incentives from the flight computer.
  */
 bool Avionics::calcIncentives() {
-  computer.updateControllerConstants(data.INCENTIVE_THRESHOLD, data.RE_ARM_CONSTANT, data.BALLAST_ARM_ALT);
   computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
+  data.RE_ARM_CONSTANT   = computer.updateControllerConstants(data.BALLAST_ARM_ALT, data.INCENTIVE_THRESHOLD);
   data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE, data.VALVE_ALT_LAST);
   data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE, data.BALLAST_ALT_LAST);
   if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) {
@@ -428,28 +428,27 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index ==  3) data.VALVE_SETPOINT = value;
   else if (index ==  4) data.BALLAST_SETPOINT = value;
   else if (index ==  5) data.BALLAST_ARM_ALT = value;
-  else if (index ==  6) data.RE_ARM_CONSTANT = value;
-  else if (index ==  7) data.INCENTIVE_THRESHOLD = value;
-  else if (index ==  8) data.VALVE_VELOCITY_CONSTANT = value;
-  else if (index ==  9) data.VALVE_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
-  else if (index == 10) data.VALVE_LAST_ACTION_CONSTANT = 1.0 / value;
-  else if (index == 11) data.BALLAST_VELOCITY_CONSTANT = value;
-  else if (index == 12) data.BALLAST_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
-  else if (index == 13) data.BALLAST_LAST_ACTION_CONSTANT = 1.0 / value;
-  else if (index == 14) data.VALVE_DURATION = value;
-  else if (index == 15) data.BALLAST_DURATION = value;
-  else if (index == 16) data.PRESS_BASELINE = value;
-  else if (index == 17) data.TEMP_SETPOINT = value;
-  else if (index == 18) data.SHOULD_LED = value;
-  else if (index == 19) data.COMMS_INTERVAL = value * 60000;
-  else if (index == 20) data.GPS_INTERVAL = value * 60000;
-  else if (index == 21) parseSensorsCommand(value);
-  else if (index == 22) parseValveCommand(value);
-  else if (index == 23) parseBallastCommand(value);
-  else if (index == 24) parseRockBLOCKCommand(value);
-  else if (index == 25) parseGPSCommand(value);
-  else if (index == 26) parseHeaterCommand(value);
-  else if (index == 27) parseHeaterModeCommand(value);
+  else if (index ==  6) data.INCENTIVE_THRESHOLD = value;
+  else if (index ==  7) data.VALVE_VELOCITY_CONSTANT = value;
+  else if (index ==  8) data.VALVE_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
+  else if (index ==  9) data.VALVE_LAST_ACTION_CONSTANT = 1.0 / value;
+  else if (index == 10) data.BALLAST_VELOCITY_CONSTANT = value;
+  else if (index == 11) data.BALLAST_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
+  else if (index == 12) data.BALLAST_LAST_ACTION_CONSTANT = 1.0 / value;
+  else if (index == 13) data.VALVE_DURATION = value;
+  else if (index == 14) data.BALLAST_DURATION = value;
+  else if (index == 15) data.PRESS_BASELINE = value;
+  else if (index == 16) data.TEMP_SETPOINT = value;
+  else if (index == 17) data.SHOULD_LED = value;
+  else if (index == 18) data.COMMS_INTERVAL = value * 60000;
+  else if (index == 19) data.GPS_INTERVAL = value * 60000;
+  else if (index == 20) parseSensorsCommand(value);
+  else if (index == 21) parseValveCommand(value);
+  else if (index == 22) parseBallastCommand(value);
+  else if (index == 23) parseRockBLOCKCommand(value);
+  else if (index == 24) parseGPSCommand(value);
+  else if (index == 25) parseHeaterCommand(value);
+  else if (index == 26) parseHeaterModeCommand(value);
 }
 
 /*

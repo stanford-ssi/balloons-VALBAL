@@ -301,12 +301,16 @@ bool Avionics::runHeaters() {
  */
 bool Avionics::runValve() {
   if(data.FORCE_VALVE || (data.VALVE_INCENTIVE >= 1)) {
-    data.NUM_VALVES++;
-    PCB.queueValve(data.VALVE_DURATION);
+    data.NUM_VALVE_ATTEMPTS++;
+    if(!data.MANUAL_MODE) {
+      data.NUM_VALVES++;
+      PCB.queueValve(data.VALVE_DURATION);
+    }
     data.VALVE_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
     data.FORCE_VALVE = false;
   }
+  //TODO CLEAR QUEUE IF INCENTIVE IS LESS THAN ONE
   data.VALVE_STATE = PCB.checkValve();
   return true;
 }
@@ -318,13 +322,17 @@ bool Avionics::runValve() {
  */
 bool Avionics::runBallast() {
   if(data.FORCE_BALLAST || (data.BALLAST_INCENTIVE >= 1)) {
-    data.NUM_BALLASTS++;
-    PCB.queueBallast(data.BALLAST_DURATION);
+    data.NUM_VALVE_ATTEMPTS++;
+    if(!data.MANUAL_MODE) {
+      data.NUM_BALLASTS++;
+      PCB.queueBallast(data.BALLAST_DURATION);
+    }
     data.BALLAST_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
     data.FORCE_BALLAST = false;
   }
   data.BALLAST_STATE = PCB.checkBallast();
+  //TODO CLEAR QUEUE IF INCENTIVE IS LESS THAN ONE
   return true;
 }
 
@@ -681,6 +689,10 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(data.NUM_BALLASTS);
   Serial.print(',');
+  Serial.print(data.NUM_VALVE_ATTEMPTS);
+  Serial.print(',');
+  Serial.print(data.NUM_BALLAST_ATTEMPTS);
+  Serial.print(',');
   Serial.print(data.CUTDOWN_STATE);
   Serial.print(',');
   Serial.print(data.PRESS);
@@ -856,6 +868,10 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.NUM_BALLASTS);
   dataFile.print(',');
+  dataFile.print(data.NUM_VALVE_ATTEMPTS);
+  dataFile.print(',');
+  dataFile.print(data.NUM_BALLAST_ATTEMPTS);
+  dataFile.print(',');
   dataFile.print(data.CUTDOWN_STATE);
   dataFile.print(',');
   dataFile.print(data.PRESS);
@@ -1023,6 +1039,8 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.BALLAST_STATE,                    0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.NUM_VALVES,                       0,    10000,   14, lengthBits);
   lengthBits += compressVariable(data.NUM_BALLASTS,                     0,    10000,   14, lengthBits);
+  lengthBits += compressVariable(data.NUM_VALVE_ATTEMPTS,               0,    10000,   14, lengthBits);
+  lengthBits += compressVariable(data.NUM_BALLAST_ATTEMPTS,             0,    10000,   14, lengthBits);
   lengthBits += compressVariable(data.CUTDOWN_STATE,                    0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.PRESS,                            0,    1000000, 19, lengthBits);
   lengthBits += compressVariable(data.TEMP,                            -50,   100,     9,  lengthBits);

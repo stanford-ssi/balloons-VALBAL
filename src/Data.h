@@ -28,6 +28,8 @@ struct DataFrame {
   bool         BALLAST_STATE                   =                          false;
   uint32_t     NUM_VALVES                      =                              0;
   uint32_t     NUM_BALLASTS                    =                              0;
+  uint32_t     NUM_VALVE_ATTEMPTS              =                              0;
+  uint32_t     NUM_BALLAST_ATTEMPTS            =                              0;
   bool         CUTDOWN_STATE                   =                          false;
 
   double       PRESS                           =                              0;

@@ -26,6 +26,8 @@ struct DataFrame {
   float        BALLAST_INCENTIVE               =                              0;
   bool         VALVE_STATE                     =                          false;
   bool         BALLAST_STATE                   =                          false;
+  uint32_t     VALVE_QUEUE                     =                              0;
+  uint32_t     BALLAST_QUEUE                   =                              0;
   uint32_t     NUM_VALVES                      =                              0;
   uint32_t     NUM_BALLASTS                    =                              0;
   uint32_t     NUM_VALVE_ATTEMPTS              =                              0;

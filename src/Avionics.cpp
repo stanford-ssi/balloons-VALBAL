@@ -256,8 +256,9 @@ bool Avionics::calcIncentives() {
     data.BALLAST_INCENTIVE = 0;
     return false;
   }
+  //data.RE_ARM_CONSTANT // TODO************************************************
   //data.DO_NOTHING_INTERVAL // TODO *******************************************
-  //data.MANUAL_MODE // TODO *******************************************
+  //data.MANUAL_MODE // TODO ***************************************************
   return true;
 }
 
@@ -300,7 +301,7 @@ bool Avionics::runHeaters() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runValve() {
-  if(data.FORCE_VALVE || (data.VALVE_INCENTIVE >= 1)) {
+  if((data.VALVE_INCENTIVE >= 1 && PCB.getValveQueue() <= 1) || data.FORCE_VALVE) {
     data.NUM_VALVE_ATTEMPTS++;
     data.VALVE_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
@@ -310,6 +311,7 @@ bool Avionics::runValve() {
       PCB.queueValve(data.VALVE_DURATION);
     }
   }
+  data.VALVE_QUEUE = PCB.getValveQueue();
   data.VALVE_STATE = PCB.checkValve();
   return true;
 }
@@ -320,7 +322,7 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runBallast() {
-  if(data.FORCE_BALLAST || (data.BALLAST_INCENTIVE >= 1)) {
+  if((data.BALLAST_INCENTIVE >= 1 && PCB.getBallastQueue() <= 1) || data.FORCE_BALLAST) {
     data.NUM_VALVE_ATTEMPTS++;
     data.BALLAST_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
@@ -330,6 +332,7 @@ bool Avionics::runBallast() {
       PCB.queueBallast(data.BALLAST_DURATION);
     }
   }
+  data.BALLAST_QUEUE = PCB.getBallastQueue();
   data.BALLAST_STATE = PCB.checkBallast();
   return true;
 }
@@ -471,18 +474,25 @@ void Avionics::parseSensorsCommand(uint8_t command) {
  * This function parses a forced valve command.
  */
 void Avionics::parseValveCommand(float command) {
-  data.FORCE_VALVE = true;
-  data.VALVE_DURATION = command;
+  if(command == 0) PCB.clearValveQueue();
+  else {
+    data.FORCE_VALVE = true;
+    data.VALVE_DURATION = command;
+  }
+
 }
 
 /*
  * Function: parseBallastCommand
  * -------------------
- * This function parses a forced valve command.
+ * This function parses a forced ballast command.
  */
 void Avionics::parseBallastCommand(float command) {
-  data.FORCE_BALLAST = true;
-  data.BALLAST_DURATION = command;
+  if(command == 0) PCB.clearBallastQueue();
+  else {
+    data.FORCE_BALLAST = true;
+    data.BALLAST_DURATION = command;
+  }
 }
 
 /*
@@ -683,6 +693,10 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(data.BALLAST_STATE);
   Serial.print(',');
+  Serial.print(data.VALVE_QUEUE);
+  Serial.print(',');
+  Serial.print(data.BALLAST_QUEUE);
+  Serial.print(',');
   Serial.print(data.NUM_VALVES);
   Serial.print(',');
   Serial.print(data.NUM_BALLASTS);
@@ -862,6 +876,10 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.BALLAST_STATE);
   dataFile.print(',');
+  dataFile.print(data.VALVE_QUEUE);
+  dataFile.print(',');
+  dataFile.print(data.BALLAST_QUEUE);
+  dataFile.print(',');
   dataFile.print(data.NUM_VALVES);
   dataFile.print(',');
   dataFile.print(data.NUM_BALLASTS);
@@ -1035,6 +1053,8 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.BALLAST_INCENTIVE,               -50,   10,      12, lengthBits);
   lengthBits += compressVariable(data.VALVE_STATE,                      0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_STATE,                    0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.VALVE_QUEUE,                      0,    100000,  10, lengthBits);
+  lengthBits += compressVariable(data.BALLAST_QUEUE,                    0,    100000,  10,  lengthBits);
   lengthBits += compressVariable(data.NUM_VALVES,                       0,    10000,   14, lengthBits);
   lengthBits += compressVariable(data.NUM_BALLASTS,                     0,    10000,   14, lengthBits);
   lengthBits += compressVariable(data.NUM_VALVE_ATTEMPTS,               0,    10000,   14, lengthBits);

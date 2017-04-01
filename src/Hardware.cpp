@@ -245,6 +245,24 @@ bool Hardware::isBallastRunning() {
 }
 
 /*
+ * Function: getValveQueue
+ * -------------------
+ * This function returns the current valve queue.
+ */
+uint32_t Hardware::getValveQueue() {
+  return valveQueue;
+}
+
+/*
+ * Function: getBallastQueue
+ * -------------------
+ * This function returns the current ballast queue.
+ */
+uint32_t Hardware::getBallastQueue() {
+  return ballastQueue;
+}
+
+/*
  * Function: cutDown
  * -------------------
  * This function triggers the mechanical cutdown of the payload.

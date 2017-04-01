@@ -24,46 +24,48 @@ public:
     EEPROMAddress(EEPROMAddressVal),
     pid(&PIDTempVar, &PIDOutVar, &PIDSetVar, 2, 5, 1, DIRECT) {
   }
-  void init();
+  void     init();
 /********************************  FUNCTIONS  *********************************/
-  void runLED(bool on);
-  void faultLED();
+  void     runLED(bool on);
+  void     faultLED();
 
-  bool startUpHeaters(bool shouldStartup);
-  void heater(double tempSetpoint, double temp, bool strong, bool weak);
-  void turnOffHeaters();
-  void setHeaterMode(bool on);
+  bool     startUpHeaters(bool shouldStartup);
+  void     heater(double tempSetpoint, double temp, bool strong, bool weak);
+  void     turnOffHeaters();
+  void     setHeaterMode(bool on);
 
-  void queueValve(int duration);
-  void queueBallast(int duration);
-  void clearValveQueue();
-  void clearBallastQueue();
-  bool checkValve();
-  bool checkBallast();
-  bool isValveRunning();
-  bool isBallastRunning();
+  void     queueValve(int duration);
+  void     queueBallast(int duration);
+  void     clearValveQueue();
+  void     clearBallastQueue();
+  bool     checkValve();
+  bool     checkBallast();
+  bool     isValveRunning();
+  bool     isBallastRunning();
+  uint32_t getValveQueue();
+  uint32_t getBallastQueue();
 
-  void cutDown(bool on);
+  void     cutDown(bool on);
 
-  void writeToEEPROM(uint8_t startByte, uint8_t endByte, int num);
-  int  readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte);
+  void     writeToEEPROM(uint8_t startByte, uint8_t endByte, int num);
+  int      readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte);
 
 private:
 /*********************************  HELPERS  **********************************/
-  void stopValve();
-  void openValve();
-  void closeValve();
+  void     stopValve();
+  void     openValve();
+  void     closeValve();
 
-  void stopBallast();
-  void dropBallast(bool direction);
+  void     stopBallast();
+  void     dropBallast(bool direction);
 
 /*********************************  OBJECTS  **********************************/
   enum State {OPEN, OPENING, CLOSED, CLOSING};
   State    valveState = CLOSED;
   State    ballastState = CLOSED;
   uint8_t  EEPROMAddress;
-  uint64_t valveQueue = 0;
-  uint64_t ballastQueue = 0;
+  uint32_t valveQueue = 0;
+  uint32_t ballastQueue = 0;
   bool     ballastDirection = false;
   uint64_t valveLeakStartTime = 0;
   uint64_t valveActionStartTime = 0;

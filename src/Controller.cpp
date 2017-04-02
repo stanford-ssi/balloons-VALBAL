@@ -27,7 +27,7 @@ bool Controller::init() {
 /*
  * Function: updateValveConstants
  * -------------------
- * This function updates the constants to tune the algorythm.
+ * This function updates the constants to tune the algorithm.
  */
 void Controller::updateValveConstants(float valveAltitudeSetpoint, float valveKpConstant, float valveKiConstant, float valveKdConstant) {
   VALVE_SETPOINT               = valveAltitudeSetpoint;
@@ -39,7 +39,7 @@ void Controller::updateValveConstants(float valveAltitudeSetpoint, float valveKp
 /*
  * Function: updateBallastConstants
  * -------------------
- * This function updates the constants to tune the algorythm.
+ * This function updates the constants to tune the algorithm.
  */
 void Controller::updateBallastConstants(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKiConstant, float ballastKdConstant) {
   BALLAST_SETPOINT               = ballastAltitudeSetpoint;
@@ -51,7 +51,7 @@ void Controller::updateBallastConstants(float ballastAltitudeSetpoint, float bal
 /*
  * Function: updateControllerConstants
  * -------------------
- * This function updates the constants to edit the algorythm.
+ * This function updates the constants to edit the algorithm.
  */
 float Controller::updateControllerConstants(float BallastArmAlt, float incentiveThreshold) {
   BALLAST_ARM_ALT = BallastArmAlt;
@@ -81,8 +81,8 @@ float Controller::getValveIncentive(double ascentRate, double altitude, double a
  */
 float Controller::getBallastIncentive(double ascentRate, double altitude, double altitudeSinceLastDrop) {
   float altitudeSinceLastDropCorrected = altitudeSinceLastDrop;
-  if (!firstBallastDrop && altitude >= BALLAST_ARM_ALT && altitudeSinceLastDrop == BALLAST_ALT_LAST_DEFAULT) {
-    firstBallastDrop = true;
+  if (!firstBallastDropped && altitude >= BALLAST_ARM_ALT && altitudeSinceLastDrop == BALLAST_ALT_LAST_DEFAULT) {
+    firstBallastDropped = true;
     altitudeSinceLastDropCorrected = max(altitudeSinceLastDrop, altitude - RE_ARM_CONSTANT);
   }
   float proportionalTerm = BALLAST_VELOCITY_CONSTANT * -1 * ascentRate;

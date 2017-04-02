@@ -8,7 +8,7 @@
 
   File: Controller.h
   --------------------------
-  Interface to feedback control algorythm.
+  Interface to feedback control algorithm.
 */
 
 #ifndef CONTROLLER_H
@@ -39,7 +39,7 @@ float BALLAST_SETPOINT               =     0;
 float BALLAST_VELOCITY_CONSTANT      =     0;
 float BALLAST_ALTITUDE_DIFF_CONSTANT =     0;
 float BALLAST_LAST_ACTION_CONSTANT   =     0;
-bool  firstBallastDrop               = false;
+bool  firstBallastDropped               = false;
 };
 
 #endif

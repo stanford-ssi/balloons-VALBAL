@@ -298,6 +298,7 @@ bool Avionics::runHeaters() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runValve() {
+  // TODO: increase valve queue threshold so we don't close and open again immediately ****************
   if((data.VALVE_INCENTIVE >= 1 && PCB.getValveQueue() <= 1) || data.FORCE_VALVE) {
     data.NUM_VALVE_ATTEMPTS++;
     data.VALVE_ALT_LAST = data.ALTITUDE;

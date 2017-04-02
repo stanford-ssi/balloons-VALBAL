@@ -298,8 +298,7 @@ bool Avionics::runHeaters() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runValve() {
-  // TODO: increase valve queue threshold so we don't close and open again immediately ****************
-  if((data.VALVE_INCENTIVE >= 1 && PCB.getValveQueue() <= 1) || data.FORCE_VALVE) {
+  if((data.VALVE_INCENTIVE >= 1 && PCB.getValveQueue() <= 10) || data.FORCE_VALVE) {
     data.NUM_VALVE_ATTEMPTS++;
     data.VALVE_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
@@ -320,7 +319,7 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runBallast() {
-  if((data.BALLAST_INCENTIVE >= 1 && PCB.getBallastQueue() <= 1) || data.FORCE_BALLAST) {
+  if((data.BALLAST_INCENTIVE >= 1 && PCB.getBallastQueue() <= 10) || data.FORCE_BALLAST) {
     data.NUM_VALVE_ATTEMPTS++;
     data.BALLAST_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);

@@ -320,7 +320,7 @@ bool Avionics::runValve() {
  */
 bool Avionics::runBallast() {
   if((data.BALLAST_INCENTIVE >= 1 && PCB.getBallastQueue() <= 10) || data.FORCE_BALLAST) {
-    data.NUM_VALVE_ATTEMPTS++;
+    data.NUM_BALLAST_ATTEMPTS++;
     data.BALLAST_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
     data.FORCE_BALLAST = false;

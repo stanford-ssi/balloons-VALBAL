@@ -15,6 +15,7 @@
 #include "Config.h"
 #include <Eigen.h>
 
+
 class Filters {
 public:
 
@@ -24,7 +25,7 @@ public:
   void     enableSensors(bool BMP1Enable, bool BMP2Enable, bool BMP3Enable, bool BMP4Enable);
   double   getTemp(double RAW_TEMP_1,double RAW_TEMP_2,double RAW_TEMP_3,double RAW_TEMP_4);
   double   getPressure(double RAW_PRESSURE_1,double RAW_PRESSURE_2,double RAW_PRESSURE_3,double RAW_PRESSURE_4);
-  float    storeInputs(float pressure, float pressureBaseline);
+  void    storeInputs(float pressure, float pressureBaseline);
   void     kalmanAltitude();
   double   getKalmanedAltitude();
   double   getKalmanedAscentRate();

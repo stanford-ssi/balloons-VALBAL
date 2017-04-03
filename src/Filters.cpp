@@ -115,13 +115,15 @@ void Filters::kalmanAltitude() {
 	Eigen::Matrix<double, 2, 1> predictedState;
 	Eigen::Matrix<double, 2, 2> predictedCovar;
 	Eigen::Matrix<double, 2, 2> K;
+	Eigen::Matrix<double, 2, 2> invertPlease;
 
     // Predict State:
     predictedState = predictionMat * currentState;
     predictedCovar = predictionMat * currentCovar * predictionMat.transpose() + externalCovar;
 
     // Update state from inputs:
-	K = predictedCovar * sensorMat.transpose() * ((sensorMat * predictedCovar * sensorMat.transpose() + sensorCovar).inverse());
+    invertPlease = sensorMat * predictedCovar * sensorMat.transpose() + sensorCovar;
+	K = predictedCovar * sensorMat.transpose() * invertPlease.inverse();
 	currentState = predictedState + K * (sensorInputs - sensorMat * predictedState);
 	currentCovar = predictedCovar - K * sensorMat * predictedCovar;
 

@@ -113,7 +113,7 @@ void Filters::kalmanAltitude() {
 
 	// Define Helper Variables
 	Eigen::Matrix<double, 2, 1> predictedState;
-	Eigen::Matrix<double, 2, 1> predictedCovar;
+	Eigen::Matrix<double, 2, 2> predictedCovar;
 	Eigen::Matrix<double, 2, 2> K;
 
     // Predict State:

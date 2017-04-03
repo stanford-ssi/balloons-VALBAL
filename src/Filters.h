@@ -13,7 +13,7 @@
 #define FILTERS_H
 
 #include "Config.h"
-#include <Eigen30.h>
+#include <Eigen.h>
 
 class Filters {
 public:
@@ -24,8 +24,10 @@ public:
   void     enableSensors(bool BMP1Enable, bool BMP2Enable, bool BMP3Enable, bool BMP4Enable);
   double   getTemp(double RAW_TEMP_1,double RAW_TEMP_2,double RAW_TEMP_3,double RAW_TEMP_4);
   double   getPressure(double RAW_PRESSURE_1,double RAW_PRESSURE_2,double RAW_PRESSURE_3,double RAW_PRESSURE_4);
-  float    getAltitude(float pressure, float pressureBaseline);
-  double   getAscentRate();
+  float    storeInputs(float pressure, float pressureBaseline);
+  void     kalmanAltitude();
+  double   getKalmanedAltitude();
+  double   getKalmanedAscentRate();
 private:
 /*********************************  OBJECTS  **********************************/
   bool     enabledSensors[4] = {true};
@@ -35,6 +37,14 @@ private:
   double   altitudeCurr;
   double   altitudeLast;
   uint64_t ascentRateLast;
+  Eigen::Matrix<double, 2, 1> sensorInputs; // [Ascent_rate , altitude] //z
+  Eigen::Matrix<double, 2, 1> currentState; // [Ascent_rate , altitude] //x
+  Eigen::Matrix<double, 2, 2> currentCovar; //  P
+  Eigen::Matrix<double, 2, 2> predictionMat;//  F
+  Eigen::Matrix<double, 2, 2> sensorMat;    //  H
+  Eigen::Matrix<double, 2, 2> externalCovar;//  Q
+  Eigen::Matrix<double, 2, 2> sensorCovar;  //  R
+
 };
 
 #endif

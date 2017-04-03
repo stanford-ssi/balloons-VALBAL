@@ -18,6 +18,27 @@
  * This function initializes the filter objects.
  */
 bool Filters::init() {
+
+
+	sensorInputs << 0, 0; //Needs to be initialized to something
+	currentState << 0, 0;
+
+	currentCovar << 99999,     0,  
+				        0, 99999; //Initially we have zero knowledge of state
+
+
+	predictionMat << 1,    0,
+					 1/20, 1; //Loop rate goes here
+
+	sensorMat << 1, 0, // Actual values. Hope compiler will optimize this out
+				 0, 1;
+
+	externalCovar << 10, 0, //Placeholder values. High ascent rate variance as we have no way of predicting it
+					  0, 1;
+
+	sensorCovar << 1, 0, //Placeholder values
+				   0, 1;
+
   bool sucess = true;
   return sucess;
 }
@@ -67,30 +88,59 @@ double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double
 }
 
 /*
- * Function: getAltitude
+ * Function: storeInputs
  * -------------------
  * This function returns a higher precision altitude value
  * based on the US 1976 Standard Atmosphere.
  */
-float Filters::getAltitude(float pressure, float pressureBaseline) {
+void Filters::storeInputs(float pressure, float pressureBaseline) {
   altitudeLast = altitudeCurr;
   if (pressure > 22632.1) altitudeCurr = (44330.7 * (1 - pow(pressure / pressureBaseline, 0.190266)));
   else altitudeCurr =  -6341.73 * log((0.176481 * pressure) / 22632.1);
-  //TODO Kalman FIltering here
-  ASCENT_RATE_BUFFER[ascentRateIndex] = (altitudeCurr - altitudeLast) / ((millis() - ascentRateLast) / 1000.0);
+
+  currentState(0,1) = altitudeCurr;
+  currentState(0,0) = (altitudeCurr - altitudeLast) / ((millis() - ascentRateLast) / 1000.0); //copy unavenged ascent rate
   ascentRateLast = millis();
-  ascentRateIndex++;
-  ascentRateIndex %= BUFFER_SIZE;
-  return altitudeCurr;
+}
+
+
+/*
+ * Function: kalmanAltitude
+ * -------------------
+ * This function actually does the kalman
+ */
+void Filters::kalmanAltitude() {
+
+	// Define Helper Variables
+	Eigen::Matrix<double, 2, 1> predictedState;
+	Eigen::Matrix<double, 2, 1> predictedCovar;
+	Eigen::Matrix<double, 2, 2> K;
+
+    // Predict State:
+    predictedState = predictionMat * currentState;
+    predictedCovar = predictionMat * currentCovar * predictionMat.transpose() + externalCovar;
+
+    // Update state from inputs:
+	K = predictedCovar * sensorMat.transpose() * ((sensorMat * predictedCovar * sensorMat.transpose() + sensorCovar).inverse());
+	currentState = predictedState + K * (sensorInputs - sensorMat * predictedState);
+	currentCovar = predictedCovar - K * sensorMat * predictedCovar;
+
 }
 
 /*
- * Function: getAscentRate
+ * Function: returnKalmanedAltitude
  * -------------------
- * This function returns the current ascent rate.
+ * This function returns the filtered altitude.
  */
-double Filters::getAscentRate() {
-  float ascentRateTotal = 0;
-  for (size_t i = 0; i < BUFFER_SIZE; i++) ascentRateTotal += ASCENT_RATE_BUFFER[i];
-  return  ascentRateTotal / BUFFER_SIZE;
+double Filters::getKalmanedAltitude() {
+  return  currentState(0,1);
+}
+
+/*
+ * Function: returnKalmanedAscentRate
+ * -------------------
+ * This function returns the filtered ascent rate.
+ */
+double Filters::getKalmanedAscentRate() {
+  return  currentState(0,0);
 }

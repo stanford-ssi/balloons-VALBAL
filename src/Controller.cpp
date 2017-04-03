@@ -83,7 +83,7 @@ float Controller::getBallastIncentive(double ascentRate, double altitude, double
   float altitudeSinceLastDropCorrected = altitudeSinceLastDrop;
   if (!firstBallastDropped && altitude >= BALLAST_ARM_ALT && altitudeSinceLastDrop == BALLAST_ALT_LAST_DEFAULT) {
     firstBallastDropped = true;
-    altitudeSinceLastDropCorrected = max(altitudeSinceLastDrop, altitude - RE_ARM_CONSTANT);
+    altitudeSinceLastDropCorrected = max(BALLAST_ALT_LAST_FILLER, altitude - RE_ARM_CONSTANT);
   }
   float proportionalTerm = BALLAST_VELOCITY_CONSTANT * -1 * ascentRate;
   float integralTerm     = BALLAST_ALTITUDE_DIFF_CONSTANT * (BALLAST_SETPOINT - altitude);

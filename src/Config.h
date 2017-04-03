@@ -78,6 +78,7 @@ static const double    PRESS_BASELINE_DEFAULT        =                 101325.0;
 static const float     INCENTIVE_THRESHOLD_DEFAULT   =                     0.75;
 static const float     RE_ARM_DEFAULT                =                        0;
 static const float     BALLAST_ARM_ALT_DEFAULT       =                  13000.0;
+static const float     BALLAST_ALT_LAST_FILLER       =                  13000.0;
 
 static const float     VALVE_SETPOINT_DEFAULT        =                  13500.0;
 static const uint16_t  VALVE_DURATION_DEFAULT        =                    20000;

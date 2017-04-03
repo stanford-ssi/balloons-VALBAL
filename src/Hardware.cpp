@@ -269,11 +269,16 @@ uint32_t Hardware::getBallastQueue() {
  */
 void Hardware::cutDown(bool on) {
   turnOffHeaters();
-  //full motor engagement
-  //remeber to turn off so we do not waste power on stall torque
-  //clear valve and ballast quues cuz that doenst matter anymore
-  // if(on) // engage cutdown
-  // else //disengage cutdown
+  clearValveQueue();
+  clearBallastQueue();
+  if(on) {
+    analogWrite(VALVE_FORWARD, LOW);
+    analogWrite(VALVE_REVERSE, VALVE_MOTOR_SPEED);
+  }
+  else {
+    analogWrite(VALVE_FORWARD, LOW);
+    analogWrite(VALVE_REVERSE, LOW);
+  }
 }
 
 /*

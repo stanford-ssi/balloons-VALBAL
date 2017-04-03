@@ -251,6 +251,7 @@ bool Avionics::calcIncentives() {
   data.RE_ARM_CONSTANT   = computer.updateControllerConstants(data.BALLAST_ARM_ALT, data.INCENTIVE_THRESHOLD);
   data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE, data.VALVE_ALT_LAST);
   data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE, data.BALLAST_ALT_LAST);
+  data.INCENTIVE_NOISE   = computer.getIncentiveNoise(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
   if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) {
     data.VALVE_INCENTIVE = 0;
     data.BALLAST_INCENTIVE = 0;
@@ -298,7 +299,7 @@ bool Avionics::runHeaters() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runValve() {
-  if((data.VALVE_INCENTIVE >= 1 && PCB.getValveQueue() <= 10) || data.FORCE_VALVE) {
+  if((data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getValveQueue() <= 10) || data.FORCE_VALVE) {
     data.NUM_VALVE_ATTEMPTS++;
     data.VALVE_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
@@ -319,7 +320,7 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runBallast() {
-  if((data.BALLAST_INCENTIVE >= 1 && PCB.getBallastQueue() <= 10) || data.FORCE_BALLAST) {
+  if((data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getBallastQueue() <= 10) || data.FORCE_BALLAST) {
     data.NUM_BALLAST_ATTEMPTS++;
     data.BALLAST_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
@@ -764,6 +765,8 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(data.PRESS_BASELINE);
   Serial.print(',');
+  Serial.print(data.INCENTIVE_NOISE);
+  Serial.print(',');
   Serial.print(data.INCENTIVE_THRESHOLD);
   Serial.print(',');
   Serial.print(data.RE_ARM_CONSTANT);
@@ -945,6 +948,8 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.PRESS_BASELINE);
   dataFile.print(',');
+  dataFile.print(data.INCENTIVE_NOISE);
+  dataFile.print(',');
   dataFile.print(data.INCENTIVE_THRESHOLD);
   dataFile.print(',');
   dataFile.print(data.RE_ARM_CONSTANT);
@@ -1083,6 +1088,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.GPS_GOOD_STATE,                   0,    1,       1,  lengthBits);
   if (data.REPORT_MODE) {
     lengthBits += compressVariable(data.PRESS_BASELINE,                 0,    1000000, 19, lengthBits);
+    lengthBits += compressVariable(data.INCENTIVE_NOISE,                0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.INCENTIVE_THRESHOLD,            0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.RE_ARM_CONSTANT,                0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_ARM_ALT,               -2000, 40000,   16, lengthBits);

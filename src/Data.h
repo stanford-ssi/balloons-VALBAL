@@ -70,6 +70,7 @@ struct DataFrame {
 
 /*****************************  SECONDARY DATA  *******************************/
   double       PRESS_BASELINE                  =         PRESS_BASELINE_DEFAULT;
+  float        INCENTIVE_NOISE                 =        INCENTIVE_NOISE_DEFAULT;
   float        INCENTIVE_THRESHOLD             =    INCENTIVE_THRESHOLD_DEFAULT;
   float        RE_ARM_CONSTANT                 =                 RE_ARM_DEFAULT;
   float        BALLAST_ARM_ALT                 =        BALLAST_ARM_ALT_DEFAULT;

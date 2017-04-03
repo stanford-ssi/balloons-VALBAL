@@ -15,7 +15,6 @@
 #define CONTROLLER_H
 
 #include "Config.h"
-#include <math.h>
 
 class Controller {
 public:
@@ -27,6 +26,7 @@ public:
   float updateControllerConstants(float BallastArmAlt, float incentiveThreshold);
   float getValveIncentive(double ascentRate, double altitude, double altitudeSinceLastVent);
   float getBallastIncentive(double ascentRate, double altitude, double altitudeSinceLastDrop);
+  float getIncentiveNoise(bool IncludeBMP1, bool IncludeBMP2, bool IncludeBMP3, bool IncludeBMP4);
 private:
 /*********************************  OBJECTS  **********************************/
 float RE_ARM_CONSTANT                =     0;

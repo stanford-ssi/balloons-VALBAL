@@ -90,3 +90,17 @@ float Controller::getBallastIncentive(double ascentRate, double altitude, double
   float derivativeTerm   = BALLAST_LAST_ACTION_CONSTANT   * (altitudeSinceLastDropCorrected - altitude);
   return proportionalTerm + integralTerm + derivativeTerm;
 }
+
+/*
+ * Function: getIncentiveNoise
+ * -------------------
+ * This function calculates the inherent noise of the incentive.
+ */
+float Controller::getIncentiveNoise(bool IncludeBMP1, bool IncludeBMP2, bool IncludeBMP3, bool IncludeBMP4) {
+  float incentiveNoise = 0;
+  if(!IncludeBMP1) incentiveNoise++;
+  if(!IncludeBMP2) incentiveNoise++;
+  if(!IncludeBMP3) incentiveNoise++;
+  if(!IncludeBMP4) incentiveNoise++;
+  return incentiveNoise;
+}

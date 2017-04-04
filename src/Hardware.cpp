@@ -164,44 +164,37 @@ void Hardware::clearBallastQueue() {
  * Called every loop; updates and acts on the current state of the valve.
  */
 bool Hardware::checkValve() {
-  if (valveState == OPENING) {
-    if (millis() - valveActionStartTime >= VALVE_OPENING_TIMEOUT) { // exceeded opening time
-      valveState = OPEN;
+  if (valveState == CLOSED) {
+    if ((millis() - valveLeakStartTime) >= VALVE_LEAK_TIMEOUT) {
+      valveLeakStartTime = millis();
+      closeValve();
     }
-    else {
+    if (valveQueue > 0) {
+      valveActionStartTime = millis();
+      valveCheckTime = millis();
+      valveState = OPENING;
       openValve();
     }
   }
-  else if (valveState == OPEN) {
-    if (millis() - valveActionStartTime >= valveQueue) { // exceeded queued time
-      valveQueue = 0;
+  if ((valveState == OPENING) && (millis() - valveActionStartTime >= VALVE_OPENING_TIMEOUT)) {
+    valveState = OPEN;
+    stopValve();
+  }
+  if (valveState == OPEN) {
+    if(valveQueue > 0) {
+      uint32_t deltaTime = (millis() - valveCheckTime);
+      valveCheckTime = millis();
+      (deltaTime >= valveQueue) ? (valveQueue = 0) : (valveQueue -= deltaTime);
+    }
+    if(valveQueue == 0) {
       valveActionStartTime = millis();
       valveState = CLOSING;
-    }
-    else {
-      stopValve();
-    }
-  }
-  else if (valveState == CLOSING) {
-    if (millis() - valveActionStartTime >= VALVE_CLOSING_TIMEOUT) { // exceeded closing time
-      valveState = CLOSED;
-    }
-    else {
       closeValve();
     }
   }
-  else if (valveState == CLOSED) {
-    if (valveQueue > 0) { // we've got mail!
-      valveActionStartTime = millis();
-      valveState = OPENING;
-    }
-    else {
-      stopValve();
-    }
-  }
-  else if((valveState == CLOSED) && (millis() - valveLeakStartTime) >= VALVE_LEAK_TIMEOUT) {
-    valveLeakStartTime = millis();
-    closeValve();
+  if ((valveState == CLOSING) && (millis() - valveActionStartTime >= VALVE_CLOSING_TIMEOUT)) {
+    valveState = CLOSED;
+    stopValve();
   }
   return valveState != CLOSED;
 }
@@ -219,16 +212,16 @@ bool Hardware::checkBallast() {
     ballastState = OPEN;
   }
   if (ballastState == OPEN) {
-    if(ballastQueue == 0) {
-      ballastState = CLOSED;
-      stopBallast();
-    }
-    else {
+    if(ballastQueue > 0) {
       uint32_t deltaTime = (millis() - ballastCheckTime);
       ballastCheckTime = millis();
       (deltaTime >= ballastQueue) ? (ballastQueue = 0) : (ballastQueue -= deltaTime);
       bool ballastDirection = ((millis() - ballastActionStartTime) / BALLAST_REVERSE_TIMEOUT) % 2;
       dropBallast(ballastDirection);
+    }
+    if(ballastQueue == 0) {
+      ballastState = CLOSED;
+      stopBallast();
     }
   }
   return ballastState != CLOSED;

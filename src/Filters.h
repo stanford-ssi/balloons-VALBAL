@@ -6,7 +6,7 @@
 
   File: Filters.h
   --------------------------
-  Interface to guarenteed good sensor values.
+  Interface to guarenteed good derived values.
 */
 
 #ifndef FILTERS_H
@@ -15,10 +15,8 @@
 #include "Config.h"
 #include <Eigen.h>
 
-
 class Filters {
 public:
-
 /**********************************  SETUP  ***********************************/
   bool     init();
 /********************************  FUNCTIONS  *********************************/
@@ -45,7 +43,6 @@ private:
   Eigen::Matrix<double, 2, 2> sensorMat;    //  H
   Eigen::Matrix<double, 2, 2> externalCovar;//  Q
   Eigen::Matrix<double, 2, 2> sensorCovar;  //  R
-
 };
 
 #endif

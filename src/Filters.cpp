@@ -18,28 +18,26 @@
  * This function initializes the filter objects.
  */
 bool Filters::init() {
-
+  bool sucess = true;
 
 	sensorInputs << 0, 0; //Needs to be initialized to something
 	currentState << 0, 0;
 
-	currentCovar << 99999,     0,  
-				        0, 99999; //Initially we have zero knowledge of state
-
+	currentCovar << 99999,    0,
+				          0,    99999; //Initially we have zero knowledge of state
 
 	predictionMat << 1,    0,
-					 1/20, 1; //Loop rate goes here
+					         1/20, 1; //Loop rate goes here
 
 	sensorMat << 1, 0, // Actual values. Hope compiler will optimize this out
-				 0, 1;
+				       0, 1;
 
 	externalCovar << 10, 0, //Placeholder values. High ascent rate variance as we have no way of predicting it
-					  0, 1;
+					          0, 1;
 
 	sensorCovar << 1, 0, //Placeholder values
-				   0, 1;
+				         0, 1;
 
-  bool sucess = true;
   return sucess;
 }
 
@@ -103,30 +101,25 @@ void Filters::storeInputs(float pressure, float pressureBaseline) {
   ascentRateLast = millis();
 }
 
-
 /*
  * Function: kalmanAltitude
  * -------------------
  * This function actually does the kalman
  */
 void Filters::kalmanAltitude() {
-
 	// Define Helper Variables
 	Eigen::Matrix<double, 2, 1> predictedState;
 	Eigen::Matrix<double, 2, 2> predictedCovar;
 	Eigen::Matrix<double, 2, 2> K;
 	Eigen::Matrix<double, 2, 2> invertPlease;
-
-    // Predict State:
-    predictedState = predictionMat * currentState;
-    predictedCovar = predictionMat * currentCovar * predictionMat.transpose() + externalCovar;
-
-    // Update state from inputs:
-    invertPlease = sensorMat * predictedCovar * sensorMat.transpose() + sensorCovar;
+  // Predict State:
+  predictedState = predictionMat * currentState;
+  predictedCovar = predictionMat * currentCovar * predictionMat.transpose() + externalCovar;
+  // Update state from inputs:
+  invertPlease = sensorMat * predictedCovar * sensorMat.transpose() + sensorCovar;
 	K = predictedCovar * sensorMat.transpose() * invertPlease.inverse();
 	currentState = predictedState + K * (sensorInputs - sensorMat * predictedState);
 	currentCovar = predictedCovar - K * sensorMat * predictedCovar;
-
 }
 
 /*

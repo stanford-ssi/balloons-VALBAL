@@ -199,6 +199,7 @@ bool Hardware::checkValve(bool real) {
     valveState = CLOSED;
     stopValve();
   }
+  if (!real) return false;
   return valveState != CLOSED;
 }
 
@@ -230,6 +231,7 @@ bool Hardware::checkBallast(bool real) {
       stopBallast();
     }
   }
+  if (!real) return false;
   return ballastState != CLOSED;
 }
 

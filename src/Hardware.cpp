@@ -227,24 +227,6 @@ bool Hardware::checkBallast() {
 }
 
 /*
- * Function: isValveRunning
- * -------------------
- * This function checks if the valve is running.
- */
-bool Hardware::isValveRunning() {
-  return valveState == OPENING || valveState == CLOSING;
-}
-
-/*
- * Function: isBallastRunning
- * -------------------
- * This function checks if the ballast is running.
- */
-bool Hardware::isBallastRunning() {
-  return ballastState == OPEN;
-}
-
-/*
  * Function: getValveQueue
  * -------------------
  * This function returns the current valve queue.

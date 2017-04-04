@@ -287,7 +287,7 @@ bool Avionics::calcCutdown() {
  * if either the ballast or valve is running.
  */
 bool Avionics::runHeaters() {
-  if (!data.HEATER_SHOULD_USE || PCB.isValveRunning() || PCB.isBallastRunning()) {
+  if (!data.HEATER_SHOULD_USE || data.VALVE_STATE || data.BALLAST_STATE) {
     PCB.turnOffHeaters();
   } else {
     PCB.heater(data.TEMP_SETPOINT, data.TEMP, data.HEATER_STRONG_ENABLE, data.HEATER_WEEK_ENABLE);

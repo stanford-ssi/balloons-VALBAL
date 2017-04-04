@@ -40,8 +40,6 @@ public:
   void     clearBallastQueue();
   bool     checkValve();
   bool     checkBallast();
-  bool     isValveRunning();
-  bool     isBallastRunning();
   uint32_t getValveQueue();
   uint32_t getBallastQueue();
 
@@ -60,9 +58,9 @@ private:
   void     dropBallast(bool direction);
 
 /*********************************  OBJECTS  **********************************/
-  enum State {OPEN, OPENING, CLOSED, CLOSING};
-  State    valveState = CLOSED;
-  State    ballastState = CLOSED;
+  enum state_t {OPEN, OPENING, CLOSED, CLOSING};
+  state_t  valveState = CLOSED;
+  state_t  ballastState = CLOSED;
   uint8_t  EEPROMAddress;
   uint32_t valveQueue = 0;
   uint32_t ballastQueue = 0;

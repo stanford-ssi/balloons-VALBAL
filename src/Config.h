@@ -100,8 +100,8 @@ static const uint16_t  VALVE_CLOSING_TIMEOUT         =                     2500;
 static const uint16_t  VALVE_CUTDOWN_TIMEOUT         =                    10000;
 static const uint16_t  VALVE_LEAK_TIMEOUT            =                    20000;
 static const uint16_t  BALLAST_REVERSE_TIMEOUT       =                    20000;
-static       uint16_t  VALVE_MOTOR_SPEED             =                      255;
-static       uint16_t  BALLAST_MOTOR_SPEED           =                      255;
+static const uint16_t  VALVE_MOTOR_SPEED             =                      255;
+static const uint16_t  BALLAST_MOTOR_SPEED           =                      255;
 
 /*****************************  EEPROM CONSTANTS  *****************************/
 static const uint8_t   EEPROM_CLEAR_NUM              =                        8;

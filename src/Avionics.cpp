@@ -39,8 +39,8 @@ void Avionics::init() {
  * This function tests the hardware.
  */
 void Avionics::test() {
-  // data.MANUAL_MODE = false;
   // data.SHOULD_CUTDOWN = true;
+  // data.MANUAL_MODE = false;
   // PCB.queueBallast(30000);
   // PCB.clearBallastQueue();
   // PCB.queueBallast(15000);
@@ -317,16 +317,14 @@ bool Avionics::runHeaters() {
 bool Avionics::runValve() {
   if((data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getValveQueue() <= 10000) || data.FORCE_VALVE) {
     data.NUM_VALVE_ATTEMPTS++;
+    if(!data.MANUAL_MODE) data.NUM_VALVES++;
     data.VALVE_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
+    PCB.queueValve(data.VALVE_DURATION);
     data.FORCE_VALVE = false;
-    if(!data.MANUAL_MODE) {
-      data.NUM_VALVES++;
-      PCB.queueValve(data.VALVE_DURATION);
-    }
   }
   data.VALVE_QUEUE = PCB.getValveQueue();
-  data.VALVE_STATE = PCB.checkValve();
+  data.VALVE_STATE = PCB.checkValve(!data.MANUAL_MODE);
   return true;
 }
 
@@ -338,16 +336,14 @@ bool Avionics::runValve() {
 bool Avionics::runBallast() {
   if((data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getBallastQueue() <= 10000) || data.FORCE_BALLAST) {
     data.NUM_BALLAST_ATTEMPTS++;
+    if(!data.MANUAL_MODE) data.NUM_BALLASTS++;
     data.BALLAST_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
+    PCB.queueBallast(data.BALLAST_DURATION);
     data.FORCE_BALLAST = false;
-    if(!data.MANUAL_MODE) {
-      data.NUM_BALLASTS++;
-      PCB.queueBallast(data.BALLAST_DURATION);
-    }
   }
   data.BALLAST_QUEUE = PCB.getBallastQueue();
-  data.BALLAST_STATE = PCB.checkBallast();
+  data.BALLAST_STATE = PCB.checkBallast(!data.MANUAL_MODE);
   return true;
 }
 

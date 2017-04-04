@@ -163,7 +163,7 @@ void Hardware::clearBallastQueue() {
  * This function provides a non-hanging interface to check the timer queue.
  * Called every loop; updates and acts on the current state of the valve.
  */
-bool Hardware::checkValve() {
+bool Hardware::checkValve(bool real) {
   if (valveState == CLOSED) {
     if ((millis() - valveLeakStartTime) >= VALVE_LEAK_TIMEOUT) {
       valveLeakStartTime = millis();
@@ -175,7 +175,7 @@ bool Hardware::checkValve() {
       valveActionStartTime = millis();
       valveCheckTime = millis();
       valveState = OPENING;
-      openValve();
+      if(real) openValve();
     }
   }
   if ((valveState == OPENING) && (millis() - valveActionStartTime >= VALVE_OPENING_TIMEOUT)) {
@@ -208,7 +208,7 @@ bool Hardware::checkValve() {
  * This function provides a non-hanging interface to check the timer queue.
  * Called every loop; updates and acts on the current state of the ballast.
  */
-bool Hardware::checkBallast() {
+bool Hardware::checkBallast(bool real) {
   if ((ballastState == CLOSED) && (ballastQueue > 0)) {
     ballastActionStartTime = millis();
     ballastCheckTime = millis();
@@ -223,7 +223,7 @@ bool Hardware::checkBallast() {
         ballastDirectionTime = millis();
         ballastDirection = !ballastDirection;
       }
-      dropBallast(ballastDirection);
+      if(real) dropBallast(ballastDirection);
     }
     if(ballastQueue == 0) {
       ballastState = CLOSED;

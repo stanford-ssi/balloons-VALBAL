@@ -38,8 +38,8 @@ public:
   void     queueBallast(int duration);
   void     clearValveQueue();
   void     clearBallastQueue();
-  bool     checkValve();
-  bool     checkBallast();
+  bool     checkValve(bool real);
+  bool     checkBallast(bool real);
   uint32_t getValveQueue();
   uint32_t getBallastQueue();
 

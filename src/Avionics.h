@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | March 2017
+  Balloons | VALBAL | April 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
@@ -35,6 +35,7 @@ public:
     RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK) {
   }
   void    init();
+  void    test();
 /********************************  FUNCTIONS  *********************************/
   void    updateState();
   void    evaluateState();

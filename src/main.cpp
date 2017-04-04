@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | March 2017
+  Balloons | VALBAL | April 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
   Joan Creus-Costa | jcreus@stanford.edu
@@ -20,6 +20,7 @@
 Avionics VALBAL;
 int main(void) {
   VALBAL.init();
+  VALBAL.test();
 /***********************************  MAIN  ***********************************/
   while(true) {
     VALBAL.updateState();

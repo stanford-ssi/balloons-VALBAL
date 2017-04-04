@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | March 2017
+  Balloons | VALBAL | April 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
@@ -31,6 +31,22 @@ void Avionics::init() {
   if(!RBModule.init(data.RB_SHOULD_USE))          logAlert("unable to initialize RockBlock", true);
   if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE)) logAlert("unable to initialize Heaters", true);
   data.SETUP_STATE = false;
+}
+
+/*
+ * Function: test
+ * -------------------
+ * This function tests the hardware.
+ */
+void Avionics::test() {
+  // data.MANUAL_MODE = false;
+  // data.SHOULD_CUTDOWN = true;
+  // PCB.queueBallast(30000);
+  // PCB.clearBallastQueue();
+  // PCB.queueBallast(15000);
+  // PCB.queueValve(30000);
+  // PCB.clearValveQueue();
+  // PCB.queueValve(15000);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -299,7 +315,7 @@ bool Avionics::runHeaters() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runValve() {
-  if((data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getValveQueue() <= 10) || data.FORCE_VALVE) {
+  if((data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getValveQueue() <= 10000) || data.FORCE_VALVE) {
     data.NUM_VALVE_ATTEMPTS++;
     data.VALVE_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
@@ -320,7 +336,7 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runBallast() {
-  if((data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getBallastQueue() <= 10) || data.FORCE_BALLAST) {
+  if((data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getBallastQueue() <= 10000) || data.FORCE_BALLAST) {
     data.NUM_BALLAST_ATTEMPTS++;
     data.BALLAST_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);

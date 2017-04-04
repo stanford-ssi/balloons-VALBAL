@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | March 2017
+  Balloons | VALBAL | April 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Matthew Tan | mratan@stanford.edu
@@ -167,6 +167,8 @@ bool Hardware::checkValve() {
   if (valveState == CLOSED) {
     if ((millis() - valveLeakStartTime) >= VALVE_LEAK_TIMEOUT) {
       valveLeakStartTime = millis();
+      valveActionStartTime = millis();
+      valveState = CLOSING;
       closeValve();
     }
     if (valveQueue > 0) {
@@ -193,6 +195,7 @@ bool Hardware::checkValve() {
     }
   }
   if ((valveState == CLOSING) && (millis() - valveActionStartTime >= VALVE_CLOSING_TIMEOUT)) {
+    valveLeakStartTime = millis();
     valveState = CLOSED;
     stopValve();
   }
@@ -216,7 +219,10 @@ bool Hardware::checkBallast() {
       uint32_t deltaTime = (millis() - ballastCheckTime);
       ballastCheckTime = millis();
       (deltaTime >= ballastQueue) ? (ballastQueue = 0) : (ballastQueue -= deltaTime);
-      bool ballastDirection = ((millis() - ballastActionStartTime) / BALLAST_REVERSE_TIMEOUT) % 2;
+      if ((millis() - ballastDirectionTime) >= BALLAST_REVERSE_TIMEOUT) {
+        ballastDirectionTime = millis();
+        ballastDirection = !ballastDirection;
+      }
       dropBallast(ballastDirection);
     }
     if(ballastQueue == 0) {

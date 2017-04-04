@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | February 2017
+  Balloons | VALBAL | April 2017
   Davy Ragland | dragland@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
   Jesus Cervantes | cerjesus@stanford.edu

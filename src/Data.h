@@ -113,8 +113,8 @@ struct DataFrame {
   double       RAW_PRESSURE_4                  =                              0;
 
   double       ALTITUDE_LAST                   =                              0;
-  uint64_t     GPS_LAST                        =                              0;
-  uint64_t     COMMS_LAST                      =                              0;
+  uint32_t     GPS_LAST                        =                              0;
+  uint32_t     COMMS_LAST                      =                              0;
   uint16_t     COMMS_LENGTH                    =                              0;
 };
 

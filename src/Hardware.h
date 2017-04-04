@@ -64,10 +64,11 @@ private:
   uint8_t  EEPROMAddress;
   uint32_t valveQueue = 0;
   uint32_t ballastQueue = 0;
-  bool     ballastDirection = false;
-  uint64_t valveLeakStartTime = 0;
-  uint64_t valveActionStartTime = 0;
-  uint64_t ballastActionStartTime = 0;
+  uint32_t valveLeakStartTime = 0;
+  uint32_t valveActionStartTime = 0;
+  uint32_t ballastActionStartTime = 0;
+  uint32_t valveCheckTime = 0;
+  uint32_t ballastCheckTime = 0;
 
   double   PIDSetVar;
   double   PIDOutVar;

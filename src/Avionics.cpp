@@ -108,10 +108,8 @@ void Avionics::sendComms() {
  * This function sleeps at the end of the loop.
  */
 void Avionics::sleep() {
-  uint64_t loopTime = millis() - data.TIME;
-  if (loopTime < LOOP_INTERVAL) {
-    gpsModule.smartDelay(LOOP_INTERVAL - loopTime);
-  }
+  uint32_t loopTime = millis() - data.TIME;
+  if (loopTime < LOOP_INTERVAL) gpsModule.smartDelay(LOOP_INTERVAL - loopTime);
 }
 
 /*
@@ -839,9 +837,9 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(data.ALTITUDE_LAST);
   Serial.print(',');
-  Serial.print(double(data.GPS_LAST));
+  Serial.print(data.GPS_LAST);
   Serial.print(',');
-  Serial.print(double(data.COMMS_LAST));
+  Serial.print(data.COMMS_LAST);
   Serial.print(',');
   Serial.print(data.COMMS_LENGTH);
   Serial.print('\n');
@@ -1022,9 +1020,9 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.ALTITUDE_LAST);
   dataFile.print(',');
-  dataFile.print(double(data.GPS_LAST));
+  dataFile.print(data.GPS_LAST);
   dataFile.print(',');
-  dataFile.print(double(data.COMMS_LAST));
+  dataFile.print(data.COMMS_LAST);
   if(dataFile.print(',') != 1) sucess = false;
   dataFile.print(data.COMMS_LENGTH);
   dataFile.print('\n');

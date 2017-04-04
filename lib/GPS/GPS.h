@@ -35,7 +35,7 @@ public:
   double   getSpeed();
   double   getCourse();
   uint32_t getSats();
-  void     smartDelay(uint64_t ms);
+  void     smartDelay(uint32_t ms);
 private:
 /*********************************  HELPERS  **********************************/
   void     setFlightMode(uint16_t GPS_LOCK_TIME);

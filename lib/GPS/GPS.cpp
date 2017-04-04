@@ -125,8 +125,8 @@ uint32_t GPS::getSats() {
  * This function pauses the main thread while
  * still communicating with the comms interface.
  */
-void GPS::smartDelay(uint64_t ms) {
-  uint64_t startt = millis();
+void GPS::smartDelay(uint32_t ms) {
+  uint32_t startt = millis();
   do {
     while (Serial1.available()) tinygps.encode(Serial1.read());
   } while (millis() - startt < ms);
@@ -174,7 +174,7 @@ boolean GPS::getUBX_ACK(uint8_t* MSG) {
   uint8_t  b;
   uint8_t  ackByteID = 0;
   uint8_t  ackPacket[10];
-  uint64_t startTime = millis();
+  uint32_t startTime = millis();
   Serial.print(" * Reading ACK response: ");
 
   ackPacket[0] = 0xB5;	 // header

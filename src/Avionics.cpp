@@ -220,8 +220,8 @@ bool Avionics::processData() {
  * This function calculates if the current state is within bounds.
  */
 bool Avionics::calcVitals() {
-  data.REPORT_MODE     = (data.ASCENT_RATE >= 10);
-  data.MANUAL_MODE     = (data.ASCENT_RATE >= 10);
+  if(!data.REPORT_MODE) data.REPORT_MODE = (data.ASCENT_RATE >= 10);
+  if(!data.MANUAL_MODE) data.MANUAL_MODE = (data.ASCENT_RATE >= 10);
   data.BAT_GOOD_STATE  = (data.VOLTAGE >= 3.63);
   data.CURR_GOOD_STATE = (data.CURRENT > -5.0 && data.CURRENT <= 500.0);
   data.PRES_GOOD_STATE = (data.ALTITUDE > -50 && data.ALTITUDE < 200);

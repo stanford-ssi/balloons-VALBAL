@@ -667,7 +667,7 @@ int16_t Avionics::compressVariable(float var, float minimum, float maximum, int1
     bool bit = adc & (1 << i);
     if (bit) COMMS_BUFFER[byteIndex] |= (1 << bitIndex);
     bitIndex -= 1;
-    if (bitIndex == 0) {
+    if (bitIndex < 0) {
       bitIndex = 7;
       byteIndex++;
     }

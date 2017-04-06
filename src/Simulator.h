@@ -14,20 +14,6 @@
 
 #include "Data.h"
 
-/*
-  #include "Simulator.h"
-
-  int main() {
-    Simulator HITL;
-    Serial.begin(115200);
-    HITL.init();
-    while(true) {
-      DataFrame state = HITL.readData();
-      HITL.printState();
-    }
-  }
-*/
-
 class Simulator {
 public:
 /**********************************  SETUP  ***********************************/

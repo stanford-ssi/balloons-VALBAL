@@ -37,8 +37,12 @@ bool Filters::init() {
 	sensorCovar << 60, 0, //Placeholder values
 				   0,  4;
 
-  bool sucess = true;
-  return sucess;
+
+	MAX_PRESURE = 107500; //Corespond to altitude = -500m
+	MIN_PRESURE = 1131;   //Corespond to altitude = 30km
+
+	bool sucess = true;
+	return sucess;
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -53,8 +57,6 @@ void Filters::enableSensors(bool BMP1Enable, bool BMP2Enable, bool BMP3Enable, b
   enabledSensors[1] = BMP2Enable;
   enabledSensors[2] = BMP3Enable;
   enabledSensors[3] = BMP4Enable;
-  numSensors = 0;
-  for (size_t i = 0; i < 4; i++) if (enabledSensors[i]) numSensors++;
 }
 
 /*
@@ -77,11 +79,37 @@ double Filters::getTemp(double RAW_TEMP_1, double RAW_TEMP_2, double RAW_TEMP_3,
  * This function returns a sensor fused reading.
  */
 double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double RAW_PRESSURE_3, double RAW_PRESSURE_4) {
+	if (!(MIN_PRESURE < RAW_PRESSURE_1 < MAX_PRESURE)) enabledSensors[0] = false;
+	if (!(MIN_PRESURE < RAW_PRESSURE_2 < MAX_PRESURE)) enabledSensors[1] = false;
+	if (!(MIN_PRESURE < RAW_PRESSURE_3 < MAX_PRESURE)) enabledSensors[2] = false;
+	if (!(MIN_PRESURE < RAW_PRESSURE_4 < MAX_PRESURE)) enabledSensors[3] = false;
+
+	numSensorsInRange = 0;
+	for (size_t i = 0; i < 4; i++) if (enabledSensors[i]) numSensorsInRange++;
+
+	double pressIntermediate = 0;
+	if (enabledSensors[0]) press += RAW_PRESSURE_1;
+	if (enabledSensors[1]) press += RAW_PRESSURE_2;
+	if (enabledSensors[2]) press += RAW_PRESSURE_3;
+	if (enabledSensors[3]) press += RAW_PRESSURE_4;
+	pressIntermediate = pressIntermediate / numSensorsInRange;
+
+	double pressVariance = 0;
+	if (enabledSensors[0]) press += pow(RAW_PRESSURE_1,2);
+	if (enabledSensors[1]) press += pow(RAW_PRESSURE_2,2);
+	if (enabledSensors[2]) press += pow(RAW_PRESSURE_3,2);
+	if (enabledSensors[3]) press += pow(RAW_PRESSURE_4,2);
+	pressVariance = pressVariance / numSensorsInRange;
+	pressVariance = pressVariance - pow(pressIntermediate,2);
+
+	//TODO: Filter on distance from mean
+
   double press = 0;
   if (enabledSensors[0]) press += RAW_PRESSURE_1;
   if (enabledSensors[1]) press += RAW_PRESSURE_2;
   if (enabledSensors[2]) press += RAW_PRESSURE_3;
   if (enabledSensors[3]) press += RAW_PRESSURE_4;
+	//TODO: Condition when no sensors pass the test
   return press / numSensors;
 }
 

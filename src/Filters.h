@@ -31,7 +31,6 @@ private:
 /*********************************  OBJECTS  **********************************/
   bool     enabledSensors[4] = {true};
   uint8_t  numSensors;
-  float    ASCENT_RATE_BUFFER[BUFFER_SIZE];
   uint16_t ascentRateIndex = 0;
   double   altitudeCurr;
   double   altitudeLast;

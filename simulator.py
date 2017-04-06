@@ -16,8 +16,8 @@ import serial
 
 #******************************  GLOBALS  **************************************
 filename = ""
-VALBAL = "/dev/ttyACM0"
-timeStamp = 12000
+timeStamp = 40000
+ser = serial.Serial("/dev/ttyACM0", 115200)
 
 #******************************  HELPERS  *************************************
 def usageError():
@@ -36,6 +36,7 @@ def parseArgs(argv):
         if opt == '-l':
             filename = arg
 def feedData():
+    print("Loading data...")
     global timeStamp
     with open(filename) as f:
         next(f)
@@ -46,30 +47,40 @@ def feedData():
             time.sleep((long(csv[0]) - timeStamp) / 1000.0);
             timeStamp = long(csv[0])
             print line
-            # ser.write(struct.pack(line)
+            ser.write(line)
+            ser.write('\n')
 
 #********************************  MAIN  ***************************************
 parseArgs(sys.argv[1:])
-# ser = serial.Serial(VALBAL, 115200)
 feedData()
 
-
-# void getLine() {
-#   while(true) {
-#     if(Serial.available()) {
-#       char c = Serial.read();
-#       if(c == '\n') {
-#         Serial.print('\n');
-#         return;
-#       }
-#       Serial.print(c);
+# #include "Arduino.h"
+#
+# /***********************************  BOOT  ***********************************/
+# static const uint16_t UART_BUFFER_SIZE = 1024;
+# char buffer[UART_BUFFER_SIZE] = {0};
+#
+# /********************************  FUNCTIONS  *********************************/
+# size_t getLine() {
+#   for (size_t i = 0; i < UART_BUFFER_SIZE; i++) buffer[i] = 0;
+#   size_t i = 0;
+#   while(Serial.available()) {
+#     char c = Serial.read();
+#     if(c == '\n') {
+#       return i;
 #     }
+#     buffer[i] = c;
+#     i++;
 #   }
 # }
-#
+# /***********************************  MAIN  ***********************************/
 # int main() {
 #   Serial.begin(115200);
 #   while(true) {
-#     getLine();
+#     size_t len = getLine();
+#     if (len != 0) {
+#       for (size_t i = 0; i < len; i++) Serial.print(buffer[i]);
+#       Serial.print('\n');
+#     }
 #   }
 # }

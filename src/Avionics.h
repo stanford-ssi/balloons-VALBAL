@@ -18,6 +18,7 @@
 #include "Cutdown.h"
 #include "Data.h"
 #include "Sensors.h"
+#include "Simulator.h"
 #include "Filters.h"
 #include "Hardware.h"
 #include "Controller.h"
@@ -93,6 +94,7 @@ private:
   File logFile;
   Hardware PCB;
   Sensors sensors;
+  Simulator HITL;
   Filters filter;
   Controller computer;
   GPS gpsModule;

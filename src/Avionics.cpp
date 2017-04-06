@@ -25,6 +25,7 @@ void Avionics::init() {
   if(!setupSDCard())                              logAlert("unable to setup SD Card", true);
   if(!readHistory())                              logAlert("unable to read from EEPROM", true);
   if(!sensors.init())                             logAlert("unable to initialize Sensors", true);
+  if(!HITL.init())                                logAlert("unable to initialize Simulations", true);
   if(!filter.init())                              logAlert("unable to initialize Filters", true);
   if(!computer.init())                            logAlert("unable to initialize Flight Controller", true);
   if(!gpsModule.init(data.GPS_SHOULD_USE))        logAlert("unable to initialize GPS", true);
@@ -175,6 +176,7 @@ bool Avionics::readHistory() {
  * This function updates the current data frame.
  */
 bool Avionics::readData() {
+  // DataFrame state      = HITL.readData();
   data.LOOP_TIME       = millis() - data.TIME;
   data.TIME            = millis();
   data.VOLTAGE         = sensors.getVoltage();

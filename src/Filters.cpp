@@ -18,26 +18,26 @@
  * This function initializes the filter objects.
  */
 bool Filters::init() {
-  bool sucess = true;
 
 	sensorInputs << 0, 0; //Needs to be initialized to something
 	currentState << 0, 0;
 
-	currentCovar << 99999,    0,
-				          0,    99999; //Initially we have zero knowledge of state
+	currentCovar << 99999,     0,
+				        0, 99999; //Initially we have zero knowledge of state
 
 	predictionMat << 1,    0,
-					         1/20, 1; //Loop rate goes here
+					 1/20, 1; //Loop rate goes here
 
 	sensorMat << 1, 0, // Actual values. Hope compiler will optimize this out
-				       0, 1;
+				 0, 1;
 
-	externalCovar << 10, 0, //Placeholder values. High ascent rate variance as we have no way of predicting it
-					          0, 1;
+	externalCovar << 0.00001,      0, //Placeholder values. High ascent rate variance as we have no way of predicting it
+					       0, 0.0025;
 
-	sensorCovar << 1, 0, //Placeholder values
-				         0, 1;
+	sensorCovar << 60, 0, //Placeholder values
+				   0,  4;
 
+  bool sucess = true;
   return sucess;
 }
 

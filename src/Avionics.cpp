@@ -317,7 +317,7 @@ bool Avionics::runHeaters() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runValve() {
-  if((data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getValveQueue() <= 10000) || data.FORCE_VALVE) {
+  if((data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
     data.NUM_VALVE_ATTEMPTS++;
     if(!data.MANUAL_MODE) data.NUM_VALVES++;
     data.VALVE_ALT_LAST = data.ALTITUDE;
@@ -336,7 +336,7 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runBallast() {
-  if((data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getBallastQueue() <= 10000) || data.FORCE_BALLAST) {
+  if((data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
     data.NUM_BALLAST_ATTEMPTS++;
     if(!data.MANUAL_MODE) data.NUM_BALLASTS++;
     data.BALLAST_ALT_LAST = data.ALTITUDE;

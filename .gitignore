@@ -5,3 +5,4 @@
 .travis.yml
 src/Cutdown.h
 .DS_Store
+lib/readme.txt

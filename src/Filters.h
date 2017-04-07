@@ -37,6 +37,7 @@ private:
   uint32_t ascentRateLast;
   double   MAX_PRESURE;
   double   MIN_PRESURE;
+  float   MAX_NUM_STDDEV;
   Eigen::Matrix<double, 2, 1> sensorInputs; // [Ascent_rate , altitude] //z
   Eigen::Matrix<double, 2, 1> currentState; // [Ascent_rate , altitude] //x
   Eigen::Matrix<double, 2, 2> currentCovar; //  P

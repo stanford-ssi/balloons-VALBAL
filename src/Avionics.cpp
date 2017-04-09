@@ -200,6 +200,11 @@ bool Avionics::readData() {
   return true;
 }
 
+/*
+ * Function: readGPS
+ * -------------------
+ * This function reads data from the GPS module.
+ */
 bool Avionics::readGPS() {
   gpsModule.smartDelay(GPS_LOCK_TIME);
   data.LAT_GPS         = gpsModule.getLatitude();

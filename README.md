@@ -38,6 +38,10 @@ The avionics flight software was written in compliance with NASA JPL's  Safety-C
 
 `Controller` - Interface to feedback control algorithm.
 
+`Parser` - Decompression algorithm for satcomms.
+
+`Simulator` - Client side code for Hardware in the Loop simulations.
+
 #### Libraries
 `GPS` - Wrapper library with added features.
 
@@ -70,3 +74,4 @@ Here is the current status of the code:
 9. RockBlock command parsing for satcomms uplink.
 10. Manual control of flight Parameters.
 11. Debug mode disabled at altitude.
+12. HITL simulations testing suite.

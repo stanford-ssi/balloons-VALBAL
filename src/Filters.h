@@ -23,21 +23,22 @@ public:
   void     enableSensors(bool BMP1Enable, bool BMP2Enable, bool BMP3Enable, bool BMP4Enable);
   double   getTemp(double RAW_TEMP_1,double RAW_TEMP_2,double RAW_TEMP_3,double RAW_TEMP_4);
   double   getPressure(double RAW_PRESSURE_1,double RAW_PRESSURE_2,double RAW_PRESSURE_3,double RAW_PRESSURE_4);
-  void    storeInputs(float pressure, float pressureBaseline);
-  void     kalmanAltitude();
+  uint32_t getNumRejections(uint8_t sensor);
+  void     kalmanAltitude(float pressure, float pressureBaseline);
   double   getKalmanedAltitude();
   double   getKalmanedAscentRate();
 private:
+/*********************************  HELPERS  **********************************/
+  void     markFailure(uint8_t sensor);
+  void     storeInputs(float pressure, float pressureBaseline);
 /*********************************  OBJECTS  **********************************/
   bool     enabledSensors[4] = {true};
+  uint32_t rejectedSensors[4] = {0};
   uint8_t  numSensors;
   uint16_t ascentRateIndex = 0;
   double   altitudeCurr;
   double   altitudeLast;
   uint32_t ascentRateLast;
-  double   MAX_PRESURE;
-  double   MIN_PRESURE;
-  float   MAX_NUM_STDDEV;
   Eigen::Matrix<double, 2, 1> sensorInputs; // [Ascent_rate , altitude] //z
   Eigen::Matrix<double, 2, 1> currentState; // [Ascent_rate , altitude] //x
   Eigen::Matrix<double, 2, 2> currentCovar; //  P

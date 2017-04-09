@@ -60,12 +60,6 @@ struct DataFrame {
   bool         HEATER_SHOULD_USE               =                           true;
   bool         HEATER_STRONG_ENABLE            =                           true;
   bool         HEATER_WEEK_ENABLE              =                          false;
-
-  bool         BAT_GOOD_STATE                  =                          false;
-  bool         CURR_GOOD_STATE                 =                          false;
-  bool         PRES_GOOD_STATE                 =                          false;
-  bool         TEMP_GOOD_STATE                 =                          false;
-  bool         RB_GOOD_STATE                   =                          false;
   bool         GPS_GOOD_STATE                  =                          false;
 
 /*****************************  SECONDARY DATA  *******************************/
@@ -101,6 +95,11 @@ struct DataFrame {
   bool         BMP_2_ENABLE                    =                           true;
   bool         BMP_3_ENABLE                    =                           true;
   bool         BMP_4_ENABLE                    =                           true;
+
+  uint32_t     BMP_1_REJECTIONS                =                              0;
+  uint32_t     BMP_2_REJECTIONS                =                              0;
+  uint32_t     BMP_3_REJECTIONS                =                              0;
+  uint32_t     BMP_4_REJECTIONS                =                              0;
 
   double       RAW_TEMP_1                      =                              0;
   double       RAW_TEMP_2                      =                              0;

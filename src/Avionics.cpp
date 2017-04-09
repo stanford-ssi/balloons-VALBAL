@@ -177,25 +177,25 @@ bool Avionics::readHistory() {
  */
 bool Avionics::readData() {
   // DataFrame state      = HITL.readData();
-  data.LOOP_TIME       = millis() - data.TIME;
-  data.TIME            = millis();
-  data.VOLTAGE         = sensors.getVoltage();
-  data.CURRENT         = sensors.getCurrent();
-  data.JOULES          = sensors.getJoules();
-  data.CURRENT_GPS     = sensors.getCurrentSubsystem(GPS_CURRENT);
-  data.CURRENT_RB      = sensors.getCurrentSubsystem(RB_CURRENT);
-  data.CURRENT_MOTORS  = sensors.getCurrentSubsystem(Motors_CURRENT);
-  data.CURRENT_PAYLOAD = sensors.getCurrentSubsystem(Payload_CURRENT);
-  data.TEMP_NECK       = sensors.getNeckTemp();
-  data.RAW_TEMP_1      = sensors.getRawTemp(1);
-  data.RAW_TEMP_2      = sensors.getRawTemp(2);
-  data.RAW_TEMP_3      = sensors.getRawTemp(3);
-  data.RAW_TEMP_4      = sensors.getRawTemp(4);
-  data.RAW_PRESSURE_1  = sensors.getRawPressure(1);
-  data.RAW_PRESSURE_2  = sensors.getRawPressure(2);
-  data.RAW_PRESSURE_3  = sensors.getRawPressure(3);
-  data.RAW_PRESSURE_4  = sensors.getRawPressure(4);
-  data.ALTITUDE_LAST   = data.ALTITUDE;
+  data.LOOP_TIME        = millis() - data.TIME;
+  data.TIME             = millis();
+  data.VOLTAGE          = sensors.getVoltage();
+  data.CURRENT          = sensors.getCurrent();
+  data.JOULES           = sensors.getJoules();
+  data.CURRENT_GPS      = sensors.getCurrentSubsystem(GPS_CURRENT);
+  data.CURRENT_RB       = sensors.getCurrentSubsystem(RB_CURRENT);
+  data.CURRENT_MOTORS   = sensors.getCurrentSubsystem(Motors_CURRENT);
+  data.CURRENT_PAYLOAD  = sensors.getCurrentSubsystem(Payload_CURRENT);
+  data.TEMP_NECK        = sensors.getNeckTemp();
+  data.RAW_TEMP_1       = sensors.getRawTemp(1);
+  data.RAW_TEMP_2       = sensors.getRawTemp(2);
+  data.RAW_TEMP_3       = sensors.getRawTemp(3);
+  data.RAW_TEMP_4       = sensors.getRawTemp(4);
+  data.RAW_PRESSURE_1   = sensors.getRawPressure(1);
+  data.RAW_PRESSURE_2   = sensors.getRawPressure(2);
+  data.RAW_PRESSURE_3   = sensors.getRawPressure(3);
+  data.RAW_PRESSURE_4   = sensors.getRawPressure(4);
+  data.ALTITUDE_LAST    = data.ALTITUDE;
   if ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) readGPS();
   return true;
 }
@@ -207,13 +207,13 @@ bool Avionics::readData() {
  */
 bool Avionics::readGPS() {
   gpsModule.smartDelay(GPS_LOCK_TIME);
-  data.LAT_GPS         = gpsModule.getLatitude();
-  data.LONG_GPS        = gpsModule.getLongitude();
-  data.ALTITUDE_GPS    = gpsModule.getAltitude();
-  data.HEADING_GPS     = gpsModule.getCourse();
-  data.SPEED_GPS       = gpsModule.getSpeed();
-  data.NUM_SATS_GPS    = gpsModule.getSats();
-  data.GPS_LAST        = millis();
+  data.LAT_GPS          = gpsModule.getLatitude();
+  data.LONG_GPS         = gpsModule.getLongitude();
+  data.ALTITUDE_GPS     = gpsModule.getAltitude();
+  data.HEADING_GPS      = gpsModule.getCourse();
+  data.SPEED_GPS        = gpsModule.getSpeed();
+  data.NUM_SATS_GPS     = gpsModule.getSats();
+  data.GPS_LAST         = millis();
   return true;
 }
 
@@ -225,12 +225,15 @@ bool Avionics::readGPS() {
 bool Avionics::processData() {
   bool success = true;
   filter.enableSensors(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
-  data.TEMP            = filter.getTemp(data.RAW_TEMP_1, data.RAW_TEMP_2, data.RAW_TEMP_3, data.RAW_TEMP_4);
-  data.PRESS           = filter.getPressure(data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4);
-  filter.storeInputs(data.PRESS, data.PRESS_BASELINE);
-  filter.kalmanAltitude();
-  data.ALTITUDE        = filter.getKalmanedAltitude();
-  data.ASCENT_RATE     = filter.getKalmanedAscentRate();
+  data.TEMP             = filter.getTemp(data.RAW_TEMP_1, data.RAW_TEMP_2, data.RAW_TEMP_3, data.RAW_TEMP_4);
+  data.PRESS            = filter.getPressure(data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4);
+  data.BMP_1_REJECTIONS = filter.getNumRejections(1);
+  data.BMP_2_REJECTIONS = filter.getNumRejections(2);
+  data.BMP_3_REJECTIONS = filter.getNumRejections(3);
+  data.BMP_4_REJECTIONS = filter.getNumRejections(4);
+  filter.kalmanAltitude(data.PRESS, data.PRESS_BASELINE);
+  data.ALTITUDE         = filter.getKalmanedAltitude();
+  data.ASCENT_RATE      = filter.getKalmanedAscentRate();
   if (data.ASCENT_RATE >= 10) success = false;
   return success;
 }
@@ -243,11 +246,7 @@ bool Avionics::processData() {
 bool Avionics::calcVitals() {
   if(!data.REPORT_MODE) data.REPORT_MODE = (data.ASCENT_RATE >= 10);
   if(!data.MANUAL_MODE) data.MANUAL_MODE = (data.ASCENT_RATE >= 10);
-  data.BAT_GOOD_STATE  = (data.VOLTAGE >= 3.63);
-  data.CURR_GOOD_STATE = (data.CURRENT > -5.0 && data.CURRENT <= 500.0);
-  data.PRES_GOOD_STATE = (data.ALTITUDE > -50 && data.ALTITUDE < 200);
-  data.TEMP_GOOD_STATE = (data.TEMP > 15 && data.TEMP < 50);
-  data.GPS_GOOD_STATE  = (data.LAT_GPS != 1000.0 && data.LAT_GPS != 0.0 && data.LONG_GPS != 1000.0 && data.LONG_GPS != 0.0);
+  data.GPS_GOOD_STATE   = (data.LAT_GPS != 1000.0 && data.LAT_GPS != 0.0 && data.LONG_GPS != 1000.0 && data.LONG_GPS != 0.0);
   return true;
 }
 
@@ -391,11 +390,7 @@ bool Avionics::sendSATCOMS() {
   logAlert("sending Rockblock message", false);
   data.RB_SENT_COMMS++;
   int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
-  if(ret < 0) {
-    data.RB_GOOD_STATE  = false;
-    return false;
-  }
-  data.RB_GOOD_STATE  = true;
+  if(ret < 0) return false;
   if(ret > 0) parseCommand(ret);
   return true;
 }
@@ -770,16 +765,6 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(data.HEATER_WEEK_ENABLE);
   Serial.print(',');
-  Serial.print(data.BAT_GOOD_STATE);
-  Serial.print(',');
-  Serial.print(data.CURR_GOOD_STATE);
-  Serial.print(',');
-  Serial.print(data.PRES_GOOD_STATE);
-  Serial.print(',');
-  Serial.print(data.TEMP_GOOD_STATE);
-  Serial.print(',');
-  Serial.print(data.RB_GOOD_STATE);
-  Serial.print(',');
   Serial.print(data.GPS_GOOD_STATE);
   Serial.print(',');
   Serial.print(data.PRESS_BASELINE);
@@ -837,6 +822,14 @@ void Avionics::printState() {
   Serial.print(data.BMP_3_ENABLE);
   Serial.print(',');
   Serial.print(data.BMP_4_ENABLE);
+  Serial.print(',');
+  Serial.print(data.BMP_1_REJECTIONS);
+  Serial.print(',');
+  Serial.print(data.BMP_2_REJECTIONS);
+  Serial.print(',');
+  Serial.print(data.BMP_3_REJECTIONS);
+  Serial.print(',');
+  Serial.print(data.BMP_4_REJECTIONS);
   Serial.print(',');
   Serial.print(data.RAW_TEMP_1);
   Serial.print(',');
@@ -953,16 +946,6 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.HEATER_WEEK_ENABLE);
   dataFile.print(',');
-  dataFile.print(data.BAT_GOOD_STATE);
-  dataFile.print(',');
-  dataFile.print(data.CURR_GOOD_STATE);
-  dataFile.print(',');
-  dataFile.print(data.PRES_GOOD_STATE);
-  dataFile.print(',');
-  dataFile.print(data.TEMP_GOOD_STATE);
-  dataFile.print(',');
-  dataFile.print(data.RB_GOOD_STATE);
-  dataFile.print(',');
   dataFile.print(data.GPS_GOOD_STATE);
   dataFile.print(',');
   dataFile.print(data.PRESS_BASELINE);
@@ -1021,6 +1004,14 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.BMP_4_ENABLE);
   dataFile.print(',');
+  dataFile.print(data.BMP_1_REJECTIONS);
+  dataFile.print(',');
+  dataFile.print(data.BMP_2_REJECTIONS);
+  dataFile.print(',');
+  dataFile.print(data.BMP_3_REJECTIONS);
+  dataFile.print(',');
+  dataFile.print(data.BMP_4_REJECTIONS);
+  dataFile.print(',');
   dataFile.print(data.RAW_TEMP_1);
   dataFile.print(',');
   dataFile.print(data.RAW_TEMP_2);
@@ -1053,6 +1044,7 @@ bool Avionics::logData() {
  * Function: compressData
  * -------------------
  * This function compresses the data frame into a bit stream.
+ * The total bitstream cannot exceed 100 bytes.
  */
 int16_t Avionics::compressData() {
   int16_t lengthBits  = 0;
@@ -1099,11 +1091,6 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.HEATER_SHOULD_USE,                0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.HEATER_STRONG_ENABLE,             0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.HEATER_WEEK_ENABLE,               0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.BAT_GOOD_STATE,                   0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.CURR_GOOD_STATE,                  0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.PRES_GOOD_STATE,                  0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.TEMP_GOOD_STATE,                  0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.RB_GOOD_STATE,                    0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.GPS_GOOD_STATE,                   0,    1,       1,  lengthBits);
   if (data.REPORT_MODE) {
     lengthBits += compressVariable(data.PRESS_BASELINE,                 0,    500000,  19, lengthBits);
@@ -1134,6 +1121,10 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.BMP_2_ENABLE,                   0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.BMP_3_ENABLE,                   0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.BMP_4_ENABLE,                   0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.BMP_1_REJECTIONS,               0,    1000000, 6,  lengthBits);
+    lengthBits += compressVariable(data.BMP_2_REJECTIONS,               0,    1000000, 6,  lengthBits);
+    lengthBits += compressVariable(data.BMP_3_REJECTIONS,               0,    1000000, 6,  lengthBits);
+    lengthBits += compressVariable(data.BMP_4_REJECTIONS,               0,    1000000, 6,  lengthBits);
     lengthBits += compressVariable(data.RAW_TEMP_1,                    -50,   100,     9,  lengthBits);
     lengthBits += compressVariable(data.RAW_TEMP_2,                    -50,   100,     9,  lengthBits);
     lengthBits += compressVariable(data.RAW_TEMP_3,                    -50,   100,     9,  lengthBits);
@@ -1150,16 +1141,19 @@ int16_t Avionics::compressData() {
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
   data.COMMS_LENGTH = lengthBytes;
-  for (int16_t i = 0; i < lengthBytes; i++) {
-    uint8_t byte = COMMS_BUFFER[i];
-    (byte & 0x80 ? Serial.print('1') : Serial.print('0'));
-    (byte & 0x40 ? Serial.print('1') : Serial.print('0'));
-    (byte & 0x20 ? Serial.print('1') : Serial.print('0'));
-    (byte & 0x10 ? Serial.print('1') : Serial.print('0'));
-    (byte & 0x08 ? Serial.print('1') : Serial.print('0'));
-    (byte & 0x04 ? Serial.print('1') : Serial.print('0'));
-    (byte & 0x02 ? Serial.print('1') : Serial.print('0'));
-    (byte & 0x01 ? Serial.print('1') : Serial.print('0'));
+  if(data.DEBUG_STATE) {
+    for (int16_t i = 0; i < lengthBytes; i++) {
+      uint8_t byte = COMMS_BUFFER[i];
+      (byte & 0x80 ? Serial.print('1') : Serial.print('0'));
+      (byte & 0x40 ? Serial.print('1') : Serial.print('0'));
+      (byte & 0x20 ? Serial.print('1') : Serial.print('0'));
+      (byte & 0x10 ? Serial.print('1') : Serial.print('0'));
+      (byte & 0x08 ? Serial.print('1') : Serial.print('0'));
+      (byte & 0x04 ? Serial.print('1') : Serial.print('0'));
+      (byte & 0x02 ? Serial.print('1') : Serial.print('0'));
+      (byte & 0x01 ? Serial.print('1') : Serial.print('0'));
+    }
+    Serial.print('\n');
   }
   return lengthBytes;
 }

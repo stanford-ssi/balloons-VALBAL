@@ -16,7 +16,6 @@ import serial
 
 #******************************  GLOBALS  **************************************
 filename = ""
-timeStamp = 40000
 ser = serial.Serial("/dev/ttyACM0", 115200)
 
 #******************************  HELPERS  *************************************
@@ -44,8 +43,6 @@ def feedData():
         for line_terminated in f:
             line = line_terminated.rstrip('\n')
             csv = line.split(',')
-            time.sleep((long(csv[0]) - timeStamp) / 1000.0);
-            timeStamp = long(csv[0])
             print line
             ser.write(line)
             ser.write('\n')

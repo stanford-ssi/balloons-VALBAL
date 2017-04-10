@@ -323,10 +323,10 @@ bool Avionics::runHeaters() {
 bool Avionics::runValve() {
   if((data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
     data.NUM_VALVE_ATTEMPTS++;
-    if(!data.MANUAL_MODE) data.NUM_VALVES++;
+    if(!data.MANUAL_MODE || data.FORCE_VALVE) data.NUM_VALVES++;
     data.VALVE_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
-    PCB.queueValve(data.VALVE_DURATION);
+    PCB.queueValve(data.VALVE_DURATION, (!data.MANUAL_MODE || data.FORCE_VALVE));
     data.FORCE_VALVE = false;
   }
   data.VALVE_QUEUE = PCB.getValveQueue();
@@ -342,10 +342,10 @@ bool Avionics::runValve() {
 bool Avionics::runBallast() {
   if((data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
     data.NUM_BALLAST_ATTEMPTS++;
-    if(!data.MANUAL_MODE) data.NUM_BALLASTS++;
+    if(!data.MANUAL_MODE || data.FORCE_BALLAST) data.NUM_BALLASTS++;
     data.BALLAST_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
-    PCB.queueBallast(data.BALLAST_DURATION);
+    PCB.queueBallast(data.BALLAST_DURATION, (!data.MANUAL_MODE || data.FORCE_BALLAST));
     data.FORCE_BALLAST = false;
   }
   data.BALLAST_QUEUE = PCB.getBallastQueue();

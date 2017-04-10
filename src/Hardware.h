@@ -34,8 +34,8 @@ public:
   void     turnOffHeaters();
   void     setHeaterMode(bool on);
 
-  void     queueValve(int duration);
-  void     queueBallast(int duration);
+  void     queueValve(int duration, bool real);
+  void     queueBallast(int duration, bool real);
   void     clearValveQueue();
   void     clearBallastQueue();
   bool     checkValve(bool real);

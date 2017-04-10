@@ -125,7 +125,7 @@ void Hardware::setHeaterMode(bool on) {
  * This function increments the timer queue
  * for the mechanical valve mechanism.
  */
-void Hardware::queueValve(int duration) {
+void Hardware::queueValve(int duration, bool real) {
   valveQueue += duration;
 }
 
@@ -135,7 +135,7 @@ void Hardware::queueValve(int duration) {
  * This function increments the timer queue
  * for the mechanical ballast mechanism.
  */
-void Hardware::queueBallast(int duration) {
+void Hardware::queueBallast(int duration, bool real) {
   ballastQueue += duration;
 }
 

@@ -69,6 +69,7 @@ private:
   bool    sendSATCOMS();
   void    parseCommand(int16_t len);
   void    updateConstant(uint8_t index, float value);
+  void    parseManualCommand(bool command);
   void    parseSensorsCommand(uint8_t command);
   void    parseValveCommand(float command);
   void    parseBallastCommand(float command);

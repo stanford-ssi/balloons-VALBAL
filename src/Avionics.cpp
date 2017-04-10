@@ -437,26 +437,26 @@ void Avionics::parseCommand(int16_t len) {
  * based on the command index.
  */
 void Avionics::updateConstant(uint8_t index, float value) {
-  if      (index ==  0) data.MANUAL_MODE = value;
-  else if (index ==  1) data.VALVE_ALT_LAST = value;
-  else if (index ==  2) data.BALLAST_ALT_LAST = value;
-  else if (index ==  3) data.VALVE_SETPOINT = value;
-  else if (index ==  4) data.BALLAST_SETPOINT = value;
-  else if (index ==  5) data.BALLAST_ARM_ALT = value;
-  else if (index ==  6) data.INCENTIVE_THRESHOLD = value;
-  else if (index ==  7) data.VALVE_VELOCITY_CONSTANT = value;
-  else if (index ==  8) data.VALVE_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
-  else if (index ==  9) data.VALVE_LAST_ACTION_CONSTANT = 1.0 / value;
-  else if (index == 10) data.BALLAST_VELOCITY_CONSTANT = value;
-  else if (index == 11) data.BALLAST_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
-  else if (index == 12) data.BALLAST_LAST_ACTION_CONSTANT = 1.0 / value;
-  else if (index == 13) data.VALVE_DURATION = value;
-  else if (index == 14) data.BALLAST_DURATION = value;
-  else if (index == 15) data.PRESS_BASELINE = value;
-  else if (index == 16) data.TEMP_SETPOINT = value;
-  else if (index == 17) data.SHOULD_LED = value;
-  else if (index == 18) data.COMMS_INTERVAL = value * 60000;
-  else if (index == 19) data.GPS_INTERVAL = value * 60000;
+  if      (index ==  0) data.VALVE_ALT_LAST = value;
+  else if (index ==  1) data.BALLAST_ALT_LAST = value;
+  else if (index ==  2) data.VALVE_SETPOINT = value;
+  else if (index ==  3) data.BALLAST_SETPOINT = value;
+  else if (index ==  4) data.BALLAST_ARM_ALT = value;
+  else if (index ==  5) data.INCENTIVE_THRESHOLD = value;
+  else if (index ==  6) data.VALVE_VELOCITY_CONSTANT = value;
+  else if (index ==  7) data.VALVE_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
+  else if (index ==  8) data.VALVE_LAST_ACTION_CONSTANT = 1.0 / value;
+  else if (index ==  9) data.BALLAST_VELOCITY_CONSTANT = value;
+  else if (index == 10) data.BALLAST_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
+  else if (index == 11) data.BALLAST_LAST_ACTION_CONSTANT = 1.0 / value;
+  else if (index == 12) data.VALVE_DURATION = value;
+  else if (index == 13) data.BALLAST_DURATION = value;
+  else if (index == 14) data.PRESS_BASELINE = value;
+  else if (index == 15) data.TEMP_SETPOINT = value;
+  else if (index == 16) data.SHOULD_LED = value;
+  else if (index == 17) data.COMMS_INTERVAL = value * 60000;
+  else if (index == 18) data.GPS_INTERVAL = value * 60000;
+  else if (index == 19) parseManualCommand(value);
   else if (index == 20) parseSensorsCommand(value);
   else if (index == 21) parseValveCommand(value);
   else if (index == 22) parseBallastCommand(value);
@@ -464,6 +464,19 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 24) parseGPSCommand(value);
   else if (index == 25) parseHeaterCommand(value);
   else if (index == 26) parseHeaterModeCommand(value);
+}
+
+/*
+ * Function: parseManualCommand
+ * -------------------
+ * This function parses the manual mode command.
+ */
+void Avionics::parseManualCommand(bool command) {
+  if (data.MANUAL_MODE && !command) {
+    PCB.clearValveQueue();
+    PCB.clearBallastQueue();
+  }
+  data.MANUAL_MODE = command;
 }
 
 /*

@@ -126,7 +126,8 @@ void Hardware::setHeaterMode(bool on) {
  * for the mechanical valve mechanism.
  */
 void Hardware::queueValve(int duration, bool real) {
-  valveQueue += duration;
+  if(real) valveQueue += duration;
+  else valveQueueFake += duration;
 }
 
 /*
@@ -136,7 +137,8 @@ void Hardware::queueValve(int duration, bool real) {
  * for the mechanical ballast mechanism.
  */
 void Hardware::queueBallast(int duration, bool real) {
-  ballastQueue += duration;
+  if(real) ballastQueue += duration;
+  else ballastQueueFake += duration;
 }
 
 /*
@@ -146,6 +148,7 @@ void Hardware::queueBallast(int duration, bool real) {
  */
 void Hardware::clearValveQueue() {
   valveQueue = 0;
+  valveQueueFake = 0;
 }
 
 /*
@@ -155,6 +158,7 @@ void Hardware::clearValveQueue() {
  */
 void Hardware::clearBallastQueue() {
   ballastQueue = 0;
+  ballastQueueFake = 0;
 }
 
 /*
@@ -163,7 +167,7 @@ void Hardware::clearBallastQueue() {
  * This function provides a non-hanging interface to check the timer queue.
  * Called every loop; updates and acts on the current state of the valve.
  */
-bool Hardware::checkValve(bool real) {
+bool Hardware::checkValve() {
   if (valveState == CLOSED) {
     if ((millis() - valveLeakStartTime) >= VALVE_LEAK_TIMEOUT) {
       valveLeakStartTime = millis();
@@ -171,11 +175,16 @@ bool Hardware::checkValve(bool real) {
       valveState = CLOSING;
       closeValve();
     }
+    if (valveQueue == 0) {
+      uint32_t deltaTime = (millis() - valveCheckTime);
+      valveCheckTime = millis();
+      (deltaTime >= valveQueueFake) ? (valveQueueFake = 0) : (valveQueueFake -= deltaTime);
+    }
     if (valveQueue > 0) {
       valveActionStartTime = millis();
       valveCheckTime = millis();
       valveState = OPENING;
-      if(real) openValve();
+      openValve();
     }
   }
   if ((valveState == OPENING) && (millis() - valveActionStartTime >= VALVE_OPENING_TIMEOUT)) {
@@ -199,7 +208,6 @@ bool Hardware::checkValve(bool real) {
     valveState = CLOSED;
     stopValve();
   }
-  if (!real) return false;
   return valveState != CLOSED;
 }
 
@@ -209,11 +217,18 @@ bool Hardware::checkValve(bool real) {
  * This function provides a non-hanging interface to check the timer queue.
  * Called every loop; updates and acts on the current state of the ballast.
  */
-bool Hardware::checkBallast(bool real) {
-  if ((ballastState == CLOSED) && (ballastQueue > 0)) {
-    ballastActionStartTime = millis();
-    ballastCheckTime = millis();
-    ballastState = OPEN;
+bool Hardware::checkBallast() {
+  if (ballastState == CLOSED) {
+    if (ballastQueue == 0) {
+      uint32_t deltaTime = (millis() - ballastCheckTime);
+      ballastCheckTime = millis();
+      (deltaTime >= ballastQueueFake) ? (ballastQueueFake = 0) : (ballastQueueFake -= deltaTime);
+    }
+    if (ballastQueue > 0) {
+      ballastActionStartTime = millis();
+      ballastCheckTime = millis();
+      ballastState = OPEN;
+    }
   }
   if (ballastState == OPEN) {
     if(ballastQueue > 0) {
@@ -224,14 +239,13 @@ bool Hardware::checkBallast(bool real) {
         ballastDirectionTime = millis();
         ballastDirection = !ballastDirection;
       }
-      if(real) dropBallast(ballastDirection);
+      dropBallast(ballastDirection);
     }
     if(ballastQueue == 0) {
       ballastState = CLOSED;
       stopBallast();
     }
   }
-  if (!real) return false;
   return ballastState != CLOSED;
 }
 
@@ -241,7 +255,7 @@ bool Hardware::checkBallast(bool real) {
  * This function returns the current valve queue.
  */
 uint32_t Hardware::getValveQueue() {
-  return valveQueue;
+  return valveQueue + valveQueueFake;
 }
 
 /*
@@ -250,7 +264,7 @@ uint32_t Hardware::getValveQueue() {
  * This function returns the current ballast queue.
  */
 uint32_t Hardware::getBallastQueue() {
-  return ballastQueue;
+  return ballastQueue + ballastQueueFake;
 }
 
 /*

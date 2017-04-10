@@ -323,14 +323,15 @@ bool Avionics::runHeaters() {
 bool Avionics::runValve() {
   if((data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
     data.NUM_VALVE_ATTEMPTS++;
-    if(!data.MANUAL_MODE || data.FORCE_VALVE) data.NUM_VALVES++;
+    bool shouldValve = (!data.MANUAL_MODE || data.FORCE_VALVE);
+    if(shouldValve) data.NUM_VALVES++;
     data.VALVE_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
-    PCB.queueValve(data.VALVE_DURATION, (!data.MANUAL_MODE || data.FORCE_VALVE));
+    PCB.queueValve(data.VALVE_DURATION, shouldValve);
     data.FORCE_VALVE = false;
   }
   data.VALVE_QUEUE = PCB.getValveQueue();
-  data.VALVE_STATE = PCB.checkValve(!data.MANUAL_MODE);
+  data.VALVE_STATE = PCB.checkValve();
   return true;
 }
 
@@ -342,14 +343,15 @@ bool Avionics::runValve() {
 bool Avionics::runBallast() {
   if((data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
     data.NUM_BALLAST_ATTEMPTS++;
-    if(!data.MANUAL_MODE || data.FORCE_BALLAST) data.NUM_BALLASTS++;
+    bool shouldBallast = (!data.MANUAL_MODE || data.FORCE_BALLAST);
+    if(shouldBallast) data.NUM_BALLASTS++;
     data.BALLAST_ALT_LAST = data.ALTITUDE;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
-    PCB.queueBallast(data.BALLAST_DURATION, (!data.MANUAL_MODE || data.FORCE_BALLAST));
+    PCB.queueBallast(data.BALLAST_DURATION, shouldBallast);
     data.FORCE_BALLAST = false;
   }
   data.BALLAST_QUEUE = PCB.getBallastQueue();
-  data.BALLAST_STATE = PCB.checkBallast(!data.MANUAL_MODE);
+  data.BALLAST_STATE = PCB.checkBallast();
   return true;
 }
 
@@ -472,10 +474,8 @@ void Avionics::updateConstant(uint8_t index, float value) {
  * This function parses the manual mode command.
  */
 void Avionics::parseManualCommand(bool command) {
-  if (data.MANUAL_MODE && !command) {
-    PCB.clearValveQueue();
-    PCB.clearBallastQueue();
-  }
+  PCB.clearValveQueue();
+  PCB.clearBallastQueue();
   data.MANUAL_MODE = command;
 }
 

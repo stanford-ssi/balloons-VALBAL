@@ -38,8 +38,8 @@ public:
   void     queueBallast(int duration, bool real);
   void     clearValveQueue();
   void     clearBallastQueue();
-  bool     checkValve(bool real);
-  bool     checkBallast(bool real);
+  bool     checkValve();
+  bool     checkBallast();
   uint32_t getValveQueue();
   uint32_t getBallastQueue();
 
@@ -63,7 +63,9 @@ private:
   state_t  ballastState = CLOSED;
   uint8_t  EEPROMAddress;
   uint32_t valveQueue = 0;
+  uint32_t valveQueueFake = 0;
   uint32_t ballastQueue = 0;
+  uint32_t ballastQueueFake = 0;
   uint32_t valveLeakStartTime = 0;
   uint32_t valveActionStartTime = 0;
   uint32_t ballastActionStartTime = 0;

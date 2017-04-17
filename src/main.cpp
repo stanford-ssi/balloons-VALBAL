@@ -30,6 +30,7 @@ int main(void) {
     VALBAL.sendComms();
     VALBAL.sleep();
   }
+  return 0;
 }
 /*********************************  CALLBACK  *********************************/
 bool ISBDCallback() {

@@ -110,7 +110,7 @@ void Avionics::logState() {
 void Avionics::sendComms() {
   if(data.DEBUG_STATE && ((millis() - data.COMMS_LAST) < COMMS_DEBUG_INTERVAL)) return;
   if(!data.DEBUG_STATE && ((millis() - data.COMMS_LAST) < data.COMMS_INTERVAL)) return;
-  if (!data.RB_SHOULD_USE && ((millis() - data.COMMS_LAST) < COMMS_RESTART_INTERVAL)) {
+  if (!data.RB_SHOULD_USE && ((millis() - data.COMMS_LAST) > COMMS_RESTART_INTERVAL)) {
     data.RB_SHOULD_USE = true;
     RBModule.restart();
   }
@@ -196,7 +196,7 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_3   = sensors.getRawPressure(3);
   data.RAW_PRESSURE_4   = sensors.getRawPressure(4);
   data.ALTITUDE_LAST    = data.ALTITUDE;
-  if ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) readGPS();
+  if (data.GPS_SHOULD_USE && ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL)) readGPS();
   return true;
 }
 
@@ -244,7 +244,7 @@ bool Avionics::processData() {
  * This function calculates if the current state is within bounds.
  */
 bool Avionics::calcVitals() {
-  if(!data.REPORT_MODE) data.REPORT_MODE = (data.ASCENT_RATE >= 10);
+  if(!data.REPORT_MODE) data.SHOULD_REPORT = (data.ASCENT_RATE >= 10);
   if(!data.MANUAL_MODE) data.MANUAL_MODE = (data.ASCENT_RATE >= 10);
   data.GPS_GOOD_STATE   = (data.LAT_GPS != 1000.0 && data.LAT_GPS != 0.0 && data.LONG_GPS != 1000.0 && data.LONG_GPS != 0.0);
   return true;
@@ -419,7 +419,7 @@ void Avionics::parseCommand(int16_t len) {
     &commandIndexes[6], commandStrings[6],
     &commandIndexes[7], commandStrings[7]);
   if (numScanned % 2 != 0) return;
-  data.REPORT_MODE = true;
+  data.SHOULD_REPORT = true;
 
   for (uint8_t i = 0; i < numScanned / 2; i++) {
     uint8_t index = commandIndexes[i];
@@ -461,13 +461,14 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 17) data.COMMS_INTERVAL = value * 60000;
   else if (index == 18) data.GPS_INTERVAL = value * 60000;
   else if (index == 19) parseManualCommand(value);
-  else if (index == 20) parseSensorsCommand(value);
-  else if (index == 21) parseValveCommand(value);
-  else if (index == 22) parseBallastCommand(value);
-  else if (index == 23) parseRockBLOCKCommand(value);
-  else if (index == 24) parseGPSCommand(value);
-  else if (index == 25) parseHeaterCommand(value);
-  else if (index == 26) parseHeaterModeCommand(value);
+  else if (index == 20) parseReportCommand(value);
+  else if (index == 21) parseSensorsCommand(value);
+  else if (index == 22) parseValveCommand(value);
+  else if (index == 23) parseBallastCommand(value);
+  else if (index == 24) parseRockBLOCKCommand(value);
+  else if (index == 25) parseGPSCommand(value);
+  else if (index == 26) parseHeaterCommand(value);
+  else if (index == 27) parseHeaterModeCommand(value);
 }
 
 /*
@@ -479,6 +480,15 @@ void Avionics::parseManualCommand(bool command) {
   PCB.clearValveQueue();
   PCB.clearBallastQueue();
   data.MANUAL_MODE = command;
+}
+
+/*
+ * Function: parseReportCommand
+ * -------------------
+ * This function parses the REPORT_MODE mode command.
+ */
+void Avionics::parseReportCommand(bool command) {
+  data.REPORT_MODE = command;
 }
 
 /*
@@ -498,7 +508,7 @@ void Avionics::parseSensorsCommand(uint8_t command) {
  * -------------------
  * This function parses a forced valve command.
  */
-void Avionics::parseValveCommand(float command) {
+void Avionics::parseValveCommand(uint32_t command) {
   if(command == 0) PCB.clearValveQueue();
   else {
     data.FORCE_VALVE = true;
@@ -512,7 +522,7 @@ void Avionics::parseValveCommand(float command) {
  * -------------------
  * This function parses a forced ballast command.
  */
-void Avionics::parseBallastCommand(float command) {
+void Avionics::parseBallastCommand(uint32_t command) {
   if(command == 0) PCB.clearBallastQueue();
   else {
     data.FORCE_BALLAST = true;
@@ -550,7 +560,7 @@ void Avionics::parseGPSCommand(uint8_t command) {
     data.GPS_SHOULD_USE = true;
     gpsModule.restart();
   }
-  else if (command == 3) {
+  else if (command == 2) {
     gpsModule.hotstart();
     readGPS();
   }
@@ -643,7 +653,7 @@ void Avionics::logHeader() {
 }
 
 /*
- * Function: logAlert
+   * Function: logAlert
  * -------------------
  * This function logs important information whenever a specific event occurs.
  */
@@ -896,6 +906,9 @@ void Avionics::printState() {
   Serial.print("REPORT_MODE:");
   Serial.print(data.REPORT_MODE);
   Serial.print(',');
+  Serial.print("SHOULD_REPORT:");
+  Serial.print(data.SHOULD_REPORT);
+  Serial.print(',');
   Serial.print("BMP_1_ENABLE:");
   Serial.print(data.BMP_1_ENABLE);
   Serial.print(',');
@@ -1097,6 +1110,8 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.REPORT_MODE);
   dataFile.print(',');
+  dataFile.print(data.SHOULD_REPORT);
+  dataFile.print(',');
   dataFile.print(data.BMP_1_ENABLE);
   dataFile.print(',');
   dataFile.print(data.BMP_2_ENABLE);
@@ -1193,7 +1208,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.HEATER_STRONG_ENABLE,             0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.HEATER_WEEK_ENABLE,               0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.GPS_GOOD_STATE,                   0,    1,       1,  lengthBits);
-  if (data.REPORT_MODE) {
+  if (data.REPORT_MODE || data.SHOULD_REPORT) {
     lengthBits += compressVariable(data.PRESS_BASELINE,                 0,    500000,  19, lengthBits);
     lengthBits += compressVariable(data.INCENTIVE_NOISE,                0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.INCENTIVE_THRESHOLD,            0,    4,       8,  lengthBits);
@@ -1218,6 +1233,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.FORCE_VALVE,                    0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.FORCE_BALLAST,                  0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.REPORT_MODE,                    0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.SHOULD_REPORT,                  0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.BMP_1_ENABLE,                   0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.BMP_2_ENABLE,                   0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.BMP_3_ENABLE,                   0,    1,       1,  lengthBits);
@@ -1241,6 +1257,7 @@ int16_t Avionics::compressData() {
   }
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
+  data.SHOULD_REPORT = false;
   data.COMMS_LENGTH = lengthBytes;
   if(data.DEBUG_STATE) {
     for (int16_t i = 0; i < lengthBytes; i++) {

@@ -70,9 +70,10 @@ private:
   void    parseCommand(int16_t len);
   void    updateConstant(uint8_t index, float value);
   void    parseManualCommand(bool command);
+  void    parseReportCommand(bool command);
   void    parseSensorsCommand(uint8_t command);
-  void    parseValveCommand(float command);
-  void    parseBallastCommand(float command);
+  void    parseValveCommand(uint32_t  command);
+  void    parseBallastCommand(uint32_t  command);
   void    parseRockBLOCKCommand(bool command);
   void    parseGPSCommand(uint8_t command);
   void    parseHeaterCommand(bool command);

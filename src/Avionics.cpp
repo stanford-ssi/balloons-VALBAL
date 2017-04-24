@@ -404,6 +404,7 @@ bool Avionics::sendSATCOMS() {
  * This function parses the command received from the RockBLOCK.
  */
 void Avionics::parseCommand(int16_t len) {
+  COMMS_BUFFER[len] = 0;
   const char* commandStrFormat = "%d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s";
   uint8_t commandIndexes[8] = {0};
   char commandStrings[8][100] = {{0},{0},{0},{0},{0},{0},{0},{0}};

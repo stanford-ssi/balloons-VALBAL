@@ -80,21 +80,21 @@ static const float     INCENTIVE_NOISE_DEFAULT       =                        0;
 static const float     INCENTIVE_THRESHOLD_DEFAULT   =                     0.75;
 static const float     RE_ARM_DEFAULT                =                        0;
 static const float     BALLAST_ARM_ALT_DEFAULT       =                  13000.0;
-static const float     BALLAST_ALT_LAST_FILLER       =                  13000.0;
+static const float     BALLAST_ALT_LAST_FILLER       =                  13500.0;
 
-static const float     VALVE_SETPOINT_DEFAULT        =                  13500.0;
+static const float     VALVE_SETPOINT_DEFAULT        =                  14500.0;
 static const uint16_t  VALVE_DURATION_DEFAULT        =                    20000;
 static const float     VALVE_ALT_LAST_DEFAULT        =                        0;
 static const float     VALVE_VELOCITY_DEFAULT        =                      1.0;
-static const float     VALVE_ALTITUDE_DIFF_DEFAULT   =             1.0 / 1000.0;
-static const float     VALVE_LAST_ACTION_DEFAULT     =             1.0 / 1000.0;
+static const float     VALVE_ALTITUDE_DIFF_DEFAULT   =             1.0 / 1500.0;
+static const float     VALVE_LAST_ACTION_DEFAULT     =             1.0 / 1500.0;
 
-static const float     BALLAST_SETPOINT_DEFAULT      =                  13000.0;
+static const float     BALLAST_SETPOINT_DEFAULT      =                  13500.0;
 static const uint16_t  BALLAST_DURATION_DEFAULT      =                    20000;
 static const float     BALLAST_ALT_LAST_DEFAULT      =                 -90000.0;
 static const float     BALLAST_VELOCITY_DEFAULT      =                      1.0;
-static const float     BALLAST_ALTITUDE_DIFF_DEFAULT =             1.0 / 1000.0;
-static const float     BALLAST_LAST_ACTION_DEFAULT   =             1.0 / 1000.0;
+static const float     BALLAST_ALTITUDE_DIFF_DEFAULT =             1.0 / 1500.0;
+static const float     BALLAST_LAST_ACTION_DEFAULT   =             1.0 / 1500.0;
 
 static const uint16_t  VALVE_OPENING_TIMEOUT         =                     1000;
 static const uint16_t  VALVE_CLOSING_TIMEOUT         =                     2500;

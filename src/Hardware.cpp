@@ -92,6 +92,7 @@ void Hardware::heater(double tempSetpoint, double temp, bool strong, bool weak) 
     if (!strong) analogWrite(HEATER_INTERNAL_STRONG, 0);
     if (weak)    analogWrite(HEATER_INTERNAL_WEAK, PIDOutVar / 2 + 127.5);
     if (!weak)   analogWrite(HEATER_INTERNAL_WEAK, 0);
+    // TODO: tune PID
   }
   else {
     analogWrite(HEATER_INTERNAL_STRONG, 0);
@@ -284,6 +285,8 @@ void Hardware::cutDown(bool on) {
     analogWrite(VALVE_FORWARD, LOW);
     analogWrite(VALVE_REVERSE, LOW);
   }
+  // TODO: might be nice to make nonblocking to measure current
+  // TODO: remember cutdown cause
 }
 
 /*

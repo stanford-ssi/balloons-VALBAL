@@ -99,7 +99,7 @@ struct DataFrame {
   bool         BMP_3_ENABLE                    =                           true;
   bool         BMP_4_ENABLE                    =                           true;
 
-  uint32_t     BMP_1_REJECTIONS                =                              0;
+  uint32_t     BMP_1_REJECTIONS                =                              0; 
   uint32_t     BMP_2_REJECTIONS                =                              0;
   uint32_t     BMP_3_REJECTIONS                =                              0;
   uint32_t     BMP_4_REJECTIONS                =                              0;

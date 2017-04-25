@@ -103,10 +103,13 @@ double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double
   if (abs(RAW_PRESSURE_2 - pressIntermediate) > pressStd * MAX_NUM_STDDEV) markFailure(1);
   if (abs(RAW_PRESSURE_3 - pressIntermediate) > pressStd * MAX_NUM_STDDEV) markFailure(2);
   if (abs(RAW_PRESSURE_4 - pressIntermediate) > pressStd * MAX_NUM_STDDEV) markFailure(3);
+	// TODO: check if MAX_NUM_STDDEV will turn off sensors; consider finding biggest consensus of sensors
+	// TODO: 6 or 7 hPa
 	numSensors = 0;
 	for (size_t i = 0; i < 4; i++) if (enabledSensors[i]) numSensors++;
   // If all sensors failed to be within MAX_NUM_STDDEV standard deviations fallback to mean
   if (numSensors == 0) return pressIntermediate;
+	// TODO: if all sensors fail, switch to satcomms?
   // Otherwise use sensors which passed
   double press = 0;
   if (enabledSensors[0]) press += RAW_PRESSURE_1;

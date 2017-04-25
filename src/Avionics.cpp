@@ -99,6 +99,7 @@ void Avionics::logState() {
     logFile.close();
     setupLog();
     printHeader();
+    // TODO: FILE_RESET_TIME += FILE_RESET_TIME;
   }
 }
 
@@ -167,6 +168,7 @@ bool Avionics::readHistory() {
   if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
   double ballastAltLast = PCB.readFromEEPROMAndClear(EEPROM_BALLAST_START, EEPROM_BALLAST_END);
   if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
+  // TODO: log controller constants to EEPROM
   return true;
 }
 
@@ -274,7 +276,7 @@ bool Avionics::calcIncentives() {
   data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE, data.VALVE_ALT_LAST);
   data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE, data.BALLAST_ALT_LAST);
   data.INCENTIVE_NOISE   = computer.getIncentiveNoise(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
-  if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) {
+  if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) { // TODO: don't set both to 0
     data.VALVE_INCENTIVE = 0;
     data.BALLAST_INCENTIVE = 0;
     return false;
@@ -327,7 +329,7 @@ bool Avionics::runValve() {
     bool shouldValve = (!data.MANUAL_MODE || data.FORCE_VALVE);
     if(shouldValve) data.NUM_VALVES++;
     data.VALVE_ALT_LAST = data.ALTITUDE;
-    uint16_t valveTime = data.VALVE_DURATION;
+    uint16_t valveTime = data.VALVE_DURATION; // TODO: change to uint32_t
     if(data.FORCE_VALVE) valveTime = data.VALVE_FORCE_DURATION;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
     PCB.queueValve(valveTime, shouldValve);
@@ -349,7 +351,7 @@ bool Avionics::runBallast() {
     bool shouldBallast = (!data.MANUAL_MODE || data.FORCE_BALLAST);
     if(shouldBallast) data.NUM_BALLASTS++;
     data.BALLAST_ALT_LAST = data.ALTITUDE;
-    uint16_t ballastTime = data.BALLAST_DURATION;
+    uint16_t ballastTime = data.BALLAST_DURATION; // TODO: change to uint32_t
     if(data.FORCE_BALLAST) ballastTime = data.BALLAST_FORCE_DURATION;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
     PCB.queueBallast(ballastTime, shouldBallast);
@@ -548,6 +550,7 @@ void Avionics::parseRockBLOCKCommand(bool command) {
     data.RB_SHOULD_USE = false;
     RBModule.shutdown();
   }
+  // TODO: RB sleeping
 }
 
 /*
@@ -568,6 +571,7 @@ void Avionics::parseGPSCommand(uint8_t command) {
     gpsModule.hotstart();
     readGPS();
   }
+  // TODO: set GPS into low power 1Hz mode through I2C
 }
 
 /*
@@ -609,7 +613,7 @@ bool Avionics::debugState() {
 void Avionics::setupLog() {
   Serial.println("Card Initialitzed");
   char filename[] = "LOGGER00.txt";
-  for (uint8_t i = 0; i < 100; i++) {
+  for (uint8_t i = 0; i < 100; i++) { // TODO: accept values > 100
     filename[6] = i / 10 + '0';
     filename[7] = i % 10 + '0';
     if (! SD.exists(filename)) {
@@ -979,6 +983,7 @@ void Avionics::printState() {
   Serial.print("COMMS_LENGTH:");
   Serial.print(data.COMMS_LENGTH);
   Serial.print('\n');
+  // TODO: could loop through struct
 }
 
 /*
@@ -1248,8 +1253,8 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.DEBUG_STATE,                    0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.FORCE_VALVE,                    0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.FORCE_BALLAST,                  0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.REPORT_MODE,                    0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.SHOULD_REPORT,                  0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.REPORT_MODE,                    0,    1,       1,  lengthBits); // TODO: move report mode logging outside of if statement
+    lengthBits += compressVariable(data.SHOULD_REPORT,                  0,    1,       1,  lengthBits); // TODO: move report mode logging outside of if statement
     lengthBits += compressVariable(data.BMP_1_ENABLE,                   0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.BMP_2_ENABLE,                   0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.BMP_3_ENABLE,                   0,    1,       1,  lengthBits);

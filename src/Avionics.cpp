@@ -327,8 +327,10 @@ bool Avionics::runValve() {
     bool shouldValve = (!data.MANUAL_MODE || data.FORCE_VALVE);
     if(shouldValve) data.NUM_VALVES++;
     data.VALVE_ALT_LAST = data.ALTITUDE;
+    uint16_t valveTime = data.VALVE_DURATION;
+    if(data.FORCE_VALVE) valveTime = data.VALVE_FORCE_DURATION;
     PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
-    PCB.queueValve(data.VALVE_DURATION, shouldValve);
+    PCB.queueValve(valveTime, shouldValve);
     data.FORCE_VALVE = false;
   }
   data.VALVE_QUEUE = PCB.getValveQueue();
@@ -347,8 +349,10 @@ bool Avionics::runBallast() {
     bool shouldBallast = (!data.MANUAL_MODE || data.FORCE_BALLAST);
     if(shouldBallast) data.NUM_BALLASTS++;
     data.BALLAST_ALT_LAST = data.ALTITUDE;
+    uint16_t ballastTime = data.BALLAST_DURATION;
+    if(data.FORCE_BALLAST) ballastTime = data.BALLAST_FORCE_DURATION;
     PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
-    PCB.queueBallast(data.BALLAST_DURATION, shouldBallast);
+    PCB.queueBallast(ballastTime, shouldBallast);
     data.FORCE_BALLAST = false;
   }
   data.BALLAST_QUEUE = PCB.getBallastQueue();
@@ -508,11 +512,11 @@ void Avionics::parseSensorsCommand(uint8_t command) {
  * -------------------
  * This function parses a forced valve command.
  */
-void Avionics::parseValveCommand(uint32_t command) {
+void Avionics::parseValveCommand(uint16_t command) {
   if(command == 0) PCB.clearValveQueue();
   else {
     data.FORCE_VALVE = true;
-    data.VALVE_DURATION = command;
+    data.VALVE_FORCE_DURATION = command;
   }
 
 }
@@ -522,11 +526,11 @@ void Avionics::parseValveCommand(uint32_t command) {
  * -------------------
  * This function parses a forced ballast command.
  */
-void Avionics::parseBallastCommand(uint32_t command) {
+void Avionics::parseBallastCommand(uint16_t command) {
   if(command == 0) PCB.clearBallastQueue();
   else {
     data.FORCE_BALLAST = true;
-    data.BALLAST_DURATION = command;
+    data.BALLAST_FORCE_DURATION = command;
   }
 }
 
@@ -855,6 +859,9 @@ void Avionics::printState() {
   Serial.print("VALVE_DURATION:");
   Serial.print(data.VALVE_DURATION);
   Serial.print(',');
+  Serial.print("VALVE__FORCE_DURATION:");
+  Serial.print(data.VALVE_FORCE_DURATION);
+  Serial.print(',');
   Serial.print("VALVE_ALT_LAST:");
   Serial.print(data.VALVE_ALT_LAST);
   Serial.print(',');
@@ -872,6 +879,9 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print("BALLAST_DURATION:");
   Serial.print(data.BALLAST_DURATION);
+  Serial.print(',');
+  Serial.print("BALLAST_FORCE_DURATION:");
+  Serial.print(data.BALLAST_FORCE_DURATION);
   Serial.print(',');
   Serial.print("BALLAST_ALT_LAST:");
   Serial.print(data.BALLAST_ALT_LAST);
@@ -1076,6 +1086,8 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.VALVE_DURATION);
   dataFile.print(',');
+  dataFile.print(data.VALVE_FORCE_DURATION);
+  dataFile.print(',');
   dataFile.print(data.VALVE_ALT_LAST);
   dataFile.print(',');
   dataFile.print(data.VALVE_VELOCITY_CONSTANT);
@@ -1087,6 +1099,8 @@ bool Avionics::logData() {
   dataFile.print(data.BALLAST_SETPOINT);
   dataFile.print(',');
   dataFile.print(data.BALLAST_DURATION);
+  dataFile.print(',');
+  dataFile.print(data.BALLAST_FORCE_DURATION);
   dataFile.print(',');
   dataFile.print(data.BALLAST_ALT_LAST);
   dataFile.print(',');
@@ -1216,12 +1230,14 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.BALLAST_ARM_ALT,               -2000, 40000,   16, lengthBits);
     lengthBits += compressVariable(data.VALVE_SETPOINT,                -2000, 50000,   11, lengthBits);
     lengthBits += compressVariable(data.VALVE_DURATION,                 0,    1000000, 6,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_FORCE_DURATION,           0,    1000000, 6,  lengthBits);
     lengthBits += compressVariable(data.VALVE_ALT_LAST,                -2000, 50000,   11, lengthBits);
     lengthBits += compressVariable(data.VALVE_VELOCITY_CONSTANT,        0,    5,       8,  lengthBits);
     lengthBits += compressVariable(data.VALVE_ALTITUDE_DIFF_CONSTANT,   0,    4000,    8,  lengthBits);
     lengthBits += compressVariable(data.VALVE_LAST_ACTION_CONSTANT,     0,    4000,    8,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_SETPOINT,              -2000, 50000,   11, lengthBits);
     lengthBits += compressVariable(data.BALLAST_DURATION,               0,    1000000, 6,  lengthBits);
+    lengthBits += compressVariable(data.BALLAST_FORCE_DURATION,         0,    1000000, 6,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_ALT_LAST,              -2000, 50000,   11, lengthBits);
     lengthBits += compressVariable(data.BALLAST_VELOCITY_CONSTANT,      0,    5,       8,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_ALTITUDE_DIFF_CONSTANT, 0,    4000,    8,  lengthBits);

@@ -71,6 +71,7 @@ struct DataFrame {
 
   float        VALVE_SETPOINT                  =         VALVE_SETPOINT_DEFAULT;
   uint16_t     VALVE_DURATION                  =         VALVE_DURATION_DEFAULT;
+  uint32_t     VALVE_FORCE_DURATION            =         VALVE_DURATION_DEFAULT;
   double       VALVE_ALT_LAST                  =         VALVE_ALT_LAST_DEFAULT;
   float        VALVE_VELOCITY_CONSTANT         =         VALVE_VELOCITY_DEFAULT;
   float        VALVE_ALTITUDE_DIFF_CONSTANT    =    VALVE_ALTITUDE_DIFF_DEFAULT;
@@ -78,6 +79,7 @@ struct DataFrame {
 
   float        BALLAST_SETPOINT                =       BALLAST_SETPOINT_DEFAULT;
   uint16_t     BALLAST_DURATION                =       BALLAST_DURATION_DEFAULT;
+  uint16_t     BALLAST_FORCE_DURATION          =       BALLAST_DURATION_DEFAULT;
   double       BALLAST_ALT_LAST                =       BALLAST_ALT_LAST_DEFAULT;
   float        BALLAST_VELOCITY_CONSTANT       =       BALLAST_VELOCITY_DEFAULT;
   float        BALLAST_ALTITUDE_DIFF_CONSTANT  =  BALLAST_ALTITUDE_DIFF_DEFAULT;

@@ -158,12 +158,24 @@ double Filters::getKalmanedAltitude() {
 }
 
 /*
- * Function: returnKalmanedAscentRate
+ * Function: getKalmanedAscentRate
  * -------------------
  * This function returns the filtered ascent rate.
  */
 double Filters::getKalmanedAscentRate() {
   return  currentState(0,0);
+}
+
+
+/*
+ * Function: getLowPassAscentRate
+ * -------------------
+ * This function returns the filtered ascent rate.
+ */
+double Filters::getLowPassAscentRate() {
+    double ascentRateTotal = 0;
+    for (int i = 0; i < ASCENT_RATE_BUFFER_SIZE; i++) ascentRateTotal += ASCENT_RATE_BUFFER[i];
+    return  ascentRateTotal / ASCENT_RATE_BUFFER_SIZE;
 }
 
 /*********************************  HELPERS  **********************************/
@@ -190,6 +202,11 @@ void Filters::storeInputs(float pressure, float pressureBaseline) {
   else altitudeCurr =  -6341.73 * log((0.176481 * pressure) / 22632.1);
 
   currentState(0,1) = altitudeCurr;
-  currentState(0,0) = (altitudeCurr - altitudeLast) / ((millis() - ascentRateLast) / 1000.0); //copy unavenged ascent rate
+
+  double currentAscentRate = (altitudeCurr - altitudeLast) / ((millis() - ascentRateLast) / 1000.0);
+  currentState(0,0) = currentAscentRate; //copy unavenged ascent rate to kalman
+  ASCENT_RATE_BUFFER[ascentRateIndex] = currentAscentRate; //copy unavenged ascent rate to lowpass
+
+  ascentRateIndex = (ascentRateIndex + 1) % ASCENT_RATE_BUFFER_SIZE;
   ascentRateLast = millis();
 }

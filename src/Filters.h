@@ -27,6 +27,7 @@ public:
   void     kalmanAltitude(float pressure, float pressureBaseline);
   double   getKalmanedAltitude();
   double   getKalmanedAscentRate();
+  double   getLowPassAscentRate();
 private:
 /*********************************  HELPERS  **********************************/
   void     markFailure(uint8_t sensor);
@@ -36,6 +37,7 @@ private:
   uint32_t rejectedSensors[4] = {0};
   uint8_t  numSensors;
   uint16_t ascentRateIndex = 0;
+  float    ASCENT_RATE_BUFFER[ASCENT_RATE_BUFFER_SIZE];
   double   altitudeCurr;
   double   altitudeLast;
   uint32_t ascentRateLast;
@@ -46,6 +48,7 @@ private:
   Eigen::Matrix<double, 2, 2> sensorMat;    //  H
   Eigen::Matrix<double, 2, 2> externalCovar;//  Q
   Eigen::Matrix<double, 2, 2> sensorCovar;  //  R
+
 };
 
 #endif

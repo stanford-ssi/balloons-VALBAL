@@ -233,7 +233,7 @@ bool Avionics::processData() {
   data.BMP_4_REJECTIONS = filter.getNumRejections(4);
   filter.kalmanAltitude(data.PRESS, data.PRESS_BASELINE);
   data.ALTITUDE         = filter.getKalmanedAltitude();
-  data.ASCENT_RATE      = filter.getKalmanedAscentRate();
+  data.ASCENT_RATE      = filter.getLowPassAscentRate();
   if (data.ASCENT_RATE >= 10) success = false;
   return success;
 }

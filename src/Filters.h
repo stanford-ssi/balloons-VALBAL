@@ -36,7 +36,7 @@ private:
   bool     enabledSensors[4] = {true};
   uint32_t rejectedSensors[4] = {0};
   uint8_t  numSensors;
-  uint16_t ascentRateIndex = 0;
+
   float    ASCENT_RATE_BUFFER[ASCENT_RATE_BUFFER_SIZE];
   double   altitudeCurr;
   double   altitudeLast;
@@ -49,8 +49,11 @@ private:
   Eigen::Matrix<double, 2, 2> externalCovar;//  Q
   Eigen::Matrix<double, 2, 2> sensorCovar;  //  R
 
-  float    altitudeBuffer[ALTITUDE_BUFFER_SIZE];
-  bool      altitudeErrors[ALTITUDE_BUFFER_SIZE] = {false};
+  uint16_t altitudeIndex = 0;
+
+  float    altitudeBuffer[4][ALTITUDE_BUFFER_SIZE];
+
+  bool     altitudeErrors[4][ALTITUDE_BUFFER_SIZE] = {false};
 
 };
 

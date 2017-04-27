@@ -206,22 +206,62 @@ void Filters::storeInputs(float pressure, float pressureBaseline) {
  * This function returns a higher precision altitude value
  * based on the US 1976 Standard Atmosphere.
  */
-void Filters::getAltitudes(float pressure, float pressureBaseline) {
+void Filters::getAltitudes() {
 
-  float Altidude1 = calculateAltitude()
+  float altidude1 = calculateAltitude(pressure1);
+  float altidude2 = calculateAltitude(pressure2);
+  float altidude3 = calculateAltitude(pressure3);
+  float altidude4 = calculateAltitude(pressure4);
 
-  altitudeLast = altitudeCurr;
-  if (pressure > 22632.1) altitudeCurr = (44330.7 * (1 - pow(pressure / pressureBaseline, 0.190266)));
-  else altitudeCurr =  -6341.73 * log((0.176481 * pressure) / 22632.1);
+  altitudeIndex = (altitudeIndex + 1) % ALTITUDE_BUFFER_SIZE;
 
-  currentState(0,1) = altitudeCurr;
+  altitudeBuffer[1][altitudeIndex] = altidude1;
+  altitudeBuffer[2][altitudeIndex] = altidude2;
+  altitudeBuffer[3][altitudeIndex] = altidude3;
+  altitudeBuffer[4][altitudeIndex] = altidude4;
+  consensousCheck();
 
-  double currentAscentRate = (altitudeCurr - altitudeLast) / ((millis() - ascentRateLast) / 1000.0);
-  currentState(0,0) = currentAscentRate; //copy unavenged ascent rate to kalman
-  ASCENT_RATE_BUFFER[ascentRateIndex] = currentAscentRate; //copy unavenged ascent rate to lowpass
 
-  ascentRateIndex = (ascentRateIndex + 1) % ASCENT_RATE_BUFFER_SIZE;
-  ascentRateLast = millis();
+}
+
+void consensousCheck(){
+
+    int maxAgreement = 0;
+    int maxSensors = 0;
+    int minDistance = 0;
+
+    for(int activeSensors = 1; activeSensors<16; activeSensors++){
+        int numberOfSensors = 0;
+        int numberOfCorrectSensors = 0;
+        float meanAltitude = 0;
+        float distance = 0;
+        for(int sensor = 0; sensor < 4; sensor++){
+            if( 1 & (activeSensors>>sensor)){
+                numberOfSensors++;
+                meanAltitude += altitudeBuffer[sensor][altitudeIndex];
+            }
+        }
+        meanAltitude /= numberOfSensors;
+        for(int sensor = 0; sensor < 4; sensor++){
+            if(1 & (activeSensors>>sensor)){
+                distance += pow(altitudeBuffer[sensor][altitudeIndex] - meanAltitude,2);
+                if(fabs(altitudeBuffer[sensor][altitudeIndex] - meanAltitude) < MAX_CONSENSUS_DEVIATION) numberOfCorrectSensors +=1;
+            }
+        }
+        if(numberOfCorrectSensors > maxSensors || (numberOfCorrectSensors == maxSensors && distance < minDistance)){
+            maxAgreement = activeSensors;
+            maxSensors = numberOfSensors;
+            minDistance = distance;
+        }
+    }
+
+    for(int sensor = 0; sensor < 4; sensor++){
+        if( 1 & (maxSensors>>sensor)){
+            markFailure(sensor);
+        }
+    }
+
+
 }
 
 

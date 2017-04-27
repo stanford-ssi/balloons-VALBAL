@@ -171,8 +171,8 @@ double Filters::getLowPassAscentRate() {
  * sensor failure.
  */
 void Filters::markFailure(uint8_t sensor){
+    if(enabledSensors[sensor]) rejectedSensors[sensor]++;
 	enabledSensors[sensor] = false;
-	rejectedSensors[sensor]++;
 }
 
 /*

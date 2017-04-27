@@ -36,6 +36,7 @@ bool Filters::init() {
 
 	sensorCovar   << 60,       0, //Placeholder values
 				            0,       4;
+
 	return sucess;
 }
 
@@ -70,52 +71,33 @@ double Filters::getTemp(double RAW_TEMP_1, double RAW_TEMP_2, double RAW_TEMP_3,
 }
 
 /*
- * Function: getPressure
+ * Function: getPressure (renaming to store pressure)
  * -------------------
- * This function returns a sensor fused reading.
+ * This function returns a bounds checked pressure mean
  */
 double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double RAW_PRESSURE_3, double RAW_PRESSURE_4) {
   //See which sensors are funcitoning correctly
+
+    //DECALRE THOSE
+    pressure1 = RAW_PRESSURE_1;
+    pressure2 = RAW_PRESSURE_2;
+    pressure3 = RAW_PRESSURE_3;
+    pressure4 = RAW_PRESSURE_4;
+
 	if (!((MIN_PRESURE < RAW_PRESSURE_1) && (RAW_PRESSURE_1 < MAX_PRESURE))) markFailure(0);
 	if (!((MIN_PRESURE < RAW_PRESSURE_2) && (RAW_PRESSURE_2 < MAX_PRESURE))) markFailure(1);
 	if (!((MIN_PRESURE < RAW_PRESSURE_3) && (RAW_PRESSURE_3 < MAX_PRESURE))) markFailure(2);
 	if (!((MIN_PRESURE < RAW_PRESSURE_4) && (RAW_PRESSURE_4 < MAX_PRESURE))) markFailure(3);
-	int numSensorsInRange = 0;
-	for (size_t i = 0; i < 4; i++) if (enabledSensors[i]) numSensorsInRange++;
-	// Calculate mean of sensors which passed
-	double pressIntermediate = 0;
-	if (enabledSensors[0]) pressIntermediate += RAW_PRESSURE_1;
-	if (enabledSensors[1]) pressIntermediate += RAW_PRESSURE_2;
-	if (enabledSensors[2]) pressIntermediate += RAW_PRESSURE_3;
-	if (enabledSensors[3]) pressIntermediate += RAW_PRESSURE_4;
-	pressIntermediate /= numSensorsInRange;
-  // Calculate standard deviation of sensors
-	double pressVariance = 0;
-	if (enabledSensors[0]) pressVariance += pow(RAW_PRESSURE_1,2);
-	if (enabledSensors[1]) pressVariance += pow(RAW_PRESSURE_2,2);
-	if (enabledSensors[2]) pressVariance += pow(RAW_PRESSURE_3,2);
-	if (enabledSensors[3]) pressVariance += pow(RAW_PRESSURE_4,2);
-	pressVariance /= numSensorsInRange;
-	pressVariance -= pow(pressIntermediate,2);
-  double pressStd = pow(pressVariance,0.5);
-  // Test if each sensor is MAX_NUM_STDDEV standard deviations from mean
-  if (abs(RAW_PRESSURE_1 - pressIntermediate) > pressStd * MAX_NUM_STDDEV) markFailure(0);
-  if (abs(RAW_PRESSURE_2 - pressIntermediate) > pressStd * MAX_NUM_STDDEV) markFailure(1);
-  if (abs(RAW_PRESSURE_3 - pressIntermediate) > pressStd * MAX_NUM_STDDEV) markFailure(2);
-  if (abs(RAW_PRESSURE_4 - pressIntermediate) > pressStd * MAX_NUM_STDDEV) markFailure(3);
-	// TODO: check if MAX_NUM_STDDEV will turn off sensors; consider finding biggest consensus of sensors
-	// TODO: 6 or 7 hPa
-	numSensors = 0;
+	int numSensors = 0;
 	for (size_t i = 0; i < 4; i++) if (enabledSensors[i]) numSensors++;
-  // If all sensors failed to be within MAX_NUM_STDDEV standard deviations fallback to mean
-  if (numSensors == 0) return pressIntermediate;
-	// TODO: if all sensors fail, switch to satcomms?
-  // Otherwise use sensors which passed
-  double press = 0;
-  if (enabledSensors[0]) press += RAW_PRESSURE_1;
-  if (enabledSensors[1]) press += RAW_PRESSURE_2;
-  if (enabledSensors[2]) press += RAW_PRESSURE_3;
-  if (enabledSensors[3]) press += RAW_PRESSURE_4;
+	// Calculate mean of sensors which passed
+
+	double press = 0;
+	if (enabledSensors[0]) press += RAW_PRESSURE_1;
+	if (enabledSensors[1]) press += RAW_PRESSURE_2;
+	if (enabledSensors[2]) press += RAW_PRESSURE_3;
+	if (enabledSensors[3]) press += RAW_PRESSURE_4;
+
   return press / numSensors;
 }
 
@@ -200,6 +182,10 @@ void Filters::markFailure(uint8_t sensor){
  * based on the US 1976 Standard Atmosphere.
  */
 void Filters::storeInputs(float pressure, float pressureBaseline) {
+
+
+
+
   altitudeLast = altitudeCurr;
   if (pressure > 22632.1) altitudeCurr = (44330.7 * (1 - pow(pressure / pressureBaseline, 0.190266)));
   else altitudeCurr =  -6341.73 * log((0.176481 * pressure) / 22632.1);
@@ -212,4 +198,43 @@ void Filters::storeInputs(float pressure, float pressureBaseline) {
 
   ascentRateIndex = (ascentRateIndex + 1) % ASCENT_RATE_BUFFER_SIZE;
   ascentRateLast = millis();
+}
+
+/*
+ * Function: getAltitudes
+ * -------------------
+ * This function returns a higher precision altitude value
+ * based on the US 1976 Standard Atmosphere.
+ */
+void Filters::getAltitudes(float pressure, float pressureBaseline) {
+
+  float Altidude1 = calculateAltitude()
+
+  altitudeLast = altitudeCurr;
+  if (pressure > 22632.1) altitudeCurr = (44330.7 * (1 - pow(pressure / pressureBaseline, 0.190266)));
+  else altitudeCurr =  -6341.73 * log((0.176481 * pressure) / 22632.1);
+
+  currentState(0,1) = altitudeCurr;
+
+  double currentAscentRate = (altitudeCurr - altitudeLast) / ((millis() - ascentRateLast) / 1000.0);
+  currentState(0,0) = currentAscentRate; //copy unavenged ascent rate to kalman
+  ASCENT_RATE_BUFFER[ascentRateIndex] = currentAscentRate; //copy unavenged ascent rate to lowpass
+
+  ascentRateIndex = (ascentRateIndex + 1) % ASCENT_RATE_BUFFER_SIZE;
+  ascentRateLast = millis();
+}
+
+
+/*
+ * Function: calculateAltitude
+ * -------------------
+ * This function returns a higher precision altitude value
+ * based on the US 1976 Standard Atmosphere.
+ */
+float Filters::calculateAltitude(double pressure, float pressureBaseline) {
+  float calculatedAltitude;
+  if (pressure > 22632.1) calculatedAltitude = (44330.7 * (1 - pow(pressure / pressureBaseline, 0.190266)));
+  else calculatedAltitude =  -6341.73 * log((0.176481 * pressure) / 22632.1);
+
+  return calculatedAltitude;
 }

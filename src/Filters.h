@@ -49,6 +49,9 @@ private:
   Eigen::Matrix<double, 2, 2> externalCovar;//  Q
   Eigen::Matrix<double, 2, 2> sensorCovar;  //  R
 
+  float    altitudeBuffer[ALTITUDE_BUFFER_SIZE];
+  bool      altitudeErrors[ALTITUDE_BUFFER_SIZE] = {false};
+
 };
 
 #endif

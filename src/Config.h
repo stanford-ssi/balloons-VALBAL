@@ -108,7 +108,7 @@ static const uint16_t  BALLAST_MOTOR_SPEED           =                      255;
 static const double   MAX_PRESURE                    =                   107500;
 static const double   MIN_PRESURE                    =                     1131;
 static const float    MAX_NUM_STDDEV                 =                      100;
-static const uint16_t ASCENT_RATE_BUFFER_SIZE        =                      200;
+static const uint16_t ALTITUDE_BUFFER_SIZE        =                        2400;
 
 /*****************************  EEPROM CONSTANTS  *****************************/
 static const uint8_t   EEPROM_CLEAR_NUM              =                        8;

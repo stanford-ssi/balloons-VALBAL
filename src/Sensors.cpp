@@ -99,12 +99,12 @@ double Sensors::getJoules() {
 }
 
 /*
- * Function: getNeckTemp
+ * Function: getDerivedTemp
  * -------------------
- * This function gets the balloon neck temperature.
+ * This function gets the extrapolated temperature.
  */
-double Sensors::getNeckTemp() {
-  double vA = analogRead(NECK_TEMP_SENSOR) * 3.3 / (pow(2.0, 12.0));
+double Sensors::getDerivedTemp(uint8_t sensor) {
+  double vA = analogRead(sensor) * 3.3 / (pow(2.0, 12.0));
   double x = log(vA * 100000.0 / (3.3 - vA));
   double a =   4.00141132e+02;
   double b =  -9.94189235e+01;

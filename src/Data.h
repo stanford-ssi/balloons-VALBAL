@@ -35,7 +35,7 @@ struct DataFrame {
   bool         CUTDOWN_STATE                   =                          false;
 
   double       PRESS                           =                              0;
-  double       TEMP                            =                              0;
+  double       TEMP_IN                         =                              0;
   double       JOULES                          =                              0;
   double       VOLTAGE                         =                              0;
   double       CURRENT                         =                              0;
@@ -44,11 +44,12 @@ struct DataFrame {
   double       CURRENT_MOTORS                  =                              0;
   double       CURRENT_PAYLOAD                 =                              0;
   double       TEMP_NECK                       =                              0;
+  double       TEMP_EXT                        =                              0;
   double       SPEED_GPS                       =                              0;
   double       HEADING_GPS                     =                              0;
   uint32_t     NUM_SATS_GPS                    =                              0;
-  uint16_t     LOOP_TIME                       =                              0;
-  uint16_t     RB_SENT_COMMS                   =                              0;
+  uint32_t     LOOP_TIME                       =                              0;
+  uint32_t     RB_SENT_COMMS                   =                              0;
 
   uint32_t     COMMS_INTERVAL                  =         COMMS_INTERVAL_DEFAULT;
   uint32_t     GPS_INTERVAL                    =           GPS_INTERVAL_DEFAULT;
@@ -70,7 +71,7 @@ struct DataFrame {
   float        BALLAST_ARM_ALT                 =        BALLAST_ARM_ALT_DEFAULT;
 
   float        VALVE_SETPOINT                  =         VALVE_SETPOINT_DEFAULT;
-  uint16_t     VALVE_DURATION                  =         VALVE_DURATION_DEFAULT;
+  uint32_t     VALVE_DURATION                  =         VALVE_DURATION_DEFAULT;
   uint32_t     VALVE_FORCE_DURATION            =         VALVE_DURATION_DEFAULT;
   double       VALVE_ALT_LAST                  =         VALVE_ALT_LAST_DEFAULT;
   float        VALVE_VELOCITY_CONSTANT         =         VALVE_VELOCITY_DEFAULT;
@@ -78,8 +79,8 @@ struct DataFrame {
   float        VALVE_LAST_ACTION_CONSTANT      =      VALVE_LAST_ACTION_DEFAULT;
 
   float        BALLAST_SETPOINT                =       BALLAST_SETPOINT_DEFAULT;
-  uint16_t     BALLAST_DURATION                =       BALLAST_DURATION_DEFAULT;
-  uint16_t     BALLAST_FORCE_DURATION          =       BALLAST_DURATION_DEFAULT;
+  uint32_t     BALLAST_DURATION                =       BALLAST_DURATION_DEFAULT;
+  uint32_t     BALLAST_FORCE_DURATION          =       BALLAST_DURATION_DEFAULT;
   double       BALLAST_ALT_LAST                =       BALLAST_ALT_LAST_DEFAULT;
   float        BALLAST_VELOCITY_CONSTANT       =       BALLAST_VELOCITY_DEFAULT;
   float        BALLAST_ALTITUDE_DIFF_CONSTANT  =  BALLAST_ALTITUDE_DIFF_DEFAULT;
@@ -99,7 +100,7 @@ struct DataFrame {
   bool         BMP_3_ENABLE                    =                           true;
   bool         BMP_4_ENABLE                    =                           true;
 
-  uint32_t     BMP_1_REJECTIONS                =                              0; 
+  uint32_t     BMP_1_REJECTIONS                =                              0;
   uint32_t     BMP_2_REJECTIONS                =                              0;
   uint32_t     BMP_3_REJECTIONS                =                              0;
   uint32_t     BMP_4_REJECTIONS                =                              0;
@@ -117,6 +118,7 @@ struct DataFrame {
   double       ALTITUDE_LAST                   =                              0;
   uint32_t     GPS_LAST                        =                              0;
   uint32_t     COMMS_LAST                      =                              0;
+  uint32_t     DATAFILE_LAST                   =                              0;
   uint16_t     COMMS_LENGTH                    =                              0;
 };
 

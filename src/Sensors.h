@@ -34,7 +34,7 @@ public:
   double   getCurrent();
   double   getCurrentSubsystem(uint8_t subsystem);
   double   getJoules();
-  double   getNeckTemp();
+  double   getDerivedTemp(uint8_t sensor);
   double   getRawTemp(uint8_t sensor);
   double   getRawPressure(uint8_t sensor);
 private:

@@ -52,7 +52,7 @@ DataFrame Simulator::readData() {
   simulated.NUM_BALLAST_ATTEMPTS = atof(values[15]);
   simulated.CUTDOWN_STATE = atof(values[16]);
   simulated.PRESS = atof(values[17]);
-  simulated.TEMP = atof(values[18]);
+  simulated.TEMP_IN = atof(values[18]);
   simulated.JOULES = atof(values[19]);
   simulated.VOLTAGE = atof(values[20]);
   simulated.CURRENT = atof(values[21]);
@@ -61,6 +61,7 @@ DataFrame Simulator::readData() {
   simulated.CURRENT_MOTORS = atof(values[24]);
   simulated.CURRENT_PAYLOAD = atof(values[25]);
   simulated.TEMP_NECK = atof(values[26]);
+  simulated.TEMP_EXT = atof(values[26]);
   simulated.SPEED_GPS = atof(values[27]);
   simulated.HEADING_GPS = atof(values[28]);
   simulated.NUM_SATS_GPS = atof(values[29]);

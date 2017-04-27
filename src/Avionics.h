@@ -72,8 +72,8 @@ private:
   void    parseManualCommand(bool command);
   void    parseReportCommand(bool command);
   void    parseSensorsCommand(uint8_t command);
-  void    parseValveCommand(uint16_t  command);
-  void    parseBallastCommand(uint16_t  command);
+  void    parseValveCommand(uint32_t  command);
+  void    parseBallastCommand(uint32_t  command);
   void    parseRockBLOCKCommand(bool command);
   void    parseGPSCommand(uint8_t command);
   void    parseHeaterCommand(bool command);

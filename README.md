@@ -1,6 +1,8 @@
 # SSI VALBAL:
 ### A cost effective endurance platform using a valve and ballast controller for high altitude balloons
 
+![alt text](VALBAL.jpg "VALBAL")
+
 # Flight States:
 The avionics uses an Event Driven Programming model in order to clearly transition between states of operation.
 

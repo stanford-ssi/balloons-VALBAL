@@ -51,19 +51,20 @@ struct DataFrame {
   uint32_t     LOOP_TIME                       =                              0;
   uint32_t     RB_SENT_COMMS                   =                              0;
 
-  uint32_t     COMMS_INTERVAL                  =         COMMS_INTERVAL_DEFAULT;
-  uint32_t     GPS_INTERVAL                    =           GPS_INTERVAL_DEFAULT;
   double       TEMP_SETPOINT                   =          TEMP_SETPOINT_DEFAULT;
   bool         MANUAL_MODE                     =            MANUAL_MODE_DEFAULT;
-
   bool         RB_SHOULD_USE                   =                           true;
   bool         GPS_SHOULD_USE                  =                           true;
   bool         HEATER_SHOULD_USE               =                           true;
   bool         HEATER_STRONG_ENABLE            =                           true;
   bool         HEATER_WEEK_ENABLE              =                          false;
   bool         GPS_GOOD_STATE                  =                          false;
+  bool         SHOULD_REPORT                   =                          false;
 
 /*****************************  SECONDARY DATA  *******************************/
+  uint32_t     COMMS_INTERVAL                  =         COMMS_INTERVAL_DEFAULT;
+  uint32_t     GPS_INTERVAL                    =           GPS_INTERVAL_DEFAULT;
+
   double       PRESS_BASELINE                  =         PRESS_BASELINE_DEFAULT;
   float        INCENTIVE_NOISE                 =        INCENTIVE_NOISE_DEFAULT;
   float        INCENTIVE_THRESHOLD             =    INCENTIVE_THRESHOLD_DEFAULT;
@@ -93,7 +94,6 @@ struct DataFrame {
   bool         FORCE_VALVE                     =                          false;
   bool         FORCE_BALLAST                   =                          false;
   bool         REPORT_MODE                     =                          false;
-  bool         SHOULD_REPORT                   =                          false;
 
   bool         BMP_1_ENABLE                    =                           true;
   bool         BMP_2_ENABLE                    =                           true;

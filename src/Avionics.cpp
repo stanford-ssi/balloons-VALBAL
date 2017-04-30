@@ -610,11 +610,10 @@ bool Avionics::debugState() {
  */
 void Avionics::setupLog() {
   Serial.println("Card Initialitzed");
-  char filename[] = "LOGGER000.txt";
-  for (uint16_t i = 0; i < 1000; i++) {
-    filename[6] = (i / 100) + '0';
-    filename[7] = (i % 100) / 10 + '0';
-    filename[8] = (i % 100) % 10 + '0';
+  char filename[] = "LOGGER00.txt";
+  for (uint8_t i = 0; i < 100; i++) {
+    filename[6] = i / 10 + '0';
+    filename[7] = i % 10 + '0';
     if (! SD.exists(filename)) {
       dataFile = SD.open(filename, FILE_WRITE);
       break;
@@ -814,12 +813,6 @@ void Avionics::printState() {
   Serial.print("RB_SENT_COMMS:");
   Serial.print(data.RB_SENT_COMMS);
   Serial.print(',');
-  Serial.print("COMMS_INTERVAL:");
-  Serial.print(data.COMMS_INTERVAL);
-  Serial.print(',');
-  Serial.print("GPS_INTERVAL:");
-  Serial.print(data.GPS_INTERVAL);
-  Serial.print(',');
   Serial.print("TEMP_SETPOINT:");
   Serial.print(data.TEMP_SETPOINT);
   Serial.print(',');
@@ -846,6 +839,12 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print("SHOULD_REPORT:");
   Serial.print(data.SHOULD_REPORT);
+  Serial.print(',');
+  Serial.print("COMMS_INTERVAL:");
+  Serial.print(data.COMMS_INTERVAL);
+  Serial.print(',');
+  Serial.print("GPS_INTERVAL:");
+  Serial.print(data.GPS_INTERVAL);
   Serial.print(',');
   Serial.print("PRESS_BASELINE:");
   Serial.print(data.PRESS_BASELINE);
@@ -1063,10 +1062,6 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.RB_SENT_COMMS);
   dataFile.print(',');
-  dataFile.print(data.COMMS_INTERVAL);
-  dataFile.print(',');
-  dataFile.print(data.GPS_INTERVAL);
-  dataFile.print(',');
   dataFile.print(data.TEMP_SETPOINT);
   dataFile.print(',');
   dataFile.print(data.MANUAL_MODE);
@@ -1084,6 +1079,10 @@ bool Avionics::logData() {
   dataFile.print(data.GPS_GOOD_STATE);
   dataFile.print(',');
   dataFile.print(data.SHOULD_REPORT);
+  dataFile.print(',');
+  dataFile.print(data.COMMS_INTERVAL);
+  dataFile.print(',');
+  dataFile.print(data.GPS_INTERVAL);
   dataFile.print(',');
   dataFile.print(data.PRESS_BASELINE);
   dataFile.print(',');
@@ -1227,8 +1226,6 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.NUM_SATS_GPS,                     0,    25,      4,  lengthBits);
   lengthBits += compressVariable(data.LOOP_TIME,                        0,    10000,   10, lengthBits);
   lengthBits += compressVariable(data.RB_SENT_COMMS,                    0,    8191,    13, lengthBits);
-  lengthBits += compressVariable(data.COMMS_INTERVAL,                   0,    1000000, 10, lengthBits);
-  lengthBits += compressVariable(data.GPS_INTERVAL,                     0,    1000000, 10, lengthBits);
   lengthBits += compressVariable(data.TEMP_SETPOINT,                   -20,   40,      6,  lengthBits);
   lengthBits += compressVariable(data.MANUAL_MODE,                      0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.RB_SHOULD_USE,                    0,    1,       1,  lengthBits);
@@ -1239,6 +1236,8 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.GPS_GOOD_STATE,                   0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.SHOULD_REPORT,                    0,    1,       1,  lengthBits);
   if (data.SHOULD_REPORT) {
+    lengthBits += compressVariable(data.COMMS_INTERVAL,                 0,    1000000, 10, lengthBits);
+    lengthBits += compressVariable(data.GPS_INTERVAL,                   0,    1000000, 10, lengthBits);
     lengthBits += compressVariable(data.PRESS_BASELINE,                 0,    500000,  19, lengthBits);
     lengthBits += compressVariable(data.INCENTIVE_NOISE,                0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.INCENTIVE_THRESHOLD,            0,    4,       8,  lengthBits);

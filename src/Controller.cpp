@@ -82,9 +82,10 @@ float Controller::getValveIncentive(double ascentRate, double altitude, double a
 float Controller::getBallastIncentive(double ascentRate, double altitude, double altitudeSinceLastDrop) {
   float altitudeSinceLastDropCorrected = altitudeSinceLastDrop;
   if (!firstBallastDropped && altitude >= BALLAST_ARM_ALT && altitudeSinceLastDrop == BALLAST_ALT_LAST_DEFAULT) {
+    altitudeSinceLastDropCorrected = BALLAST_ALT_LAST_FILLER;
     firstBallastDropped = true;
-    altitudeSinceLastDropCorrected = max(BALLAST_ALT_LAST_FILLER, altitude - RE_ARM_CONSTANT);
   }
+  if(firstBallastDropped) altitudeSinceLastDropCorrected = max(altitudeSinceLastDropCorrected, altitude - RE_ARM_CONSTANT);
   float proportionalTerm = BALLAST_VELOCITY_CONSTANT * -1 * ascentRate;
   float integralTerm     = BALLAST_ALTITUDE_DIFF_CONSTANT * (BALLAST_SETPOINT - altitude);
   float derivativeTerm   = BALLAST_LAST_ACTION_CONSTANT   * (altitudeSinceLastDropCorrected - altitude);

@@ -38,8 +38,8 @@ static const uint8_t   BATT_CURRENT                  =                      A10;
 static const uint8_t   EXTERNAL_CURRENT              =                      A11;
 static const uint8_t   GPS_CURRENT                   =                        1;
 static const uint8_t   RB_CURRENT                    =                        2;
-static const uint8_t   Motors_CURRENT                =                        3;
-static const uint8_t   Payload_CURRENT               =                        4;
+static const uint8_t   MOTORS_CURRENT                =                        3;
+static const uint8_t   PAYLOAD_CURRENT               =                        4;
 static const uint8_t   NECK_TEMP_SENSOR              =                       A2;
 static const uint8_t   EXT_TEMP_SENSOR               =                      A15;
 
@@ -50,7 +50,7 @@ static const char      CSV_DATA_HEADER[]             =    "TIME,LAT_GPS,LONG_GPS
 static const bool      CUTDOWN_ALT_ENABLE            =                    false;
 static const bool      CUTDOWN_GPS_ENABLE            =                    false;
 static const uint16_t  CUTDOWN_ALT                   =                    30000;
-static const uint16_t  CUTDOWN_TIME                  =                    10000;
+static const uint16_t  CUTDOWN_DURATION              =                    10000;
 
 static const uint16_t  GPS_LOCK_TIME                 =                      500;
 static const float     GPS_FENCE_LAT_MIN             =                    -9999;
@@ -104,11 +104,12 @@ static const uint16_t  VALVE_LEAK_TIMEOUT            =                    30000;
 static const uint16_t  BALLAST_REVERSE_TIMEOUT       =                    20000;
 static const uint16_t  VALVE_MOTOR_SPEED             =                      255;
 static const uint16_t  BALLAST_MOTOR_SPEED           =                      255;
+static const uint16_t  BALLAST_STALL_CURRENT         =                        3;
 
-static const double   MAX_PRESURE                    =                   107500;
-static const double   MIN_PRESURE                    =                     1131;
-static const float    MAX_NUM_STDDEV                 =                      100;
-static const uint16_t ASCENT_RATE_BUFFER_SIZE        =                      200;
+static const double    MAX_PRESURE                   =                   107500;
+static const double    MIN_PRESURE                   =                     1131;
+static const float     MAX_NUM_STDDEV                =                      100;
+static const uint16_t  ASCENT_RATE_BUFFER_SIZE       =                      200;
 
 /*****************************  EEPROM CONSTANTS  *****************************/
 static const uint8_t   EEPROM_CLEAR_NUM              =                        8;

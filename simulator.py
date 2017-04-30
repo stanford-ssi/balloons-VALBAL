@@ -46,6 +46,7 @@ def feedData():
             print line
             ser.write(line)
             ser.write('\n')
+            time.sleep(0.05)
 
 #********************************  MAIN  ***************************************
 parseArgs(sys.argv[1:])

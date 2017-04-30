@@ -168,7 +168,7 @@ void Hardware::clearBallastQueue() {
  * This function provides a non-hanging interface to check the timer queue.
  * Called every loop; updates and acts on the current state of the valve.
  */
-bool Hardware::checkValve() {
+bool Hardware::checkValve(float current) {
   if (valveState == CLOSED) {
     if ((millis() - valveLeakStartTime) >= VALVE_LEAK_TIMEOUT) {
       valveLeakStartTime = millis();
@@ -218,7 +218,7 @@ bool Hardware::checkValve() {
  * This function provides a non-hanging interface to check the timer queue.
  * Called every loop; updates and acts on the current state of the ballast.
  */
-bool Hardware::checkBallast() {
+bool Hardware::checkBallast(float current) {
   if (ballastState == CLOSED) {
     if (ballastQueue == 0) {
       uint32_t deltaTime = (millis() - ballastCheckTime);
@@ -232,6 +232,7 @@ bool Hardware::checkBallast() {
     }
   }
   if (ballastState == OPEN) {
+    if (current >= BALLAST_STALL_CURRENT) ballastDirection = !ballastDirection;
     if(ballastQueue > 0) {
       uint32_t deltaTime = (millis() - ballastCheckTime);
       ballastCheckTime = millis();
@@ -285,23 +286,6 @@ void Hardware::cutDown(bool on) {
     analogWrite(VALVE_FORWARD, LOW);
     analogWrite(VALVE_REVERSE, LOW);
   }
-  // TODO: might be nice to make nonblocking to measure current
-  // TODO: remember cutdown cause
-}
-
-/*
- * Function: writeToEEPROM
- * -------------------
- * This helper function writes an integer digit-by-digit
- * to EEPROM between the specified bytes.
- */
-void Hardware::writeToEEPROM(uint8_t startByte, uint8_t endByte, int num) {
-  // write from left to right (endByte to startByte) b/c writing from one's digit
-	for (int pos = endByte; pos >= startByte; pos--) {
-		int digit = num % 10;
-		num /= 10;
-		EEPROM.write(pos, digit);
-	}
 }
 
 /*
@@ -311,18 +295,30 @@ void Hardware::writeToEEPROM(uint8_t startByte, uint8_t endByte, int num) {
  * from EEPROM between the specified bytes, and then "clears"
  * the data by writing the CLEAR_NUM sentinel.
  */
-int Hardware::readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte) {
-  int num = 0;
-  // build up number
-  for (int i = startByte; i <= endByte; i++) {
+int32_t Hardware::readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte) {
+  int32_t num = 0;
+  for (uint16_t i = startByte; i <= endByte; i++) {
     if (EEPROM.read(0) == EEPROM_CLEAR_NUM) break;
-    int digit = EEPROM.read(i);
+    int8_t digit = EEPROM.read(i);
     num *= 10;
     num += digit;
   }
-  // clear EEPROM data
   writeToEEPROM(startByte, endByte, EEPROM_CLEAR_NUM);
   return num;
+}
+
+/*
+ * Function: writeToEEPROM
+ * -------------------
+ * This helper function writes an integer digit-by-digit
+ * to EEPROM between the specified bytes.
+ */
+void Hardware::writeToEEPROM(uint8_t startByte, uint8_t endByte, int32_t num) {
+	for (int32_t pos = endByte; pos >= startByte; pos--) {
+		int32_t digit = num % 10;
+		num /= 10;
+		EEPROM.write(pos, digit);
+	}
 }
 
 /*********************************  HELPERS  **********************************/

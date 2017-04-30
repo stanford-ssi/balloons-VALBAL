@@ -38,15 +38,15 @@ public:
   void     queueBallast(uint32_t  duration, bool real);
   void     clearValveQueue();
   void     clearBallastQueue();
-  bool     checkValve();
-  bool     checkBallast();
+  bool     checkValve(float current);
+  bool     checkBallast(float current);
   uint32_t getValveQueue();
   uint32_t getBallastQueue();
 
   void     cutDown(bool on);
 
-  void     writeToEEPROM(uint8_t startByte, uint8_t endByte, int num);
-  int      readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte);
+  int32_t  readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte);
+  void     writeToEEPROM(uint8_t startByte, uint8_t endByte, int32_t num);
 
 private:
 /*********************************  HELPERS  **********************************/

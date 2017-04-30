@@ -40,14 +40,14 @@ void Avionics::init() {
  * This function tests the hardware.
  */
 void Avionics::test() {
-  // data.SHOULD_CUTDOWN = true;
-  // data.MANUAL_MODE = false;
-  // PCB.queueBallast(30000);
-  // PCB.clearBallastQueue();
-  // PCB.queueBallast(15000);
-  // PCB.queueValve(30000);
-  // PCB.clearValveQueue();
-  // PCB.queueValve(15000);
+  data.SHOULD_CUTDOWN = true;
+  data.MANUAL_MODE = false;
+  PCB.queueBallast(30000, true);
+  PCB.clearBallastQueue();
+  PCB.queueBallast(15000, true);
+  PCB.queueValve(30000, true);
+  PCB.clearValveQueue();
+  PCB.queueValve(15000, true);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -186,8 +186,8 @@ bool Avionics::readData() {
   data.JOULES           = sensors.getJoules();
   data.CURRENT_GPS      = sensors.getCurrentSubsystem(GPS_CURRENT);
   data.CURRENT_RB       = sensors.getCurrentSubsystem(RB_CURRENT);
-  data.CURRENT_MOTORS   = sensors.getCurrentSubsystem(Motors_CURRENT);
-  data.CURRENT_PAYLOAD  = sensors.getCurrentSubsystem(Payload_CURRENT);
+  data.CURRENT_MOTORS   = sensors.getCurrentSubsystem(MOTORS_CURRENT);
+  data.CURRENT_PAYLOAD  = sensors.getCurrentSubsystem(PAYLOAD_CURRENT);
   data.TEMP_NECK        = sensors.getDerivedTemp(NECK_TEMP_SENSOR);
   data.TEMP_EXT         = sensors.getDerivedTemp(EXT_TEMP_SENSOR);
   data.RAW_TEMP_1       = sensors.getRawTemp(1);
@@ -334,7 +334,7 @@ bool Avionics::runValve() {
     data.FORCE_VALVE = false;
   }
   data.VALVE_QUEUE = PCB.getValveQueue();
-  data.VALVE_STATE = PCB.checkValve();
+  data.VALVE_STATE = PCB.checkValve(data.CURRENT_MOTORS);
   return true;
 }
 
@@ -356,7 +356,7 @@ bool Avionics::runBallast() {
     data.FORCE_BALLAST = false;
   }
   data.BALLAST_QUEUE = PCB.getBallastQueue();
-  data.BALLAST_STATE = PCB.checkBallast();
+  data.BALLAST_STATE = PCB.checkBallast(data.CURRENT_MOTORS);
   return true;
 }
 
@@ -368,7 +368,7 @@ bool Avionics::runBallast() {
 bool Avionics::runCutdown() {
   if(data.SHOULD_CUTDOWN) {
     PCB.cutDown(true);
-    gpsModule.smartDelay(CUTDOWN_TIME);
+    gpsModule.smartDelay(CUTDOWN_DURATION);
     PCB.cutDown(false);
     data.SHOULD_CUTDOWN = false;
     data.CUTDOWN_STATE = true;
@@ -610,10 +610,11 @@ bool Avionics::debugState() {
  */
 void Avionics::setupLog() {
   Serial.println("Card Initialitzed");
-  char filename[] = "LOGGER00.txt";
-  for (uint8_t i = 0; i < 100; i++) { // TODO: accept values > 100
-    filename[6] = i / 10 + '0';
-    filename[7] = i % 10 + '0';
+  char filename[] = "LOGGER000.txt";
+  for (uint16_t i = 0; i < 1000; i++) {
+    filename[6] = (i / 100) + '0';
+    filename[7] = (i % 100) / 10 + '0';
+    filename[8] = (i % 100) % 10 + '0';
     if (! SD.exists(filename)) {
       dataFile = SD.open(filename, FILE_WRITE);
       break;
@@ -1191,7 +1192,7 @@ bool Avionics::logData() {
 int16_t Avionics::compressData() {
   int16_t lengthBits  = 0;
   int16_t lengthBytes = 0;
-  if(data.REPORT_MODE) data. SHOULD_REPORT = true;
+  if(data.REPORT_MODE) data.SHOULD_REPORT = true;
   for(uint16_t i = 0; i < BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
   lengthBits += compressVariable(data.TIME / 1000,                      0,    3000000, 20, lengthBits);
   lengthBits += compressVariable(data.LAT_GPS,                         -90,   90,      21, lengthBits);

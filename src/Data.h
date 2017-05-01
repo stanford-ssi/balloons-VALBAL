@@ -93,7 +93,7 @@ struct DataFrame {
   bool         DEBUG_STATE                     =                           true;
   bool         FORCE_VALVE                     =                          false;
   bool         FORCE_BALLAST                   =                          false;
-  bool         REPORT_MODE                     =                          false;
+  bool         REPORT_MODE                     =                          true;
 
   bool         BMP_1_ENABLE                    =                           true;
   bool         BMP_2_ENABLE                    =                           true;

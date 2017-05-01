@@ -111,7 +111,7 @@ static const double    MIN_PRESURE                           =             1131;
 static const float     MAX_NUM_STDDEV                        =              100;
 static const uint16_t  ASCENT_RATE_BUFFER_SIZE               =              200;
 
-/*****************************  EEPROM CONSTANTS  *****************************/
+/*****************************  EEPROM ADDRESSES  *****************************/
 static const uint8_t   EEPROM_ROCKBLOCK                      =                0;
 static const uint8_t   EEPROM_GPS                            =                1;
 static const uint8_t   EEPROM_HEATER                         =                2;

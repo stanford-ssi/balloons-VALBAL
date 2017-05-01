@@ -224,6 +224,8 @@ bool Avionics::readGPS() {
 bool Avionics::simulateData() {
   DataFrame simulation = HITL.readData();
 
+  data.LOOP_TIME        = millis() - data.TIME;
+  data.TIME             = millis();
   data.RAW_PRESSURE_1 = simulation.RAW_PRESSURE_1;
   data.RAW_PRESSURE_2 = simulation.RAW_PRESSURE_2;
   data.RAW_PRESSURE_3 = simulation.RAW_PRESSURE_3;
@@ -256,6 +258,7 @@ bool Avionics::simulateData() {
   data.BALLAST_LAST_ACTION_CONSTANT = simulation.BALLAST_LAST_ACTION_CONSTANT;
 
   data.MANUAL_MODE = simulation.MANUAL_MODE;
+  data.ALTITUDE_LAST = data.ALTITUDE;
   return true;
 }
 

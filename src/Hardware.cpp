@@ -47,6 +47,7 @@ void Hardware::init() {
 void Hardware::runLED(bool on) {
   digitalWrite(LED_PIN, on);
 }
+
 /*
  * Function: faultLED
  * -------------------
@@ -56,6 +57,23 @@ void Hardware::faultLED() {
   digitalWrite(LED_PIN, HIGH);
   delay(LOOP_INTERVAL);
   digitalWrite(LED_PIN, LOW);
+}
+
+/*
+ * Function: startUpPayload
+ * -------------------
+ * This function starts up the payload.
+ */
+bool Hardware::startupPayload(bool shouldStartup) {
+  bool success = false;
+  if (shouldStartup) {
+    EEPROM.write(EEPROM_PAYLOAD, false);
+    digitalWrite(PAYLOAD_GATE, HIGH);
+    delay(1000);
+    EEPROM.write(EEPROM_PAYLOAD, true);
+    success = true;
+  }
+  return success;
 }
 
 /*
@@ -92,7 +110,6 @@ void Hardware::heater(double tempSetpoint, double temp, bool strong, bool weak) 
     if (!strong) analogWrite(HEATER_INTERNAL_STRONG, 0);
     if (weak)    analogWrite(HEATER_INTERNAL_WEAK, PIDOutVar / 2 + 127.5);
     if (!weak)   analogWrite(HEATER_INTERNAL_WEAK, 0);
-    // TODO: tune PID
   }
   else {
     analogWrite(HEATER_INTERNAL_STRONG, 0);
@@ -117,7 +134,7 @@ void Hardware::turnOffHeaters() {
  * persists through system restarts.
  */
 void Hardware::setHeaterMode(bool on) {
-  EEPROM.write(EEPROMAddress, on);
+  EEPROM.write(EEPROM_HEATER, on);
 }
 
 /*

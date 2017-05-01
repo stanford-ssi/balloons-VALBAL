@@ -22,15 +22,16 @@
 void Avionics::init() {
   PCB.init();
   Serial.begin(CONSOLE_BAUD);
-  if(!setupSDCard())                              logAlert("unable to setup SD Card", true);
-  if(!readHistory())                              logAlert("unable to read from EEPROM", true);
-  if(!sensors.init())                             logAlert("unable to initialize Sensors", true);
-  if(!HITL.init())                                logAlert("unable to initialize Simulations", true);
-  if(!filter.init())                              logAlert("unable to initialize Filters", true);
-  if(!computer.init())                            logAlert("unable to initialize Flight Controller", true);
-  if(!gpsModule.init(data.GPS_SHOULD_USE))        logAlert("unable to initialize GPS", true);
-  if(!RBModule.init(data.RB_SHOULD_USE))          logAlert("unable to initialize RockBlock", true);
-  if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE)) logAlert("unable to initialize Heaters", true);
+  if(!setupSDCard())                               logAlert("unable to setup SD Card", true);
+  if(!readHistory())                               logAlert("unable to read from EEPROM", true);
+  if(!sensors.init())                              logAlert("unable to initialize Sensors", true);
+  if(!HITL.init())                                 logAlert("unable to initialize Simulations", true);
+  if(!filter.init())                               logAlert("unable to initialize Filters", true);
+  if(!computer.init())                             logAlert("unable to initialize Flight Controller", true);
+  if(!gpsModule.init(data.GPS_SHOULD_USE))         logAlert("unable to initialize GPS", true);
+  if(!RBModule.init(data.RB_SHOULD_USE))           logAlert("unable to initialize RockBlock", true);
+  if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE))  logAlert("unable to initialize Heaters", true);
+  if(!PCB.startupPayload(data.PAYLOAD_SHOULD_USE)) logAlert("unable to initialize Payload", true);
   data.SETUP_STATE = false;
 }
 
@@ -57,8 +58,9 @@ void Avionics::test() {
  * This function handles basic flight data collection.
  */
 void Avionics::updateState() {
-  if(!readData())    logAlert("unable to read Data", true);
-  if(!processData()) logAlert("unable to process Data", true);
+  if(!readData())     logAlert("unable to read Data", true);
+  // if(!simulateData()) logAlert("unable to simulate Data", true);
+  if(!processData())  logAlert("unable to process Data", true);
 }
 
 /*
@@ -92,8 +94,6 @@ void Avionics::actuateState() {
  * This function logs the current data frame.
  */
 void Avionics::logState() {
-  if(!logData())    logAlert("unable to log Data", true);
-  if(!debugState()) logAlert("unable to debug state", true);
   if (millis() - data.DATAFILE_LAST > FILE_RESET_TIME) {
     dataFile.close();
     logFile.close();
@@ -101,6 +101,8 @@ void Avionics::logState() {
     printHeader();
     data.DATAFILE_LAST = millis();
   }
+  if(!logData())    logAlert("unable to log Data", true);
+  if(!debugState()) logAlert("unable to debug state", true);
 }
 
 /*
@@ -164,6 +166,7 @@ bool Avionics::readHistory() {
   if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.RB_SHOULD_USE = false;
   if(!EEPROM.read(EEPROM_GPS)) data.GPS_SHOULD_USE = false;
   if(!EEPROM.read(EEPROM_HEATER)) data.HEATER_SHOULD_USE = false;
+  if(!EEPROM.read(EEPROM_PAYLOAD)) data.PAYLOAD_SHOULD_USE = false;
   double valveAltLast = PCB.EEPROMReadlong(EEPROM_VALVE_ALT_LAST);
   if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
   double ballastAltLast = PCB.EEPROMReadlong(EEPROM_BALLAST_ALT_LAST);
@@ -177,7 +180,6 @@ bool Avionics::readHistory() {
  * This function updates the current data frame.
  */
 bool Avionics::readData() {
-  // DataFrame simmulation = HITL.readData();
   data.LOOP_TIME        = millis() - data.TIME;
   data.TIME             = millis();
   data.VOLTAGE          = sensors.getVoltage();
@@ -216,6 +218,44 @@ bool Avionics::readGPS() {
   data.SPEED_GPS        = gpsModule.getSpeed();
   data.NUM_SATS_GPS     = gpsModule.getSats();
   data.GPS_LAST         = millis();
+  return true;
+}
+
+bool Avionics::simulateData() {
+  DataFrame simulation = HITL.readData();
+
+  data.RAW_PRESSURE_1 = simulation.RAW_PRESSURE_1;
+  data.RAW_PRESSURE_2 = simulation.RAW_PRESSURE_2;
+  data.RAW_PRESSURE_3 = simulation.RAW_PRESSURE_3;
+  data.RAW_PRESSURE_4 = simulation.RAW_PRESSURE_4;
+
+  data.BMP_1_ENABLE = simulation.BMP_1_ENABLE;
+  data.BMP_2_ENABLE = simulation.BMP_2_ENABLE;
+  data.BMP_3_ENABLE = simulation.BMP_3_ENABLE;
+  data.BMP_4_ENABLE = simulation.BMP_4_ENABLE;
+
+  data.ALTITUDE = simulation.ALTITUDE;
+  data.ASCENT_RATE = simulation.ASCENT_RATE;
+
+  data.PRESS_BASELINE = simulation.PRESS_BASELINE;
+  data.INCENTIVE_THRESHOLD = simulation.INCENTIVE_THRESHOLD;
+  data.RE_ARM_CONSTANT = simulation.RE_ARM_CONSTANT;
+  data.BALLAST_ARM_ALT = simulation.BALLAST_ARM_ALT;
+
+  data.VALVE_SETPOINT = simulation.VALVE_SETPOINT;
+  data.VALVE_DURATION = simulation.VALVE_DURATION;
+  data.VALVE_ALT_LAST = simulation.VALVE_ALT_LAST;
+  data.VALVE_VELOCITY_CONSTANT = simulation.VALVE_VELOCITY_CONSTANT;
+  data.VALVE_ALTITUDE_DIFF_CONSTANT = simulation.VALVE_ALTITUDE_DIFF_CONSTANT;
+  data.VALVE_LAST_ACTION_CONSTANT = simulation.VALVE_LAST_ACTION_CONSTANT;
+  data.BALLAST_SETPOINT = simulation.BALLAST_SETPOINT;
+  data.BALLAST_DURATION = simulation.BALLAST_DURATION;
+  data.BALLAST_ALT_LAST = simulation.BALLAST_ALT_LAST;
+  data.BALLAST_VELOCITY_CONSTANT = simulation.BALLAST_VELOCITY_CONSTANT;
+  data.BALLAST_ALTITUDE_DIFF_CONSTANT = simulation.BALLAST_ALTITUDE_DIFF_CONSTANT;
+  data.BALLAST_LAST_ACTION_CONSTANT = simulation.BALLAST_LAST_ACTION_CONSTANT;
+
+  data.MANUAL_MODE = simulation.MANUAL_MODE;
   return true;
 }
 
@@ -550,7 +590,6 @@ void Avionics::parseRockBLOCKCommand(bool command) {
     data.RB_SHOULD_USE = false;
     RBModule.shutdown();
   }
-  // TODO: RB sleeping
 }
 
 /*
@@ -571,7 +610,6 @@ void Avionics::parseGPSCommand(uint8_t command) {
     gpsModule.hotstart();
     readGPS();
   }
-  // TODO: set GPS into low power 1Hz mode through I2C
 }
 
 /*
@@ -830,6 +868,9 @@ void Avionics::printState() {
   Serial.print("HEATER_SHOULD_USE:");
   Serial.print(data.HEATER_SHOULD_USE);
   Serial.print(',');
+  Serial.print("PAYLOAD_SHOULD_USE:");
+  Serial.print(data.PAYLOAD_SHOULD_USE);
+  Serial.print(',');
   Serial.print("HEATER_STRONG_ENABLE:");
   Serial.print(data.HEATER_STRONG_ENABLE);
   Serial.print(',');
@@ -1074,6 +1115,8 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.HEATER_SHOULD_USE);
   dataFile.print(',');
+  dataFile.print(data.PAYLOAD_SHOULD_USE);
+  dataFile.print(',');
   dataFile.print(data.HEATER_STRONG_ENABLE);
   dataFile.print(',');
   dataFile.print(data.HEATER_WEEK_ENABLE);
@@ -1233,6 +1276,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.RB_SHOULD_USE,                    0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.GPS_SHOULD_USE,                   0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.HEATER_SHOULD_USE,                0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.PAYLOAD_SHOULD_USE,               0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.HEATER_STRONG_ENABLE,             0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.HEATER_WEEK_ENABLE,               0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.GPS_GOOD_STATE,                   0,    1,       1,  lengthBits);

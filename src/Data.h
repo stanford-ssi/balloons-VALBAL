@@ -56,6 +56,7 @@ struct DataFrame {
   bool         RB_SHOULD_USE                   =                           true;
   bool         GPS_SHOULD_USE                  =                           true;
   bool         HEATER_SHOULD_USE               =                           true;
+  bool         PAYLOAD_SHOULD_USE              =                           true;
   bool         HEATER_STRONG_ENABLE            =                           true;
   bool         HEATER_WEEK_ENABLE              =                          false;
   bool         GPS_GOOD_STATE                  =                          false;
@@ -93,7 +94,7 @@ struct DataFrame {
   bool         DEBUG_STATE                     =                           true;
   bool         FORCE_VALVE                     =                          false;
   bool         FORCE_BALLAST                   =                          false;
-  bool         REPORT_MODE                     =                          false;
+  bool         REPORT_MODE                     =                          true;
 
   bool         BMP_1_ENABLE                    =                           true;
   bool         BMP_2_ENABLE                    =                           true;

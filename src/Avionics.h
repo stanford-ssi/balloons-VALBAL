@@ -30,7 +30,7 @@ class Avionics {
 public:
 /**********************************  SETUP  ***********************************/
   Avionics() :
-    PCB(EEPROM_HEATER),
+    PCB(),
     sensors(),
     gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIME),
     RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK) {
@@ -53,6 +53,7 @@ private:
 
   bool    readData();
   bool    readGPS();
+  bool    simulateData();
   bool    processData();
 
   bool    calcVitals();

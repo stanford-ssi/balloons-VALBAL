@@ -20,14 +20,15 @@
 class Hardware {
 public:
 /**********************************  SETUP  ***********************************/
-  Hardware(uint8_t EEPROMAddressVal) :
-    EEPROMAddress(EEPROMAddressVal),
+  Hardware() :
     pid(&PIDTempVar, &PIDOutVar, &PIDSetVar, 2, 5, 1, DIRECT) {
   }
   void     init();
 /********************************  FUNCTIONS  *********************************/
   void     runLED(bool on);
   void     faultLED();
+
+  bool     startupPayload(bool shouldStartup);
 
   bool     startUpHeaters(bool shouldStartup);
   void     heater(double tempSetpoint, double temp, bool strong, bool weak);
@@ -61,7 +62,6 @@ private:
   enum state_t {OPEN, OPENING, CLOSED, CLOSING};
   state_t  valveState = CLOSED;
   state_t  ballastState = CLOSED;
-  uint8_t  EEPROMAddress;
   uint32_t valveQueue = 0;
   uint32_t valveQueueFake = 0;
   uint32_t ballastQueue = 0;

@@ -45,8 +45,8 @@ public:
 
   void     cutDown(bool on);
 
-  int32_t  readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte);
-  void     writeToEEPROM(uint8_t startByte, uint8_t endByte, int32_t num);
+  void     EEPROMWritelong(uint8_t address, int32_t value);
+  int32_t  EEPROMReadlong(uint8_t address);
 
 private:
 /*********************************  HELPERS  **********************************/

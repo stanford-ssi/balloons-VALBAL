@@ -164,11 +164,10 @@ bool Avionics::readHistory() {
   if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.RB_SHOULD_USE = false;
   if(!EEPROM.read(EEPROM_GPS)) data.GPS_SHOULD_USE = false;
   if(!EEPROM.read(EEPROM_HEATER)) data.HEATER_SHOULD_USE = false;
-  double valveAltLast = PCB.readFromEEPROMAndClear(EEPROM_VALVE_START, EEPROM_VALVE_END);
+  double valveAltLast = PCB.EEPROMReadlong(EEPROM_VALVE_ALT_LAST);
   if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
-  double ballastAltLast = PCB.readFromEEPROMAndClear(EEPROM_BALLAST_START, EEPROM_BALLAST_END);
+  double ballastAltLast = PCB.EEPROMReadlong(EEPROM_BALLAST_ALT_LAST);
   if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
-  // TODO: log controller constants to EEPROM
   return true;
 }
 
@@ -329,7 +328,10 @@ bool Avionics::runValve() {
     data.VALVE_ALT_LAST = data.ALTITUDE;
     uint32_t valveTime = data.VALVE_DURATION;
     if(data.FORCE_VALVE) valveTime = data.VALVE_FORCE_DURATION;
-    PCB.writeToEEPROM(EEPROM_VALVE_START, EEPROM_VALVE_END, data.ALTITUDE);
+
+
+    // TODO: log controller constants to EEPROM
+    PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
     PCB.queueValve(valveTime, shouldValve);
     data.FORCE_VALVE = false;
   }
@@ -351,7 +353,7 @@ bool Avionics::runBallast() {
     data.BALLAST_ALT_LAST = data.ALTITUDE;
     uint32_t ballastTime = data.BALLAST_DURATION;
     if(data.FORCE_BALLAST) ballastTime = data.BALLAST_FORCE_DURATION;
-    PCB.writeToEEPROM(EEPROM_BALLAST_START, EEPROM_BALLAST_END, data.ALTITUDE);
+    PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
     PCB.queueBallast(ballastTime, shouldBallast);
     data.FORCE_BALLAST = false;
   }

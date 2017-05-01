@@ -104,7 +104,7 @@ static const uint16_t  VALVE_LEAK_TIMEOUT            =                    30000;
 static const uint16_t  BALLAST_REVERSE_TIMEOUT       =                    20000;
 static const uint16_t  VALVE_MOTOR_SPEED             =                      255;
 static const uint16_t  BALLAST_MOTOR_SPEED           =                      255;
-static const uint16_t  BALLAST_STALL_CURRENT         =                        3;
+static const uint16_t  BALLAST_STALL_CURRENT         =                      270;
 
 static const double    MAX_PRESURE                   =                   107500;
 static const double    MIN_PRESURE                   =                     1131;

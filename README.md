@@ -1,6 +1,8 @@
 # SSI VALBAL:
 ### A cost effective endurance platform using a valve and ballast controller for high altitude balloons
 
+![alt text](VALBAL.jpg "VALBAL")
+
 # Flight States:
 The avionics uses an Event Driven Programming model in order to clearly transition between states of operation.
 
@@ -76,16 +78,7 @@ Here is the current status of the code:
 11. Debug mode disabled at altitude.
 12. HITL simulations testing suite.
 
-TODOS:
-eprom log all CONSTANTS
-cutdown cause
-check hecto pascals
-log stall current for ballast, changedirection
-absolute deviation
-
-TODO for next revision:
-cutdown non-blocking
-logger more than 100 files
-gps use 12c to set to low power 1 Hz
-rb set to sleep mode between comms
-tune heater PID constatns
+#### TODO
+1. GPS low power mode 1 Hz using i2c.
+2. RB sleep mode between comms.
+3. Heaters damp PID constants.

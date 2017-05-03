@@ -47,6 +47,7 @@ void Hardware::init() {
 void Hardware::runLED(bool on) {
   digitalWrite(LED_PIN, on);
 }
+
 /*
  * Function: faultLED
  * -------------------
@@ -56,6 +57,23 @@ void Hardware::faultLED() {
   digitalWrite(LED_PIN, HIGH);
   delay(LOOP_INTERVAL);
   digitalWrite(LED_PIN, LOW);
+}
+
+/*
+ * Function: startUpPayload
+ * -------------------
+ * This function starts up the payload.
+ */
+bool Hardware::startupPayload(bool shouldStartup) {
+  bool success = false;
+  if (shouldStartup) {
+    EEPROM.write(EEPROM_PAYLOAD, false);
+    digitalWrite(PAYLOAD_GATE, HIGH);
+    delay(1000);
+    EEPROM.write(EEPROM_PAYLOAD, true);
+    success = true;
+  }
+  return success;
 }
 
 /*
@@ -92,7 +110,6 @@ void Hardware::heater(double tempSetpoint, double temp, bool strong, bool weak) 
     if (!strong) analogWrite(HEATER_INTERNAL_STRONG, 0);
     if (weak)    analogWrite(HEATER_INTERNAL_WEAK, PIDOutVar / 2 + 127.5);
     if (!weak)   analogWrite(HEATER_INTERNAL_WEAK, 0);
-    // TODO: tune PID
   }
   else {
     analogWrite(HEATER_INTERNAL_STRONG, 0);
@@ -117,7 +134,7 @@ void Hardware::turnOffHeaters() {
  * persists through system restarts.
  */
 void Hardware::setHeaterMode(bool on) {
-  EEPROM.write(EEPROMAddress, on);
+  EEPROM.write(EEPROM_HEATER, on);
 }
 
 /*
@@ -168,7 +185,7 @@ void Hardware::clearBallastQueue() {
  * This function provides a non-hanging interface to check the timer queue.
  * Called every loop; updates and acts on the current state of the valve.
  */
-bool Hardware::checkValve() {
+bool Hardware::checkValve(float current) {
   if (valveState == CLOSED) {
     if ((millis() - valveLeakStartTime) >= VALVE_LEAK_TIMEOUT) {
       valveLeakStartTime = millis();
@@ -218,7 +235,7 @@ bool Hardware::checkValve() {
  * This function provides a non-hanging interface to check the timer queue.
  * Called every loop; updates and acts on the current state of the ballast.
  */
-bool Hardware::checkBallast() {
+bool Hardware::checkBallast(float current) {
   if (ballastState == CLOSED) {
     if (ballastQueue == 0) {
       uint32_t deltaTime = (millis() - ballastCheckTime);
@@ -232,6 +249,7 @@ bool Hardware::checkBallast() {
     }
   }
   if (ballastState == OPEN) {
+    if (current >= BALLAST_STALL_CURRENT) ballastDirection = !ballastDirection;
     if(ballastQueue > 0) {
       uint32_t deltaTime = (millis() - ballastCheckTime);
       ballastCheckTime = millis();
@@ -285,44 +303,35 @@ void Hardware::cutDown(bool on) {
     analogWrite(VALVE_FORWARD, LOW);
     analogWrite(VALVE_REVERSE, LOW);
   }
-  // TODO: might be nice to make nonblocking to measure current
-  // TODO: remember cutdown cause
 }
 
 /*
- * Function: writeToEEPROM
+ * Function: EEPROMReadlong
  * -------------------
- * This helper function writes an integer digit-by-digit
- * to EEPROM between the specified bytes.
+ * This function reads an int32_t from the given address.
  */
-void Hardware::writeToEEPROM(uint8_t startByte, uint8_t endByte, int num) {
-  // write from left to right (endByte to startByte) b/c writing from one's digit
-	for (int pos = endByte; pos >= startByte; pos--) {
-		int digit = num % 10;
-		num /= 10;
-		EEPROM.write(pos, digit);
-	}
+int32_t Hardware::EEPROMReadlong(uint8_t address) {
+  int32_t four = EEPROM.read(address);
+  int32_t three = EEPROM.read(address + 1);
+  int32_t two = EEPROM.read(address + 2);
+  int32_t one = EEPROM.read(address + 3);
+  return ((four << 0) & 0xFF) + ((three << 8) & 0xFFFF) + ((two << 16) & 0xFFFFFF) + ((one << 24) & 0xFFFFFFFF);
 }
 
 /*
- * Function: writeToEEPROM
+ * Function: EEPROMWritelong
  * -------------------
- * This helper function reads an integer digit-by-digit
- * from EEPROM between the specified bytes, and then "clears"
- * the data by writing the CLEAR_NUM sentinel.
+ * This function writes an int32_t to the given address.
  */
-int Hardware::readFromEEPROMAndClear(uint8_t startByte, uint8_t endByte) {
-  int num = 0;
-  // build up number
-  for (int i = startByte; i <= endByte; i++) {
-    if (EEPROM.read(0) == EEPROM_CLEAR_NUM) break;
-    int digit = EEPROM.read(i);
-    num *= 10;
-    num += digit;
-  }
-  // clear EEPROM data
-  writeToEEPROM(startByte, endByte, EEPROM_CLEAR_NUM);
-  return num;
+void Hardware::EEPROMWritelong(uint8_t address, int32_t value) {
+  uint8_t four = (value & 0xFF);
+  uint8_t three = ((value >> 8) & 0xFF);
+  uint8_t two = ((value >> 16) & 0xFF);
+  uint8_t one = ((value >> 24) & 0xFF);
+  EEPROM.write(address, four);
+  EEPROM.write(address + 1, three);
+  EEPROM.write(address + 2, two);
+  EEPROM.write(address + 3, one);
 }
 
 /*********************************  HELPERS  **********************************/

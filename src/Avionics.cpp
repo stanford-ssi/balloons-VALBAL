@@ -22,8 +22,8 @@
 void Avionics::init() {
   PCB.init();
   Serial.begin(CONSOLE_BAUD);
-  if(!setupSDCard())                               logAlert("unable to setup SD Card", true);
-  if(!readHistory())                               logAlert("unable to read from EEPROM", true);
+  if(!setupSDCard())                               logAlert("unable to initialize SD Card", true);
+  if(!readHistory())                               logAlert("unable to initialize EEPROM", true);
   if(!sensors.init())                              logAlert("unable to initialize Sensors", true);
   if(!HITL.init())                                 logAlert("unable to initialize Simulations", true);
   if(!filter.init())                               logAlert("unable to initialize Filters", true);
@@ -371,9 +371,6 @@ bool Avionics::runValve() {
     data.VALVE_ALT_LAST = data.ALTITUDE;
     uint32_t valveTime = data.VALVE_DURATION;
     if(data.FORCE_VALVE) valveTime = data.VALVE_FORCE_DURATION;
-
-
-    // TODO: log controller constants to EEPROM
     PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
     PCB.queueValve(valveTime, shouldValve);
     data.FORCE_VALVE = false;

@@ -41,19 +41,14 @@ private:
   double   altitudeCurr;
   double   altitudeLast;
   uint32_t ascentRateLast;
-  Eigen::Matrix<double, 2, 1> sensorInputs; // [Ascent_rate , altitude] //z
-  Eigen::Matrix<double, 2, 1> currentState; // [Ascent_rate , altitude] //x
-  Eigen::Matrix<double, 2, 2> currentCovar; //  P
-  Eigen::Matrix<double, 2, 2> predictionMat;//  F
-  Eigen::Matrix<double, 2, 2> sensorMat;    //  H
-  Eigen::Matrix<double, 2, 2> externalCovar;//  Q
-  Eigen::Matrix<double, 2, 2> sensorCovar;  //  R
+
 
   uint16_t altitudeIndex = 0;
-
   float    altitudeBuffer[4][ALTITUDE_BUFFER_SIZE];
-
   bool     altitudeErrors[4][ALTITUDE_BUFFER_SIZE] = {false};
+  float    lastAcceptedAltitudes[4];
+  float    lastAcceptedTimes[4];
+  double   pressures[4];
 
 };
 

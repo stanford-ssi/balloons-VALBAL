@@ -58,13 +58,13 @@ double Filters::getTemp(double RAW_TEMP_1, double RAW_TEMP_2, double RAW_TEMP_3,
  * -------------------
  * This function returns a bounds checked pressure mean
  */
-double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double RAW_PRESSURE_3, double RAW_PRESSURE_4) {
-  //See which sensors are funcitoning correctly
+double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double RAW_PRESSURE_3, double RAW_PRESSURE_4,double pressureBaselineArg) {
+    pressureBaseline = pressureBaselineArg;
 
-    pressures[1] = RAW_PRESSURE_1;
-    pressures[2] = RAW_PRESSURE_2;
-    pressures[3] = RAW_PRESSURE_3;
-    pressures[4] = RAW_PRESSURE_4;
+    pressures[0] = RAW_PRESSURE_1;
+    pressures[1] = RAW_PRESSURE_2;
+    pressures[2] = RAW_PRESSURE_3;
+    pressures[3] = RAW_PRESSURE_4;
 
 	for(int i = 0; i<4;i++) if(!((MIN_PRESURE < pressures[i]) && (pressures[i] < MAX_PRESURE))) markFailure(i);
 
@@ -124,6 +124,7 @@ double Filters::getAscentRate() {
             denominator += pow((j - ALTITUDE_BUFFER_SIZE/(2*ALTITUDE_DOWNSAMPLE_SIZE)),2);
         }
 
+        // 1000 comes from LOOP_INTERVAL being in miliseconds
         meanAscentRates[i] = (((float)1000*ALTITUDE_DOWNSAMPLE_SIZE)/(LOOP_INTERVAL * ALTITUDE_BUFFER_SIZE)) * numerator/denominator;
         if(sensorsAccepted[i]){
             meanAscentRate += meanAscentRates[i];
@@ -195,8 +196,8 @@ void Filters::findLastAccepted() {
 
     for(int i = 0; i<4;i++){
         if (enabledSensors[i]){
-            lastAcceptedAltitudes = altitudeBuffer[i][altitudeIndex];
-            lastAcceptedTimes = millis();
+            lastAcceptedAltitudes[i] = altitudeBuffer[i][altitudeIndex];
+            lastAcceptedTimes[i] = millis();
         }
     }
 }
@@ -210,7 +211,8 @@ void Filters::findLastAccepted() {
  */
 void Filters::velocityCheck() {
     for(int i = 0; i<4;i++){
-        if ((1000* (altitudeBuffer[i][altitudeIndex] - lastAcceptedAltitudes[i])/(millis() - lastAcceptedTimes[i])) > MAX_VELOCITY){
+        // 1000 comes from times being in miliseconds
+        if (fabs(1000* (altitudeBuffer[i][altitudeIndex] - lastAcceptedAltitudes[i])/(millis() - lastAcceptedTimes[i])) > MAX_VELOCITY){
             markFailure(i);
         }
     }
@@ -228,11 +230,14 @@ void Filters::consensousCheck(){
     int maxSensors = 0;
     int minDistance = 0;
 
+    // for each sensor combination
     for(int activeSensors = 1; activeSensors<16; activeSensors++){
         int numberOfSensors = 0;
         int numberOfCorrectSensors = 0;
         float meanAltitude = 0;
         float distance = 0;
+
+        // calculate mean
         for(int sensor = 0; sensor < 4; sensor++){
             if( 1 & (activeSensors>>sensor)){
                 numberOfSensors++;
@@ -240,12 +245,16 @@ void Filters::consensousCheck(){
             }
         }
         meanAltitude /= numberOfSensors;
+
+        // count sensors in range
         for(int sensor = 0; sensor < 4; sensor++){
             if(1 & (activeSensors>>sensor)){
                 distance += pow(altitudeBuffer[sensor][altitudeIndex] - meanAltitude,2);
                 if(fabs(altitudeBuffer[sensor][altitudeIndex] - meanAltitude) < MAX_CONSENSUS_DEVIATION) numberOfCorrectSensors +=1;
             }
         }
+
+        // if arangemnt is better
         if(numberOfCorrectSensors > maxSensors || (numberOfCorrectSensors == maxSensors && distance < minDistance)){
             maxAgreement = activeSensors;
             maxSensors = numberOfSensors;
@@ -254,7 +263,7 @@ void Filters::consensousCheck(){
     }
 
     for(int sensor = 0; sensor < 4; sensor++){
-        if( 1 & (maxSensors>>sensor)){
+        if(!(1 & (maxAgreement>>sensor))){
             markFailure(sensor);
         }
     }
@@ -270,7 +279,7 @@ void Filters::consensousCheck(){
  * This function returns a higher precision altitude value
  * based on the US 1976 Standard Atmosphere.
  */
-double Filters::calculateAltitude(double pressure, float pressureBaseline) {
+double Filters::calculateAltitude(double pressure) {
   double calculatedAltitude;
   if (pressure > 22632.1) calculatedAltitude = (44330.7 * (1 - pow(pressure / pressureBaseline, 0.190266)));
   else calculatedAltitude =  -6341.73 * log((0.176481 * pressure) / 22632.1);

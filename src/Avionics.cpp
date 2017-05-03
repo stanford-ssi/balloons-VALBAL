@@ -271,14 +271,14 @@ bool Avionics::processData() {
   bool success = true;
   filter.enableSensors(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
   data.TEMP_IN          = filter.getTemp(data.RAW_TEMP_1, data.RAW_TEMP_2, data.RAW_TEMP_3, data.RAW_TEMP_4);
-  data.PRESS            = filter.getPressure(data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4);
+  data.PRESS            = filter.getPressure(data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4,data.PRESS_BASELINE);
   data.BMP_1_REJECTIONS = filter.getNumRejections(1);
   data.BMP_2_REJECTIONS = filter.getNumRejections(2);
   data.BMP_3_REJECTIONS = filter.getNumRejections(3);
   data.BMP_4_REJECTIONS = filter.getNumRejections(4);
-  filter.kalmanAltitude(data.PRESS, data.PRESS_BASELINE);
-  data.ALTITUDE         = filter.getKalmanedAltitude();
-  data.ASCENT_RATE      = filter.getLowPassAscentRate();
+
+  data.ALTITUDE         = filter.getAltitude();
+  data.ASCENT_RATE      = filter.getAscentRate();
   if (data.ASCENT_RATE >= 10) success = false;
   return success;
 }

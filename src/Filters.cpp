@@ -19,6 +19,7 @@
  */
 bool Filters::init() {
 	bool sucess = true;
+    findLastAccepted();
 	return sucess;
 }
 
@@ -124,7 +125,42 @@ void Filters::filterAltitudes() {
   altitudeIndex = (altitudeIndex + 1) % ALTITUDE_BUFFER_SIZE;
   for(int i = 0; i<4;i++) altitudeBuffer[i][altitudeIndex] = calculateAltitude(pressures[i]);
   consensousCheck();
+  velocityCheck();
+
+  findLastAccepted();
 }
+
+/*
+ * Function: findLastAccepted
+ * -------------------
+ * This function checkes if velocity since last accepted
+ * altitude is within an acceptible range
+ */
+void Filters::findLastAccepted() {
+
+    for(int i = 0; i<4;i++){
+        if (enabledSensors[i]){
+            lastAcceptedAltitudes = altitudeBuffer[i][altitudeIndex];
+            lastAcceptedTimes = millis();
+        }
+    }
+}
+
+
+/*
+ * Function: velocityCheck
+ * -------------------
+ * This function checkes if velocity since last accepted
+ * altitude is within an acceptible range
+ */
+void Filters::velocityCheck() {
+    for(int i = 0; i<4;i++){
+        if (((altitudeBuffer[i][altitudeIndex] - lastAcceptedAltitudes[i])/(millis() - lastAcceptedTimes[i])) > MAX_VELOCITY){
+            markFailure(i);
+        }
+    }
+}
+
 
 /*
  * Function: getAltitude
@@ -151,7 +187,7 @@ void Filters::getAltitude() {
           acceptedStreams++;
       }
   }
-  return meanAltitude/acceptedStreams;
+  return meanAltitude / acceptedStreams;
 }
 
 

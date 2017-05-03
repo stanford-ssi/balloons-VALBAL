@@ -37,7 +37,6 @@ private:
   uint32_t rejectedSensors[4] = {0};
   uint8_t  numSensors;
 
-  float    ASCENT_RATE_BUFFER[ASCENT_RATE_BUFFER_SIZE];
   double   altitudeCurr;
   double   altitudeLast;
   uint32_t ascentRateLast;

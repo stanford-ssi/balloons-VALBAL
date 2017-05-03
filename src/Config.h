@@ -109,8 +109,10 @@ static const uint16_t  BALLAST_STALL_CURRENT                 =              270;
 static const double    MAX_PRESURE                           =           107500;
 static const double    MIN_PRESURE                           =             1131;
 static const float     MAX_CONSENSUS_DEVIATION               =                6;
-static const uint16_t  MAX_VELOCITY                          =                5;
+static const uint16_t  MAX_VELOCITY                          =               10;
 static const uint16_t  ALTITUDE_BUFFER_SIZE                  =             2400;
+static const uint16_t  ALTITUDE_DOWNSAMPLE_SIZE              =               40;
+
 
 /*****************************  EEPROM ADDRESSES  *****************************/
 static const uint8_t   EEPROM_ROCKBLOCK                      =                0;

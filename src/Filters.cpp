@@ -81,12 +81,67 @@ double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double
 /***************************  GET FUNCTIONS  **********************************/
 
 /*
+ * Function: getAscentRate
+ * -------------------
+ * This function returns a higher precision altitude value
+ * based on the US 1976 Standard Atmosphere.
+ */
+double Filters::getAscentRate() {
+
+
+      float meanAscentRate = 0;
+      int acceptedStreams = 0;
+
+
+    for(int i = 0; i < 4; i++){
+
+
+        float downSampledAltitudes[ALTITUDE_BUFFER_SIZE/ALTITUDE_DOWNSAMPLE_SIZE];
+        int j = 0;
+
+        float sum = 0;
+        int numberOfDataPoints = 0;
+
+        //Downsample
+        for (int t = 0; t < ALTITUDE_BUFFER_SIZE; t++){
+            int index = (altitudeIndex + t +1) % ALTITUDE_BUFFER_SIZE;
+            sum += altitudeBuffer[i][index];
+            numberOfDataPoints++;
+
+            if(numberOfDataPoints == ALTITUDE_DOWNSAMPLE_SIZE || index == altitudeIndex){
+                downSampledAltitudes[j] = sum/numberOfDataPoints;
+                numberOfDataPoints = 0;
+                j++;
+            }
+        }
+
+        float numerator = 0;
+        float denominator = 0;
+
+        // Dejankiy: denominator is calculating a constant!
+        for(int j = 0; j < ALTITUDE_BUFFER_SIZE/ALTITUDE_DOWNSAMPLE_SIZE; j++){
+            numerator += (j - ALTITUDE_BUFFER_SIZE/(2*ALTITUDE_DOWNSAMPLE_SIZE)) * (downSampledAltitudes[j] - meanAltitudes[i]);
+            denominator += pow((j - ALTITUDE_BUFFER_SIZE/(2*ALTITUDE_DOWNSAMPLE_SIZE)),2);
+        }
+
+        meanAscentRates[i] = (((float)1000*ALTITUDE_DOWNSAMPLE_SIZE)/(LOOP_INTERVAL * ALTITUDE_BUFFER_SIZE)) * numerator/denominator;
+        if(sensorsAccepted[i]){
+            meanAscentRate += meanAscentRates[i];
+            acceptedStreams++;
+        }
+    }
+
+    return meanAscentRate/acceptedStreams;
+
+}
+
+/*
  * Function: getAltitude
  * -------------------
  * This function returns an error checked and smoothed
  * altitude value
  */
-void Filters::getAltitude() {
+double Filters::getAltitude() {
 
   filterAltitudes();
 
@@ -95,30 +150,20 @@ void Filters::getAltitude() {
 
   for(int i = 0; i<4;i++){
       float altitudesSum =0;
-      bool sensorAccepted = true;
+      sensorsAccepted[i] = true;
 
       for(int t = 0; t<ALTITUDE_BUFFER_SIZE;t++){
           altitudesSum += altitudeBuffer[i][t];
-          sensorAccepted = sensorAccepted && !altitudeErrors[i][t];
+          sensorsAccepted[i] = sensorsAccepted[i] && !altitudeErrors[i][t];
       }
 
-      if(sensorAccepted){
-          meanAltitude += altitudesSum / ALTITUDE_BUFFER_SIZE
+      meanAltitudes[i] = altitudesSum / ALTITUDE_BUFFER_SIZE;
+      if(sensorsAccepted[i]){
+          meanAltitude += meanAltitudes[i];
           acceptedStreams++;
       }
   }
   return meanAltitude / acceptedStreams;
-}
-
-/*
- * Function: getAscentRate
- * -------------------
- * This function returns the filtered ascent rate.
- */
-double Filters::getAscentRate() {
-    double ascentRateTotal = 0;
-    for (int i = 0; i < ASCENT_RATE_BUFFER_SIZE; i++) ascentRateTotal += ASCENT_RATE_BUFFER[i];
-    return  ascentRateTotal / ASCENT_RATE_BUFFER_SIZE;
 }
 
 
@@ -165,7 +210,7 @@ void Filters::findLastAccepted() {
  */
 void Filters::velocityCheck() {
     for(int i = 0; i<4;i++){
-        if (((altitudeBuffer[i][altitudeIndex] - lastAcceptedAltitudes[i])/(millis() - lastAcceptedTimes[i])) > MAX_VELOCITY){
+        if ((1000* (altitudeBuffer[i][altitudeIndex] - lastAcceptedAltitudes[i])/(millis() - lastAcceptedTimes[i])) > MAX_VELOCITY){
             markFailure(i);
         }
     }
@@ -178,7 +223,7 @@ void Filters::velocityCheck() {
  * This function returns a higher precision altitude value
  * based on the US 1976 Standard Atmosphere.
  */
-void consensousCheck(){
+void Filters::consensousCheck(){
     int maxAgreement = 0;
     int maxSensors = 0;
     int minDistance = 0;
@@ -216,14 +261,17 @@ void consensousCheck(){
 }
 
 /*********************************  HELPERS  **********************************/
+
+
+
 /*
  * Function: calculateAltitude
  * -------------------
  * This function returns a higher precision altitude value
  * based on the US 1976 Standard Atmosphere.
  */
-float Filters::calculateAltitude(double pressure, float pressureBaseline) {
-  float calculatedAltitude;
+double Filters::calculateAltitude(double pressure, float pressureBaseline) {
+  double calculatedAltitude;
   if (pressure > 22632.1) calculatedAltitude = (44330.7 * (1 - pow(pressure / pressureBaseline, 0.190266)));
   else calculatedAltitude =  -6341.73 * log((0.176481 * pressure) / 22632.1);
 

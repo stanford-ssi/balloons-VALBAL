@@ -13,7 +13,7 @@
 #define FILTERS_H
 
 #include "Config.h"
-#include <Eigen.h>
+// #include <Eigen.h> // not needed right nows
 
 class Filters {
 public:
@@ -24,30 +24,30 @@ public:
   double   getTemp(double RAW_TEMP_1,double RAW_TEMP_2,double RAW_TEMP_3,double RAW_TEMP_4);
   double   getPressure(double RAW_PRESSURE_1,double RAW_PRESSURE_2,double RAW_PRESSURE_3,double RAW_PRESSURE_4);
   uint32_t getNumRejections(uint8_t sensor);
-  void     kalmanAltitude(float pressure, float pressureBaseline);
-  double   getKalmanedAltitude();
-  double   getKalmanedAscentRate();
-  double   getLowPassAscentRate();
+  double   calculateAltitude(double pressure, float pressureBaseline);
+  double   getAltitude();
+  double   getAscentRate();
+  void     consensousCheck();
+  void     velocityCheck();
+  void     findLastAccepted();
+  void     filterAltitudes();
 private:
 /*********************************  HELPERS  **********************************/
   void     markFailure(uint8_t sensor);
-  void     storeInputs(float pressure, float pressureBaseline);
 /*********************************  OBJECTS  **********************************/
   bool     enabledSensors[4] = {true};
   uint32_t rejectedSensors[4] = {0};
   uint8_t  numSensors;
 
-  double   altitudeCurr;
-  double   altitudeLast;
-  uint32_t ascentRateLast;
-
-
+  float    meanAscentRates[4];
+  float    meanAltitudes[4];
   uint16_t altitudeIndex = 0;
   float    altitudeBuffer[4][ALTITUDE_BUFFER_SIZE];
   bool     altitudeErrors[4][ALTITUDE_BUFFER_SIZE] = {{false}};
   float    lastAcceptedAltitudes[4];
   float    lastAcceptedTimes[4];
   double   pressures[4];
+  bool     sensorsAccepted[4];
 
 };
 

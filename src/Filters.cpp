@@ -54,7 +54,7 @@ double Filters::getTemp(double RAW_TEMP_1, double RAW_TEMP_2, double RAW_TEMP_3,
 }
 
 /*
- * Function: getPressure (renaming to store pressure)
+ * Function: getPressure
  * -------------------
  * This function returns a bounds checked pressure mean
  */
@@ -78,42 +78,52 @@ double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double
   return press / numSensors;
 }
 
+/***************************  GET FUNCTIONS  **********************************/
+
 /*
- * Function: getNumRejections
+ * Function: getAltitude
  * -------------------
- * This function returns the numer of rejections
- * a specific sensor has encountered.
+ * This function returns an error checked and smoothed
+ * altitude value
  */
-uint32_t Filters::getNumRejections(uint8_t sensor) {
-	return rejectedSensors[sensor - 1];
+void Filters::getAltitude() {
+
+  filterAltitudes();
+
+  float meanAltitude = 0;
+  int acceptedStreams = 0;
+
+  for(int i = 0; i<4;i++){
+      float altitudesSum =0;
+      bool sensorAccepted = true;
+
+      for(int t = 0; t<ALTITUDE_BUFFER_SIZE;t++){
+          altitudesSum += altitudeBuffer[i][t];
+          sensorAccepted = sensorAccepted && !altitudeErrors[i][t];
+      }
+
+      if(sensorAccepted){
+          meanAltitude += altitudesSum / ALTITUDE_BUFFER_SIZE
+          acceptedStreams++;
+      }
+  }
+  return meanAltitude / acceptedStreams;
 }
 
-
-
-
 /*
- * Function: getLowPassAscentRate
+ * Function: getAscentRate
  * -------------------
  * This function returns the filtered ascent rate.
  */
-double Filters::getLowPassAscentRate() {
+double Filters::getAscentRate() {
     double ascentRateTotal = 0;
     for (int i = 0; i < ASCENT_RATE_BUFFER_SIZE; i++) ascentRateTotal += ASCENT_RATE_BUFFER[i];
     return  ascentRateTotal / ASCENT_RATE_BUFFER_SIZE;
 }
 
-/*********************************  HELPERS  **********************************/
-/*
- * Function: markFailure
- * -------------------
- * This function marks a specific
- * sensor failure.
- */
-void Filters::markFailure(uint8_t sensor){
-    if(enabledSensors[sensor]) rejectedSensors[sensor]++;
-	enabledSensors[sensor] = false;
-    altitudeErrors[sensor][altitudeIndex] = true;
-}
+
+/********************************  CHECKERS  **********************************/
+
 
 /*
  * Function: filterAltitudes
@@ -124,9 +134,9 @@ void Filters::markFailure(uint8_t sensor){
 void Filters::filterAltitudes() {
   altitudeIndex = (altitudeIndex + 1) % ALTITUDE_BUFFER_SIZE;
   for(int i = 0; i<4;i++) altitudeBuffer[i][altitudeIndex] = calculateAltitude(pressures[i]);
+
   consensousCheck();
   velocityCheck();
-
   findLastAccepted();
 }
 
@@ -160,36 +170,6 @@ void Filters::velocityCheck() {
         }
     }
 }
-
-
-/*
- * Function: getAltitude
- * -------------------
- * This function returns an error checked and smoothed
- * altitude value
- */
-void Filters::getAltitude() {
-
-  float meanAltitude = 0;
-  int acceptedStreams = 0;
-
-  for(int i = 0; i<4;i++){
-      float altitudesSum =0;
-      bool sensorAccepted = true;
-
-      for(int t = 0; t<ALTITUDE_BUFFER_SIZE;t++){
-          altitudesSum += altitudeBuffer[i][t];
-          sensorAccepted = sensorAccepted && !altitudeErrors[i][t];
-      }
-
-      if(sensorAccepted){
-          meanAltitude += altitudesSum / ALTITUDE_BUFFER_SIZE
-          acceptedStreams++;
-      }
-  }
-  return meanAltitude / acceptedStreams;
-}
-
 
 
 /*
@@ -233,11 +213,9 @@ void consensousCheck(){
             markFailure(sensor);
         }
     }
-
-
 }
 
-
+/*********************************  HELPERS  **********************************/
 /*
  * Function: calculateAltitude
  * -------------------
@@ -250,4 +228,26 @@ float Filters::calculateAltitude(double pressure, float pressureBaseline) {
   else calculatedAltitude =  -6341.73 * log((0.176481 * pressure) / 22632.1);
 
   return calculatedAltitude;
+}
+
+/*
+ * Function: getNumRejections
+ * -------------------
+ * This function returns the numer of rejections
+ * a specific sensor has encountered.s
+ */
+uint32_t Filters::getNumRejections(uint8_t sensor) {
+	return rejectedSensors[sensor - 1];
+}
+
+/*
+ * Function: markFailure
+ * -------------------
+ * This function marks a specific
+ * sensor failure.
+ */
+void Filters::markFailure(uint8_t sensor){
+    if(enabledSensors[sensor]) rejectedSensors[sensor]++;
+	enabledSensors[sensor] = false;
+    altitudeErrors[sensor][altitudeIndex] = true;
 }

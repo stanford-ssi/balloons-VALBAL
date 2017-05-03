@@ -44,7 +44,7 @@ private:
 
   uint16_t altitudeIndex = 0;
   float    altitudeBuffer[4][ALTITUDE_BUFFER_SIZE];
-  bool     altitudeErrors[4][ALTITUDE_BUFFER_SIZE] = {false};
+  bool     altitudeErrors[4][ALTITUDE_BUFFER_SIZE] = {{false}};
   float    lastAcceptedAltitudes[4];
   float    lastAcceptedTimes[4];
   double   pressures[4];

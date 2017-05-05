@@ -95,26 +95,6 @@ double Filters::getAscentRate() {
 
     for(int i = 0; i < 4; i++){
 
-
-        float downSampledAltitudes[ALTITUDE_BUFFER_SIZE/ALTITUDE_DOWNSAMPLE_SIZE];
-        int j = 0;
-
-        float sum = 0;
-        int numberOfDataPoints = 0;
-
-        //Downsample
-        for (int t = 0; t < ALTITUDE_BUFFER_SIZE; t++){
-            int index = (altitudeIndex + t +1) % ALTITUDE_BUFFER_SIZE;
-            sum += altitudeBuffer[i][index];
-            numberOfDataPoints++;
-
-            if(numberOfDataPoints == ALTITUDE_DOWNSAMPLE_SIZE || index == altitudeIndex){
-                downSampledAltitudes[j] = sum/numberOfDataPoints;
-                numberOfDataPoints = 0;
-                j++;
-            }
-        }
-
         float numerator = 0;
         float denominator = 0;
 
@@ -143,7 +123,6 @@ double Filters::getAscentRate() {
  * altitude value
  */
 double Filters::getAltitude() {
-
   filterAltitudes();
 
   float meanAltitude = 0;
@@ -151,15 +130,17 @@ double Filters::getAltitude() {
 
   for(int i = 0; i<4;i++){
       float altitudesSum =0;
-      sensorsAccepted[i] = true;
+      int numberOfAcceptedSamples = 0;
 
       for(int t = 0; t<ALTITUDE_BUFFER_SIZE;t++){
-          altitudesSum += altitudeBuffer[i][t];
-          sensorsAccepted[i] = sensorsAccepted[i] && !altitudeErrors[i][t];
+				if(!altitudeErrors[i][t]){
+	        altitudesSum += altitudeBuffer[i][t];
+					numberOfAcceptedSamples++;
+				}
       }
 
-      meanAltitudes[i] = altitudesSum / ALTITUDE_BUFFER_SIZE;
-      if(sensorsAccepted[i]){
+      meanAltitudes[i] = altitudesSum / numberOfAcceptedSamples;
+      if(numberOfAcceptedSamples >= MINIMUM_ALTITUDE_POINTS){
           meanAltitude += meanAltitudes[i];
           acceptedStreams++;
       }

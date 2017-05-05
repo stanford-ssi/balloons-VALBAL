@@ -118,6 +118,7 @@ double Filters::getAscentRate() {
         }
     }
 
+    if(acceptedStreams == 0) return (meanAscentRate[0] + meanAscentRate[1] + meanAscentRate[2] + meanAscentRate[3])/4;
     return meanAscentRate/acceptedStreams;
 
 }
@@ -151,7 +152,9 @@ double Filters::getAltitude() {
           acceptedStreams++;
       }
   }
-  return meanAltitude / acceptedStreams;
+
+    if(acceptedStreams == 0) return (meanAltitudes[0] + meanAltitudes[1] + meanAltitudes[2] + meanAltitudes[3])/4;
+    else return meanAltitude / acceptedStreams;
 }
 
 

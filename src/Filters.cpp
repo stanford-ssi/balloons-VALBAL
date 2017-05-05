@@ -88,25 +88,31 @@ double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double
  */
 double Filters::getAscentRate() {
 
-
-      float meanAscentRate = 0;
-      int acceptedStreams = 0;
-
+    float meanAscentRate = 0;
+    int acceptedStreams = 0;
 
     for(int i = 0; i < 4; i++){
 
-        float numerator = 0;
-        float denominator = 0;
+        double numerator = 0;
+        double denominator = 0;
+        double meanX = 0;
 
-        // Dejankiy: denominator is calculating a constant!
-        for(int j = 0; j < ALTITUDE_BUFFER_SIZE/ALTITUDE_DOWNSAMPLE_SIZE; j++){
-            numerator += (j - ALTITUDE_BUFFER_SIZE/(2*ALTITUDE_DOWNSAMPLE_SIZE)) * (downSampledAltitudes[j] - meanAltitudes[i]);
-            denominator += pow((j - ALTITUDE_BUFFER_SIZE/(2*ALTITUDE_DOWNSAMPLE_SIZE)),2);
+        for(int j = 0; j < ALTITUDE_BUFFER_SIZE; j++){
+            t = (altitudeIndex + j + 1) % ALTITUDE_BUFFER_SIZE;
+            if(!altitudeErrors[i][t]) meanX += (double)LOOP_INTERVAL*t/1000;
         }
 
-        // 1000 comes from LOOP_INTERVAL being in miliseconds
-        meanAscentRates[i] = (((float)1000*ALTITUDE_DOWNSAMPLE_SIZE)/(LOOP_INTERVAL * ALTITUDE_BUFFER_SIZE)) * numerator/denominator;
-        if(sensorsAccepted[i]){
+        for(int j = 0; j < ALTITUDE_BUFFER_SIZE; j++){
+            t = (altitudeIndex + j + 1) % ALTITUDE_BUFFER_SIZE;
+            if(!altitudeErrors[i][t]){
+                double time_seconds = (double)LOOP_INTERVAL*t/1000;
+                numerator += (time_seconds - meanX) * (altitudeBuffer[t] - meanAltitudes[i]);
+                denominator += pow((time_seconds - meanX),2);
+            }
+        }
+
+        meanAscentRates[i] = numerator/denominator;
+        if(numberOfAcceptedSamples >= MINIMUM_ASCENT_RATE_POINTS){
             meanAscentRate += meanAscentRates[i];
             acceptedStreams++;
         }

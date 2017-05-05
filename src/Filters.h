@@ -30,7 +30,7 @@ public:
   void     consensousCheck();
   void     velocityCheck();
   void     findLastAccepted();
-  void     filterAltitudes();
+  void     errorCheckAltitudes();
 private:
 /*********************************  HELPERS  **********************************/
   void     markFailure(uint8_t sensor);
@@ -45,10 +45,11 @@ private:
   uint16_t altitudeIndex = 0;
   float    altitudeBuffer[4][ALTITUDE_BUFFER_SIZE];
   bool     altitudeErrors[4][ALTITUDE_BUFFER_SIZE] = {{false}};
+  int      numberOfAcceptedSamples[4];
   float    lastAcceptedAltitudes[4];
   float    lastAcceptedTimes[4];
   double   pressures[4];
-  bool     sensorsAccepted[4];
+  bool     filtered = false;
 
 };
 

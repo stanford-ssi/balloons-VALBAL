@@ -60,6 +60,7 @@ double Filters::getTemp(double RAW_TEMP_1, double RAW_TEMP_2, double RAW_TEMP_3,
  */
 double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double RAW_PRESSURE_3, double RAW_PRESSURE_4,double pressureBaselineArg) {
     pressureBaseline = pressureBaselineArg;
+    filtered = false;
 
     pressures[0] = RAW_PRESSURE_1;
     pressures[1] = RAW_PRESSURE_2;
@@ -83,55 +84,44 @@ double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double
 /*
  * Function: getAscentRate
  * -------------------
- * This function returns a higher precision altitude value
- * based on the US 1976 Standard Atmosphere.
+ * This function returns filtered and smoothed
+ * ascent rate value
  */
 double Filters::getAscentRate() {
 
+    if(!filtered) errorCheckAltitudes();
 
-      float meanAscentRate = 0;
-      int acceptedStreams = 0;
-
+    float meanAscentRate = 0;
+    int acceptedStreams = 0;
 
     for(int i = 0; i < 4; i++){
 
+        double numerator = 0;
+        double denominator = 0;
+        double meanX = 0;
 
-        float downSampledAltitudes[ALTITUDE_BUFFER_SIZE/ALTITUDE_DOWNSAMPLE_SIZE];
-        int j = 0;
+        for(int j = 0; j < ALTITUDE_BUFFER_SIZE; j++){
+            int t = (altitudeIndex + j + 1) % ALTITUDE_BUFFER_SIZE;
+            if(!altitudeErrors[i][t]) meanX += (double)LOOP_INTERVAL*t/1000;
+        }
 
-        float sum = 0;
-        int numberOfDataPoints = 0;
-
-        //Downsample
-        for (int t = 0; t < ALTITUDE_BUFFER_SIZE; t++){
-            int index = (altitudeIndex + t +1) % ALTITUDE_BUFFER_SIZE;
-            sum += altitudeBuffer[i][index];
-            numberOfDataPoints++;
-
-            if(numberOfDataPoints == ALTITUDE_DOWNSAMPLE_SIZE || index == altitudeIndex){
-                downSampledAltitudes[j] = sum/numberOfDataPoints;
-                numberOfDataPoints = 0;
-                j++;
+        for(int j = 0; j < ALTITUDE_BUFFER_SIZE; j++){
+            int t = (altitudeIndex + j + 1) % ALTITUDE_BUFFER_SIZE;
+            if(!altitudeErrors[i][t]){
+                double time_seconds = (double)LOOP_INTERVAL*t/1000;
+                numerator += (time_seconds - meanX) * (altitudeBuffer[i][t] - meanAltitudes[i]);
+                denominator += pow((time_seconds - meanX),2);
             }
         }
 
-        float numerator = 0;
-        float denominator = 0;
-
-        // Dejankiy: denominator is calculating a constant!
-        for(int j = 0; j < ALTITUDE_BUFFER_SIZE/ALTITUDE_DOWNSAMPLE_SIZE; j++){
-            numerator += (j - ALTITUDE_BUFFER_SIZE/(2*ALTITUDE_DOWNSAMPLE_SIZE)) * (downSampledAltitudes[j] - meanAltitudes[i]);
-            denominator += pow((j - ALTITUDE_BUFFER_SIZE/(2*ALTITUDE_DOWNSAMPLE_SIZE)),2);
-        }
-
-        // 1000 comes from LOOP_INTERVAL being in miliseconds
-        meanAscentRates[i] = (((float)1000*ALTITUDE_DOWNSAMPLE_SIZE)/(LOOP_INTERVAL * ALTITUDE_BUFFER_SIZE)) * numerator/denominator;
-        if(sensorsAccepted[i]){
+        meanAscentRates[i] = numerator/denominator;
+        if(numberOfAcceptedSamples[i] >= MINIMUM_ASCENT_RATE_POINTS){
             meanAscentRate += meanAscentRates[i];
             acceptedStreams++;
         }
     }
 
+    if(acceptedStreams == 0) return (meanAscentRates[0] + meanAscentRates[1] + meanAscentRates[2] + meanAscentRates[3])/4;
     return meanAscentRate/acceptedStreams;
 
 }
@@ -143,28 +133,31 @@ double Filters::getAscentRate() {
  * altitude value
  */
 double Filters::getAltitude() {
-
-  filterAltitudes();
+  if(!filtered) errorCheckAltitudes();
 
   float meanAltitude = 0;
   int acceptedStreams = 0;
 
   for(int i = 0; i<4;i++){
       float altitudesSum =0;
-      sensorsAccepted[i] = true;
+      numberOfAcceptedSamples[i] = 0;
 
       for(int t = 0; t<ALTITUDE_BUFFER_SIZE;t++){
-          altitudesSum += altitudeBuffer[i][t];
-          sensorsAccepted[i] = sensorsAccepted[i] && !altitudeErrors[i][t];
+    		if(!altitudeErrors[i][t]){
+        	        altitudesSum += altitudeBuffer[i][t];
+        			numberOfAcceptedSamples[i]++;
+				}
       }
 
-      meanAltitudes[i] = altitudesSum / ALTITUDE_BUFFER_SIZE;
-      if(sensorsAccepted[i]){
+      meanAltitudes[i] = altitudesSum / numberOfAcceptedSamples[i];
+      if(numberOfAcceptedSamples[i] >= MINIMUM_ALTITUDE_POINTS){
           meanAltitude += meanAltitudes[i];
           acceptedStreams++;
       }
   }
-  return meanAltitude / acceptedStreams;
+
+    if(acceptedStreams == 0) return (meanAltitudes[0] + meanAltitudes[1] + meanAltitudes[2] + meanAltitudes[3])/4;
+    else return meanAltitude / acceptedStreams;
 }
 
 
@@ -172,25 +165,26 @@ double Filters::getAltitude() {
 
 
 /*
- * Function: filterAltitudes
+ * Function: errorCheckAltitudes
  * -------------------
- * This function returns a higher precision altitude value
- * based on the US 1976 Standard Atmosphere.
+ * Does the altitude calculation and error checking
  */
-void Filters::filterAltitudes() {
+void Filters::errorCheckAltitudes() {
   altitudeIndex = (altitudeIndex + 1) % ALTITUDE_BUFFER_SIZE;
   for(int i = 0; i<4;i++) altitudeBuffer[i][altitudeIndex] = calculateAltitude(pressures[i]);
 
   consensousCheck();
   velocityCheck();
   findLastAccepted();
+
+  filtered = true;
 }
 
 /*
  * Function: findLastAccepted
  * -------------------
- * This function checkes if velocity since last accepted
- * altitude is within an acceptible range
+ * This function updates the last accepted values used by
+ * velocity check
  */
 void Filters::findLastAccepted() {
 
@@ -222,8 +216,8 @@ void Filters::velocityCheck() {
 /*
  * Function: consensousCheck
  * -------------------
- * This function returns a higher precision altitude value
- * based on the US 1976 Standard Atmosphere.
+ * Finds the arangemnt with the highest number of
+ * sensors in agreement with each other
  */
 void Filters::consensousCheck(){
     int maxAgreement = 0;

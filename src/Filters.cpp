@@ -60,6 +60,7 @@ double Filters::getTemp(double RAW_TEMP_1, double RAW_TEMP_2, double RAW_TEMP_3,
  */
 double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double RAW_PRESSURE_3, double RAW_PRESSURE_4,double pressureBaselineArg) {
     pressureBaseline = pressureBaselineArg;
+    filtered = false;
 
     pressures[0] = RAW_PRESSURE_1;
     pressures[1] = RAW_PRESSURE_2;
@@ -83,10 +84,12 @@ double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double
 /*
  * Function: getAscentRate
  * -------------------
- * This function returns a higher precision altitude value
- * based on the US 1976 Standard Atmosphere.
+ * This function returns filtered and smoothed
+ * ascent rate value
  */
 double Filters::getAscentRate() {
+
+    if(!filtered) errorCheckAltitudes();
 
     float meanAscentRate = 0;
     int acceptedStreams = 0;
@@ -130,7 +133,7 @@ double Filters::getAscentRate() {
  * altitude value
  */
 double Filters::getAltitude() {
-  filterAltitudes();
+  if(!filtered) errorCheckAltitudes();
 
   float meanAltitude = 0;
   int acceptedStreams = 0;
@@ -162,25 +165,26 @@ double Filters::getAltitude() {
 
 
 /*
- * Function: filterAltitudes
+ * Function: errorCheckAltitudes
  * -------------------
- * This function returns a higher precision altitude value
- * based on the US 1976 Standard Atmosphere.
+ * Does the altitude calculation and error checking
  */
-void Filters::filterAltitudes() {
+void Filters::errorCheckAltitudes() {
   altitudeIndex = (altitudeIndex + 1) % ALTITUDE_BUFFER_SIZE;
   for(int i = 0; i<4;i++) altitudeBuffer[i][altitudeIndex] = calculateAltitude(pressures[i]);
 
   consensousCheck();
   velocityCheck();
   findLastAccepted();
+
+  filtered = true;
 }
 
 /*
  * Function: findLastAccepted
  * -------------------
- * This function checkes if velocity since last accepted
- * altitude is within an acceptible range
+ * This function updates the last accepted values used by
+ * velocity check
  */
 void Filters::findLastAccepted() {
 
@@ -212,8 +216,8 @@ void Filters::velocityCheck() {
 /*
  * Function: consensousCheck
  * -------------------
- * This function returns a higher precision altitude value
- * based on the US 1976 Standard Atmosphere.
+ * Finds the arangemnt with the highest number of
+ * sensors in agreement with each other
  */
 void Filters::consensousCheck(){
     int maxAgreement = 0;

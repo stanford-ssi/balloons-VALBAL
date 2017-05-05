@@ -30,7 +30,7 @@ public:
   void     consensousCheck();
   void     velocityCheck();
   void     findLastAccepted();
-  void     filterAltitudes();
+  void     errorCheckAltitudes();
 private:
 /*********************************  HELPERS  **********************************/
   void     markFailure(uint8_t sensor);
@@ -49,7 +49,7 @@ private:
   float    lastAcceptedAltitudes[4];
   float    lastAcceptedTimes[4];
   double   pressures[4];
-  bool     sensorsAccepted[4];
+  bool     filtered = false;
 
 };
 

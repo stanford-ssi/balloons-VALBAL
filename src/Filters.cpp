@@ -98,27 +98,27 @@ double Filters::getAscentRate() {
         double meanX = 0;
 
         for(int j = 0; j < ALTITUDE_BUFFER_SIZE; j++){
-            t = (altitudeIndex + j + 1) % ALTITUDE_BUFFER_SIZE;
+            int t = (altitudeIndex + j + 1) % ALTITUDE_BUFFER_SIZE;
             if(!altitudeErrors[i][t]) meanX += (double)LOOP_INTERVAL*t/1000;
         }
 
         for(int j = 0; j < ALTITUDE_BUFFER_SIZE; j++){
-            t = (altitudeIndex + j + 1) % ALTITUDE_BUFFER_SIZE;
+            int t = (altitudeIndex + j + 1) % ALTITUDE_BUFFER_SIZE;
             if(!altitudeErrors[i][t]){
                 double time_seconds = (double)LOOP_INTERVAL*t/1000;
-                numerator += (time_seconds - meanX) * (altitudeBuffer[t] - meanAltitudes[i]);
+                numerator += (time_seconds - meanX) * (altitudeBuffer[i][t] - meanAltitudes[i]);
                 denominator += pow((time_seconds - meanX),2);
             }
         }
 
         meanAscentRates[i] = numerator/denominator;
-        if(numberOfAcceptedSamples >= MINIMUM_ASCENT_RATE_POINTS){
+        if(numberOfAcceptedSamples[i] >= MINIMUM_ASCENT_RATE_POINTS){
             meanAscentRate += meanAscentRates[i];
             acceptedStreams++;
         }
     }
 
-    if(acceptedStreams == 0) return (meanAscentRate[0] + meanAscentRate[1] + meanAscentRate[2] + meanAscentRate[3])/4;
+    if(acceptedStreams == 0) return (meanAscentRates[0] + meanAscentRates[1] + meanAscentRates[2] + meanAscentRates[3])/4;
     return meanAscentRate/acceptedStreams;
 
 }
@@ -137,17 +137,17 @@ double Filters::getAltitude() {
 
   for(int i = 0; i<4;i++){
       float altitudesSum =0;
-      int numberOfAcceptedSamples = 0;
+      numberOfAcceptedSamples[i] = 0;
 
       for(int t = 0; t<ALTITUDE_BUFFER_SIZE;t++){
-				if(!altitudeErrors[i][t]){
-	        altitudesSum += altitudeBuffer[i][t];
-					numberOfAcceptedSamples++;
+    		if(!altitudeErrors[i][t]){
+        	        altitudesSum += altitudeBuffer[i][t];
+        			numberOfAcceptedSamples[i]++;
 				}
       }
 
-      meanAltitudes[i] = altitudesSum / numberOfAcceptedSamples;
-      if(numberOfAcceptedSamples >= MINIMUM_ALTITUDE_POINTS){
+      meanAltitudes[i] = altitudesSum / numberOfAcceptedSamples[i];
+      if(numberOfAcceptedSamples[i] >= MINIMUM_ALTITUDE_POINTS){
           meanAltitude += meanAltitudes[i];
           acceptedStreams++;
       }

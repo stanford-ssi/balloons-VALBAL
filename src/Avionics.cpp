@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | April 2017
+  Balloons | VALBAL | May 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
@@ -279,6 +279,7 @@ bool Avionics::processData() {
 
   data.ALTITUDE         = filter.getAltitude();
   data.ASCENT_RATE      = filter.getAscentRate();
+  data.INCENTIVE_NOISE  = filter.getIncentiveNoise(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
   if (data.ASCENT_RATE >= 10) success = false;
   return success;
 }
@@ -317,9 +318,10 @@ bool Avionics::calcIncentives() {
   computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
   data.RE_ARM_CONSTANT   = computer.updateControllerConstants(data.BALLAST_ARM_ALT, data.INCENTIVE_THRESHOLD);
-  data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE, data.VALVE_ALT_LAST);
-  data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE, data.BALLAST_ALT_LAST);
-  data.INCENTIVE_NOISE   = computer.getIncentiveNoise(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
+  data.VALVE_ALT_LAST    = computer.getAltitudeSinceLastVentCorrected(data.ALTITUDE, data.VALVE_ALT_LAST);
+  data.BALLAST_ALT_LAST  = computer.getAltitudeSinceLastDropCorrected(data.ALTITUDE, data.BALLAST_ALT_LAST);
+  data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE);
+  data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE);
   if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) success =  false;
   return success;
 }
@@ -661,7 +663,6 @@ void Avionics::setupLog() {
   }
   logFile = SD.open("EVENTS.txt", FILE_WRITE);
   if (!dataFile || !logFile) {
-    PCB.faultLED();
     Serial.println ("ERROR: COULD NOT CREATE FILE");
   }
   else {
@@ -676,7 +677,6 @@ void Avionics::setupLog() {
  * This function prints the CSV header.
  */
 void Avionics::printHeader() {
-  if(!Serial) PCB.faultLED();
   Serial.print("Stanford Student Space Initiative Balloons Launch ");
   Serial.print(MISSION_NUMBER);
   Serial.print('\n');
@@ -704,7 +704,6 @@ void Avionics::logHeader() {
  * This function logs important information whenever a specific event occurs.
  */
 void Avionics::logAlert(const char* debug, bool fatal) {
-  if(fatal && data.DEBUG_STATE) PCB.faultLED();
   if(logFile) {
     logFile.print(data.TIME);
     logFile.print(',');

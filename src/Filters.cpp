@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | April 2017
+  Balloons | VALBAL | May 2017
   Davy Ragland | dragland@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
 
@@ -19,7 +19,7 @@
  */
 bool Filters::init() {
 	bool sucess = true;
-    findLastAccepted();
+  findLastAccepted();
 	return sucess;
 }
 
@@ -59,13 +59,13 @@ double Filters::getTemp(double RAW_TEMP_1, double RAW_TEMP_2, double RAW_TEMP_3,
  * This function returns a bounds checked pressure mean
  */
 double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double RAW_PRESSURE_3, double RAW_PRESSURE_4,double pressureBaselineArg) {
-    pressureBaseline = pressureBaselineArg;
-    filtered = false;
+  pressureBaseline = pressureBaselineArg;
+  filtered = false;
 
-    pressures[0] = RAW_PRESSURE_1;
-    pressures[1] = RAW_PRESSURE_2;
-    pressures[2] = RAW_PRESSURE_3;
-    pressures[3] = RAW_PRESSURE_4;
+  pressures[0] = RAW_PRESSURE_1;
+  pressures[1] = RAW_PRESSURE_2;
+  pressures[2] = RAW_PRESSURE_3;
+  pressures[3] = RAW_PRESSURE_4;
 
 	for(int i = 0; i<4;i++) if(!((MIN_PRESURE < pressures[i]) && (pressures[i] < MAX_PRESURE))) markFailure(i);
 
@@ -88,42 +88,38 @@ double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double
  * ascent rate value
  */
 double Filters::getAscentRate() {
+	if(!filtered) errorCheckAltitudes();
+	float meanAscentRate = 0;
+  int acceptedStreams = 0;
 
-    if(!filtered) errorCheckAltitudes();
+  for(int i = 0; i < 4; i++){
+    double numerator = 0;
+    double denominator = 0;
+    double meanX = 0;
 
-    float meanAscentRate = 0;
-    int acceptedStreams = 0;
-
-    for(int i = 0; i < 4; i++){
-
-        double numerator = 0;
-        double denominator = 0;
-        double meanX = 0;
-
-        for(int j = 0; j < ALTITUDE_BUFFER_SIZE; j++){
-            int t = (altitudeIndex + j + 1) % ALTITUDE_BUFFER_SIZE;
-            if(!altitudeErrors[i][t]) meanX += (double)LOOP_INTERVAL*t/1000;
-        }
-
-        for(int j = 0; j < ALTITUDE_BUFFER_SIZE; j++){
-            int t = (altitudeIndex + j + 1) % ALTITUDE_BUFFER_SIZE;
-            if(!altitudeErrors[i][t]){
-                double time_seconds = (double)LOOP_INTERVAL*t/1000;
-                numerator += (time_seconds - meanX) * (altitudeBuffer[i][t] - meanAltitudes[i]);
-                denominator += pow((time_seconds - meanX),2);
-            }
-        }
-
-        meanAscentRates[i] = numerator/denominator;
-        if(numberOfAcceptedSamples[i] >= MINIMUM_ASCENT_RATE_POINTS){
-            meanAscentRate += meanAscentRates[i];
-            acceptedStreams++;
-        }
+    for(int j = 0; j < ALTITUDE_BUFFER_SIZE; j++){
+      int t = (altitudeIndex + j + 1) % ALTITUDE_BUFFER_SIZE;
+      if(!altitudeErrors[i][t]) meanX += (double)LOOP_INTERVAL*t/1000;
     }
 
-    if(acceptedStreams == 0) return (meanAscentRates[0] + meanAscentRates[1] + meanAscentRates[2] + meanAscentRates[3])/4;
-    return meanAscentRate/acceptedStreams;
+    for(int j = 0; j < ALTITUDE_BUFFER_SIZE; j++){
+      int t = (altitudeIndex + j + 1) % ALTITUDE_BUFFER_SIZE;
+      if(!altitudeErrors[i][t]){
+        double time_seconds = (double)LOOP_INTERVAL*t/1000;
+        numerator += (time_seconds - meanX) * (altitudeBuffer[i][t] - meanAltitudes[i]);
+        denominator += pow((time_seconds - meanX),2);
+      }
+    }
 
+    meanAscentRates[i] = numerator/denominator;
+    if(numberOfAcceptedSamples[i] >= MINIMUM_ASCENT_RATE_POINTS){
+      meanAscentRate += meanAscentRates[i];
+      acceptedStreams++;
+    }
+  }
+
+  if(acceptedStreams == 0) return (meanAscentRates[0] + meanAscentRates[1] + meanAscentRates[2] + meanAscentRates[3])/4;
+  return meanAscentRate/acceptedStreams;
 }
 
 /*
@@ -139,25 +135,25 @@ double Filters::getAltitude() {
   int acceptedStreams = 0;
 
   for(int i = 0; i<4;i++){
-      float altitudesSum =0;
-      numberOfAcceptedSamples[i] = 0;
+    float altitudesSum =0;
+    numberOfAcceptedSamples[i] = 0;
 
-      for(int t = 0; t<ALTITUDE_BUFFER_SIZE;t++){
-    		if(!altitudeErrors[i][t]){
-        	        altitudesSum += altitudeBuffer[i][t];
-        			numberOfAcceptedSamples[i]++;
-				}
-      }
+    for(int t = 0; t<ALTITUDE_BUFFER_SIZE;t++){
+			if(!altitudeErrors[i][t]){
+	    	altitudesSum += altitudeBuffer[i][t];
+	    	numberOfAcceptedSamples[i]++;
+			}
+    }
 
-      meanAltitudes[i] = altitudesSum / numberOfAcceptedSamples[i];
-      if(numberOfAcceptedSamples[i] >= MINIMUM_ALTITUDE_POINTS){
-          meanAltitude += meanAltitudes[i];
-          acceptedStreams++;
-      }
+    meanAltitudes[i] = altitudesSum / numberOfAcceptedSamples[i];
+    if(numberOfAcceptedSamples[i] >= MINIMUM_ALTITUDE_POINTS){
+      meanAltitude += meanAltitudes[i];
+      acceptedStreams++;
+    }
   }
 
-    if(acceptedStreams == 0) return (meanAltitudes[0] + meanAltitudes[1] + meanAltitudes[2] + meanAltitudes[3])/4;
-    else return meanAltitude / acceptedStreams;
+  if(acceptedStreams == 0) return (meanAltitudes[0] + meanAltitudes[1] + meanAltitudes[2] + meanAltitudes[3])/4;
+  else return meanAltitude / acceptedStreams;
 }
 
 
@@ -187,13 +183,12 @@ void Filters::errorCheckAltitudes() {
  * velocity check
  */
 void Filters::findLastAccepted() {
-
-    for(int i = 0; i<4;i++){
-        if (enabledSensors[i]){
-            lastAcceptedAltitudes[i] = altitudeBuffer[i][altitudeIndex];
-            lastAcceptedTimes[i] = millis();
-        }
+  for(int i = 0; i<4;i++){
+    if (enabledSensors[i]){
+      lastAcceptedAltitudes[i] = altitudeBuffer[i][altitudeIndex];
+      lastAcceptedTimes[i] = millis();
     }
+  }
 }
 
 
@@ -204,12 +199,12 @@ void Filters::findLastAccepted() {
  * altitude is within an acceptible range
  */
 void Filters::velocityCheck() {
-    for(int i = 0; i<4;i++){
-        // 1000 comes from times being in miliseconds
-        if (fabs(1000* (altitudeBuffer[i][altitudeIndex] - lastAcceptedAltitudes[i])/(millis() - lastAcceptedTimes[i])) > MAX_VELOCITY){
-            markFailure(i);
-        }
+  for(int i = 0; i<4;i++){
+    // 1000 comes from times being in miliseconds
+    if (fabs(1000* (altitudeBuffer[i][altitudeIndex] - lastAcceptedAltitudes[i])/(millis() - lastAcceptedTimes[i])) > MAX_VELOCITY){
+      markFailure(i);
     }
+  }
 }
 
 
@@ -220,47 +215,47 @@ void Filters::velocityCheck() {
  * sensors in agreement with each other
  */
 void Filters::consensousCheck(){
-    int maxAgreement = 0;
-    int maxSensors = 0;
-    int minDistance = 0;
+  int maxAgreement = 0;
+  int maxSensors = 0;
+  int minDistance = 0;
 
-    // for each sensor combination
-    for(int activeSensors = 1; activeSensors<16; activeSensors++){
-        int numberOfSensors = 0;
-        int numberOfCorrectSensors = 0;
-        float meanAltitude = 0;
-        float distance = 0;
+  // for each sensor combination
+  for(int activeSensors = 1; activeSensors<16; activeSensors++){
+    int numberOfSensors = 0;
+    int numberOfCorrectSensors = 0;
+    float meanAltitude = 0;
+    float distance = 0;
 
-        // calculate mean
-        for(int sensor = 0; sensor < 4; sensor++){
-            if( 1 & (activeSensors>>sensor)){
-                numberOfSensors++;
-                meanAltitude += altitudeBuffer[sensor][altitudeIndex];
-            }
-        }
-        meanAltitude /= numberOfSensors;
-
-        // count sensors in range
-        for(int sensor = 0; sensor < 4; sensor++){
-            if(1 & (activeSensors>>sensor)){
-                distance += pow(altitudeBuffer[sensor][altitudeIndex] - meanAltitude,2);
-                if(fabs(altitudeBuffer[sensor][altitudeIndex] - meanAltitude) < MAX_CONSENSUS_DEVIATION) numberOfCorrectSensors +=1;
-            }
-        }
-
-        // if arangemnt is better
-        if(numberOfCorrectSensors > maxSensors || (numberOfCorrectSensors == maxSensors && distance < minDistance)){
-            maxAgreement = activeSensors;
-            maxSensors = numberOfSensors;
-            minDistance = distance;
-        }
-    }
-
+    // calculate mean
     for(int sensor = 0; sensor < 4; sensor++){
-        if(!(1 & (maxAgreement>>sensor))){
-            markFailure(sensor);
-        }
+      if( 1 & (activeSensors>>sensor)){
+        numberOfSensors++;
+        meanAltitude += altitudeBuffer[sensor][altitudeIndex];
+      }
     }
+    meanAltitude /= numberOfSensors;
+
+    // count sensors in range
+    for(int sensor = 0; sensor < 4; sensor++){
+      if(1 & (activeSensors>>sensor)){
+        distance += pow(altitudeBuffer[sensor][altitudeIndex] - meanAltitude,2);
+        if(fabs(altitudeBuffer[sensor][altitudeIndex] - meanAltitude) < MAX_CONSENSUS_DEVIATION) numberOfCorrectSensors +=1;
+      }
+    }
+
+    // if arangemnt is better
+    if(numberOfCorrectSensors > maxSensors || (numberOfCorrectSensors == maxSensors && distance < minDistance)){
+      maxAgreement = activeSensors;
+      maxSensors = numberOfSensors;
+      minDistance = distance;
+    }
+  }
+
+  for(int sensor = 0; sensor < 4; sensor++){
+    if(!(1 & (maxAgreement>>sensor))){
+      markFailure(sensor);
+    }
+  }
 }
 
 /*********************************  HELPERS  **********************************/
@@ -285,10 +280,24 @@ double Filters::calculateAltitude(double pressure) {
  * Function: getNumRejections
  * -------------------
  * This function returns the numer of rejections
- * a specific sensor has encountered.s
+ * a specific sensor has encountered.
  */
 uint32_t Filters::getNumRejections(uint8_t sensor) {
 	return rejectedSensors[sensor - 1];
+}
+
+/*
+ * Function: getIncentiveNoise
+ * -------------------
+ * This function calculates the inherent noise of the incentive.
+ */
+float Filters::getIncentiveNoise(bool IncludeBMP1, bool IncludeBMP2, bool IncludeBMP3, bool IncludeBMP4) {
+  float incentiveNoise = 0;
+  if(IncludeBMP1 && !enabledSensors[0]) incentiveNoise++;
+  if(IncludeBMP2 && !enabledSensors[1]) incentiveNoise++;
+  if(IncludeBMP3 && !enabledSensors[2]) incentiveNoise++;
+  if(IncludeBMP4 && !enabledSensors[3]) incentiveNoise++;
+  return incentiveNoise;
 }
 
 /*
@@ -298,7 +307,7 @@ uint32_t Filters::getNumRejections(uint8_t sensor) {
  * sensor failure.
  */
 void Filters::markFailure(uint8_t sensor){
-    if(enabledSensors[sensor]) rejectedSensors[sensor]++;
+  if(enabledSensors[sensor]) rejectedSensors[sensor]++;
 	enabledSensors[sensor] = false;
-    altitudeErrors[sensor][altitudeIndex] = true;
+  altitudeErrors[sensor][altitudeIndex] = true;
 }

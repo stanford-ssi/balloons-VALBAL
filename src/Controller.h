@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | April 2017
+  Balloons | VALBAL | May 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
   Joan Creus-Costa | jcreus@stanford.edu=
@@ -24,22 +24,25 @@ public:
   void  updateValveConstants(float valveAltitudeSetpoint, float valveKpConstant, float valveKiConstant, float valveKdConstant);
   void  updateBallastConstants(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKiConstant, float ballastKdConstant);
   float updateControllerConstants(float BallastArmAlt, float incentiveThreshold);
-  float getValveIncentive(double ascentRate, double altitude, double altitudeSinceLastVent);
-  float getBallastIncentive(double ascentRate, double altitude, double altitudeSinceLastDrop);
-  float getIncentiveNoise(bool IncludeBMP1, bool IncludeBMP2, bool IncludeBMP3, bool IncludeBMP4);
+  float getAltitudeSinceLastVentCorrected(double altitude, double altitudeSinceLastVent);
+  float getAltitudeSinceLastDropCorrected(double altitude, double altitudeSinceLastDrop);
+  float getValveIncentive(double ascentRate, double altitude);
+  float getBallastIncentive(double ascentRate, double altitude);
 private:
 /*********************************  OBJECTS  **********************************/
-float RE_ARM_CONSTANT                =     0;
-float BALLAST_ARM_ALT                =     0;
-float VALVE_SETPOINT                 =     0;
-float VALVE_VELOCITY_CONSTANT        =     0;
-float VALVE_ALTITUDE_DIFF_CONSTANT   =     0;
-float VALVE_LAST_ACTION_CONSTANT     =     0;
-float BALLAST_SETPOINT               =     0;
-float BALLAST_VELOCITY_CONSTANT      =     0;
-float BALLAST_ALTITUDE_DIFF_CONSTANT =     0;
-float BALLAST_LAST_ACTION_CONSTANT   =     0;
-bool  firstBallastDropped            = false;
+  float RE_ARM_CONSTANT                =     0;
+  float BALLAST_ARM_ALT                =     0;
+  float VALVE_SETPOINT                 =     0;
+  float VALVE_VELOCITY_CONSTANT        =     0;
+  float VALVE_ALTITUDE_DIFF_CONSTANT   =     0;
+  float VALVE_LAST_ACTION_CONSTANT     =     0;
+  float BALLAST_SETPOINT               =     0;
+  float BALLAST_VELOCITY_CONSTANT      =     0;
+  float BALLAST_ALTITUDE_DIFF_CONSTANT =     0;
+  float BALLAST_LAST_ACTION_CONSTANT   =     0;
+  float altitudeSinceLastVentCorrected =     0;
+  float altitudeSinceLastDropCorrected =     0;
+  bool  firstBallastDropped            = false;
 };
 
 #endif

@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | April 2017
+  Balloons | VALBAL | May 2017
   Davy Ragland | dragland@stanford.edu
 
   File: Config.h
@@ -66,7 +66,7 @@ static const uint16_t  LOOP_INTERVAL                         =               50;
 
 static const uint16_t  DEBUG_ALT                             =              300;
 static const uint16_t  BUFFER_SIZE                           =              200;
-static const uint32_t  FILE_RESET_TIME                       =        432000000;
+static const uint32_t  FILE_RESET_TIME                       =         86400000;
 static const uint32_t  CONSOLE_BAUD                          =           115200;
 static const uint32_t  GPS_BAUD                              =             9600;
 static const uint32_t  RB_BAUD                               =            19200;
@@ -74,7 +74,7 @@ static const uint32_t  RB_BAUD                               =            19200;
 /***************************  Flight Parameters  ******************************/
 static const double    TEMP_SETPOINT_DEFAULT                 =                0;
 static const bool      MANUAL_MODE_DEFAULT                   =             true;
-static const uint16_t  QUEUE_APPEND_THRESHOLD                =             1000;
+static const uint32_t  QUEUE_APPEND_THRESHOLD                =             1000;
 
 static const double    PRESS_BASELINE_DEFAULT                =         101325.0;
 static const float     INCENTIVE_NOISE_DEFAULT               =                0;
@@ -84,27 +84,28 @@ static const float     BALLAST_ARM_ALT_DEFAULT               =          13000.0;
 static const float     BALLAST_ALT_LAST_FILLER               =          13500.0;
 
 static const float     VALVE_SETPOINT_DEFAULT                =          14500.0;
-static const uint16_t  VALVE_DURATION_DEFAULT                =            20000;
+static const uint32_t  VALVE_DURATION_DEFAULT                =            20000;
 static const float     VALVE_ALT_LAST_DEFAULT                =                0;
 static const float     VALVE_VELOCITY_DEFAULT                =              1.0;
 static const float     VALVE_ALTITUDE_DIFF_DEFAULT           =     1.0 / 1500.0;
 static const float     VALVE_LAST_ACTION_DEFAULT             =     1.0 / 1500.0;
 
 static const float     BALLAST_SETPOINT_DEFAULT              =          13500.0;
-static const uint16_t  BALLAST_DURATION_DEFAULT              =            20000;
+static const uint32_t  BALLAST_DURATION_DEFAULT              =            20000;
 static const float     BALLAST_ALT_LAST_DEFAULT              =         -90000.0;
 static const float     BALLAST_VELOCITY_DEFAULT              =              1.0;
 static const float     BALLAST_ALTITUDE_DIFF_DEFAULT         =     1.0 / 1500.0;
 static const float     BALLAST_LAST_ACTION_DEFAULT           =     1.0 / 1500.0;
 
-static const uint16_t  VALVE_OPENING_TIMEOUT                 =             1000;
-static const uint16_t  VALVE_CLOSING_TIMEOUT                 =             2500;
-static const uint16_t  VALVE_CUTDOWN_TIMEOUT                 =            10000;
-static const uint16_t  VALVE_LEAK_TIMEOUT                    =            30000;
-static const uint16_t  BALLAST_REVERSE_TIMEOUT               =            20000;
+static const uint32_t  VALVE_OPENING_TIMEOUT                 =             1000;
+static const uint32_t  VALVE_CLOSING_TIMEOUT                 =             2500;
+static const uint32_t  VALVE_CUTDOWN_TIMEOUT                 =            10000;
+static const uint32_t  VALVE_LEAK_TIMEOUT                    =            30000;
+static const uint32_t  BALLAST_REVERSE_TIMEOUT               =           600000;
+static const uint16_t  BALLAST_STALL_TIMEOUT                 =             3000;
+static const uint16_t  BALLAST_STALL_CURRENT                 =              270;
 static const uint16_t  VALVE_MOTOR_SPEED                     =              255;
 static const uint16_t  BALLAST_MOTOR_SPEED                   =              255;
-static const uint16_t  BALLAST_STALL_CURRENT                 =              270;
 
 static const double    MAX_PRESURE                           =           107500;
 static const double    MIN_PRESURE                           =             1131;

@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | April 2017
+  Balloons | VALBAL | May 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Matthew Tan | mratan@stanford.edu
@@ -46,17 +46,6 @@ void Hardware::init() {
  */
 void Hardware::runLED(bool on) {
   digitalWrite(LED_PIN, on);
-}
-
-/*
- * Function: faultLED
- * -------------------
- * This function alerts the user if there has been a fatal error.
- */
-void Hardware::faultLED() {
-  digitalWrite(LED_PIN, HIGH);
-  delay(LOOP_INTERVAL);
-  digitalWrite(LED_PIN, LOW);
 }
 
 /*
@@ -245,11 +234,16 @@ bool Hardware::checkBallast(float current) {
     if (ballastQueue > 0) {
       ballastActionStartTime = millis();
       ballastCheckTime = millis();
+      ballastDirectionTime = millis();
       ballastState = OPEN;
     }
   }
   if (ballastState == OPEN) {
-    if (current >= BALLAST_STALL_CURRENT) ballastDirection = !ballastDirection;
+    if (current >= BALLAST_STALL_CURRENT && currentLast < BALLAST_STALL_CURRENT) ballastStallTime = millis();
+    if (current >= BALLAST_STALL_CURRENT && currentLast >= BALLAST_STALL_CURRENT && (millis() - ballastStallTime >= BALLAST_STALL_TIMEOUT)) {
+      ballastDirection = !ballastDirection;
+    }
+    currentLast = current;
     if(ballastQueue > 0) {
       uint32_t deltaTime = (millis() - ballastCheckTime);
       ballastCheckTime = millis();

@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | April 2017
+  Balloons | VALBAL | May 2017
   Davy Ragland | dragland@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
   Jesus Cervantes | cerjesus@stanford.edu
@@ -104,8 +104,8 @@ double Sensors::getJoules() {
  * This function gets the extrapolated temperature.
  */
 double Sensors::getDerivedTemp(uint8_t sensor) {
-  double vA = analogRead(sensor) * 3.3 / (pow(2.0, 12.0));
-  double x = log(vA * 100000.0 / (3.3 - vA));
+  double vA = analogRead(sensor) * 1.2 / (pow(2.0, 12.0));
+  double x = log(vA * 100000.0 / (1.0 - vA));
   double a =   4.00141132e+02;
   double b =  -9.94189235e+01;
   double c =   1.16421122e+01;

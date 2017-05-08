@@ -370,7 +370,7 @@ bool Avionics::runValve() {
     data.NUM_VALVE_ATTEMPTS++;
     bool shouldValve = (!data.MANUAL_MODE || data.FORCE_VALVE);
     if(shouldValve) data.NUM_VALVES++;
-    data.VALVE_ALT_LAST = data.ALTITUDE;
+    if(!data.FORCE_VALVE) data.VALVE_ALT_LAST = data.ALTITUDE;
     uint32_t valveTime = data.VALVE_DURATION;
     if(data.FORCE_VALVE) valveTime = data.VALVE_FORCE_DURATION;
     PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
@@ -392,7 +392,7 @@ bool Avionics::runBallast() {
     data.NUM_BALLAST_ATTEMPTS++;
     bool shouldBallast = (!data.MANUAL_MODE || data.FORCE_BALLAST);
     if(shouldBallast) data.NUM_BALLASTS++;
-    data.BALLAST_ALT_LAST = data.ALTITUDE;
+    if(!data.FORCE_BALLAST) data.BALLAST_ALT_LAST = data.ALTITUDE;
     uint32_t ballastTime = data.BALLAST_DURATION;
     if(data.FORCE_BALLAST) ballastTime = data.BALLAST_FORCE_DURATION;
     PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);

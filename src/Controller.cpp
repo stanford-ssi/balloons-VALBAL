@@ -65,7 +65,7 @@ float Controller::updateControllerConstants(float BallastArmAlt, float incentive
  * This function returns a corrected altitude since last vent value.
  */
 float Controller::getAltitudeSinceLastVentCorrected(double altitude, double altitudeSinceLastVent) {
-  altitudeSinceLastVentCorrected = min(altitudeSinceLastVent, altitude + RE_ARM_CONSTANT);
+  float altitudeSinceLastVentCorrected = min(altitudeSinceLastVent, altitude + RE_ARM_CONSTANT);
   return altitudeSinceLastVentCorrected;
 }
 
@@ -75,7 +75,7 @@ float Controller::getAltitudeSinceLastVentCorrected(double altitude, double alti
  * This function returns a corrected altitude since last drop value.
  */
 float Controller::getAltitudeSinceLastDropCorrected(double altitude, double altitudeSinceLastDrop) {
-  altitudeSinceLastDropCorrected = altitudeSinceLastDrop;
+  float altitudeSinceLastDropCorrected = altitudeSinceLastDrop;
   if (!firstBallastDropped && altitude >= BALLAST_ARM_ALT && altitudeSinceLastDrop == BALLAST_ALT_LAST_DEFAULT) {
     altitudeSinceLastDropCorrected = BALLAST_ALT_LAST_FILLER;
     firstBallastDropped = true;
@@ -90,7 +90,7 @@ float Controller::getAltitudeSinceLastDropCorrected(double altitude, double alti
  * This function calculates the incentive to actuate the valve based on a PID
  * feedback controller.
  */
-float Controller::getValveIncentive(double ascentRate, double altitude) {
+float Controller::getValveIncentive(double ascentRate, double altitude, double altitudeSinceLastVentCorrected) {
   float proportionalTerm = VALVE_VELOCITY_CONSTANT      * ascentRate;
   float integralTerm     = VALVE_ALTITUDE_DIFF_CONSTANT * (altitude - VALVE_SETPOINT);
   float derivativeTerm   = VALVE_LAST_ACTION_CONSTANT   * (altitude - altitudeSinceLastVentCorrected);
@@ -103,7 +103,7 @@ float Controller::getValveIncentive(double ascentRate, double altitude) {
  * This function calculates the incentive to actuate the ballast based on a PID
  * feedback controller.
  */
-float Controller::getBallastIncentive(double ascentRate, double altitude) {
+float Controller::getBallastIncentive(double ascentRate, double altitude, double altitudeSinceLastDropCorrected) {
   float proportionalTerm = BALLAST_VELOCITY_CONSTANT * -1 * ascentRate;
   float integralTerm     = BALLAST_ALTITUDE_DIFF_CONSTANT * (BALLAST_SETPOINT - altitude);
   float derivativeTerm   = BALLAST_LAST_ACTION_CONSTANT   * (altitudeSinceLastDropCorrected - altitude);

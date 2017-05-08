@@ -26,8 +26,8 @@ public:
   float updateControllerConstants(float BallastArmAlt, float incentiveThreshold);
   float getAltitudeSinceLastVentCorrected(double altitude, double altitudeSinceLastVent);
   float getAltitudeSinceLastDropCorrected(double altitude, double altitudeSinceLastDrop);
-  float getValveIncentive(double ascentRate, double altitude);
-  float getBallastIncentive(double ascentRate, double altitude);
+  float getValveIncentive(double ascentRate, double altitude, double altitudeSinceLastVentCorrected);
+  float getBallastIncentive(double ascentRate, double altitude, double altitudeSinceLastDropCorrected);
 private:
 /*********************************  OBJECTS  **********************************/
   float RE_ARM_CONSTANT                =     0;
@@ -40,8 +40,6 @@ private:
   float BALLAST_VELOCITY_CONSTANT      =     0;
   float BALLAST_ALTITUDE_DIFF_CONSTANT =     0;
   float BALLAST_LAST_ACTION_CONSTANT   =     0;
-  float altitudeSinceLastVentCorrected =     0;
-  float altitudeSinceLastDropCorrected =     0;
   bool  firstBallastDropped            = false;
 };
 

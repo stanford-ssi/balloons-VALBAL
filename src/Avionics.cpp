@@ -240,8 +240,8 @@ bool Avionics::simulateData() {
   data.ASCENT_RATE = simulation.ASCENT_RATE;
 
   data.PRESS_BASELINE = simulation.PRESS_BASELINE;
-  data.INCENTIVE_THRESHOLD = simulation.INCENTIVE_THRESHOLD;
-  data.RE_ARM_CONSTANT = simulation.RE_ARM_CONSTANT;
+  // data.INCENTIVE_THRESHOLD = simulation.INCENTIVE_THRESHOLD;
+  // data.RE_ARM_CONSTANT = simulation.RE_ARM_CONSTANT;
   data.BALLAST_ARM_ALT = simulation.BALLAST_ARM_ALT;
 
   data.VALVE_SETPOINT = simulation.VALVE_SETPOINT;
@@ -257,7 +257,7 @@ bool Avionics::simulateData() {
   data.BALLAST_ALTITUDE_DIFF_CONSTANT = simulation.BALLAST_ALTITUDE_DIFF_CONSTANT;
   data.BALLAST_LAST_ACTION_CONSTANT = simulation.BALLAST_LAST_ACTION_CONSTANT;
 
-  data.MANUAL_MODE = simulation.MANUAL_MODE;
+  // data.MANUAL_MODE = simulation.MANUAL_MODE;
   data.ALTITUDE_LAST = data.ALTITUDE;
   return true;
 }

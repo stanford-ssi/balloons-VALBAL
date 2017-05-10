@@ -48,8 +48,8 @@ DataFrame Simulator::readData() {
   simulated.ASCENT_RATE = atof(values[9]);
 
   simulated.PRESS_BASELINE = atof(values[10]);
-  simulated.INCENTIVE_THRESHOLD = atof(values[11]);
-  simulated.RE_ARM_CONSTANT = atof(values[12]);
+  // simulated.INCENTIVE_THRESHOLD = atof(values[11]);
+  // simulated.RE_ARM_CONSTANT = atof(values[12]);
   simulated.BALLAST_ARM_ALT = atof(values[13]);
 
   simulated.VALVE_SETPOINT = atof(values[14]);
@@ -65,18 +65,18 @@ DataFrame Simulator::readData() {
   simulated.BALLAST_ALTITUDE_DIFF_CONSTANT = atof(values[24]);
   simulated.BALLAST_LAST_ACTION_CONSTANT = atof(values[25]);
 
-  simulated.MANUAL_MODE = atof(values[26]);
+  // simulated.MANUAL_MODE = atof(values[26]);
 
   simulated.VALVE_INCENTIVE = atof(values[27]);
   simulated.BALLAST_INCENTIVE = atof(values[28]);
-  simulated.VALVE_STATE = atof(values[29]);
-  simulated.BALLAST_STATE = atof(values[30]);
-  simulated.VALVE_QUEUE = atof(values[31]);
-  simulated.BALLAST_QUEUE = atof(values[32]);
+  // simulated.VALVE_STATE = atof(values[29]);
+  // simulated.BALLAST_STATE = atof(values[30]);
+  // simulated.VALVE_QUEUE = atof(values[31]);
+  // simulated.BALLAST_QUEUE = atof(values[32]);
   simulated.NUM_VALVES = atof(values[33]);
   simulated.NUM_BALLASTS = atof(values[34]);
-  simulated.NUM_VALVE_ATTEMPTS = atof(values[35]);
-  simulated.NUM_BALLAST_ATTEMPTS = atof(values[36]);
+  // simulated.NUM_VALVE_ATTEMPTS = atof(values[35]);
+  // simulated.NUM_BALLAST_ATTEMPTS = atof(values[36]);
   return simulated;
 }
 

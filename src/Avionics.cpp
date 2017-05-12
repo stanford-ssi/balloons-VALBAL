@@ -680,8 +680,6 @@ void Avionics::printHeader() {
   Serial.print("Stanford Student Space Initiative Balloons Launch ");
   Serial.print(MISSION_NUMBER);
   Serial.print('\n');
-  Serial.print(CSV_DATA_HEADER);
-  Serial.print('\n');
 }
 
 /*

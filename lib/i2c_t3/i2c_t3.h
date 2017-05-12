@@ -311,7 +311,7 @@ private:
     //
     // Primary I2C ISR (I2C0)
     //
-    friend void i2c0_isr_private(void);
+    friend void i2c0_isr(void);
     friend void i2c_isr_handler(struct i2cStruct* i2c, uint8_t bus);
     //
     // Slave STOP detection (I2C0) - 3.0/3.1 only
@@ -800,7 +800,7 @@ public:
     static void i2c_wait_(struct i2cStruct* i2c) { while(!(*(i2c->S) & I2C_S_IICIF)){} *(i2c->S) = I2C_S_IICIF; }
 };
 
-extern i2c_t3 WireNew;
+extern i2c_t3 wire;
 #if I2C_BUS_NUM >= 2
     extern i2c_t3 Wire1;
 #endif

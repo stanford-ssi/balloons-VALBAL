@@ -1228,7 +1228,7 @@ uint8_t i2c_t3::peekByte_(struct i2cStruct* i2c)
 // ======================================================================================================
 
 // I2C0 ISR
-void i2c0_isr_private(void)
+void i2c0_isr(void)
 {
     I2C0_INTR_FLAG_ON;
     i2c_isr_handler(&(i2c_t3::i2cData[0]),0);
@@ -1712,7 +1712,7 @@ void i2c_t3::sda_rising_isr_handler(struct i2cStruct* i2c, uint8_t bus)
 // ------------------------------------------------------------------------------------------------------
 // Instantiate
 //
-i2c_t3 WireNew  = i2c_t3(0);       // I2C0
+i2c_t3 wire  = i2c_t3(0);       // I2C0
 #if I2C_BUS_NUM >= 2
     i2c_t3 Wire1 = i2c_t3(1);   // I2C1
 #endif

@@ -72,29 +72,29 @@ ongoing work.
 // Read a 16-bit word of data from register specified by "command"
 int8_t i2c_read_word_data(uint8_t address, uint8_t command, uint16_t *value)
 {
-    WireNew.beginTransmission((uint8_t)address);
-    WireNew.write((uint8_t)command);
-    WireNew.endTransmission();
-    WireNew.requestFrom((uint8_t)address, (byte)2);
-    *value = (WireNew.read() << 8) | WireNew.read();
+    wire.beginTransmission((uint8_t)address);
+    wire.write((uint8_t)command);
+    wire.endTransmission();
+    wire.requestFrom((uint8_t)address, (byte)2);
+    *value = (wire.read() << 8) | wire.read();
 return 0;
 }
 // Read a 16-bit word of data from register specified by "command"
 int8_t i2c_read_byte_data(uint8_t address, uint8_t command, uint8_t *value)
 {
-    WireNew.beginTransmission((uint8_t)address);
-    WireNew.write((uint8_t)command);
-    WireNew.endTransmission();
-    WireNew.requestFrom((uint8_t)address, (byte)1);
-    *value = WireNew.read();
+    wire.beginTransmission((uint8_t)address);
+    wire.write((uint8_t)command);
+    wire.endTransmission();
+    wire.requestFrom((uint8_t)address, (byte)1);
+    *value = wire.read();
 return 0;
 }
 
 int8_t i2c_write_byte_data(uint8_t address, uint8_t command, uint8_t value) {
-    WireNew.beginTransmission((uint8_t)address);
-    WireNew.write((uint8_t)command);
-    WireNew.write((uint8_t)value);
-    WireNew.endTransmission();
+    wire.beginTransmission((uint8_t)address);
+    wire.write((uint8_t)command);
+    wire.write((uint8_t)value);
+    wire.endTransmission();
 return 0;
 }
 

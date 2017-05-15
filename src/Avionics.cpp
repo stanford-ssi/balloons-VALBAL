@@ -1384,5 +1384,9 @@ int16_t Avionics::compressData() {
     Serial.print('\n');
   }
   filter.clearAverages();
+  logFile.print(data.TIME);
+  logFile.print(',');
+  for(uint16_t i = 0; i < lengthBytes; i++) logFile.print(COMMS_BUFFER[i]);
+  logFile.print('\n');
   return lengthBytes;
 }

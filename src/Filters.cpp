@@ -79,6 +79,80 @@ double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double
   return press / numSensors;
 }
 
+/*
+ * Function: getAverageCurrentSystem
+ * -------------------
+ * This function returns the average subsytem current over the last window.
+ */
+double   Filters::getAverageCurrentSystem(double current) {
+	currentSystemCount++;
+	currentSystemTotal += current;
+	return currentSystemTotal / currentSystemCount;
+}
+
+/*
+ * Function: getAverageCurrentGPS
+ * -------------------
+ * This function returns the average subsytem current over the last window.
+ */
+double   Filters::getAverageCurrentGPS(double current) {
+	currentGPSTotal += current;
+	currentGPSCount++;
+	return currentGPSTotal / currentGPSCount;
+}
+
+/*
+ * Function: getAverageCurrentRB
+ * -------------------
+ * This function returns the average subsytem current over the last window.
+ */
+double   Filters::getAverageCurrentRB(double current) {
+	currentRBTotal += current;
+	currentRBCount++;
+	return currentRBTotal / currentRBCount;
+}
+
+/*
+ * Function: getAverageCurrentMotors
+ * -------------------
+ * This function returns the average subsytem current over the last window.
+ */
+double   Filters::getAverageCurrentMotors(double current,bool on) {
+	if(on) {
+		currentMotorsTotal += current;
+		currentMotorsCount++;
+	}
+	return currentMotorsTotal / currentMotorsCount;
+}
+
+/*
+ * Function: getAverageCurrentPayload
+ * -------------------
+ * This function returns the average subsytem current over the last window.
+ */
+double   Filters::getAverageCurrentPayload(double current) {
+	currentPayloadTotal += current;
+	currentPayloadCount++;
+	return currentPayloadTotal / currentPayloadCount;
+}
+
+/*
+ * Function: clearAverages
+ * -------------------
+ * This function clears the current average values for the system variables.
+ */
+void   Filters::clearAverages() {
+	currentSystemTotal  = 0;
+	currentSystemCount  = 0;
+	currentGPSTotal     = 0;
+	currentGPSCount     = 0;
+	currentRBTotal      = 0;
+	currentRBCount      = 0;
+	currentMotorsTotal  = 0;
+	currentMotorsCount  = 0;
+	currentPayloadTotal = 0;
+	currentPayloadCount = 0;
+}
 /***************************  GET FUNCTIONS  **********************************/
 
 /*
@@ -158,8 +232,6 @@ double Filters::getAltitude() {
 
 
 /********************************  CHECKERS  **********************************/
-
-
 /*
  * Function: errorCheckAltitudes
  * -------------------
@@ -191,7 +263,6 @@ void Filters::findLastAccepted() {
   }
 }
 
-
 /*
  * Function: velocityCheck
  * -------------------
@@ -206,7 +277,6 @@ void Filters::velocityCheck() {
     }
   }
 }
-
 
 /*
  * Function: consensousCheck
@@ -259,9 +329,6 @@ void Filters::consensousCheck(){
 }
 
 /*********************************  HELPERS  **********************************/
-
-
-
 /*
  * Function: calculateAltitude
  * -------------------

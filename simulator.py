@@ -44,9 +44,11 @@ def feedData():
             line = line_terminated.rstrip('\n')
             csv = line.split(',')
             print line
+            request = ser.readline()
+            while (request != unicode("REQUESTING_DATA\n")):
+                request = ser.readline()
             ser.write(line)
             ser.write('\n')
-            time.sleep(0.05)
 
 #********************************  MAIN  ***************************************
 parseArgs(sys.argv[1:])

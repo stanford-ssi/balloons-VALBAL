@@ -25,7 +25,7 @@ void Avionics::init() {
   if(!setupSDCard())                               logAlert("unable to initialize SD Card", true);
   if(!readHistory())                               logAlert("unable to initialize EEPROM", true);
   if(!sensors.init())                              logAlert("unable to initialize Sensors", true);
-  if(!HITL.init())                                 logAlert("unable to initialize Simulations", true);
+  // if(!HITL.init())                                 logAlert("unable to initialize Simulations", true);
   if(!filter.init())                               logAlert("unable to initialize Filters", true);
   if(!computer.init())                             logAlert("unable to initialize Flight Controller", true);
   if(!gpsModule.init(data.GPS_SHOULD_USE))         logAlert("unable to initialize GPS", true);
@@ -224,41 +224,41 @@ bool Avionics::readGPS() {
 bool Avionics::simulateData() {
   DataFrame simulation = HITL.readData();
 
-  data.LOOP_TIME        = millis() - data.TIME;
-  data.TIME             = millis();
-  data.RAW_PRESSURE_1 = simulation.RAW_PRESSURE_1;
-  data.RAW_PRESSURE_2 = simulation.RAW_PRESSURE_2;
-  data.RAW_PRESSURE_3 = simulation.RAW_PRESSURE_3;
-  data.RAW_PRESSURE_4 = simulation.RAW_PRESSURE_4;
+  data.LOOP_TIME                      = millis() - data.TIME;
+  data.TIME                           = millis();
+  data.RAW_PRESSURE_1                 = simulation.RAW_PRESSURE_1;
+  data.RAW_PRESSURE_2                 = simulation.RAW_PRESSURE_2;
+  data.RAW_PRESSURE_3                 = simulation.RAW_PRESSURE_3;
+  data.RAW_PRESSURE_4                 = simulation.RAW_PRESSURE_4;
 
-  data.BMP_1_ENABLE = simulation.BMP_1_ENABLE;
-  data.BMP_2_ENABLE = simulation.BMP_2_ENABLE;
-  data.BMP_3_ENABLE = simulation.BMP_3_ENABLE;
-  data.BMP_4_ENABLE = simulation.BMP_4_ENABLE;
+  data.BMP_1_ENABLE                   = simulation.BMP_1_ENABLE;
+  data.BMP_2_ENABLE                   = simulation.BMP_2_ENABLE;
+  data.BMP_3_ENABLE                   = simulation.BMP_3_ENABLE;
+  data.BMP_4_ENABLE                   = simulation.BMP_4_ENABLE;
 
-  data.ALTITUDE = simulation.ALTITUDE;
-  data.ASCENT_RATE = simulation.ASCENT_RATE;
+  data.ALTITUDE                       = simulation.ALTITUDE;
+  data.ASCENT_RATE                    = simulation.ASCENT_RATE;
 
-  data.PRESS_BASELINE = simulation.PRESS_BASELINE;
-  // data.INCENTIVE_THRESHOLD = simulation.INCENTIVE_THRESHOLD;
-  // data.RE_ARM_CONSTANT = simulation.RE_ARM_CONSTANT;
-  data.BALLAST_ARM_ALT = simulation.BALLAST_ARM_ALT;
+  data.PRESS_BASELINE                 = simulation.PRESS_BASELINE;
+  // data.INCENTIVE_THRESHOLD            = simulation.INCENTIVE_THRESHOLD;
+  // data.RE_ARM_CONSTANT                = simulation.RE_ARM_CONSTANT;
+  data.BALLAST_ARM_ALT                = simulation.BALLAST_ARM_ALT;
 
-  data.VALVE_SETPOINT = simulation.VALVE_SETPOINT;
-  data.VALVE_DURATION = simulation.VALVE_DURATION;
-  data.VALVE_ALT_LAST = simulation.VALVE_ALT_LAST;
-  data.VALVE_VELOCITY_CONSTANT = simulation.VALVE_VELOCITY_CONSTANT;
-  data.VALVE_ALTITUDE_DIFF_CONSTANT = simulation.VALVE_ALTITUDE_DIFF_CONSTANT;
-  data.VALVE_LAST_ACTION_CONSTANT = simulation.VALVE_LAST_ACTION_CONSTANT;
-  data.BALLAST_SETPOINT = simulation.BALLAST_SETPOINT;
-  data.BALLAST_DURATION = simulation.BALLAST_DURATION;
-  data.BALLAST_ALT_LAST = simulation.BALLAST_ALT_LAST;
-  data.BALLAST_VELOCITY_CONSTANT = simulation.BALLAST_VELOCITY_CONSTANT;
+  data.VALVE_SETPOINT                 = simulation.VALVE_SETPOINT;
+  data.VALVE_DURATION                 = simulation.VALVE_DURATION;
+  data.VALVE_ALT_LAST                 = simulation.VALVE_ALT_LAST;
+  data.VALVE_VELOCITY_CONSTANT        = simulation.VALVE_VELOCITY_CONSTANT;
+  data.VALVE_ALTITUDE_DIFF_CONSTANT   = simulation.VALVE_ALTITUDE_DIFF_CONSTANT;
+  data.VALVE_LAST_ACTION_CONSTANT     = simulation.VALVE_LAST_ACTION_CONSTANT;
+  data.BALLAST_SETPOINT               = simulation.BALLAST_SETPOINT;
+  data.BALLAST_DURATION               = simulation.BALLAST_DURATION;
+  data.BALLAST_ALT_LAST               = simulation.BALLAST_ALT_LAST;
+  data.BALLAST_VELOCITY_CONSTANT      = simulation.BALLAST_VELOCITY_CONSTANT;
   data.BALLAST_ALTITUDE_DIFF_CONSTANT = simulation.BALLAST_ALTITUDE_DIFF_CONSTANT;
-  data.BALLAST_LAST_ACTION_CONSTANT = simulation.BALLAST_LAST_ACTION_CONSTANT;
+  data.BALLAST_LAST_ACTION_CONSTANT   = simulation.BALLAST_LAST_ACTION_CONSTANT;
 
-  // data.MANUAL_MODE = simulation.MANUAL_MODE;
-  data.ALTITUDE_LAST = data.ALTITUDE;
+  // data.MANUAL_MODE                    = simulation.MANUAL_MODE;
+  data.ALTITUDE_LAST                  = data.ALTITUDE;
   return true;
 }
 
@@ -270,17 +270,23 @@ bool Avionics::simulateData() {
 bool Avionics::processData() {
   bool success = true;
   filter.enableSensors(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
-  data.TEMP_IN          = filter.getTemp(data.RAW_TEMP_1, data.RAW_TEMP_2, data.RAW_TEMP_3, data.RAW_TEMP_4);
-  data.PRESS            = filter.getPressure(data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4,data.PRESS_BASELINE);
-  data.BMP_1_REJECTIONS = filter.getNumRejections(1);
-  data.BMP_2_REJECTIONS = filter.getNumRejections(2);
-  data.BMP_3_REJECTIONS = filter.getNumRejections(3);
-  data.BMP_4_REJECTIONS = filter.getNumRejections(4);
+  data.TEMP_IN             = filter.getTemp(data.RAW_TEMP_1, data.RAW_TEMP_2, data.RAW_TEMP_3, data.RAW_TEMP_4);
+  data.PRESS               = filter.getPressure(data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4,data.PRESS_BASELINE);
+  data.BMP_1_REJECTIONS    = filter.getNumRejections(1);
+  data.BMP_2_REJECTIONS    = filter.getNumRejections(2);
+  data.BMP_3_REJECTIONS    = filter.getNumRejections(3);
+  data.BMP_4_REJECTIONS    = filter.getNumRejections(4);
 
-  data.ALTITUDE         = filter.getAltitude();
-  data.ASCENT_RATE      = filter.getAscentRate();
-  data.INCENTIVE_NOISE  = filter.getIncentiveNoise(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
-  if (data.ASCENT_RATE >= 10) success = false;
+  data.CURRENT_AVG         = filter.getAverageCurrentSystem(data.CURRENT);
+  data.CURRENT_GPS_AVG     = filter.getAverageCurrentGPS(data.CURRENT_GPS);
+  data.CURRENT_RB_AVG      = filter.getAverageCurrentRB(data.CURRENT_RB);
+  data.CURRENT_MOTORS_AVG  = filter.getAverageCurrentMotors(data.CURRENT_MOTORS, (data.VALVE_STATE || data.BALLAST_STATE));
+  data.CURRENT_PAYLOAD_AVG = filter.getAverageCurrentPayload(data.CURRENT_PAYLOAD);
+
+  data.ALTITUDE            = filter.getAltitude();
+  data.ASCENT_RATE         = filter.getAscentRate();
+  data.INCENTIVE_NOISE     = filter.getIncentiveNoise(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
+  if (data.ASCENT_RATE    >= 10) success = false;
   return success;
 }
 
@@ -291,7 +297,7 @@ bool Avionics::processData() {
  */
 bool Avionics::calcVitals() {
   if(!data.REPORT_MODE) data.SHOULD_REPORT = (data.ASCENT_RATE >= 10);
-  if(!data.MANUAL_MODE) data.MANUAL_MODE = (data.ASCENT_RATE >= 10);
+  if(!data.MANUAL_MODE) data.MANUAL_MODE   = (data.ASCENT_RATE >= 10);
   data.GPS_GOOD_STATE   = (data.LAT_GPS != 1000.0 && data.LAT_GPS != 0.0 && data.LONG_GPS != 1000.0 && data.LONG_GPS != 0.0);
   return true;
 }
@@ -814,20 +820,20 @@ void Avionics::printState() {
   Serial.print("VOLTAGE:");
   Serial.print(data.VOLTAGE);
   Serial.print(',');
-  Serial.print("CURRENT:");
-  Serial.print(data.CURRENT);
+  Serial.print("CURRENT_AVG:");
+  Serial.print(data.CURRENT_AVG);
   Serial.print(',');
-  Serial.print("CURRENT_GPS:");
-  Serial.print(data.CURRENT_GPS);
+  Serial.print("CURRENT_GPS_AVG:");
+  Serial.print(data.CURRENT_GPS_AVG);
   Serial.print(',');
-  Serial.print("CURRENT_RB:");
-  Serial.print(data.CURRENT_RB);
+  Serial.print("CURRENT_RB_AVG:");
+  Serial.print(data.CURRENT_RB_AVG);
   Serial.print(',');
-  Serial.print("CURRENT_MOTORS:");
-  Serial.print(data.CURRENT_MOTORS);
+  Serial.print("CURRENT_MOTORS_AVG:");
+  Serial.print(data.CURRENT_MOTORS_AVG);
   Serial.print(',');
-  Serial.print("CURRENT_PAYLOAD:");
-  Serial.print(data.CURRENT_PAYLOAD);
+  Serial.print("CURRENT_PAYLOAD_AVG:");
+  Serial.print(data.CURRENT_PAYLOAD_AVG);
   Serial.print(',');
   Serial.print("TEMP_NECK:");
   Serial.print(data.TEMP_NECK);
@@ -1012,6 +1018,21 @@ void Avionics::printState() {
   Serial.print("RAW_PRESSURE_4:");
   Serial.print(data.RAW_PRESSURE_4);
   Serial.print(',');
+  Serial.print("CURRENT:");
+  Serial.print(data.CURRENT);
+  Serial.print(',');
+  Serial.print("CURRENT_GPS:");
+  Serial.print(data.CURRENT_GPS);
+  Serial.print(',');
+  Serial.print("CURRENT_RB:");
+  Serial.print(data.CURRENT_RB);
+  Serial.print(',');
+  Serial.print("CURRENT_MOTORS:");
+  Serial.print(data.CURRENT_MOTORS);
+  Serial.print(',');
+  Serial.print("CURRENT_PAYLOAD:");
+  Serial.print(data.CURRENT_PAYLOAD);
+  Serial.print(',');
   Serial.print("ALTITUDE_LAST:");
   Serial.print(data.ALTITUDE_LAST);
   Serial.print(',');
@@ -1078,15 +1099,15 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.VOLTAGE);
   dataFile.print(',');
-  dataFile.print(data.CURRENT);
+  dataFile.print(data.CURRENT_AVG);
   dataFile.print(',');
-  dataFile.print(data.CURRENT_GPS);
+  dataFile.print(data.CURRENT_GPS_AVG);
   dataFile.print(',');
-  dataFile.print(data.CURRENT_RB);
+  dataFile.print(data.CURRENT_RB_AVG);
   dataFile.print(',');
-  dataFile.print(data.CURRENT_MOTORS);
+  dataFile.print(data.CURRENT_MOTORS_AVG);
   dataFile.print(',');
-  dataFile.print(data.CURRENT_PAYLOAD);
+  dataFile.print(data.CURRENT_PAYLOAD_AVG);
   dataFile.print(',');
   dataFile.print(data.TEMP_NECK);
   dataFile.print(',');
@@ -1210,6 +1231,16 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.RAW_PRESSURE_4);
   dataFile.print(',');
+  dataFile.print(data.CURRENT);
+  dataFile.print(',');
+  dataFile.print(data.CURRENT_GPS);
+  dataFile.print(',');
+  dataFile.print(data.CURRENT_RB);
+  dataFile.print(',');
+  dataFile.print(data.CURRENT_MOTORS);
+  dataFile.print(',');
+  dataFile.print(data.CURRENT_PAYLOAD);
+  dataFile.print(',');
   dataFile.print(data.ALTITUDE_LAST);
   dataFile.print(',');
   dataFile.print(data.GPS_LAST);
@@ -1256,11 +1287,11 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.TEMP_IN,                         -50,   100,     9,  lengthBits);
   lengthBits += compressVariable(data.JOULES,                           0,    1500000, 18, lengthBits);
   lengthBits += compressVariable(data.VOLTAGE,                          0,    5,       9,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT,                          0,    5000,    8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_GPS,                      0,    3000,    6,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_RB,                       0,    3000,    6,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_MOTORS,                   0,    3000,    6,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_PAYLOAD,                  0,    3000,    6,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_AVG,                      0,    5000,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_GPS_AVG,                  0,    3000,    6,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_RB_AVG,                   0,    3000,    6,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_MOTORS_AVG,               0,    3000,    6,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_PAYLOAD_AVG,              0,    3000,    6,  lengthBits);
   lengthBits += compressVariable(data.TEMP_NECK,                       -100,  100,     9,  lengthBits);
   lengthBits += compressVariable(data.TEMP_EXT,                        -100,  100,     9,  lengthBits);
   lengthBits += compressVariable(data.SPEED_GPS,                       -100,  100,     9,  lengthBits);
@@ -1323,6 +1354,11 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.RAW_PRESSURE_2,                 0,    1000000, 19, lengthBits);
     lengthBits += compressVariable(data.RAW_PRESSURE_3,                 0,    1000000, 19, lengthBits);
     lengthBits += compressVariable(data.RAW_PRESSURE_4,                 0,    1000000, 19, lengthBits);
+    lengthBits += compressVariable(data.CURRENT,                        0,    5000,    8,  lengthBits);
+    lengthBits += compressVariable(data.CURRENT_GPS,                    0,    3000,    6,  lengthBits);
+    lengthBits += compressVariable(data.CURRENT_RB,                     0,    3000,    6,  lengthBits);
+    lengthBits += compressVariable(data.CURRENT_MOTORS,                 0,    3000,    6,  lengthBits);
+    lengthBits += compressVariable(data.CURRENT_PAYLOAD,                0,    3000,    6,  lengthBits);
     lengthBits += compressVariable(data.ALTITUDE_LAST,                 -2000, 40000,   16, lengthBits);
     lengthBits += compressVariable(data.GPS_LAST,                       0,    500000,  10, lengthBits);
     lengthBits += compressVariable(data.COMMS_LAST,                     0,    500000,  10, lengthBits);
@@ -1347,5 +1383,6 @@ int16_t Avionics::compressData() {
     }
     Serial.print('\n');
   }
+  filter.clearAverages();
   return lengthBytes;
 }

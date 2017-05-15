@@ -240,8 +240,9 @@ bool Hardware::checkBallast(float current) {
   }
   if (ballastState == OPEN) {
     if (current >= BALLAST_STALL_CURRENT && currentLast < BALLAST_STALL_CURRENT) ballastStallTime = millis();
-    if (current >= BALLAST_STALL_CURRENT && currentLast >= BALLAST_STALL_CURRENT && (millis() - ballastStallTime >= BALLAST_STALL_TIMEOUT)) {
+    if (current >= BALLAST_STALL_CURRENT && (millis() - ballastStallTime >= BALLAST_STALL_TIMEOUT)) {
       ballastDirection = !ballastDirection;
+      ballastStallTime = millis();
     }
     currentLast = current;
     if(ballastQueue > 0) {

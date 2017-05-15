@@ -24,21 +24,42 @@ public:
   double   getTemp(double RAW_TEMP_1,double RAW_TEMP_2,double RAW_TEMP_3,double RAW_TEMP_4);
   double   getPressure(double RAW_PRESSURE_1,double RAW_PRESSURE_2,double RAW_PRESSURE_3,double RAW_PRESSURE_4,double pressureBaselineArg);
   uint32_t getNumRejections(uint8_t sensor);
-  float    getIncentiveNoise(bool IncludeBMP1, bool IncludeBMP2, bool IncludeBMP3, bool IncludeBMP4);
-  double   calculateAltitude(double pressure);
+
+  double   getAverageCurrentSystem(double current);
+  double   getAverageCurrentGPS(double current);
+  double   getAverageCurrentRB(double current);
+  double   getAverageCurrentMotors(double current,bool on);
+  double   getAverageCurrentPayload(double current);
+
   double   getAltitude();
   double   getAscentRate();
+  float    getIncentiveNoise(bool IncludeBMP1, bool IncludeBMP2, bool IncludeBMP3, bool IncludeBMP4);
+
+  void     clearAverages();
+
+private:
+/*********************************  HELPERS  **********************************/
   void     consensousCheck();
   void     velocityCheck();
   void     findLastAccepted();
   void     errorCheckAltitudes();
-private:
-/*********************************  HELPERS  **********************************/
+  double   calculateAltitude(double pressure);
   void     markFailure(uint8_t sensor);
 /*********************************  OBJECTS  **********************************/
   bool     enabledSensors[4] = {true};
   uint32_t rejectedSensors[4] = {0};
   uint8_t  numSensors;
+
+  double   currentSystemTotal = 0;
+  uint32_t currentSystemCount = 0;
+  double   currentGPSTotal = 0;
+  uint32_t currentGPSCount = 0;
+  double   currentRBTotal = 0;
+  uint32_t currentRBCount = 0;
+  double   currentMotorsTotal = 0;
+  uint32_t currentMotorsCount = 0;
+  double   currentPayloadTotal = 0;
+  uint32_t currentPayloadCount = 0;
 
   double   pressureBaseline;
   float    meanAscentRates[4];

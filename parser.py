@@ -15,7 +15,7 @@ import math
 #binary is the string we get from RockBLOCK
 binary = "00000000000000010101100000000000000000000100000000000000000000000001011100010110000110000110001100000000001010101111001111101111110000000000000000010101000000000000000000000000000000000000000000000100000110100000111010101000000010000000000001100000000100010011111100000000000000000000000011111111100100101010000000000001100001100010000000001000100000000000000101011111110010001111011000000110000110011111000001110000000000110000111111110101101101101101010100010100000010000010000100101000110011000000000000000001001100010000001000001000010010100011001100000000000000000001001111100000000000000000000000010000000010000000010000000110000000100011010000011100110001101000001111100000110100000111011000011010000011011110000101110001011000110100100000000000000000000000000000000000";
 #Regex is what is pasted into "advanced parser"
-regex = """  lengthBits += compressVariable(data.TIME / 1000,                      0,    3000000, 20, lengthBits);
+regex = """lengthBits += compressVariable(data.TIME / 1000,                      0,    3000000, 20, lengthBits);
 lengthBits += compressVariable(data.LAT_GPS,                         -90,   90,      21, lengthBits);
 lengthBits += compressVariable(data.LONG_GPS,                        -180,  180,     22, lengthBits);
 lengthBits += compressVariable(data.ALTITUDE,                        -2000, 40000,   16, lengthBits);
@@ -36,11 +36,11 @@ lengthBits += compressVariable(data.PRESS,                            0,    5000
 lengthBits += compressVariable(data.TEMP_IN,                         -50,   100,     9,  lengthBits);
 lengthBits += compressVariable(data.JOULES,                           0,    1500000, 18, lengthBits);
 lengthBits += compressVariable(data.VOLTAGE,                          0,    5,       9,  lengthBits);
-lengthBits += compressVariable(data.CURRENT,                          0,    5000,    8,  lengthBits);
-lengthBits += compressVariable(data.CURRENT_GPS,                      0,    3000,    6,  lengthBits);
-lengthBits += compressVariable(data.CURRENT_RB,                       0,    3000,    6,  lengthBits);
-lengthBits += compressVariable(data.CURRENT_MOTORS,                   0,    3000,    6,  lengthBits);
-lengthBits += compressVariable(data.CURRENT_PAYLOAD,                  0,    3000,    6,  lengthBits);
+lengthBits += compressVariable(data.CURRENT_AVG,                      0,    5000,    8,  lengthBits);
+lengthBits += compressVariable(data.CURRENT_GPS_AVG,                  0,    3000,    6,  lengthBits);
+lengthBits += compressVariable(data.CURRENT_RB_AVG,                   0,    3000,    6,  lengthBits);
+lengthBits += compressVariable(data.CURRENT_MOTORS_AVG,               0,    3000,    6,  lengthBits);
+lengthBits += compressVariable(data.CURRENT_PAYLOAD_AVG,              0,    3000,    6,  lengthBits);
 lengthBits += compressVariable(data.TEMP_NECK,                       -100,  100,     9,  lengthBits);
 lengthBits += compressVariable(data.TEMP_EXT,                        -100,  100,     9,  lengthBits);
 lengthBits += compressVariable(data.SPEED_GPS,                       -100,  100,     9,  lengthBits);
@@ -102,6 +102,11 @@ lengthBits += compressVariable(data.RAW_PRESSURE_1,                 0,    100000
 lengthBits += compressVariable(data.RAW_PRESSURE_2,                 0,    1000000, 19, lengthBits);
 lengthBits += compressVariable(data.RAW_PRESSURE_3,                 0,    1000000, 19, lengthBits);
 lengthBits += compressVariable(data.RAW_PRESSURE_4,                 0,    1000000, 19, lengthBits);
+lengthBits += compressVariable(data.CURRENT,                        0,    5000,    8,  lengthBits);
+lengthBits += compressVariable(data.CURRENT_GPS,                    0,    3000,    6,  lengthBits);
+lengthBits += compressVariable(data.CURRENT_RB,                     0,    3000,    6,  lengthBits);
+lengthBits += compressVariable(data.CURRENT_MOTORS,                 0,    3000,    6,  lengthBits);
+lengthBits += compressVariable(data.CURRENT_PAYLOAD,                0,    3000,    6,  lengthBits);
 lengthBits += compressVariable(data.ALTITUDE_LAST,                 -2000, 40000,   16, lengthBits);
 lengthBits += compressVariable(data.GPS_LAST,                       0,    500000,  10, lengthBits);
 lengthBits += compressVariable(data.COMMS_LAST,                     0,    500000,  10, lengthBits);

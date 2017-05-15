@@ -38,11 +38,11 @@ struct DataFrame {
   double       TEMP_IN                         =                              0;
   double       JOULES                          =                              0;
   double       VOLTAGE                         =                              0;
-  double       CURRENT                         =                              0;
-  double       CURRENT_GPS                     =                              0;
-  double       CURRENT_RB                      =                              0;
-  double       CURRENT_MOTORS                  =                              0;
-  double       CURRENT_PAYLOAD                 =                              0;
+  double       CURRENT_AVG                     =                              0;
+  double       CURRENT_GPS_AVG                 =                              0;
+  double       CURRENT_RB_AVG                  =                              0;
+  double       CURRENT_MOTORS_AVG              =                              0;
+  double       CURRENT_PAYLOAD_AVG             =                              0;
   double       TEMP_NECK                       =                              0;
   double       TEMP_EXT                        =                              0;
   double       SPEED_GPS                       =                              0;
@@ -116,11 +116,22 @@ struct DataFrame {
   double       RAW_PRESSURE_3                  =                              0;
   double       RAW_PRESSURE_4                  =                              0;
 
+  double       CURRENT                         =                              0;
+  double       CURRENT_GPS                     =                              0;
+  double       CURRENT_RB                      =                              0;
+  double       CURRENT_MOTORS                  =                              0;
+  double       CURRENT_PAYLOAD                 =                              0;
+
   double       ALTITUDE_LAST                   =                              0;
   uint32_t     GPS_LAST                        =                              0;
   uint32_t     COMMS_LAST                      =                              0;
   uint32_t     DATAFILE_LAST                   =                              0;
   uint16_t     COMMS_LENGTH                    =                              0;
 };
+
+
+
+//avg current over comms window
+//motors only for opperational time
 
 #endif

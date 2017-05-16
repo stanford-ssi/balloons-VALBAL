@@ -13,6 +13,7 @@
 #define SIMULATOR_H
 
 #include "Data.h"
+#include <SD.h>
 
 class Simulator {
 public:
@@ -21,10 +22,13 @@ public:
   DataFrame readData();
 /********************************  FUNCTIONS  *********************************/
 private:
-  size_t    getLine();
+  void      getLine();
 /*********************************  OBJECTS  **********************************/
-  static const uint16_t UART_BUFFER_SIZE = 1024;
+  static const uint16_t UART_BUFFER_SIZE = 2000;
   char buffer[UART_BUFFER_SIZE] = {0};
+  float values[100];
+  uint32_t pos = 0;
+  File CSV;
   DataFrame simulated;
 };
 

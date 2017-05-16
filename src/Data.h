@@ -60,7 +60,7 @@ struct DataFrame {
   bool         HEATER_STRONG_ENABLE            =                           true;
   bool         HEATER_WEEK_ENABLE              =                          false;
   bool         GPS_GOOD_STATE                  =                          false;
-  bool         SHOULD_REPORT                   =                          false;
+  bool         SHOULD_REPORT                   =                           true;
 
 /*****************************  SECONDARY DATA  *******************************/
   uint32_t     COMMS_INTERVAL                  =         COMMS_INTERVAL_DEFAULT;

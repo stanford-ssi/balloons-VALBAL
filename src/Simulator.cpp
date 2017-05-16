@@ -18,10 +18,8 @@
  */
  bool Simulator::init() {
   bool success = false;
-  CSV = SD.open("LOGGER07.txt");
-  // myFile = SD.open("ssi-48-sd_selected.csv");
+  CSV = SD.open("HITL.txt");
   if(CSV) success = true;
-  getLine();
   getLine();
   return success;
 }
@@ -51,32 +49,32 @@ DataFrame Simulator::readData() {
   simulated.ALTITUDE                       = values[8];
   simulated.ASCENT_RATE                    = values[9];
   simulated.PRESS_BASELINE                 = values[10];
-  simulated.INCENTIVE_THRESHOLD            = values[11];
-  simulated.RE_ARM_CONSTANT                = values[12];
-  simulated.BALLAST_ARM_ALT                = values[13];
-  simulated.VALVE_SETPOINT                 = values[14];
-  simulated.VALVE_DURATION                 = values[15];
-  simulated.VALVE_ALT_LAST                 = values[16];
-  simulated.VALVE_VELOCITY_CONSTANT        = values[17];
-  simulated.VALVE_ALTITUDE_DIFF_CONSTANT   = values[18];
-  simulated.VALVE_LAST_ACTION_CONSTANT     = values[19];
-  simulated.BALLAST_SETPOINT               = values[20];
-  simulated.BALLAST_DURATION               = values[21];
-  simulated.BALLAST_ALT_LAST               = values[22];
-  simulated.BALLAST_VELOCITY_CONSTANT      = values[23];
-  simulated.BALLAST_ALTITUDE_DIFF_CONSTANT = values[24];
-  simulated.BALLAST_LAST_ACTION_CONSTANT   = values[25];
-  simulated.MANUAL_MODE                    = values[26];
-  simulated.VALVE_INCENTIVE                = values[27];
-  simulated.BALLAST_INCENTIVE              = values[28];
-  simulated.VALVE_STATE                    = values[29];
-  simulated.BALLAST_STATE                  = values[30];
-  simulated.VALVE_QUEUE                    = values[31];
-  simulated.BALLAST_QUEUE                  = values[32];
-  simulated.NUM_VALVES                     = values[33];
-  simulated.NUM_BALLASTS                   = values[34];
-  simulated.NUM_VALVE_ATTEMPTS             = values[35];
-  simulated.NUM_BALLAST_ATTEMPTS           = values[36];
+  simulated.BALLAST_ARM_ALT                = values[11];
+  simulated.VALVE_SETPOINT                 = values[12];
+  simulated.VALVE_DURATION                 = values[13];
+  simulated.VALVE_ALT_LAST                 = values[14];
+  simulated.VALVE_VELOCITY_CONSTANT        = values[15];
+  simulated.VALVE_ALTITUDE_DIFF_CONSTANT   = values[16];
+  simulated.VALVE_LAST_ACTION_CONSTANT     = values[17];
+  simulated.BALLAST_SETPOINT               = values[18];
+  simulated.BALLAST_DURATION               = values[19];
+  simulated.BALLAST_ALT_LAST               = values[20];
+  simulated.BALLAST_VELOCITY_CONSTANT      = values[21];
+  simulated.BALLAST_ALTITUDE_DIFF_CONSTANT = values[22];
+  simulated.BALLAST_LAST_ACTION_CONSTANT   = values[23];
+  simulated.VALVE_INCENTIVE                = values[24];
+  simulated.BALLAST_INCENTIVE              = values[25];
+  simulated.NUM_VALVES                     = values[26];
+  simulated.NUM_BALLASTS                   = values[27];
+  // simulated.INCENTIVE_THRESHOLD            = values[28];
+  // simulated.RE_ARM_CONSTANT                = values[29];
+  // simulated.MANUAL_MODE                    = values[30];
+  // simulated.VALVE_STATE                    = values[31];
+  // simulated.BALLAST_STATE                  = values[32];
+  // simulated.VALVE_QUEUE                    = values[33];
+  // simulated.BALLAST_QUEUE                  = values[34];
+  // simulated.NUM_VALVE_ATTEMPTS             = values[45];
+  // simulated.NUM_BALLAST_ATTEMPTS           = values[36];
   return simulated;
 }
 

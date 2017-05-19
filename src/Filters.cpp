@@ -67,6 +67,10 @@ double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double
   pressures[2] = RAW_PRESSURE_3;
   pressures[3] = RAW_PRESSURE_4;
 
+	  Serial.print("pressure[0]");
+      Serial.print(pressures[0]);
+      Serial.print("\n\r");
+
 	for(int i = 0; i<4;i++) if(!((MIN_PRESURE < pressures[i]) && (pressures[i] < MAX_PRESURE))) markFailure(i);
 
 	int numSensors = 0;
@@ -193,6 +197,11 @@ double Filters::getAscentRate() {
   }
 
   if(acceptedStreams == 0) return (meanAscentRates[0] + meanAscentRates[1] + meanAscentRates[2] + meanAscentRates[3])/4;
+
+
+            Serial.print("ascent rate");
+            Serial.print(meanAscentRate/acceptedStreams);
+            Serial.print("\n\r");
   return meanAscentRate/acceptedStreams;
 }
 
@@ -219,14 +228,34 @@ double Filters::getAltitude() {
 			}
     }
 
+    Serial.print("accepted samples");
+    Serial.print(i);
+    Serial.print("  ");
+    Serial.print(numberOfAcceptedSamples[i]);
+    Serial.print("\n\r");
+
+    Serial.print("sum of alts");
+    Serial.print(altitudesSum);
+    Serial.print("\n\r");
+
     meanAltitudes[i] = altitudesSum / numberOfAcceptedSamples[i];
+
+    Serial.print("mean alt");
+    Serial.print(meanAltitudes[i]);
+    Serial.print("\n\r");
     if(numberOfAcceptedSamples[i] >= MINIMUM_ALTITUDE_POINTS){
       meanAltitude += meanAltitudes[i];
       acceptedStreams++;
     }
   }
 
+  Serial.print("altitude");
+   Serial.print(acceptedStreams);
+  Serial.print(meanAltitude / acceptedStreams);
+  Serial.print("\n\r");
+
   if(acceptedStreams == 0) return (meanAltitudes[0] + meanAltitudes[1] + meanAltitudes[2] + meanAltitudes[3])/4;
+
   else return meanAltitude / acceptedStreams;
 }
 
@@ -240,6 +269,10 @@ double Filters::getAltitude() {
 void Filters::errorCheckAltitudes() {
   altitudeIndex = (altitudeIndex + 1) % ALTITUDE_BUFFER_SIZE;
   for(int i = 0; i<4;i++) altitudeBuffer[i][altitudeIndex] = calculateAltitude(pressures[i]);
+
+  Serial.print("buffer");
+  Serial.print(altitudeBuffer[0][altitudeIndex]);
+  Serial.print("\n\r");
 
   consensousCheck();
   velocityCheck();
@@ -340,6 +373,9 @@ double Filters::calculateAltitude(double pressure) {
   if (pressure > 22632.1) calculatedAltitude = (44330.7 * (1 - pow(pressure / pressureBaseline, 0.190266)));
   else calculatedAltitude =  -6341.73 * log((0.176481 * pressure) / 22632.1);
 
+Serial.print("unfilterd alt");
+Serial.print(calculatedAltitude);
+Serial.print("\n\r");
   return calculatedAltitude;
 }
 

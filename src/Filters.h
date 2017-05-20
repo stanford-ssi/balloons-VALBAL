@@ -31,7 +31,7 @@ public:
   double   getAverageCurrentMotors(double current,bool on);
   double   getAverageCurrentPayload(double current);
 
-  double   getAltitude();
+  double   getAltitude(uint32_t sample_time);
   double   getAscentRate();
   float    getIncentiveNoise(bool IncludeBMP1, bool IncludeBMP2, bool IncludeBMP3, bool IncludeBMP4);
 
@@ -65,7 +65,8 @@ private:
   float    meanAscentRates[4];
   float    meanAltitudes[4];
   uint16_t altitudeIndex = 0;
-  float    altitudeBuffer[4][ALTITUDE_BUFFER_SIZE];
+  uint32_t sampleTime[ALTITUDE_BUFFER_SIZE] = {0};
+  float    altitudeBuffer[4][ALTITUDE_BUFFER_SIZE] = {{0}};
   bool     altitudeErrors[4][ALTITUDE_BUFFER_SIZE] = {{false}};
   int      numberOfAcceptedSamples[4];
   float    lastAcceptedAltitudes[4];

@@ -283,7 +283,7 @@ bool Avionics::processData() {
   data.CURRENT_MOTORS_AVG  = filter.getAverageCurrentMotors(data.CURRENT_MOTORS, (data.VALVE_STATE || data.BALLAST_STATE));
   data.CURRENT_PAYLOAD_AVG = filter.getAverageCurrentPayload(data.CURRENT_PAYLOAD);
 
-  data.ALTITUDE            = filter.getAltitude();
+  data.ALTITUDE            = filter.getAltitude(data.TIME);
   data.ASCENT_RATE         = filter.getAscentRate();
   data.INCENTIVE_NOISE     = filter.getIncentiveNoise(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
   if (data.ASCENT_RATE    >= 10) success = false;

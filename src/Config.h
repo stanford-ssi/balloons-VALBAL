@@ -111,13 +111,13 @@ static const double    MAX_PRESURE                           =           107500;
 static const double    MIN_PRESURE                           =             1131;
 static const float     MAX_CONSENSUS_DEVIATION               =                6;
 static const uint16_t  MAX_VELOCITY                          =               10;
-// static const uint16_t  ALTITUDE_BUFFER_SIZE                  =             2400;
-// static const uint16_t  MINIMUM_ALTITUDE_POINTS               =             2200;
-// static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =             2200;
-
-static const uint16_t  ALTITUDE_BUFFER_SIZE                  =              200;
-static const uint16_t  MINIMUM_ALTITUDE_POINTS               =              100;
-static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =              100;
+static const uint16_t  ALTITUDE_BUFFER_SIZE                  =             2000;
+static const uint16_t  MINIMUM_ALTITUDE_POINTS               =             1700;
+static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =             1700;
+//
+// static const uint16_t  ALTITUDE_BUFFER_SIZE                  =              200;
+// static const uint16_t  MINIMUM_ALTITUDE_POINTS               =              100;
+// static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =              100;
 
 /*****************************  EEPROM ADDRESSES  *****************************/
 static const uint8_t   EEPROM_ROCKBLOCK                      =                0;

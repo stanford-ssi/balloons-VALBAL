@@ -61,24 +61,24 @@ double Filters::getTemp(double RAW_TEMP_1, double RAW_TEMP_2, double RAW_TEMP_3,
 double Filters::getPressure(double RAW_PRESSURE_1, double RAW_PRESSURE_2, double RAW_PRESSURE_3, double RAW_PRESSURE_4,double pressureBaselineArg) {
   pressureBaseline = pressureBaselineArg;
   filtered = false;
+  altitudeIndex = (altitudeIndex + 1) % ALTITUDE_BUFFER_SIZE;
+
+  for(int i = 0; i<4;i++) altitudeErrors[i][altitudeIndex] = false;
 
   pressures[0] = RAW_PRESSURE_1;
   pressures[1] = RAW_PRESSURE_2;
   pressures[2] = RAW_PRESSURE_3;
   pressures[3] = RAW_PRESSURE_4;
 
-	  Serial.print("pressure[0]");
-      Serial.print(pressures[0]);
-      Serial.print("\n\r");
 
 	for(int i = 0; i<4;i++) if(!((MIN_PRESURE < pressures[i]) && (pressures[i] < MAX_PRESURE))) markFailure(i);
 
 	int numSensors = 0;
-	for (size_t i = 0; i < 4; i++) if (enabledSensors[i]) numSensors++;
+	for (size_t i = 0; i < 4; i++) if (!altitudeErrors[i][altitudeIndex]) numSensors++;
 	// Calculate mean of sensors which passed
 
 	double press = 0;
-	for(int i = 0; i<4;i++) if (enabledSensors[i]) press += pressures[i];
+	for(int i = 0; i<4;i++) if (!altitudeErrors[i][altitudeIndex]) press += pressures[i];
 
   return press / numSensors;
 }
@@ -190,7 +190,7 @@ double Filters::getAscentRate() {
     }
 
     meanAscentRates[i] = numerator/denominator;
-    if(numberOfAcceptedSamples[i] >= MINIMUM_ASCENT_RATE_POINTS){
+    if((numberOfAcceptedSamples[i] >= MINIMUM_ASCENT_RATE_POINTS) && (enabledSensors[i] == true)){
       meanAscentRate += meanAscentRates[i];
       acceptedStreams++;
     }
@@ -199,9 +199,9 @@ double Filters::getAscentRate() {
   if(acceptedStreams == 0) return (meanAscentRates[0] + meanAscentRates[1] + meanAscentRates[2] + meanAscentRates[3])/4;
 
 
-            Serial.print("ascent rate");
-            Serial.print(meanAscentRate/acceptedStreams);
-            Serial.print("\n\r");
+            // Serial.print("ascent rate");
+            // Serial.print(meanAscentRate/acceptedStreams);
+            // Serial.print("\n\r");
   return meanAscentRate/acceptedStreams;
 }
 
@@ -212,7 +212,38 @@ double Filters::getAscentRate() {
  * altitude value
  */
 double Filters::getAltitude() {
+    // if(!filtered) Serial.print("error chceking in altitude\n\r");
   if(!filtered) errorCheckAltitudes();
+
+  // Serial.print("buffer out at index prev");
+  // Serial.print(altitudeBuffer[0][altitudeIndex]);
+  // Serial.print("\n\r");
+
+  for(int t = 0; t<ALTITUDE_BUFFER_SIZE;t++){
+      Serial.print("altitude ");
+      Serial.print(t);
+      Serial.print(" ");
+       Serial.print(altitudeErrors[0][t]);
+      Serial.print(" ");
+     Serial.print(altitudeBuffer[0][t]);
+
+     Serial.print(" | ");
+      Serial.print(altitudeErrors[1][t]);
+     Serial.print(" ");
+    Serial.print(altitudeBuffer[1][t]);
+
+    Serial.print(" | ");
+     Serial.print(altitudeErrors[2][t]);
+    Serial.print(" ");
+   Serial.print(altitudeBuffer[2][t]);
+
+   Serial.print(" | ");
+    Serial.print(altitudeErrors[3][t]);
+   Serial.print(" ");
+  Serial.print(altitudeBuffer[3][t]);
+     Serial.print("\n\r");
+
+  }
 
   float meanAltitude = 0;
   int acceptedStreams = 0;
@@ -225,34 +256,26 @@ double Filters::getAltitude() {
 			if(!altitudeErrors[i][t]){
 	    	altitudesSum += altitudeBuffer[i][t];
 	    	numberOfAcceptedSamples[i]++;
+
 			}
     }
 
-    Serial.print("accepted samples");
-    Serial.print(i);
-    Serial.print("  ");
-    Serial.print(numberOfAcceptedSamples[i]);
-    Serial.print("\n\r");
-
-    Serial.print("sum of alts");
-    Serial.print(altitudesSum);
-    Serial.print("\n\r");
 
     meanAltitudes[i] = altitudesSum / numberOfAcceptedSamples[i];
 
     Serial.print("mean alt");
+    Serial.print(i);
+    Serial.print(" ");
     Serial.print(meanAltitudes[i]);
+    Serial.print(" with acepted smaples ");
+    Serial.print(numberOfAcceptedSamples[i]);
     Serial.print("\n\r");
-    if(numberOfAcceptedSamples[i] >= MINIMUM_ALTITUDE_POINTS){
+    if((numberOfAcceptedSamples[i] >= MINIMUM_ALTITUDE_POINTS) && (enabledSensors[i] == true)){
       meanAltitude += meanAltitudes[i];
       acceptedStreams++;
     }
   }
 
-  Serial.print("altitude");
-   Serial.print(acceptedStreams);
-  Serial.print(meanAltitude / acceptedStreams);
-  Serial.print("\n\r");
 
   if(acceptedStreams == 0) return (meanAltitudes[0] + meanAltitudes[1] + meanAltitudes[2] + meanAltitudes[3])/4;
 
@@ -267,12 +290,13 @@ double Filters::getAltitude() {
  * Does the altitude calculation and error checking
  */
 void Filters::errorCheckAltitudes() {
-  altitudeIndex = (altitudeIndex + 1) % ALTITUDE_BUFFER_SIZE;
+
   for(int i = 0; i<4;i++) altitudeBuffer[i][altitudeIndex] = calculateAltitude(pressures[i]);
 
-  Serial.print("buffer");
-  Serial.print(altitudeBuffer[0][altitudeIndex]);
-  Serial.print("\n\r");
+
+  // Serial.print("currint alt index");
+  // Serial.print(altitudeIndex);
+  // Serial.print("\n\r");
 
   consensousCheck();
   velocityCheck();
@@ -289,7 +313,7 @@ void Filters::errorCheckAltitudes() {
  */
 void Filters::findLastAccepted() {
   for(int i = 0; i<4;i++){
-    if (enabledSensors[i]){
+    if (!altitudeErrors[i][altitudeIndex]){
       lastAcceptedAltitudes[i] = altitudeBuffer[i][altitudeIndex];
       lastAcceptedTimes[i] = millis();
     }
@@ -346,6 +370,16 @@ void Filters::consensousCheck(){
       }
     }
 
+    Serial.print("testing arangment ");
+    Serial.print(activeSensors);
+    Serial.print(" mean ");
+    Serial.print(meanAltitude);
+    Serial.print("number of correct sensors ");
+    Serial.print(numberOfCorrectSensors);
+    Serial.print(" distance ");
+    Serial.print(distance);
+    Serial.print("\n\r");
+
     // if arangemnt is better
     if(numberOfCorrectSensors > maxSensors || (numberOfCorrectSensors == maxSensors && distance < minDistance)){
       maxAgreement = activeSensors;
@@ -353,6 +387,10 @@ void Filters::consensousCheck(){
       minDistance = distance;
     }
   }
+
+  Serial.print("max agreement ");
+  Serial.print(maxAgreement);
+  Serial.print("\n\r");
 
   for(int sensor = 0; sensor < 4; sensor++){
     if(!(1 & (maxAgreement>>sensor))){
@@ -373,9 +411,9 @@ double Filters::calculateAltitude(double pressure) {
   if (pressure > 22632.1) calculatedAltitude = (44330.7 * (1 - pow(pressure / pressureBaseline, 0.190266)));
   else calculatedAltitude =  -6341.73 * log((0.176481 * pressure) / 22632.1);
 
-Serial.print("unfilterd alt");
-Serial.print(calculatedAltitude);
-Serial.print("\n\r");
+// Serial.print("unfilterd alt");
+// Serial.print(calculatedAltitude);
+// Serial.print("\n\r");
   return calculatedAltitude;
 }
 
@@ -411,6 +449,6 @@ float Filters::getIncentiveNoise(bool IncludeBMP1, bool IncludeBMP2, bool Includ
  */
 void Filters::markFailure(uint8_t sensor){
   if(enabledSensors[sensor]) rejectedSensors[sensor]++;
-	enabledSensors[sensor] = false;
+	// enabledSensors[sensor] = false;
   altitudeErrors[sensor][altitudeIndex] = true;
 }

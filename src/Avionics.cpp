@@ -1190,7 +1190,8 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print("COMMS_LENGTH:");
   Serial.print(data.COMMS_LENGTH);
-  Serial.print('\n');
+  Serial.print("\n\r");
+  Serial.print("\n\r");
 }
 
 /*

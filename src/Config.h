@@ -87,8 +87,8 @@ static const float     VALVE_SETPOINT_DEFAULT                =          14500.0;
 static const uint32_t  VALVE_DURATION_DEFAULT                =            20000;
 static const float     VALVE_ALT_LAST_DEFAULT                =                0;
 static const float     VALVE_VELOCITY_DEFAULT                =              1.0;
-static const float     VALVE_ALTITUDE_DIFF_DEFAULT           =     1.0 / 1500.0;
-static const float     VALVE_LAST_ACTION_DEFAULT             =     1.0 / 1500.0;
+static const float     VALVE_ALTITUDE_DIFF_DEFAULT           =     1.0 / 1250.0;
+static const float     VALVE_LAST_ACTION_DEFAULT             =     1.0 / 1250.0;
 
 static const float     BALLAST_SETPOINT_DEFAULT              =          13500.0;
 static const uint32_t  BALLAST_DURATION_DEFAULT              =            20000;
@@ -111,9 +111,9 @@ static const double    MAX_PRESURE                           =           107500;
 static const double    MIN_PRESURE                           =             1131;
 static const float     MAX_CONSENSUS_DEVIATION               =                6;
 static const uint16_t  MAX_VELOCITY                          =               10;
-static const uint16_t  ALTITUDE_BUFFER_SIZE                  =             2000;
-static const uint16_t  MINIMUM_ALTITUDE_POINTS               =             1700;
-static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =             1700;
+static const uint16_t  ALTITUDE_BUFFER_SIZE                  =             1000;
+static const uint16_t  MINIMUM_ALTITUDE_POINTS               =              800;
+static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =              800;
 //
 // static const uint16_t  ALTITUDE_BUFFER_SIZE                  =              200;
 // static const uint16_t  MINIMUM_ALTITUDE_POINTS               =              100;

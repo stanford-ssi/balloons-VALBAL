@@ -76,7 +76,7 @@ double Filters::getTemp(double RAW_TEMP_1, double RAW_TEMP_2, double RAW_TEMP_3,
 void Filters::storeData(uint32_t time_stamp, double RAW_PRESSURE_1, double RAW_PRESSURE_2, double RAW_PRESSURE_3, double RAW_PRESSURE_4, double pressureBaselineArg){
     pressureBaseline = pressureBaselineArg;
     altitudeIndex = (altitudeIndex + 1) % ALTITUDE_BUFFER_SIZE;
-    
+
     debugFile.flush();
     debugFile.print("\n");
     debugFile.print("time_stamp "); debugFile.print(time_stamp);
@@ -119,8 +119,11 @@ void Filters::storeData(uint32_t time_stamp, double RAW_PRESSURE_1, double RAW_P
     errorCheckAltitudes();
 
     for (size_t i = 0; i < 4; i++){
+        debugFile.print("sensor "); debugFile.print(i);
+        debugFile.print(" last Alt ") ; debugFile.print(lastAcceptedAltitudes[i]);
+        debugFile.print(" last Time ") ; debugFile.print(lastAcceptedTimes[i]);
         if(!altitudeErrors[i][altitudeIndex]){
-            debugFile.print("sensor "); debugFile.print(i);
+
             debugFile.print(" adding  ");
             debugFile.print(" alt ") ; debugFile.print(altitudeBuffer[i][altitudeIndex]);
             debugFile.print(" time ") ; debugFile.print(sampleTimeSeconds[altitudeIndex]) ;
@@ -138,9 +141,9 @@ void Filters::storeData(uint32_t time_stamp, double RAW_PRESSURE_1, double RAW_P
             debugFile.print(" SumXY  "); debugFile.print(sumXY[i]);
             debugFile.print(" SumX2  "); debugFile.print(sumX2[i]);
 
-            debugFile.print(" sampleCount "); debugFile.print(sampleCount[i]);
-            debugFile.print("\n");
         }
+        debugFile.print(" sampleCount "); debugFile.print(sampleCount[i]);
+        debugFile.print("\n");
     }
 
 }
@@ -241,8 +244,18 @@ double Filters::getAltitude(){
     debugFile.print("meanAltitude "); debugFile.print((meanAltitude));
     debugFile.print(" altitude acceptedStreams "); debugFile.print((acceptedStreams)); debugFile.print("\n");
 
-    if(acceptedStreams == 0) return (sumY[0]/sampleCount[0] + sumY[1]/sampleCount[1] + sumY[2]/sampleCount[2] + sumY[3]/sampleCount[3])/4;
-    else return meanAltitude / acceptedStreams;
+    if(acceptedStreams == 0){
+        meanAltitude = 0;
+        acceptedStreams = 0;
+        for(int i = 0; i<4;i++){
+            if((sampleCount[i] != 0 ) && (enabledSensors[i] == true)){
+                meanAltitude += sumY[i]/sampleCount[i];
+                acceptedStreams++;
+            }
+        }
+    }
+
+     return meanAltitude / acceptedStreams;
 }
 
 /*
@@ -268,8 +281,16 @@ double Filters::getAscentRate() {
     debugFile.print("meanAscentRate "); debugFile.print((meanAscentRate));
     debugFile.print(" AscentRate acceptedStreams "); debugFile.print((acceptedStreams)); debugFile.print("\n");
 
-    if(acceptedStreams == 0) return (meanAscentRates[0] + meanAscentRates[1] + meanAscentRates[2] + meanAscentRates[3])/4;
-
+    if(acceptedStreams == 0){
+        meanAscentRate = 0;
+        acceptedStreams = 0;
+        for(int i = 0; i<4;i++){
+            if((!isnan(meanAscentRates[i])) && (enabledSensors[i] == true)){
+                meanAscentRate += meanAscentRates[i];
+                acceptedStreams++;
+            }
+        }
+    }
     return meanAscentRate/acceptedStreams;
 }
 

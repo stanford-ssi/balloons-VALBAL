@@ -13,10 +13,13 @@
 #define FILTERS_H
 
 #include "Config.h"
-// #include <Eigen.h> // not needed right nows
+
+//Debugging only
+#include <SD.h>
 
 class Filters {
 public:
+  File debugFile;
 /**********************************  SETUP  ***********************************/
   bool     init();
 /********************************  FUNCTIONS  *********************************/
@@ -66,7 +69,7 @@ private:
   float    meanAscentRates[4];
   float    meanAltitudes[4];
   uint16_t altitudeIndex = 0;
-  float    sampleTimeSeconds[ALTITUDE_BUFFER_SIZE] = {0};
+  double    sampleTimeSeconds[ALTITUDE_BUFFER_SIZE] = {0};
   float    altitudeBuffer[4][ALTITUDE_BUFFER_SIZE] = {{0}};
   bool     altitudeErrors[4][ALTITUDE_BUFFER_SIZE] = {{false}};
 
@@ -77,7 +80,7 @@ private:
   int sampleCount[4] = {ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE};
 
   float    lastAcceptedAltitudes[4];
-  float    lastAcceptedTimes[4];
+  double    lastAcceptedTimes[4];
   double   pressures[4];
   bool     filtered = false;
 

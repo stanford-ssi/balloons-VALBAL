@@ -22,7 +22,7 @@ public:
 /********************************  FUNCTIONS  *********************************/
   void     enableSensors(bool BMP1Enable, bool BMP2Enable, bool BMP3Enable, bool BMP4Enable);
   double   getTemp(double RAW_TEMP_1,double RAW_TEMP_2,double RAW_TEMP_3,double RAW_TEMP_4);
-  double   getPressure(double RAW_PRESSURE_1,double RAW_PRESSURE_2,double RAW_PRESSURE_3,double RAW_PRESSURE_4,double pressureBaselineArg);
+  void     storeData(uint32_t time_stamp, double RAW_PRESSURE_1,double RAW_PRESSURE_2,double RAW_PRESSURE_3,double RAW_PRESSURE_4,double pressureBaselineArg);
   uint32_t getNumRejections(uint8_t sensor);
 
   double   getAverageCurrentSystem(double current);
@@ -31,7 +31,8 @@ public:
   double   getAverageCurrentMotors(double current,bool on);
   double   getAverageCurrentPayload(double current);
 
-  double   getAltitude(uint32_t sample_time);
+  double   getPressure();
+  double   getAltitude();
   double   getAscentRate();
   float    getIncentiveNoise(bool IncludeBMP1, bool IncludeBMP2, bool IncludeBMP3, bool IncludeBMP4);
 
@@ -65,10 +66,16 @@ private:
   float    meanAscentRates[4];
   float    meanAltitudes[4];
   uint16_t altitudeIndex = 0;
-  uint32_t sampleTime[ALTITUDE_BUFFER_SIZE] = {0};
+  float    sampleTimeSeconds[ALTITUDE_BUFFER_SIZE] = {0};
   float    altitudeBuffer[4][ALTITUDE_BUFFER_SIZE] = {{0}};
   bool     altitudeErrors[4][ALTITUDE_BUFFER_SIZE] = {{false}};
-  int      numberOfAcceptedSamples[4];
+
+  float sumX[4] = {0};
+  float sumY[4] = {0};
+  float sumXY[4] = {0};
+  float sumX2[4] = {0};
+  int sampleCount[4] = {ALTITUDE_BUFFER_SIZE};
+
   float    lastAcceptedAltitudes[4];
   float    lastAcceptedTimes[4];
   double   pressures[4];

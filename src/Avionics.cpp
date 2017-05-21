@@ -58,9 +58,10 @@ void Avionics::test() {
  * This function handles basic flight data collection.
  */
 void Avionics::updateState() {
-  // if(!readData())     logAlert("unable to read Data", true);
+
+  if(!readData())     logAlert("unable to read Data", true);
   if(!simulateData()) logAlert("unable to simulate Data", true);
-  if(!processData())  logAlert("unable to process Data", true);
+  // if(!processData())  logAlert("unable to process Data", true);
 }
 
 /*
@@ -270,8 +271,9 @@ bool Avionics::simulateData() {
 bool Avionics::processData() {
   bool success = true;
   filter.enableSensors(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
+  filter.storeData(data.TIME, data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4,data.PRESS_BASELINE);
   data.TEMP_IN             = filter.getTemp(data.RAW_TEMP_1, data.RAW_TEMP_2, data.RAW_TEMP_3, data.RAW_TEMP_4);
-  data.PRESS               = filter.getPressure(data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4,data.PRESS_BASELINE);
+  data.PRESS               = filter.getPressure();
   data.BMP_1_REJECTIONS    = filter.getNumRejections(1);
   data.BMP_2_REJECTIONS    = filter.getNumRejections(2);
   data.BMP_3_REJECTIONS    = filter.getNumRejections(3);
@@ -283,7 +285,7 @@ bool Avionics::processData() {
   data.CURRENT_MOTORS_AVG  = filter.getAverageCurrentMotors(data.CURRENT_MOTORS, (data.VALVE_STATE || data.BALLAST_STATE));
   data.CURRENT_PAYLOAD_AVG = filter.getAverageCurrentPayload(data.CURRENT_PAYLOAD);
 
-  data.ALTITUDE            = filter.getAltitude(data.TIME);
+  data.ALTITUDE            = filter.getAltitude();
   data.ASCENT_RATE         = filter.getAscentRate();
   data.INCENTIVE_NOISE     = filter.getIncentiveNoise(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
   if (data.ASCENT_RATE    >= 10) success = false;

@@ -23,6 +23,7 @@ int main(void) {
   // VALBAL.test();
 /***********************************  MAIN  ***********************************/
   while(true) {
+
     VALBAL.updateState();
     VALBAL.evaluateState();
     VALBAL.actuateState();

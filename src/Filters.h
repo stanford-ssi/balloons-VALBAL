@@ -79,6 +79,8 @@ private:
   double sumX2[4] = {0};
   int sampleCount[4] = {ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE};
 
+  bool firstBUFFER = true;
+
   float    lastAcceptedAltitudes[4];
   double    lastAcceptedTimes[4];
   double   pressures[4];

@@ -77,6 +77,8 @@ void Filters::storeData(uint32_t time_stamp, double RAW_PRESSURE_1, double RAW_P
     pressureBaseline = pressureBaselineArg;
     altitudeIndex = (altitudeIndex + 1) % ALTITUDE_BUFFER_SIZE;
 
+    if(altitudeIndex == 0) firstBUFFER = false;
+
     debugFile.flush();
     debugFile.print("\n");
     debugFile.print("time_stamp "); debugFile.print(time_stamp);
@@ -324,6 +326,9 @@ void Filters::errorCheckAltitudes() {
         altitudeBuffer[i][altitudeIndex] = calculateAltitude(pressures[i]);
     }
 
+    //disable checks during the first loop
+    if(!firstBUFFER){
+
     debugFile.print("altitudes 1: "); debugFile.print(altitudeBuffer[0][altitudeIndex]);
     debugFile.print(" 2: "); debugFile.print(altitudeBuffer[1][altitudeIndex]);
     debugFile.print(" 3: "); debugFile.print(altitudeBuffer[2][altitudeIndex]);
@@ -353,6 +358,8 @@ void Filters::errorCheckAltitudes() {
         debugFile.print(" 3: "); debugFile.print(altitudeErrors[2][altitudeIndex]);
         debugFile.print(" 4: "); debugFile.print(altitudeErrors[3][altitudeIndex]);
         debugFile.print("\n");
+
+    }
 
     findLastAccepted();
 }

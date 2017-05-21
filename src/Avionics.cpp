@@ -29,7 +29,7 @@ void Avionics::init() {
   if(!filter.init())                               logAlert("unable to initialize Filters", true);
   if(!computer.init())                             logAlert("unable to initialize Flight Controller", true);
   if(!gpsModule.init(data.GPS_SHOULD_USE))         logAlert("unable to initialize GPS", true);
-  if(!RBModule.init(data.RB_SHOULD_USE))           logAlert("unable to initialize RockBlock", true);
+  // if(!RBModule.init(data.RB_SHOULD_USE))           logAlert("unable to initialize RockBlock", true);
   if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE))  logAlert("unable to initialize Heaters", true);
   if(!PCB.startupPayload(data.PAYLOAD_SHOULD_USE)) logAlert("unable to initialize Payload", true);
   data.SETUP_STATE = false;
@@ -248,14 +248,14 @@ bool Avionics::simulateData() {
   data.VALVE_DURATION                 = simulation.VALVE_DURATION;
   data.VALVE_ALT_LAST                 = simulation.VALVE_ALT_LAST;
   data.VALVE_VELOCITY_CONSTANT        = simulation.VALVE_VELOCITY_CONSTANT;
-  data.VALVE_ALTITUDE_DIFF_CONSTANT   = simulation.VALVE_ALTITUDE_DIFF_CONSTANT;
-  data.VALVE_LAST_ACTION_CONSTANT     = simulation.VALVE_LAST_ACTION_CONSTANT;
+  // data.VALVE_ALTITUDE_DIFF_CONSTANT   = simulation.VALVE_ALTITUDE_DIFF_CONSTANT;
+  // data.VALVE_LAST_ACTION_CONSTANT     = simulation.VALVE_LAST_ACTION_CONSTANT;
   data.BALLAST_SETPOINT               = simulation.BALLAST_SETPOINT;
   data.BALLAST_DURATION               = simulation.BALLAST_DURATION;
   data.BALLAST_ALT_LAST               = simulation.BALLAST_ALT_LAST;
   data.BALLAST_VELOCITY_CONSTANT      = simulation.BALLAST_VELOCITY_CONSTANT;
-  data.BALLAST_ALTITUDE_DIFF_CONSTANT = simulation.BALLAST_ALTITUDE_DIFF_CONSTANT;
-  data.BALLAST_LAST_ACTION_CONSTANT   = simulation.BALLAST_LAST_ACTION_CONSTANT;
+  // data.BALLAST_ALTITUDE_DIFF_CONSTANT = simulation.BALLAST_ALTITUDE_DIFF_CONSTANT;
+  // data.BALLAST_LAST_ACTION_CONSTANT   = simulation.BALLAST_LAST_ACTION_CONSTANT;
 
   // data.MANUAL_MODE                    = simulation.MANUAL_MODE;
   data.ALTITUDE_LAST                  = data.ALTITUDE;

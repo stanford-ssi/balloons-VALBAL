@@ -60,9 +60,16 @@ double Filters::getTemp(double RAW_TEMP_1, double RAW_TEMP_2, double RAW_TEMP_3,
 */
 void Filters::storeData(uint32_t time_stamp, double RAW_PRESSURE_1, double RAW_PRESSURE_2, double RAW_PRESSURE_3, double RAW_PRESSURE_4, double pressureBaselineArg){
     pressureBaseline = pressureBaselineArg;
+    altitudeIndex = (altitudeIndex + 1) % ALTITUDE_BUFFER_SIZE;
 
     for (size_t i = 0; i < 4; i++){
         if(!altitudeErrors[i][altitudeIndex]){
+            // Serial.print("senros  "); Serial.print(i);
+
+            // Serial.print("removing index "); Serial.print(altitudeIndex);
+            // Serial.print(" alt ") ; Serial.print(altitudeBuffer[i][altitudeIndex]);
+            // Serial.print(" time ") ; Serial.print(sampleTimeSeconds[altitudeIndex]) ;
+            //   Serial.print("\n\r");
             sumX[i] -= sampleTimeSeconds[altitudeIndex];
             sumY[i] -= altitudeBuffer[i][altitudeIndex];
             sumXY[i] -= sampleTimeSeconds[altitudeIndex] * altitudeBuffer[i][altitudeIndex];
@@ -71,24 +78,35 @@ void Filters::storeData(uint32_t time_stamp, double RAW_PRESSURE_1, double RAW_P
          }
     }
 
-    altitudeIndex = (altitudeIndex + 1) % ALTITUDE_BUFFER_SIZE;
-
     sampleTimeSeconds[altitudeIndex] = (float)time_stamp/1000;
     pressures[0] = RAW_PRESSURE_1;
     pressures[1] = RAW_PRESSURE_2;
     pressures[2] = RAW_PRESSURE_3;
     pressures[3] = RAW_PRESSURE_4;
 
-    for(int i = 0; i<4;i++) altitudeErrors[i][altitudeIndex] = false;
+    for(int i = 0; i<4;i++) altitudeErrors[i][altitudeIndex] = !enabledSensors[i];
     errorCheckAltitudes();
 
     for (size_t i = 0; i < 4; i++){
         if(!altitudeErrors[i][altitudeIndex]){
+            // Serial.print("senros  "); Serial.print(i);
+            // Serial.print("adding index "); Serial.print(altitudeIndex);
+            // Serial.print(" alt ") ; Serial.print(altitudeBuffer[i][altitudeIndex]);
+            // Serial.print(" time ") ; Serial.print(sampleTimeSeconds[altitudeIndex]) ;
+            //   Serial.print("\n\r");
+
+
             sumX[i] += sampleTimeSeconds[altitudeIndex];
             sumY[i] += altitudeBuffer[i][altitudeIndex];
             sumXY[i] += sampleTimeSeconds[altitudeIndex] * altitudeBuffer[i][altitudeIndex];
             sumX2[i] += pow(sampleTimeSeconds[altitudeIndex],2);
             sampleCount[i]++;
+
+                // Serial.print("totaly  "); Serial.print(sumY[i]);
+                // Serial.print("totalx  "); Serial.print(sumX[i]);
+
+            // Serial.print(" coumt "); Serial.print(sampleCount[i]);
+            // Serial.print("\n\r");
         }
     }
 
@@ -186,6 +204,7 @@ double Filters::getAltitude(){
             acceptedStreams++;
         }
     }
+    // Serial.printf("acceptedStreams %d\n", acceptedStreams);
 
     if(acceptedStreams == 0) return (sumY[0]/sampleCount[0] + sumY[1]/sampleCount[1] + sumY[2]/sampleCount[2] + sumY[3]/sampleCount[3])/4;
     else return meanAltitude / acceptedStreams;

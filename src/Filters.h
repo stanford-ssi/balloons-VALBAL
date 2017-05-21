@@ -70,11 +70,11 @@ private:
   float    altitudeBuffer[4][ALTITUDE_BUFFER_SIZE] = {{0}};
   bool     altitudeErrors[4][ALTITUDE_BUFFER_SIZE] = {{false}};
 
-  float sumX[4] = {0};
-  float sumY[4] = {0};
-  float sumXY[4] = {0};
-  float sumX2[4] = {0};
-  int sampleCount[4] = {ALTITUDE_BUFFER_SIZE};
+  double sumX[4] = {0};
+  double sumY[4] = {0};
+  double sumXY[4] = {0};
+  double sumX2[4] = {0};
+  int sampleCount[4] = {ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE};
 
   float    lastAcceptedAltitudes[4];
   float    lastAcceptedTimes[4];

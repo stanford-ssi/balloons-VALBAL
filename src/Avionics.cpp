@@ -58,10 +58,9 @@ void Avionics::test() {
  * This function handles basic flight data collection.
  */
 void Avionics::updateState() {
-
-  if(!readData())     logAlert("unable to read Data", true);
+  // if(!readData())     logAlert("unable to read Data", true);
   if(!simulateData()) logAlert("unable to simulate Data", true);
-  // if(!processData())  logAlert("unable to process Data", true);
+  if(!processData())  logAlert("unable to process Data", true);
 }
 
 /*
@@ -237,8 +236,8 @@ bool Avionics::simulateData() {
   data.BMP_3_ENABLE                   = simulation.BMP_3_ENABLE;
   data.BMP_4_ENABLE                   = simulation.BMP_4_ENABLE;
 
-  data.ALTITUDE                       = simulation.ALTITUDE;
-  data.ASCENT_RATE                    = simulation.ASCENT_RATE;
+  // data.ALTITUDE                       = simulation.ALTITUDE;
+  // data.ASCENT_RATE                    = simulation.ASCENT_RATE;
 
   data.PRESS_BASELINE                 = simulation.PRESS_BASELINE;
   // data.INCENTIVE_THRESHOLD            = simulation.INCENTIVE_THRESHOLD;

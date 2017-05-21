@@ -155,6 +155,7 @@ double   Filters::getAverageCurrentMotors(double current,bool on) {
         currentMotorsTotal += current;
         currentMotorsCount++;
     }
+    if(currentMotorsCount == 0) return 0;
     return currentMotorsTotal / currentMotorsCount;
 }
 

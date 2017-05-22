@@ -25,11 +25,15 @@ void Avionics::init() {
   if(!setupSDCard())                               logAlert("unable to initialize SD Card", true);
   if(!readHistory())                               logAlert("unable to initialize EEPROM", true);
   if(!sensors.init())                              logAlert("unable to initialize Sensors", true);
+#ifdef HITL_ENABLED_FLAG
   if(!HITL.init())                                 logAlert("unable to initialize Simulations", true);
+#endif
   if(!filter.init())                               logAlert("unable to initialize Filters", true);
   if(!computer.init())                             logAlert("unable to initialize Flight Controller", true);
   if(!gpsModule.init(data.GPS_SHOULD_USE))         logAlert("unable to initialize GPS", true);
-  // if(!RBModule.init(data.RB_SHOULD_USE))           logAlert("unable to initialize RockBlock", true);
+#ifndef RB_DISABLED_FLAG
+  if(!RBModule.init(data.RB_SHOULD_USE))           logAlert("unable to initialize RockBlock", true);
+#endif
   if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE))  logAlert("unable to initialize Heaters", true);
   if(!PCB.startupPayload(data.PAYLOAD_SHOULD_USE)) logAlert("unable to initialize Payload", true);
   data.SETUP_STATE = false;
@@ -58,8 +62,10 @@ void Avionics::test() {
  * This function handles basic flight data collection.
  */
 void Avionics::updateState() {
-  // if(!readData())     logAlert("unable to read Data", true);
+  if(!readData())     logAlert("unable to read Data", true);
+#ifdef HITL_ENABLED_FLAG
   if(!simulateData()) logAlert("unable to simulate Data", true);
+#endif
   if(!processData())  logAlert("unable to process Data", true);
 }
 
@@ -447,9 +453,11 @@ bool Avionics::runLED() {
 bool Avionics::sendSATCOMS() {
   logAlert("sending Rockblock message", false);
   data.RB_SENT_COMMS++;
-  // int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
-  // if(ret < 0) return false;
-  // if(ret > 0) parseCommand(ret);
+#ifndef RB_DISABLED_FLAG
+  int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
+  if(ret < 0) return false;
+  if(ret > 0) parseCommand(ret);
+ #endif
   return true;
 }
 

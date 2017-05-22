@@ -15,6 +15,11 @@
 #include <stdint.h>
 #include <string.h>
 
+/**************************  COMPILE TIME MODES  ******************************/
+// uncomment those two for Hardware in the loop
+#define HITL_ENABLED_FLAG
+#define RB_DISABLED_FLAG
+
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   REBOOT_ENABLE                         =               16;
 static const uint8_t   SD_CS                                 =               23;

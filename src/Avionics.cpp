@@ -413,7 +413,7 @@ bool Avionics::runBallast() {
     data.FORCE_BALLAST = false;
   }
   data.BALLAST_QUEUE = PCB.getBallastQueue();
-  data.BALLAST_STATE = PCB.checkBallast(data.CURRENT_MOTORS);
+  data.BALLAST_STATE = PCB.checkBallast(data.CURRENT_MOTORS, data.BALLAST_REVERSE_TIMEOUT, data.BALLAST_STALL_CURRENT);
   return true;
 }
 
@@ -519,19 +519,21 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 12) data.VALVE_DURATION = value;
   else if (index == 13) data.BALLAST_DURATION = value;
   else if (index == 14) data.PRESS_BASELINE = value;
-  else if (index == 15) data.TEMP_SETPOINT = value;
-  else if (index == 16) data.SHOULD_LED = value;
-  else if (index == 17) data.COMMS_INTERVAL = value * 60000;
-  else if (index == 18) data.GPS_INTERVAL = value * 60000;
-  else if (index == 19) parseManualCommand(value);
-  else if (index == 20) parseReportCommand(value);
-  else if (index == 21) parseSensorsCommand(value);
-  else if (index == 22) parseValveCommand(value);
-  else if (index == 23) parseBallastCommand(value);
-  else if (index == 24) parseRockBLOCKCommand(value);
-  else if (index == 25) parseGPSCommand(value);
-  else if (index == 26) parseHeaterCommand(value);
-  else if (index == 27) parseHeaterModeCommand(value);
+  else if (index == 15) data.BALLAST_REVERSE_TIMEOUT = value * 60000;
+  else if (index == 16) data.BALLAST_STALL_CURRENT = value;
+  else if (index == 17) data.TEMP_SETPOINT = value;
+  else if (index == 18) data.SHOULD_LED = value;
+  else if (index == 19) data.COMMS_INTERVAL = value * 60000;
+  else if (index == 20) data.GPS_INTERVAL = value * 60000;
+  else if (index == 21) parseManualCommand(value);
+  else if (index == 22) parseReportCommand(value);
+  else if (index == 23) parseSensorsCommand(value);
+  else if (index == 24) parseValveCommand(value);
+  else if (index == 25) parseBallastCommand(value);
+  else if (index == 26) parseRockBLOCKCommand(value);
+  else if (index == 27) parseGPSCommand(value);
+  else if (index == 28) parseHeaterCommand(value);
+  else if (index == 29) parseHeaterModeCommand(value);
 }
 
 /*
@@ -577,7 +579,6 @@ void Avionics::parseValveCommand(uint32_t command) {
     data.FORCE_VALVE = true;
     data.VALVE_FORCE_DURATION = command;
   }
-
 }
 
 /*
@@ -822,6 +823,8 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.INCENTIVE_THRESHOLD,            0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.RE_ARM_CONSTANT,                0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_ARM_ALT,               -2000, 40000,   16, lengthBits);
+    lengthBits += compressVariable(data.BALLAST_REVERSE_TIMEOUT,        0,    1000000, 4, lengthBits);
+    lengthBits += compressVariable(data.BALLAST_STALL_CURRENT,          0,    3000,    4,  lengthBits);
     lengthBits += compressVariable(data.VALVE_SETPOINT,                -2000, 50000,   11, lengthBits);
     lengthBits += compressVariable(data.VALVE_DURATION,                 0,    1000000, 6,  lengthBits);
     lengthBits += compressVariable(data.VALVE_FORCE_DURATION,           0,    1000000, 6,  lengthBits);
@@ -1058,6 +1061,12 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print("BALLAST_ARM_ALT:");
   Serial.print(data.BALLAST_ARM_ALT);
+  Serial.print(',');
+  Serial.print("BALLAST_REVERSE_TIMEOUT:");
+  Serial.print(data.BALLAST_REVERSE_TIMEOUT);
+  Serial.print(',');
+  Serial.print("BALLAST_STALL_CURRENT:");
+  Serial.print(data.BALLAST_STALL_CURRENT);
   Serial.print(',');
   Serial.print("VALVE_SETPOINT:");
   Serial.print(data.VALVE_SETPOINT);
@@ -1309,6 +1318,10 @@ bool Avionics::logData() {
   dataFile.print(data.RE_ARM_CONSTANT);
   dataFile.print(',');
   dataFile.print(data.BALLAST_ARM_ALT);
+  dataFile.print(',');
+  dataFile.print(data.BALLAST_REVERSE_TIMEOUT);
+  dataFile.print(',');
+  dataFile.print(data.BALLAST_STALL_CURRENT);
   dataFile.print(',');
   dataFile.print(data.VALVE_SETPOINT);
   dataFile.print(',');

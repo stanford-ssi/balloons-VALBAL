@@ -39,7 +39,7 @@ public:
   void     clearValveQueue();
   void     clearBallastQueue();
   bool     checkValve(float current);
-  bool     checkBallast(float current);
+  bool     checkBallast(float current, uint32_t reverseTimeout, uint16_t stallCurrent);
   uint32_t getValveQueue();
   uint32_t getBallastQueue();
 

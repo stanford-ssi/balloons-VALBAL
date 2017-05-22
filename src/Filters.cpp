@@ -315,7 +315,7 @@ double Filters::getPressure() {
     }else{
         for(int i = 0; i<4;i++) if (!altitudeErrors[i][altitudeIndex]) press += pressures[i];
     }
-    
+
     return press / numSensors;
 }
 

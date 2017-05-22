@@ -224,7 +224,7 @@ bool Hardware::checkValve(float current) {
  * This function provides a non-hanging interface to check the timer queue.
  * Called every loop; updates and acts on the current state of the ballast.
  */
-bool Hardware::checkBallast(float current) {
+bool Hardware::checkBallast(float current, uint32_t reverseTimeout, uint16_t stallCurrent) {
   if (ballastState == CLOSED) {
     if (ballastQueue == 0) {
       uint32_t deltaTime = (millis() - ballastCheckTime);
@@ -239,8 +239,8 @@ bool Hardware::checkBallast(float current) {
     }
   }
   if (ballastState == OPEN) {
-    if (current >= BALLAST_STALL_CURRENT && currentLast < BALLAST_STALL_CURRENT) ballastStallTime = millis();
-    if (current >= BALLAST_STALL_CURRENT && (millis() - ballastStallTime >= BALLAST_STALL_TIMEOUT)) {
+    if (current >= stallCurrent && currentLast < stallCurrent) ballastStallTime = millis();
+    if (current >= stallCurrent && (millis() - ballastStallTime >= BALLAST_STALL_TIMEOUT)) {
       ballastDirection = !ballastDirection;
       ballastStallTime = millis();
     }
@@ -249,7 +249,7 @@ bool Hardware::checkBallast(float current) {
       uint32_t deltaTime = (millis() - ballastCheckTime);
       ballastCheckTime = millis();
       (deltaTime >= ballastQueue) ? (ballastQueue = 0) : (ballastQueue -= deltaTime);
-      if ((millis() - ballastDirectionTime) >= BALLAST_REVERSE_TIMEOUT) {
+      if ((millis() - ballastDirectionTime) >= reverseTimeout) {
         ballastDirectionTime = millis();
         ballastDirection = !ballastDirection;
       }

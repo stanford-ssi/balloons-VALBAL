@@ -114,15 +114,11 @@ static const uint16_t  BALLAST_MOTOR_SPEED                   =              255;
 
 static const double    MAX_PRESURE                           =           107500;
 static const double    MIN_PRESURE                           =             1131;
-static const float     MAX_CONSENSUS_DEVIATION               =              140;
-static const uint16_t  MAX_VELOCITY                          =               20;
+static const float     MAX_CONSENSUS_DEVIATION               =              150;
+static const uint16_t  MAX_VELOCITY                          =               40;
 static const uint16_t  ALTITUDE_BUFFER_SIZE                  =             1000;
-static const uint16_t  MINIMUM_ALTITUDE_POINTS               =              800;
-static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =              800;
-//
-// static const uint16_t  ALTITUDE_BUFFER_SIZE                  =              200;
-// static const uint16_t  MINIMUM_ALTITUDE_POINTS               =              100;
-// static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =              100;
+static const uint16_t  MINIMUM_ALTITUDE_POINTS               =              600;
+static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =              600;
 
 /*****************************  EEPROM ADDRESSES  *****************************/
 static const uint8_t   EEPROM_ROCKBLOCK                      =                0;

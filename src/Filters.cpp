@@ -309,7 +309,13 @@ double Filters::getPressure() {
     // Calculate mean of sensors which passed
 
     double press = 0;
-    for(int i = 0; i<4;i++) if (!altitudeErrors[i][altitudeIndex]) press += pressures[i];
+    if(numSensors == 0){
+        numSensors = 4;
+        for(int i = 0; i<4;i++) press += pressures[i];
+    }else{
+        for(int i = 0; i<4;i++) if (!altitudeErrors[i][altitudeIndex]) press += pressures[i];
+    }
+    
     return press / numSensors;
 }
 

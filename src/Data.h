@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | April 2017
+  Balloons | VALBAL | May 2017
   Davy Ragland | dragland@stanford.edu
 
   File: data.h
@@ -32,6 +32,7 @@ struct DataFrame {
   uint32_t   NUM_BALLASTS                     =                               0;
   uint32_t   NUM_VALVE_ATTEMPTS               =                               0;
   uint32_t   NUM_BALLAST_ATTEMPTS             =                               0;
+  uint32_t   NUM_BALLAST_OVER_CURRENTS        =                               0;
   bool       CUTDOWN_STATE                    =                           false;
 
   double     PRESS                            =                               0;
@@ -50,6 +51,10 @@ struct DataFrame {
   uint32_t   NUM_SATS_GPS                     =                               0;
   uint32_t   LOOP_TIME                        =                               0;
   uint32_t   RB_SENT_COMMS                    =                               0;
+
+  float      EULER_X_AVG                      =                               0;
+  float      EULER_Y_AVG                      =                               0;
+  float      EULER_Z_AVG                      =                               0;
 
   double     TEMP_SETPOINT                    =           TEMP_SETPOINT_DEFAULT;
   bool       MANUAL_MODE                      =             MANUAL_MODE_DEFAULT;
@@ -124,16 +129,16 @@ struct DataFrame {
   double     CURRENT_MOTORS                   =                               0;
   double     CURRENT_PAYLOAD                  =                               0;
 
+  float      EULER_X                          =                               0;
+  float      EULER_Y                          =                               0;
+  float      EULER_Z                          =                               0;
+  uint8_t    EULER_HISTORY                    =                               0;
+
   double     ALTITUDE_LAST                    =                               0;
   uint32_t   GPS_LAST                         =                               0;
   uint32_t   COMMS_LAST                       =                               0;
   uint32_t   DATAFILE_LAST                    =                               0;
   uint16_t   COMMS_LENGTH                     =                               0;
 };
-
-
-
-//avg current over comms window
-//motors only for opperational time
 
 #endif

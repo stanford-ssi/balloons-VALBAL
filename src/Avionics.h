@@ -22,6 +22,7 @@
 #include "Filters.h"
 #include "Hardware.h"
 #include "Controller.h"
+#include "Payload.h"
 #include <SD.h>
 #include <GPS.h>
 #include <RockBLOCK.h>
@@ -33,7 +34,8 @@ public:
     PCB(),
     sensors(),
     gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIME),
-    RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK) {
+    RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK),
+    ValMU(PAYLOAD_GATE, EEPROM_PAYLOAD) {
   }
   void    init();
   void    test();
@@ -53,6 +55,7 @@ private:
 
   bool    readData();
   bool    readGPS();
+  bool    readPayload();
   bool    simulateData();
   bool    processData();
 
@@ -75,10 +78,12 @@ private:
   void    parseSensorsCommand(uint8_t command);
   void    parseValveCommand(uint32_t  command);
   void    parseBallastCommand(uint32_t  command);
-  void    parseRockBLOCKCommand(bool command);
-  void    parseGPSCommand(uint8_t command);
-  void    parseHeaterCommand(bool command);
+  void    parseRockBLOCKPowerCommand(bool command);
+  void    parseGPSPowerCommand(uint8_t command);
+  void    parseHeaterPowerCommand(bool command);
   void    parseHeaterModeCommand(uint8_t command);
+  void    parsePayloadPowerCommand(bool command);
+  void    parsePayloadModeCommand(uint8_t command);
 
   bool    debugState();
   void    setupLog();
@@ -102,6 +107,7 @@ private:
   Controller computer;
   GPS gpsModule;
   RockBLOCK RBModule;
+  Payload ValMU;
 };
 
 #endif

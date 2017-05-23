@@ -33,6 +33,10 @@ public:
   double   getAverageCurrentRB(double current);
   double   getAverageCurrentMotors(double current,bool on);
   double   getAverageCurrentPayload(double current);
+  double   getAverageEulerX(double euler);
+  double   getAverageEulerY(double euler);
+  double   getAverageEulerZ(double euler);
+  double   getPastEuler(uint8_t euler, uint8_t index);
 
   double   getPressure();
   double   getAltitude();
@@ -65,24 +69,31 @@ private:
   double   currentPayloadTotal = 0;
   uint32_t currentPayloadCount = 0;
 
+  double   eulerXBuf[EULER_BUFFER_SIZE] = {0};
+  double   eulerYBuf[EULER_BUFFER_SIZE] = {0};
+  double   eulerZBuf[EULER_BUFFER_SIZE] = {0};
+  uint8_t  eulerXIndex = 0;
+  uint8_t  eulerYIndex = 0;
+  uint8_t  eulerZIndex = 0;
+
   double   pressureBaseline;
   float    meanAscentRates[4];
   float    meanAltitudes[4];
   uint16_t altitudeIndex = 0;
-  double    sampleTimeSeconds[ALTITUDE_BUFFER_SIZE] = {0};
+  double   sampleTimeSeconds[ALTITUDE_BUFFER_SIZE] = {0};
   float    altitudeBuffer[4][ALTITUDE_BUFFER_SIZE] = {{0}};
   bool     altitudeErrors[4][ALTITUDE_BUFFER_SIZE] = {{false}};
 
-  double sumX[4] = {0};
-  double sumY[4] = {0};
-  double sumXY[4] = {0};
-  double sumX2[4] = {0};
-  int sampleCount[4] = {ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE};
+  double   sumX[4] = {0};
+  double   sumY[4] = {0};
+  double   sumXY[4] = {0};
+  double   sumX2[4] = {0};
+  int      sampleCount[4] = {ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE};
 
-  bool firstBUFFER = true;
+  bool     firstBUFFER = true;
 
   float    lastAcceptedAltitudes[4];
-  double    lastAcceptedTimes[4];
+  double   lastAcceptedTimes[4];
   double   pressures[4];
   bool     filtered = false;
 

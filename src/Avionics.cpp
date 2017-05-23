@@ -35,7 +35,7 @@ void Avionics::init() {
   if(!RBModule.init(data.RB_SHOULD_USE))           logAlert("unable to initialize RockBlock", true);
 #endif
   if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE))  logAlert("unable to initialize Heaters", true);
-  if(!PCB.startupPayload(data.PAYLOAD_SHOULD_USE)) logAlert("unable to initialize Payload", true);
+  if(!ValMU.init(data.PAYLOAD_SHOULD_USE))         logAlert("unable to initialize Payload", true);
   data.SETUP_STATE = false;
 }
 
@@ -207,6 +207,7 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_4   = sensors.getRawPressure(4);
   data.ALTITUDE_LAST    = data.ALTITUDE;
   if (data.GPS_SHOULD_USE && ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL)) readGPS();
+  if (data.PAYLOAD_SHOULD_USE) readPayload();
   return true;
 }
 
@@ -227,29 +228,37 @@ bool Avionics::readGPS() {
   return true;
 }
 
+/*
+ * Function: readPayload
+ * -------------------
+ * This function reads data from the Payload.
+ */
+bool Avionics::readPayload() {
+  ValMU.querrySensors();
+  data.EULER_X          = ValMU.getEulerX();
+  data.EULER_Y          = ValMU.getEulerY();
+  data.EULER_Z          = ValMU.getEulerZ();
+  return true;
+}
+
 bool Avionics::simulateData() {
   DataFrame simulation = HITL.readData();
-
   data.LOOP_TIME                      = millis() - data.TIME;
   data.TIME                           = millis();
   data.RAW_PRESSURE_1                 = simulation.RAW_PRESSURE_1;
   data.RAW_PRESSURE_2                 = simulation.RAW_PRESSURE_2;
   data.RAW_PRESSURE_3                 = simulation.RAW_PRESSURE_3;
   data.RAW_PRESSURE_4                 = simulation.RAW_PRESSURE_4;
-
   data.BMP_1_ENABLE                   = simulation.BMP_1_ENABLE;
   data.BMP_2_ENABLE                   = simulation.BMP_2_ENABLE;
   data.BMP_3_ENABLE                   = simulation.BMP_3_ENABLE;
   data.BMP_4_ENABLE                   = simulation.BMP_4_ENABLE;
-
   // data.ALTITUDE                       = simulation.ALTITUDE;
   // data.ASCENT_RATE                    = simulation.ASCENT_RATE;
-
   data.PRESS_BASELINE                 = simulation.PRESS_BASELINE;
   // data.INCENTIVE_THRESHOLD            = simulation.INCENTIVE_THRESHOLD;
   // data.RE_ARM_CONSTANT                = simulation.RE_ARM_CONSTANT;
   data.BALLAST_ARM_ALT                = simulation.BALLAST_ARM_ALT;
-
   data.VALVE_SETPOINT                 = simulation.VALVE_SETPOINT;
   data.VALVE_DURATION                 = simulation.VALVE_DURATION;
   data.VALVE_ALT_LAST                 = simulation.VALVE_ALT_LAST;
@@ -262,7 +271,6 @@ bool Avionics::simulateData() {
   data.BALLAST_VELOCITY_CONSTANT      = simulation.BALLAST_VELOCITY_CONSTANT;
   // data.BALLAST_ALTITUDE_DIFF_CONSTANT = simulation.BALLAST_ALTITUDE_DIFF_CONSTANT;
   // data.BALLAST_LAST_ACTION_CONSTANT   = simulation.BALLAST_LAST_ACTION_CONSTANT;
-
   // data.MANUAL_MODE                    = simulation.MANUAL_MODE;
   data.ALTITUDE_LAST                  = data.ALTITUDE;
   return true;
@@ -289,6 +297,10 @@ bool Avionics::processData() {
   data.CURRENT_RB_AVG      = filter.getAverageCurrentRB(data.CURRENT_RB);
   data.CURRENT_MOTORS_AVG  = filter.getAverageCurrentMotors(data.CURRENT_MOTORS, (data.VALVE_STATE || data.BALLAST_STATE));
   data.CURRENT_PAYLOAD_AVG = filter.getAverageCurrentPayload(data.CURRENT_PAYLOAD);
+
+  data.EULER_X_AVG         = filter.getAverageEulerX(data.EULER_X);
+  data.EULER_Y_AVG         = filter.getAverageEulerY(data.EULER_Y);
+  data.EULER_Z_AVG         = filter.getAverageEulerZ(data.EULER_Z);
 
   data.ALTITUDE            = filter.getAltitude();
   data.ASCENT_RATE         = filter.getAscentRate();
@@ -413,6 +425,7 @@ bool Avionics::runBallast() {
     data.FORCE_BALLAST = false;
   }
   data.BALLAST_QUEUE = PCB.getBallastQueue();
+  data.NUM_BALLAST_OVER_CURRENTS = PCB.getNumBallastOverCurrents();
   data.BALLAST_STATE = PCB.checkBallast(data.CURRENT_MOTORS, data.BALLAST_REVERSE_TIMEOUT, data.BALLAST_STALL_CURRENT);
   return true;
 }
@@ -530,10 +543,12 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 23) parseSensorsCommand(value);
   else if (index == 24) parseValveCommand(value);
   else if (index == 25) parseBallastCommand(value);
-  else if (index == 26) parseRockBLOCKCommand(value);
-  else if (index == 27) parseGPSCommand(value);
-  else if (index == 28) parseHeaterCommand(value);
+  else if (index == 26) parseRockBLOCKPowerCommand(value);
+  else if (index == 27) parseGPSPowerCommand(value);
+  else if (index == 28) parseHeaterPowerCommand(value);
   else if (index == 29) parseHeaterModeCommand(value);
+  else if (index == 30) parsePayloadPowerCommand(value);
+  else if (index == 31) parseHeaterModeCommand(value);
 }
 
 /*
@@ -595,11 +610,11 @@ void Avionics::parseBallastCommand(uint32_t command) {
 }
 
 /*
- * Function: parseRockBLOCKCommand
+ * Function: parseRockBLOCKPowerCommand
  * -------------------
- * This function parses the RockBLOCK commands.
+ * This function parses the power RockBLOCK command.
  */
-void Avionics::parseRockBLOCKCommand(bool command) {
+void Avionics::parseRockBLOCKPowerCommand(bool command) {
   if (command && !data.RB_SHOULD_USE) {
     data.RB_SHOULD_USE = true;
     RBModule.restart();
@@ -611,11 +626,11 @@ void Avionics::parseRockBLOCKCommand(bool command) {
 }
 
 /*
- * Function: parseGPSCommand
+ * Function: parseGPSPowerCommand
  * -------------------
- * This function parses the GPS commands.
+ * This function parses the GPS power command.
  */
-void Avionics::parseGPSCommand(uint8_t command) {
+void Avionics::parseGPSPowerCommand(uint8_t command) {
   if (command == 0) {
     data.GPS_SHOULD_USE = false;
     gpsModule.shutdown();
@@ -631,11 +646,11 @@ void Avionics::parseGPSCommand(uint8_t command) {
 }
 
 /*
- * Function: parseHeaterCommand
+ * Function: parseHeaterPowerCommand
  * -------------------
- * This function parses the heater commands.
+ * This function parses the heater power command.
  */
-void Avionics::parseHeaterCommand(bool command) {
+void Avionics::parseHeaterPowerCommand(bool command) {
   data.HEATER_SHOULD_USE = command;
   PCB.setHeaterMode(command);
   if (!command) PCB.turnOffHeaters();
@@ -649,6 +664,32 @@ void Avionics::parseHeaterCommand(bool command) {
 void Avionics::parseHeaterModeCommand(uint8_t command) {
   data.HEATER_STRONG_ENABLE = command & 0b0001;
   data.HEATER_WEEK_ENABLE   = command & 0b0010;
+}
+
+/*
+ * Function: parsePayloadPowerCommand
+ * -------------------
+ * This function parses the Payload power command.
+ */
+void Avionics::parsePayloadPowerCommand(bool command) {
+  if (command && !data.PAYLOAD_SHOULD_USE) {
+    data.PAYLOAD_SHOULD_USE = true;
+    ValMU.restart();
+  }
+  else if (!command) {
+    data.PAYLOAD_SHOULD_USE = false;
+    ValMU.shutdown();
+  }
+}
+
+/*
+ * Function: parsePayloadModeCommand
+ * -------------------
+ * This function parses the Payload mode command.
+ */
+void Avionics::parsePayloadModeCommand(uint8_t command){
+  if(command >= 30) return;
+  data.EULER_HISTORY = command;
 }
 
 /*
@@ -788,6 +829,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.NUM_BALLASTS,                     0,    4095,    12, lengthBits);
   lengthBits += compressVariable(data.NUM_VALVE_ATTEMPTS,               0,    4095,    12, lengthBits);
   lengthBits += compressVariable(data.NUM_BALLAST_ATTEMPTS,             0,    4095,    12, lengthBits);
+  lengthBits += compressVariable(data.NUM_BALLAST_OVER_CURRENTS,        0,    4095,    12, lengthBits);
   lengthBits += compressVariable(data.CUTDOWN_STATE,                    0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.PRESS,                            0,    500000,  19, lengthBits);
   lengthBits += compressVariable(data.TEMP_IN,                         -50,   100,     9,  lengthBits);
@@ -805,6 +847,9 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.NUM_SATS_GPS,                     0,    25,      4,  lengthBits);
   lengthBits += compressVariable(data.LOOP_TIME,                        0,    10000,   10, lengthBits);
   lengthBits += compressVariable(data.RB_SENT_COMMS,                    0,    8191,    13, lengthBits);
+  lengthBits += compressVariable(data.EULER_X_AVG,                      0,    360,     8, lengthBits);
+  lengthBits += compressVariable(data.EULER_Y_AVG,                     -180,  180,     8, lengthBits);
+  lengthBits += compressVariable(data.EULER_Z_AVG,                     -90,   90,      4, lengthBits);
   lengthBits += compressVariable(data.TEMP_SETPOINT,                   -20,   40,      6,  lengthBits);
   lengthBits += compressVariable(data.MANUAL_MODE,                      0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.RB_SHOULD_USE,                    0,    1,       1,  lengthBits);
@@ -867,11 +912,20 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.CURRENT_RB,                     0,    3000,    4,  lengthBits);
     lengthBits += compressVariable(data.CURRENT_MOTORS,                 0,    3000,    4,  lengthBits);
     lengthBits += compressVariable(data.CURRENT_PAYLOAD,                0,    3000,    4,  lengthBits);
+    lengthBits += compressVariable(data.EULER_X,                        0,    360,     8,  lengthBits);
+    lengthBits += compressVariable(data.EULER_Y,                       -180,  180,     8,  lengthBits);
+    lengthBits += compressVariable(data.EULER_Z,                       -90,   90,      4,  lengthBits);
+    lengthBits += compressVariable(data.EULER_HISTORY,                  0,    30,      5,  lengthBits);
     lengthBits += compressVariable(data.ALTITUDE_LAST,                 -2000, 40000,   16, lengthBits);
     lengthBits += compressVariable(data.GPS_LAST,                       0,    500000,  10, lengthBits);
     lengthBits += compressVariable(data.COMMS_LAST,                     0,    500000,  10, lengthBits);
     lengthBits += compressVariable(data.DATAFILE_LAST,                  0,    500000,  10, lengthBits);
     lengthBits += compressVariable(data.COMMS_LENGTH,                   0,    200,     8,  lengthBits);
+    for(size_t i = 0; i < data.EULER_HISTORY; i++) {
+      lengthBits += compressVariable(filter.getPastEuler(0, i),         0,    360,     8,  lengthBits);
+      lengthBits += compressVariable(filter.getPastEuler(1, i),        -180,  180,     8,  lengthBits);
+      lengthBits += compressVariable(filter.getPastEuler(2, i),        -90,   90,      4,  lengthBits);
+    }
   }
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
@@ -960,6 +1014,9 @@ void Avionics::printState() {
   Serial.print("NUM_BALLAST_ATTEMPTS:");
   Serial.print(data.NUM_BALLAST_ATTEMPTS);
   Serial.print(',');
+  Serial.print("NUM_BALLAST_OVER_CURRENTS:");
+  Serial.print(data.NUM_BALLAST_OVER_CURRENTS);
+  Serial.print(',');
   Serial.print("CUTDOWN_STATE:");
   Serial.print(data.CUTDOWN_STATE);
   Serial.print(',');
@@ -1010,6 +1067,15 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print("RB_SENT_COMMS:");
   Serial.print(data.RB_SENT_COMMS);
+  Serial.print(',');
+  Serial.print("EULER_X_AVG:");
+  Serial.print(data.EULER_X_AVG);
+  Serial.print(',');
+  Serial.print("EULER_Y_AVG:");
+  Serial.print(data.EULER_Y_AVG);
+  Serial.print(',');
+  Serial.print("EULER_Z_AVG:");
+  Serial.print(data.EULER_Z_AVG);
   Serial.print(',');
   Serial.print("TEMP_SETPOINT:");
   Serial.print(data.TEMP_SETPOINT);
@@ -1194,6 +1260,18 @@ void Avionics::printState() {
   Serial.print("CURRENT_PAYLOAD:");
   Serial.print(data.CURRENT_PAYLOAD);
   Serial.print(',');
+  Serial.print("EULER_X:");
+  Serial.print(data.EULER_X);
+  Serial.print(',');
+  Serial.print("EULER_Y:");
+  Serial.print(data.EULER_Y);
+  Serial.print(',');
+  Serial.print("EULER_Z:");
+  Serial.print(data.EULER_Z);
+  Serial.print(',');
+  Serial.print("EULER_HISTORY:");
+  Serial.print(data.EULER_HISTORY);
+  Serial.print(',');
   Serial.print("ALTITUDE_LAST:");
   Serial.print(data.ALTITUDE_LAST);
   Serial.print(',');
@@ -1251,6 +1329,8 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.NUM_BALLAST_ATTEMPTS);
   dataFile.print(',');
+  dataFile.print(data.NUM_BALLAST_OVER_CURRENTS);
+  dataFile.print(',');
   dataFile.print(data.CUTDOWN_STATE);
   dataFile.print(',');
   dataFile.print(data.PRESS);
@@ -1284,6 +1364,12 @@ bool Avionics::logData() {
   dataFile.print(data.LOOP_TIME);
   dataFile.print(',');
   dataFile.print(data.RB_SENT_COMMS);
+  dataFile.print(',');
+  dataFile.print(data.EULER_X_AVG);
+  dataFile.print(',');
+  dataFile.print(data.EULER_Y_AVG);
+  dataFile.print(',');
+  dataFile.print(data.EULER_Z_AVG);
   dataFile.print(',');
   dataFile.print(data.TEMP_SETPOINT);
   dataFile.print(',');
@@ -1406,6 +1492,14 @@ bool Avionics::logData() {
   dataFile.print(data.CURRENT_MOTORS);
   dataFile.print(',');
   dataFile.print(data.CURRENT_PAYLOAD);
+  dataFile.print(',');
+  dataFile.print(data.EULER_X);
+  dataFile.print(',');
+  dataFile.print(data.EULER_Y);
+  dataFile.print(',');
+  dataFile.print(data.EULER_Z);
+  dataFile.print(',');
+  dataFile.print(data.EULER_HISTORY);
   dataFile.print(',');
   dataFile.print(data.ALTITUDE_LAST);
   dataFile.print(',');

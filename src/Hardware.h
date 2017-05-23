@@ -27,8 +27,6 @@ public:
 /********************************  FUNCTIONS  *********************************/
   void     runLED(bool on);
 
-  bool     startupPayload(bool shouldStartup);
-
   bool     startUpHeaters(bool shouldStartup);
   void     heater(double tempSetpoint, double temp, bool strong, bool weak);
   void     turnOffHeaters();
@@ -42,6 +40,7 @@ public:
   bool     checkBallast(float current, uint32_t reverseTimeout, uint16_t stallCurrent);
   uint32_t getValveQueue();
   uint32_t getBallastQueue();
+  uint32_t getNumBallastOverCurrents();
 
   void     cutDown(bool on);
 
@@ -73,8 +72,8 @@ private:
   uint32_t ballastStallTime = 0;
   uint32_t ballastDirectionTime = 0;
   bool     ballastDirection = false;
-
-  float    currentLast;
+  uint32_t numBallastOverCurrents = 0;
+  float    currentLast = 0;
 
   double   PIDSetVar;
   double   PIDOutVar;

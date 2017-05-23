@@ -49,23 +49,6 @@ void Hardware::runLED(bool on) {
 }
 
 /*
- * Function: startUpPayload
- * -------------------
- * This function starts up the payload.
- */
-bool Hardware::startupPayload(bool shouldStartup) {
-  bool success = false;
-  if (shouldStartup) {
-    EEPROM.write(EEPROM_PAYLOAD, false);
-    digitalWrite(PAYLOAD_GATE, HIGH);
-    delay(1000);
-    EEPROM.write(EEPROM_PAYLOAD, true);
-    success = true;
-  }
-  return success;
-}
-
-/*
  * Function: startUpHeaters
  * -------------------
  * This function starts up the heaters.
@@ -239,10 +222,10 @@ bool Hardware::checkBallast(float current, uint32_t reverseTimeout, uint16_t sta
     }
   }
   if (ballastState == OPEN) {
-    if (current >= stallCurrent && currentLast < stallCurrent) ballastStallTime = millis();
-    if (current >= stallCurrent && (millis() - ballastStallTime >= BALLAST_STALL_TIMEOUT)) {
+    if (current >= stallCurrent && ((currentLast < stallCurrent) || (millis() - ballastStallTime >= BALLAST_STALL_TIMEOUT))) {
       ballastDirection = !ballastDirection;
       ballastStallTime = millis();
+      numBallastOverCurrents++;
     }
     currentLast = current;
     if(ballastQueue > 0) {
@@ -279,6 +262,15 @@ uint32_t Hardware::getValveQueue() {
  */
 uint32_t Hardware::getBallastQueue() {
   return ballastQueue + ballastQueueFake;
+}
+
+/*
+ * Function: getNumBallastOverCurrents
+ * -------------------
+ * This function returns the number of times that the ballast has over currented.
+ */
+uint32_t Hardware::getNumBallastOverCurrents() {
+  return numBallastOverCurrents;
 }
 
 /*

@@ -33,7 +33,7 @@ public:
   Avionics() :
     PCB(),
     sensors(),
-    gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIME),
+    gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIME, GPS_QUIT_TIME),
     RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK),
     ValMU(PAYLOAD_GATE, EEPROM_PAYLOAD) {
   }

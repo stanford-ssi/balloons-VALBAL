@@ -17,7 +17,6 @@
 
 /*************************  HARDWARE IN THE lOOP  *****************************/
 // #define HITL_ENABLED_FLAG // uncomment for HITL
-// #define RB_DISABLED_FLAG  // uncomment for HITL
 
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   REBOOT_ENABLE                         =               16;
@@ -57,6 +56,7 @@ static const uint16_t  CUTDOWN_ALT                           =            30000;
 static const uint16_t  CUTDOWN_DURATION                      =            10000;
 
 static const uint16_t  GPS_LOCK_TIME                         =              500;
+static const uint16_t  GPS_QUIT_TIME                         =            10000;
 static const float     GPS_FENCE_LAT_MIN                     =            -9999;
 static const float     GPS_FENCE_LAT_MAX                     =             9999;
 static const float     GPS_FENCE_LON_MIN                     =            -9999;

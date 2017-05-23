@@ -31,9 +31,7 @@ void Avionics::init() {
   if(!filter.init())                               logAlert("unable to initialize Filters", true);
   if(!computer.init())                             logAlert("unable to initialize Flight Controller", true);
   if(!gpsModule.init(data.GPS_SHOULD_USE))         logAlert("unable to initialize GPS", true);
-#ifndef RB_DISABLED_FLAG
   if(!RBModule.init(data.RB_SHOULD_USE))           logAlert("unable to initialize RockBlock", true);
-#endif
   if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE))  logAlert("unable to initialize Heaters", true);
   if(!ValMU.init(data.PAYLOAD_SHOULD_USE))         logAlert("unable to initialize Payload", true);
   data.SETUP_STATE = false;
@@ -466,11 +464,11 @@ bool Avionics::runLED() {
 bool Avionics::sendSATCOMS() {
   logAlert("sending Rockblock message", false);
   data.RB_SENT_COMMS++;
-#ifndef RB_DISABLED_FLAG
+#ifdef HITL_ENABLED_FLAG
   int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
   if(ret < 0) return false;
   if(ret > 0) parseCommand(ret);
- #endif
+#endif
   return true;
 }
 

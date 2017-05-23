@@ -18,15 +18,16 @@
 class GPS {
 public:
 /**********************************  SETUP  ***********************************/
-  GPS(uint8_t GPS_EnablePinNum, uint16_t GPS_BaudVal, uint8_t EEPROMAddressVal, uint16_t GPS_LockTime) :
+  GPS(uint8_t GPS_EnablePinNum, uint16_t GPS_BaudVal, uint8_t EEPROMAddressVal, uint16_t GPS_LockTime, uint16_t GPS_QuitTime) :
     GPS_ENABLE_PIN(GPS_EnablePinNum),
     GPS_BAUD(GPS_BaudVal),
     EEPROMAddress(EEPROMAddressVal),
-    GPS_LOCK_TIME(GPS_LockTime) {
+    GPS_LOCK_TIME(GPS_LockTime),
+    GPS_TIMEOUT_TIME(GPS_QuitTime) {
   }
   bool     init(bool shouldStartup);
 /********************************  FUNCTIONS  *********************************/
-  void     restart();
+  bool     restart();
   void     hotstart();
   void     shutdown();
   float    getLatitude();
@@ -38,7 +39,7 @@ public:
   void     smartDelay(uint32_t ms);
 private:
 /*********************************  HELPERS  **********************************/
-  void     setFlightMode(uint16_t GPS_LOCK_TIME);
+  bool     setFlightMode(uint16_t GPS_LOCK_TIME);
   void     sendUBX(uint8_t* MSG, uint8_t len);
   bool     getUBX_ACK(uint8_t* MSG);
 /*********************************  OBJECTS  **********************************/
@@ -46,6 +47,7 @@ private:
   uint16_t GPS_BAUD;
   uint8_t  EEPROMAddress;
   uint16_t GPS_LOCK_TIME;
+  uint16_t GPS_TIMEOUT_TIME;
   TinyGPSPlus tinygps;
 };
 

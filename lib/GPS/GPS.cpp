@@ -24,8 +24,7 @@ bool GPS::init(bool shouldStartup) {
   delay(2000);
   Serial1.begin(GPS_BAUD);
   if (shouldStartup) {
-    restart();
-    success = true;
+    success = restart();
   }
   return success;
 }
@@ -36,13 +35,13 @@ bool GPS::init(bool shouldStartup) {
  * -------------------
  * This function restarts the GPS.
  */
-void GPS::restart() {
+bool GPS::restart() {
   EEPROM.write(EEPROMAddress, false);
   digitalWrite(GPS_ENABLE_PIN, HIGH);
   delay(1000);
   EEPROM.write(EEPROMAddress, true);
   delay(3000);
-  setFlightMode(GPS_LOCK_TIME);
+  return setFlightMode(GPS_LOCK_TIME);
 }
 
 /*
@@ -138,18 +137,21 @@ void GPS::smartDelay(uint32_t ms) {
  * -------------------
  * This function sets the GPS module into flight mode.
  */
-void GPS::setFlightMode(uint16_t GPS_LOCK_TIME){
+bool GPS::setFlightMode(uint16_t GPS_LOCK_TIME){
   Serial.println("Setting uBlox nav mode: ");
+  uint32_t startTime = millis();
   uint8_t gps_set_sucess = 0;
   uint8_t setNav[] = {
     0xB5, 0x62, 0x06, 0x24, 0x24, 0x00, 0xFF, 0xFF, 0x06, 0x03, 0x00, 0x00, 0x00, 0x00, 0x10, 0x27, 0x00, 0x00,
     0x05, 0x00, 0xFA, 0x00, 0xFA, 0x00, 0x64, 0x00, 0x2C, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x16, 0xDC };
   while(!gps_set_sucess) {
+    if(millis() - startTime > GPS_TIMEOUT_TIME) return false;
     sendUBX(setNav, sizeof(setNav)/sizeof(uint8_t));
     gps_set_sucess = getUBX_ACK(setNav);
   }
   smartDelay(GPS_LOCK_TIME);
+  return true;
 }
 
 /*

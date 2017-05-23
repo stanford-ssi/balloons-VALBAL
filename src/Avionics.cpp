@@ -259,13 +259,13 @@ bool Avionics::simulateData() {
   data.BALLAST_ARM_ALT                = simulation.BALLAST_ARM_ALT;
   data.VALVE_SETPOINT                 = simulation.VALVE_SETPOINT;
   data.VALVE_DURATION                 = simulation.VALVE_DURATION;
-  data.VALVE_ALT_LAST                 = simulation.VALVE_ALT_LAST;
+  // data.VALVE_ALT_LAST                 = simulation.VALVE_ALT_LAST;
   data.VALVE_VELOCITY_CONSTANT        = simulation.VALVE_VELOCITY_CONSTANT;
   // data.VALVE_ALTITUDE_DIFF_CONSTANT   = simulation.VALVE_ALTITUDE_DIFF_CONSTANT;
   // data.VALVE_LAST_ACTION_CONSTANT     = simulation.VALVE_LAST_ACTION_CONSTANT;
   data.BALLAST_SETPOINT               = simulation.BALLAST_SETPOINT;
   data.BALLAST_DURATION               = simulation.BALLAST_DURATION;
-  data.BALLAST_ALT_LAST               = simulation.BALLAST_ALT_LAST;
+  // data.BALLAST_ALT_LAST               = simulation.BALLAST_ALT_LAST;
   data.BALLAST_VELOCITY_CONSTANT      = simulation.BALLAST_VELOCITY_CONSTANT;
   // data.BALLAST_ALTITUDE_DIFF_CONSTANT = simulation.BALLAST_ALTITUDE_DIFF_CONSTANT;
   // data.BALLAST_LAST_ACTION_CONSTANT   = simulation.BALLAST_LAST_ACTION_CONSTANT;

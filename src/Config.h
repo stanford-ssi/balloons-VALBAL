@@ -119,7 +119,6 @@ static const uint16_t  ALTITUDE_STANDARD_DEV                 =                2;
 static const uint16_t  ALTITUDE_BUFFER_SIZE                  =             1000;
 static const uint16_t  MINIMUM_ALTITUDE_POINTS               =              600;
 static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =              600;
-static const uint8_t   EULER_BUFFER_SIZE                     =              100;
 
 /*****************************  EEPROM ADDRESSES  *****************************/
 static const uint8_t   EEPROM_ROCKBLOCK                      =                0;

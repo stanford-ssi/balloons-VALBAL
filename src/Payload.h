@@ -27,13 +27,20 @@ public:
   void    restart();
   void    shutdown();
   void    querrySensors();
-  float   getEuler(uint8_t axis);
+  float   getCurrentEuler(uint8_t axis);
+  float   getAverageEuler(uint8_t axis);
+  double  getPastEuler(uint8_t axis, uint8_t index);
 private:
 /*********************************  OBJECTS  **********************************/
-  uint8_t payloadGate;
-  uint8_t EEPROMAddress;
-  char    buf[100]  = {0};
-  float   values[3] = {0};
+  static const uint8_t EULER_BUFFER_SIZE = 100;
+  uint8_t  payloadGate;
+  uint8_t  EEPROMAddress;
+  char     buf[100]  = {0};
+  float    values[3] = {0};
+  double   eulerXBuf[EULER_BUFFER_SIZE] = {0};
+  double   eulerYBuf[EULER_BUFFER_SIZE] = {0};
+  double   eulerZBuf[EULER_BUFFER_SIZE] = {0};
+  uint8_t  eulerIndex = 0;
 };
 
 #endif

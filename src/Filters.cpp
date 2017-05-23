@@ -203,60 +203,6 @@ double Filters::getAverageCurrentPayload(double current) {
 }
 
 /*
-* Function: getAverageEulerX
-* -------------------
-* This function returns the average Euler x value.
-*/
-double Filters::getAverageEulerX(double euler) {
-  eulerXBuf[eulerXIndex] = euler;
-  eulerXIndex++;
-  eulerXIndex %= EULER_BUFFER_SIZE;
-  double total = 0;
-  for(size_t i = 0; i < EULER_BUFFER_SIZE; i++) total += eulerXBuf[i];
-  return total / EULER_BUFFER_SIZE;
-}
-
-/*
-* Function: getAverageEulerZ
-* -------------------
-* This function returns the average Euler y value.
-*/
-double Filters::getAverageEulerY(double euler) {
-  eulerYBuf[eulerYIndex] = euler;
-  eulerYIndex++;
-  eulerYIndex %= EULER_BUFFER_SIZE;
-  double total = 0;
-  for(size_t i = 0; i < EULER_BUFFER_SIZE; i++) total += eulerYBuf[i];
-  return total / EULER_BUFFER_SIZE;
-}
-
-/*
-* Function: getAverageEulerZ
-* -------------------
-* This function returns the average Euler z value.
-*/
-double Filters::getAverageEulerZ(double euler) {
-  eulerZBuf[eulerZIndex] = euler;
-  eulerZIndex++;
-  eulerZIndex %= EULER_BUFFER_SIZE;
-  double total = 0;
-  for(size_t i = 0; i < EULER_BUFFER_SIZE; i++) total += eulerZBuf[i];
-  return total / EULER_BUFFER_SIZE;
-}
-
-/*
-* Function: getPastEuler
-* -------------------
-* This function returns a past euler value.
-*/
-double Filters::getPastEuler(uint8_t euler, uint8_t index) {
-  if(euler == 0) return eulerXBuf[eulerXIndex - index];
-  if(euler == 1) return eulerYBuf[eulerYIndex - index];
-  if(euler == 2) return eulerZBuf[eulerZIndex - index];
-  return -1;
-}
-
-/*
 * Function: clearAverages
 * -------------------
 * This function clears the current average values for the system variables.

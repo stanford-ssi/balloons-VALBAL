@@ -233,9 +233,9 @@ bool Avionics::readGPS() {
  */
 bool Avionics::readPayload() {
   ValMU.querrySensors();
-  data.EULER_X          = ValMU.getEuler(0);
-  data.EULER_Y          = ValMU.getEuler(1);
-  data.EULER_Z          = ValMU.getEuler(2);
+  data.EULER_X          = ValMU.getCurrentEuler(0);
+  data.EULER_Y          = ValMU.getCurrentEuler(1);
+  data.EULER_Z          = ValMU.getCurrentEuler(2);
   return true;
 }
 
@@ -296,9 +296,9 @@ bool Avionics::processData() {
   data.CURRENT_MOTORS_AVG  = filter.getAverageCurrentMotors(data.CURRENT_MOTORS, (data.VALVE_STATE || data.BALLAST_STATE));
   data.CURRENT_PAYLOAD_AVG = filter.getAverageCurrentPayload(data.CURRENT_PAYLOAD);
 
-  data.EULER_X_AVG         = filter.getAverageEulerX(data.EULER_X);
-  data.EULER_Y_AVG         = filter.getAverageEulerY(data.EULER_Y);
-  data.EULER_Z_AVG         = filter.getAverageEulerZ(data.EULER_Z);
+  data.EULER_X_AVG         = ValMU.getAverageEuler(0);
+  data.EULER_Y_AVG         = ValMU.getAverageEuler(1);
+  data.EULER_Z_AVG         = ValMU.getAverageEuler(2);
 
   data.ALTITUDE            = filter.getAltitude();
   data.ASCENT_RATE         = filter.getAscentRate();
@@ -920,9 +920,9 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.DATAFILE_LAST,                  0,    500000,  10, lengthBits);
     lengthBits += compressVariable(data.COMMS_LENGTH,                   0,    200,     8,  lengthBits);
     for(size_t i = 0; i < data.EULER_HISTORY; i++) {
-      lengthBits += compressVariable(filter.getPastEuler(0, i),         0,    360,     8,  lengthBits);
-      lengthBits += compressVariable(filter.getPastEuler(1, i),        -180,  180,     8,  lengthBits);
-      lengthBits += compressVariable(filter.getPastEuler(2, i),        -90,   90,      4,  lengthBits);
+      lengthBits += compressVariable(ValMU.getPastEuler(0, i),         0,    360,     8,  lengthBits);
+      lengthBits += compressVariable(ValMU.getPastEuler(1, i),        -180,  180,     8,  lengthBits);
+      lengthBits += compressVariable(ValMU.getPastEuler(2, i),        -90,   90,      4,  lengthBits);
     }
   }
   lengthBits += 8 - (lengthBits % 8);

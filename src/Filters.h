@@ -33,10 +33,6 @@ public:
   double   getAverageCurrentRB(double current);
   double   getAverageCurrentMotors(double current,bool on);
   double   getAverageCurrentPayload(double current);
-  double   getAverageEulerX(double euler);
-  double   getAverageEulerY(double euler);
-  double   getAverageEulerZ(double euler);
-  double   getPastEuler(uint8_t euler, uint8_t index);
 
   double   getPressure();
   double   getAltitude();
@@ -68,13 +64,6 @@ private:
   uint32_t currentMotorsCount = 0;
   double   currentPayloadTotal = 0;
   uint32_t currentPayloadCount = 0;
-
-  double   eulerXBuf[EULER_BUFFER_SIZE] = {0};
-  double   eulerYBuf[EULER_BUFFER_SIZE] = {0};
-  double   eulerZBuf[EULER_BUFFER_SIZE] = {0};
-  uint8_t  eulerXIndex = 0;
-  uint8_t  eulerYIndex = 0;
-  uint8_t  eulerZIndex = 0;
 
   double   pressureBaseline;
   float    meanAscentRates[4];

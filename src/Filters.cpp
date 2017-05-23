@@ -425,8 +425,8 @@ void Filters::findLastAccepted() {
 */
 void Filters::velocityCheck() {
   for(int i = 0; i<4;i++){
-    if (fabs((altitudeBuffer[i][altitudeIndex] - lastAcceptedAltitudes[i])/(sampleTimeSeconds[altitudeIndex] - lastAcceptedTimes[i])) > MAX_VELOCITY){
-      markFailure(i);
+      if (((fabs(altitudeBuffer[i][altitudeIndex] - lastAcceptedAltitudes[i])-6*ALTITUDE_STANDARD_DEV)/(sampleTimeSeconds[altitudeIndex] - lastAcceptedTimes[i])) > MAX_VELOCITY){
+          markFailure(i);
     }
   }
 }

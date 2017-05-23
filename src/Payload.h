@@ -27,9 +27,7 @@ public:
   void    restart();
   void    shutdown();
   void    querrySensors();
-  float   getEulerX();
-  float   getEulerY();
-  float   getEulerZ();
+  float   getEuler(uint8_t axis);
 private:
 /*********************************  OBJECTS  **********************************/
   uint8_t payloadGate;

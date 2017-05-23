@@ -62,38 +62,22 @@ void Payload::querrySensors() {
   Serial2.setTimeout(10);
   Serial2.readBytesUntil('\n', buf, 100);
   if (strncmp (buf,"[LOG]",4) != 0) {
-    size_t i = 0;
     char *tok = strtok(buf, ",");
-    while (tok != NULL) {
-      values[i++] = atof(tok);
+    for(size_t i = 0; i < 3; i++) {
+      values[i] = atof(tok);
       tok = strtok(NULL, ",");
     }
   }
 }
 
 /*
- * Function: getEulerX
+ * Function: getEuler
  * -------------------
- * This function returns the Euler x value.
+ * This function returns the specified Euler value.
  */
-float Payload::getEulerX() {
-  return values[0];
-}
-
-/*
- * Function: getEulerY
- * -------------------
- * This function returns the Euler y value.
- */
-float Payload::getEulerY() {
-  return values[1];
-}
-
-/*
- * Function: getEulerZ
- * -------------------
- * This function returns the Euler z value.
- */
-float Payload::getEulerZ() {
-  return values[2];
+float Payload::getEuler(uint8_t axis) {
+  if(axis == 0) return values[0];
+  if(axis == 1) return values[1];
+  if(axis == 2) return values[2];
+  return -1;
 }

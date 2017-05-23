@@ -42,6 +42,8 @@ The avionics flight software was written in compliance with NASA JPL's  Safety-C
 
 `Parser` - Decompression algorithm for satcomms.
 
+`Payload` - Interface to external research payloads.
+
 `Simulator` - Client side code for Hardware in the Loop simulations.
 
 #### Libraries

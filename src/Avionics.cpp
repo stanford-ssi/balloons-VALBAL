@@ -233,9 +233,9 @@ bool Avionics::readGPS() {
  */
 bool Avionics::readPayload() {
   ValMU.querrySensors();
-  data.EULER_X          = ValMU.getEulerX();
-  data.EULER_Y          = ValMU.getEulerY();
-  data.EULER_Z          = ValMU.getEulerZ();
+  data.EULER_X          = ValMU.getEuler(0);
+  data.EULER_Y          = ValMU.getEuler(1);
+  data.EULER_Z          = ValMU.getEuler(2);
   return true;
 }
 
@@ -546,7 +546,7 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 28) parseHeaterPowerCommand(value);
   else if (index == 29) parseHeaterModeCommand(value);
   else if (index == 30) parsePayloadPowerCommand(value);
-  else if (index == 31) parseHeaterModeCommand(value);
+  else if (index == 31) parsePayloadModeCommand(value);
 }
 
 /*

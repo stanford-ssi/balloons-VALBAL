@@ -829,7 +829,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.NUM_BALLAST_ATTEMPTS,             0,    4095,    12, lengthBits);
   lengthBits += compressVariable(data.NUM_BALLAST_OVER_CURRENTS,        0,    4095,    12, lengthBits);
   lengthBits += compressVariable(data.CUTDOWN_STATE,                    0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.PRESS,                            0,    500000,  19, lengthBits);
+  lengthBits += compressVariable(data.PRESS,                            0,    500000,  12, lengthBits);
   lengthBits += compressVariable(data.TEMP_IN,                         -50,   100,     9,  lengthBits);
   lengthBits += compressVariable(data.JOULES,                           0,    1500000, 18, lengthBits);
   lengthBits += compressVariable(data.VOLTAGE,                          0,    5,       9,  lengthBits);
@@ -841,7 +841,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.TEMP_NECK,                       -100,  100,     9,  lengthBits);
   lengthBits += compressVariable(data.TEMP_EXT,                        -100,  100,     9,  lengthBits);
   lengthBits += compressVariable(data.SPEED_GPS,                       -100,  100,     9,  lengthBits);
-  lengthBits += compressVariable(data.HEADING_GPS,                     -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.HEADING_GPS,                     -2000, 40000,   10, lengthBits);
   lengthBits += compressVariable(data.NUM_SATS_GPS,                     0,    25,      4,  lengthBits);
   lengthBits += compressVariable(data.LOOP_TIME,                        0,    10000,   10, lengthBits);
   lengthBits += compressVariable(data.RB_SENT_COMMS,                    0,    8191,    13, lengthBits);

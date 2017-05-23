@@ -56,7 +56,10 @@ void Payload::shutdown() {
  * This function gets the updated data stream from the payload.
  */
 void Payload::querrySensors() {
+  for(size_t i = 0; i < 100; i++) buf[i] = 0;
+  digitalWrite(payloadGate, HIGH);
   if(!Serial2.available()) return;
+  Serial2.setTimeout(10);
   Serial2.readBytesUntil('\n', buf, 100);
   if (strncmp (buf,"[LOG]",4) != 0) {
     size_t i = 0;

@@ -31,9 +31,20 @@ void Avionics::init() {
   if(!filter.init())                               logAlert("unable to initialize Filters", true);
   if(!computer.init())                             logAlert("unable to initialize Flight Controller", true);
   if(!gpsModule.init(data.GPS_SHOULD_USE))         logAlert("unable to initialize GPS", true);
-  if(!RBModule.init(data.RB_SHOULD_USE))           logAlert("unable to initialize RockBlock", true);
+  #ifndef RB_DISABLED_FLAG
+    if(!RBModule.init(data.RB_SHOULD_USE))         logAlert("unable to initialize RockBlock", true);
+  #endif
   if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE))  logAlert("unable to initialize Heaters", true);
   if(!ValMU.init(data.PAYLOAD_SHOULD_USE))         logAlert("unable to initialize Payload", true);
+  #ifdef RESET_EEPROM_FLAG
+                                                   logAlert("DO NOT LAUNCH, RESET_EEPROM_FLAG IS ENABLED", true);
+  #endif
+  #ifdef HITL_ENABLED_FLAG
+                                                   logAlert("DO NOT LAUNCH, HITL_ENABLED_FLAG IS ENABLED", true);
+  #endif
+  #ifdef RB_DISABLED_FLAG
+                                                  logAlert("DO NOT LAUNCH, RB_DISABLED_FLAG IS ENABLED", true);
+  #endif
   data.SETUP_STATE = false;
 }
 
@@ -60,11 +71,13 @@ void Avionics::test() {
  * This function handles basic flight data collection.
  */
 void Avionics::updateState() {
-  if(!readData())     logAlert("unable to read Data", true);
+  #ifndef HITL_ENABLED_FLAG
+    if(!readData())     logAlert("unable to read Data", true);
+  #endif
   #ifdef HITL_ENABLED_FLAG
     if(!simulateData()) logAlert("unable to simulate Data", true);
   #endif
-  if(!processData())  logAlert("unable to process Data", true);
+  if(!processData())    logAlert("unable to process Data", true);
 }
 
 /*
@@ -135,12 +148,7 @@ void Avionics::sendComms() {
  */
 void Avionics::sleep() {
   uint32_t loopTime = millis() - data.TIME;
-  #ifdef HITL_ENABLED_FLAG
-    if (loopTime < LOOP_INTERVAL) gpsModule.smartDelay(HITL.getLoopTime() - loopTime);
-  #endif
-  #ifndef HITL_ENABLED_FLAG
-    if (loopTime < LOOP_INTERVAL) gpsModule.smartDelay(LOOP_INTERVAL - loopTime);
-  #endif
+  if (loopTime < LOOP_INTERVAL) gpsModule.smartDelay(LOOP_INTERVAL - loopTime);
 }
 
 /*
@@ -183,16 +191,14 @@ bool Avionics::readHistory() {
     PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
     PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
   #endif
-  #ifndef RESET_EEPROM_FLAG
-    if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.RB_SHOULD_USE = false;
-    if(!EEPROM.read(EEPROM_GPS)) data.GPS_SHOULD_USE = false;
-    if(!EEPROM.read(EEPROM_HEATER)) data.HEATER_SHOULD_USE = false;
-    if(!EEPROM.read(EEPROM_PAYLOAD)) data.PAYLOAD_SHOULD_USE = false;
-    double valveAltLast = PCB.EEPROMReadlong(EEPROM_VALVE_ALT_LAST);
-    if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
-    double ballastAltLast = PCB.EEPROMReadlong(EEPROM_BALLAST_ALT_LAST);
-    if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
-  #endif
+  if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.RB_SHOULD_USE = false;
+  if(!EEPROM.read(EEPROM_GPS)) data.GPS_SHOULD_USE = false;
+  if(!EEPROM.read(EEPROM_HEATER)) data.HEATER_SHOULD_USE = false;
+  if(!EEPROM.read(EEPROM_PAYLOAD)) data.PAYLOAD_SHOULD_USE = false;
+  double valveAltLast = PCB.EEPROMReadlong(EEPROM_VALVE_ALT_LAST);
+  if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
+  double ballastAltLast = PCB.EEPROMReadlong(EEPROM_BALLAST_ALT_LAST);
+  if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
   return true;
 }
 

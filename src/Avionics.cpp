@@ -36,15 +36,6 @@ void Avionics::init() {
   #endif
   if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE))  logAlert("unable to initialize Heaters", true);
   if(!ValMU.init(data.PAYLOAD_SHOULD_USE))         logAlert("unable to initialize Payload", true);
-  #ifdef RESET_EEPROM_FLAG
-                                                   logAlert("DO NOT LAUNCH, RESET_EEPROM_FLAG IS ENABLED", true);
-  #endif
-  #ifdef HITL_ENABLED_FLAG
-                                                   logAlert("DO NOT LAUNCH, HITL_ENABLED_FLAG IS ENABLED", true);
-  #endif
-  #ifdef RB_DISABLED_FLAG
-                                                  logAlert("DO NOT LAUNCH, RB_DISABLED_FLAG IS ENABLED", true);
-  #endif
   data.SETUP_STATE = false;
 }
 
@@ -191,15 +182,17 @@ bool Avionics::readHistory() {
     PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
     PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
   #endif
-  if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.RB_SHOULD_USE = false;
-  if(!EEPROM.read(EEPROM_GPS)) data.GPS_SHOULD_USE = false;
-  if(!EEPROM.read(EEPROM_HEATER)) data.HEATER_SHOULD_USE = false;
-  if(!EEPROM.read(EEPROM_PAYLOAD)) data.PAYLOAD_SHOULD_USE = false;
-  double valveAltLast = PCB.EEPROMReadlong(EEPROM_VALVE_ALT_LAST);
-  if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
-  double ballastAltLast = PCB.EEPROMReadlong(EEPROM_BALLAST_ALT_LAST);
-  if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
-  return true;
+  #ifndef RESET_EEPROM_FLAG
+    if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.RB_SHOULD_USE = false;
+    if(!EEPROM.read(EEPROM_GPS)) data.GPS_SHOULD_USE = false;
+    if(!EEPROM.read(EEPROM_HEATER)) data.HEATER_SHOULD_USE = false;
+    if(!EEPROM.read(EEPROM_PAYLOAD)) data.PAYLOAD_SHOULD_USE = false;
+    double valveAltLast = PCB.EEPROMReadlong(EEPROM_VALVE_ALT_LAST);
+    if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
+    double ballastAltLast = PCB.EEPROMReadlong(EEPROM_BALLAST_ALT_LAST);
+    if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
+    return true;
+  #endif
 }
 
 /*

@@ -228,28 +228,31 @@ void Filters::clearAverages() {
 * altitude value
 */
 double Filters::getAltitude(){
-  float meanAltitude = 0;
+  float sumOfAltitudes = 0;
   int acceptedStreams = 0;
   for(int i = 0; i<4;i++){
     if((sampleCount[i] >= MINIMUM_ALTITUDE_POINTS) && (enabledSensors[i] == true)){
-      meanAltitude += sumY[i]/sampleCount[i];
+      sumOfAltitudes += sumY[i]/sampleCount[i];
       acceptedStreams++;
     }
   }
-  debugFile.print("meanAltitude "); debugFile.print((meanAltitude));
-  debugFile.print(" altitude acceptedStreams "); debugFile.print((acceptedStreams)); debugFile.print("\n");
+
 
   if(acceptedStreams == 0){
-    meanAltitude = 0;
+    sumOfAltitudes = 0;
     acceptedStreams = 0;
     for(int i = 0; i<4;i++){
       if((sampleCount[i] != 0 ) && (enabledSensors[i] == true)){
-        meanAltitude += sumY[i]/sampleCount[i];
+        sumOfAltitudes += sumY[i]/sampleCount[i];
         acceptedStreams++;
       }
     }
   }
-  return meanAltitude / acceptedStreams;
+
+  debugFile.print("meanAltitude"); debugFile.print((sumOfAltitudes/acceptedStreams));
+  debugFile.print(" altitude acceptedStreams "); debugFile.print((acceptedStreams)); debugFile.print("\n");
+
+  return sumOfAltitudes / acceptedStreams;
 }
 
 /*
@@ -259,32 +262,33 @@ double Filters::getAltitude(){
 * ascent rate value
 */
 double Filters::getAscentRate() {
-  double meanAscentRate = 0;
+  double sumOfAscentRates= 0;
   double meanAscentRates[4] = {0};
   int acceptedStreams = 0;
 
   for(int i = 0; i < 4; i++) {
     meanAscentRates[i] = (sumXY[i] - sumX[i]*sumY[i]/sampleCount[i] )/(sumX2[i] - sumX[i]*sumX[i]/sampleCount[i]);
     if((sampleCount[i] >= MINIMUM_ASCENT_RATE_POINTS) && (enabledSensors[i] == true)){
-      meanAscentRate += meanAscentRates[i];
+      sumOfAscentRates+= meanAscentRates[i];
       acceptedStreams++;
     }
   }
 
-  debugFile.print("meanAscentRate "); debugFile.print((meanAscentRate));
-  debugFile.print(" AscentRate acceptedStreams "); debugFile.print((acceptedStreams)); debugFile.print("\n");
-
   if(acceptedStreams == 0){
-    meanAscentRate = 0;
+    sumOfAscentRates= 0;
     acceptedStreams = 0;
     for(int i = 0; i<4;i++){
       if((!isnan(meanAscentRates[i])) && (enabledSensors[i] == true)){
-        meanAscentRate += meanAscentRates[i];
+        sumOfAscentRates+= meanAscentRates[i];
         acceptedStreams++;
       }
     }
   }
-  return meanAscentRate / acceptedStreams;
+
+  debugFile.print("meanAscentRate "); debugFile.print((sumOfAscentRates/acceptedStreams));
+  debugFile.print(" AscentRate acceptedStreams "); debugFile.print((acceptedStreams)); debugFile.print("\n");
+
+  return sumOfAscentRates/ acceptedStreams;
 }
 
 /*

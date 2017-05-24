@@ -25,9 +25,9 @@ void Avionics::init() {
   if(!setupSDCard())                               logAlert("unable to initialize SD Card", true);
   if(!readHistory())                               logAlert("unable to initialize EEPROM", true);
   if(!sensors.init())                              logAlert("unable to initialize Sensors", true);
-#ifdef HITL_ENABLED_FLAG
-  if(!HITL.init())                                 logAlert("unable to initialize Simulations", true);
-#endif
+  #ifdef HITL_ENABLED_FLAG
+    if(!HITL.init())                               logAlert("unable to initialize Simulations", true);
+  #endif
   if(!filter.init())                               logAlert("unable to initialize Filters", true);
   if(!computer.init())                             logAlert("unable to initialize Flight Controller", true);
   if(!gpsModule.init(data.GPS_SHOULD_USE))         logAlert("unable to initialize GPS", true);
@@ -61,9 +61,9 @@ void Avionics::test() {
  */
 void Avionics::updateState() {
   if(!readData())     logAlert("unable to read Data", true);
-#ifdef HITL_ENABLED_FLAG
-  if(!simulateData()) logAlert("unable to simulate Data", true);
-#endif
+  #ifdef HITL_ENABLED_FLAG
+    if(!simulateData()) logAlert("unable to simulate Data", true);
+  #endif
   if(!processData())  logAlert("unable to process Data", true);
 }
 
@@ -117,10 +117,12 @@ void Avionics::logState() {
 void Avionics::sendComms() {
   if(data.DEBUG_STATE && ((millis() - data.COMMS_LAST) < COMMS_DEBUG_INTERVAL)) return;
   if(!data.DEBUG_STATE && ((millis() - data.COMMS_LAST) < data.COMMS_INTERVAL)) return;
-  if (!data.RB_SHOULD_USE && ((millis() - data.COMMS_LAST) > COMMS_RESTART_INTERVAL)) {
-    data.RB_SHOULD_USE = true;
-    RBModule.restart();
-  }
+  #ifndef RB_DISABLED_FLAG
+    if (!data.RB_SHOULD_USE && ((millis() - data.COMMS_LAST) > COMMS_RESTART_INTERVAL)) {
+      data.RB_SHOULD_USE = true;
+      RBModule.restart();
+    }
+  #endif
   if(compressData() < 0) logAlert("unable to compress Data", true);
   if(!sendSATCOMS()) logAlert("unable to communicate over RB", true);
   data.COMMS_LAST = millis();
@@ -133,7 +135,12 @@ void Avionics::sendComms() {
  */
 void Avionics::sleep() {
   uint32_t loopTime = millis() - data.TIME;
-  if (loopTime < LOOP_INTERVAL) gpsModule.smartDelay(LOOP_INTERVAL - loopTime);
+  #ifdef HITL_ENABLED_FLAG
+    if (loopTime < LOOP_INTERVAL) gpsModule.smartDelay(HITL.getLoopTime() - loopTime);
+  #endif
+  #ifndef HITL_ENABLED_FLAG
+    if (loopTime < LOOP_INTERVAL) gpsModule.smartDelay(LOOP_INTERVAL - loopTime);
+  #endif
 }
 
 /*
@@ -167,14 +174,25 @@ bool Avionics::setupSDCard() {
  * if avionics is restarted mid flight.
  */
 bool Avionics::readHistory() {
-  if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.RB_SHOULD_USE = false;
-  if(!EEPROM.read(EEPROM_GPS)) data.GPS_SHOULD_USE = false;
-  if(!EEPROM.read(EEPROM_HEATER)) data.HEATER_SHOULD_USE = false;
-  if(!EEPROM.read(EEPROM_PAYLOAD)) data.PAYLOAD_SHOULD_USE = false;
-  double valveAltLast = PCB.EEPROMReadlong(EEPROM_VALVE_ALT_LAST);
-  if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
-  double ballastAltLast = PCB.EEPROMReadlong(EEPROM_BALLAST_ALT_LAST);
-  if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
+  #ifdef RESET_EEPROM_FLAG
+    for(size_t i = 0; i < 1023; i++)   EEPROM.write(i, 0x0);
+    EEPROM.write(EEPROM_ROCKBLOCK, true);
+    EEPROM.write(EEPROM_GPS, true);
+    EEPROM.write(EEPROM_HEATER, true);
+    EEPROM.write(EEPROM_PAYLOAD, true);
+    PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
+    PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
+  #endif
+  #ifndef RESET_EEPROM_FLAG
+    if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.RB_SHOULD_USE = false;
+    if(!EEPROM.read(EEPROM_GPS)) data.GPS_SHOULD_USE = false;
+    if(!EEPROM.read(EEPROM_HEATER)) data.HEATER_SHOULD_USE = false;
+    if(!EEPROM.read(EEPROM_PAYLOAD)) data.PAYLOAD_SHOULD_USE = false;
+    double valveAltLast = PCB.EEPROMReadlong(EEPROM_VALVE_ALT_LAST);
+    if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
+    double ballastAltLast = PCB.EEPROMReadlong(EEPROM_BALLAST_ALT_LAST);
+    if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
+  #endif
   return true;
 }
 
@@ -464,11 +482,11 @@ bool Avionics::runLED() {
 bool Avionics::sendSATCOMS() {
   logAlert("sending Rockblock message", false);
   data.RB_SENT_COMMS++;
-#ifdef HITL_ENABLED_FLAG
-  int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
-  if(ret < 0) return false;
-  if(ret > 0) parseCommand(ret);
-#endif
+  #ifndef RB_DISABLED_FLAG
+    int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
+    if(ret < 0) return false;
+    if(ret > 0) parseCommand(ret);
+  #endif
   return true;
 }
 

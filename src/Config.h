@@ -15,8 +15,10 @@
 #include <stdint.h>
 #include <string.h>
 
-/*************************  HARDWARE IN THE lOOP  *****************************/
+/****************************  COMPILE FLAGS  *********************************/
+// #define RESET_EEPROM_FLAG // uncomment for setup
 // #define HITL_ENABLED_FLAG // uncomment for HITL
+// #define RB_DISABLED_FLAG  // uncomment for HITL
 
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   REBOOT_ENABLE                         =               16;

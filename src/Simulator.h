@@ -20,6 +20,7 @@ public:
 /**********************************  SETUP  ***********************************/
   bool      init();
   DataFrame readData();
+  uint32_t  getLoopTime();
 /********************************  FUNCTIONS  *********************************/
 private:
   void      getLine();
@@ -28,6 +29,7 @@ private:
   char buffer[UART_BUFFER_SIZE] = {0};
   float values[100];
   uint32_t pos = 0;
+  uint32_t loopInterval;
   File CSV;
   DataFrame simulated;
 };

@@ -66,6 +66,7 @@ DataFrame Simulator::readData() {
   simulated.BALLAST_INCENTIVE              = values[25];
   simulated.NUM_VALVES                     = values[26];
   simulated.NUM_BALLASTS                   = values[27];
+  loopInterval                             = values[28];
   // simulated.INCENTIVE_THRESHOLD            = values[28];
   // simulated.RE_ARM_CONSTANT                = values[29];
   // simulated.MANUAL_MODE                    = values[30];
@@ -78,6 +79,9 @@ DataFrame Simulator::readData() {
   return simulated;
 }
 
+uint32_t Simulator::getLoopTime() {
+  return loopInterval;
+}
 /*********************************  HELPERS  **********************************/
 /*
  * Function: getLine

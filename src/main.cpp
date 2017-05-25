@@ -43,8 +43,3 @@ bool ISBDCallback() {
   }
   return true;
 }
-
-
-//DO SETS OF LAST 5 HISTORIES
-//data frame
-//parser

@@ -359,6 +359,19 @@ double Filters::getAscentRate() {
         acceptedStreams++;
       }
     }
+
+    if(acceptedStreams == 0){
+      sumOfAscentRates= 0;
+      acceptedStreams = 0;
+      for(int i = 0; i<4;i++){
+        if(enabledSensors[i] == true){
+          sumOfAscentRates+= (altitudeBuffer[i][altitudeIndex] - altitudeBuffer[i][(altitudeIndex + 1)%ALTITUDE_BUFFER_SIZE])/
+                            (sampleTimeSeconds[altitudeIndex] - sampleTimeSeconds[(altitudeIndex + 1)%ALTITUDE_BUFFER_SIZE]);
+          acceptedStreams++;
+        }
+      }
+    }
+
   }
 
   debugFile.print("meanAscentRate "); debugFile.print((sumOfAscentRates/acceptedStreams));

@@ -62,10 +62,10 @@ struct DataFrame {
   bool       SHOULD_REPORT                    =                            true;
 
 /*****************************  SECONDARY DATA  *******************************/
-  bool       RB_SHOULD_USE                    =                            true;
-  bool       GPS_SHOULD_USE                   =                            true;
-  bool       HEATER_SHOULD_USE                =                            true;
-  bool       PAYLOAD_SHOULD_USE               =                            true;
+  bool       RB_SHOULD_USE                    =                            false;//TODO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  bool       GPS_SHOULD_USE                   =                           false;//TODO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  bool       HEATER_SHOULD_USE                =                            false;//TODO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  bool       PAYLOAD_SHOULD_USE               =                            false;//TODO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   bool       HEATER_STRONG_ENABLE             =                            true;
   bool       HEATER_WEEK_ENABLE               =                           false;
   bool       GPS_GOOD_STATE                   =                           false;

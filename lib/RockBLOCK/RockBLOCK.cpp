@@ -69,8 +69,6 @@ int16_t RockBLOCK::writeRead(char* buff, uint16_t len) {
   if(len < 0) return -1;
   size_t  bufferSize = sizeof(rxBuffer);
   write(buff, len);
-  delay(200);
-  Serial.println("Sending RB message");
   if(isbd.sendReceiveSBDBinary(rxBuffer, len, rxBuffer, bufferSize) != ISBD_SUCCESS) return -1 ;
   read(buff, bufferSize);
   return bufferSize;

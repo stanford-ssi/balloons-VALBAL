@@ -92,22 +92,10 @@ float Payload::getCurrentEuler(uint8_t axis) {
  * -------------------
  * This function returns the averaged Euler value.
  */
-float Payload::getAverageEuler(uint8_t axis) {
+float Payload::getAverageEuler(uint8_t axis, uint8_t index) {
   double total = 0;
   if(axis == 0) for(size_t i = 0; i < EULER_BUFFER_SIZE; i++) total += eulerXBuf[i];
   if(axis == 1) for(size_t i = 0; i < EULER_BUFFER_SIZE; i++) total += eulerYBuf[i];
   if(axis == 2) for(size_t i = 0; i < EULER_BUFFER_SIZE; i++) total += eulerZBuf[i];
   return total / EULER_BUFFER_SIZE;
-}
-
-/*
-* Function: getPastEuler
-* -------------------
-* This function returns a past euler value.
-*/
-double Payload::getPastEuler(uint8_t axis, uint8_t index) {
-  if(axis == 0) return eulerXBuf[eulerIndex - (index + 1)];
-  if(axis == 1) return eulerYBuf[eulerIndex - (index + 1)];
-  if(axis == 2) return eulerZBuf[eulerIndex - (index + 1)];
-  return -1;
 }

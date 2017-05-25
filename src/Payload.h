@@ -28,8 +28,7 @@ public:
   void    shutdown();
   void    querrySensors();
   float   getCurrentEuler(uint8_t axis);
-  float   getAverageEuler(uint8_t axis);
-  double  getPastEuler(uint8_t axis, uint8_t index);
+  float   getAverageEuler(uint8_t axis, uint8_t index);
 private:
 /*********************************  OBJECTS  **********************************/
   static const uint8_t EULER_BUFFER_SIZE = 100;

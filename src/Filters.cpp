@@ -1,12 +1,12 @@
 /*
-Stanford Student Space Initiative
-Balloons | VALBAL | May 2017
-Davy Ragland | dragland@stanford.edu
-Michal Adamkiewicz | mikadam@stanford.edu
+  Stanford Student Space Initiative
+  Balloons | VALBAL | May 2017
+  Davy Ragland | dragland@stanford.edu
+  Michal Adamkiewicz | mikadam@stanford.edu
 
-File: Filters.cpp
---------------------------
-Implementation of Filters.h
+  File: Filters.cpp
+  --------------------------
+  Implementation of Filters.h
 */
 
 #include "Filters.h"
@@ -149,7 +149,9 @@ void Filters::storeData(uint32_t time_stamp, double RAW_PRESSURE_1, double RAW_P
 * -------------------
 * This function returns the average subsytem current over the last window.
 */
-double   Filters::getAverageCurrentSystem(double current) {
+double   Filters::getAvgCurrentSystem(double current) {
+  if(current > currentSystemMax) currentSystemMax = current;
+  if(current < currentSystemMin) currentSystemMax = current;
   currentSystemCount++;
   currentSystemTotal += current;
   return currentSystemTotal / currentSystemCount;
@@ -160,7 +162,8 @@ double   Filters::getAverageCurrentSystem(double current) {
 * -------------------
 * This function returns the average subsytem current over the last window.
 */
-double   Filters::getAverageCurrentGPS(double current) {
+double   Filters::getAvgCurrentGPS(double current) {
+  if(current > currentGPSMax) currentGPSMax = current;
   currentGPSTotal += current;
   currentGPSCount++;
   return currentGPSTotal / currentGPSCount;
@@ -171,7 +174,8 @@ double   Filters::getAverageCurrentGPS(double current) {
 * -------------------
 * This function returns the average subsytem current over the last window.
 */
-double   Filters::getAverageCurrentRB(double current) {
+double   Filters::getAvgCurrentRB(double current) {
+  if(current > currentRBMax) currentRBMax = current;
   currentRBTotal += current;
   currentRBCount++;
   return currentRBTotal / currentRBCount;
@@ -182,8 +186,9 @@ double   Filters::getAverageCurrentRB(double current) {
 * -------------------
 * This function returns the average subsytem current over the last window.
 */
-double   Filters::getAverageCurrentMotors(double current,bool on) {
+double   Filters::getAvgCurrentMotors(double current,bool on) {
   if(on) {
+    if(current > currentMotorsMax) currentMotorsMax = current;
     currentMotorsTotal += current;
     currentMotorsCount++;
   }
@@ -196,28 +201,89 @@ double   Filters::getAverageCurrentMotors(double current,bool on) {
 * -------------------
 * This function returns the average subsytem current over the last window.
 */
-double Filters::getAverageCurrentPayload(double current) {
+double Filters::getAvgCurrentPayload(double current) {
+  if(current > currentPayloadMax) currentPayloadMax = current;
   currentPayloadTotal += current;
   currentPayloadCount++;
   return currentPayloadTotal / currentPayloadCount;
 }
 
 /*
-* Function: clearAverages
+* Function: getMaxCurrentSystem
 * -------------------
-* This function clears the current average values for the system variables.
+* This function returns the maximum subsytem current over the last window.
 */
-void Filters::clearAverages() {
-  currentSystemTotal  = 0;
-  currentSystemCount  = 0;
-  currentGPSTotal     = 0;
-  currentGPSCount     = 0;
-  currentRBTotal      = 0;
-  currentRBCount      = 0;
-  currentMotorsTotal  = 0;
-  currentMotorsCount  = 0;
+double Filters::getMaxCurrentSystem() {
+  return currentSystemMax;
+}
+
+/*
+* Function: getMinCurrentSystem
+* -------------------
+* This function returns the minimum subsytem current over the last window.
+*/
+double Filters::getMinCurrentSystem() {
+  return currentSystemMin;
+}
+
+/*
+* Function: getMaxCurrentGPS
+* -------------------
+* This function returns the maximum subsytem current over the last window.
+*/
+double Filters::getMaxCurrentGPS() {
+  return currentGPSMax;
+}
+
+/*
+* Function: getMaxCurrentRB
+* -------------------
+* This function returns the maximum subsytem current over the last window.
+*/
+double Filters::getMaxCurrentRB() {
+  return currentRBMax;
+}
+
+/*
+* Function: getMaxCurrentMotors
+* -------------------
+* This function returns the maximum subsytem current over the last window.
+*/
+double Filters::getMaxCurrentMotors() {
+  return currentMotorsMax;
+}
+
+/*
+* Function: getMaxCurrentPayload
+* -------------------
+* This function returns the maximum subsytem current over the last window.
+*/
+double Filters::getMaxCurrentPayload() {
+  return currentPayloadMax;
+}
+
+/*
+* Function: clearCurrentValues
+* -------------------
+* This function clears the current values for the system variables.
+*/
+void Filters::clearCurrentValues() {
+  currentSystemTotal = 0;
+  currentSystemMax = 0;
+  currentSystemCount = 0;
+  currentGPSTotal = 0;
+  currentGPSMax = 0;
+  currentGPSCount = 0;
+  currentRBTotal = 0;
+  currentRBMax = 0;
+  currentRBCount = 0;
+  currentMotorsTotal = 0;
+  currentMotorsMax = 0;
+  currentMotorsCount = 0;
   currentPayloadTotal = 0;
+  currentPayloadMax = 0;
   currentPayloadCount = 0;
+  for(size_t i = 0; i < 4; i ++) rejectedSensors[i] = 0;
 }
 /***************************  GET FUNCTIONS  **********************************/
 

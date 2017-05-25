@@ -32,6 +32,8 @@ public:
   void     turnOffHeaters();
   void     setHeaterMode(bool on);
 
+  void     updateMechanicalConstants(uint16_t valveMotorSpeedValue, uint16_t ballastMotorSpeedValue, uint32_t valveOpeningTimeoutValue, uint32_t valveClosingTimeoutValue);
+
   void     queueValve(uint32_t  duration, bool real);
   void     queueBallast(uint32_t  duration, bool real);
   void     clearValveQueue();
@@ -60,10 +62,17 @@ private:
   enum state_t {OPEN, OPENING, CLOSED, CLOSING};
   state_t  valveState = CLOSED;
   state_t  ballastState = CLOSED;
+  
   uint32_t valveQueue = 0;
   uint32_t valveQueueFake = 0;
   uint32_t ballastQueue = 0;
   uint32_t ballastQueueFake = 0;
+
+  uint16_t   valveMotorSpeed = 0;
+  uint16_t   ballastMotorSpeed = 0;
+  uint32_t   valveOpeningTimeout = 0;
+  uint32_t   valveClosingTimeout = 0;
+
   uint32_t valveLeakStartTime = 0;
   uint32_t valveActionStartTime = 0;
   uint32_t ballastActionStartTime = 0;

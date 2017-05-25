@@ -23,7 +23,6 @@ bool Sensors::init() {
   pinMode(BATT_VOLTAGE,     INPUT);
   pinMode(BATT_CURRENT,     INPUT);
   pinMode(EXTERNAL_CURRENT, INPUT);
-  pinMode(NECK_TEMP_SENSOR, INPUT);
   pinMode(EXT_TEMP_SENSOR,  INPUT);
   if (!bme1.begin()) {
     Serial.println("Could not initialize BMP280 sensor 1, check wiring!");

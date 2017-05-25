@@ -110,6 +110,18 @@ void Hardware::setHeaterMode(bool on) {
 }
 
 /*
+ * Function: updateMechanicalConstants
+ * -------------------
+ * This function updates the mechanical constants.
+ */
+void Hardware::updateMechanicalConstants(uint16_t valveMotorSpeedValue, uint16_t ballastMotorSpeedValue, uint32_t valveOpeningTimeoutValue, uint32_t valveClosingTimeoutValue) {
+  valveMotorSpeed = valveMotorSpeedValue;
+  ballastMotorSpeed = ballastMotorSpeedValue;
+  valveOpeningTimeout = valveOpeningTimeoutValue;
+  valveClosingTimeout = valveClosingTimeoutValue;
+}
+
+/*
  * Function: queueValve
  * -------------------
  * This function increments the timer queue
@@ -177,7 +189,7 @@ bool Hardware::checkValve(float current) {
       openValve();
     }
   }
-  if ((valveState == OPENING) && (millis() - valveActionStartTime >= VALVE_OPENING_TIMEOUT)) {
+  if ((valveState == OPENING) && (millis() - valveActionStartTime >= valveOpeningTimeout)) {
     valveState = OPEN;
     stopValve();
   }
@@ -193,7 +205,7 @@ bool Hardware::checkValve(float current) {
       closeValve();
     }
   }
-  if ((valveState == CLOSING) && (millis() - valveActionStartTime >= VALVE_CLOSING_TIMEOUT)) {
+  if ((valveState == CLOSING) && (millis() - valveActionStartTime >= valveClosingTimeout)) {
     valveLeakStartTime = millis();
     valveState = CLOSED;
     stopValve();
@@ -284,7 +296,7 @@ void Hardware::cutDown(bool on) {
   clearBallastQueue();
   if(on) {
     analogWrite(VALVE_FORWARD, LOW);
-    analogWrite(VALVE_REVERSE, VALVE_MOTOR_SPEED);
+    analogWrite(VALVE_REVERSE, valveMotorSpeed);
   }
   else {
     analogWrite(VALVE_FORWARD, LOW);
@@ -339,7 +351,7 @@ void Hardware::stopValve() {
  */
 void Hardware::openValve() {
   analogWrite(VALVE_FORWARD, LOW);
-  analogWrite(VALVE_REVERSE, VALVE_MOTOR_SPEED);
+  analogWrite(VALVE_REVERSE, valveMotorSpeed);
 }
 
 /*
@@ -348,7 +360,7 @@ void Hardware::openValve() {
  * This function starts closing the valve.
  */
 void Hardware::closeValve() {
-  analogWrite(VALVE_FORWARD, VALVE_MOTOR_SPEED);
+  analogWrite(VALVE_FORWARD, valveMotorSpeed);
   analogWrite(VALVE_REVERSE, LOW);
 }
 
@@ -369,10 +381,10 @@ void Hardware::stopBallast() {
  */
 void Hardware::dropBallast(bool direction) {
   if (direction) {
-    analogWrite(BALLAST_FORWARD, BALLAST_MOTOR_SPEED);
+    analogWrite(BALLAST_FORWARD, ballastMotorSpeed);
     analogWrite(BALLAST_REVERSE, LOW);
   } else {
     analogWrite(BALLAST_FORWARD, LOW);
-    analogWrite(BALLAST_REVERSE, BALLAST_MOTOR_SPEED);
+    analogWrite(BALLAST_REVERSE, ballastMotorSpeed);
   }
 }

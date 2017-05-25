@@ -210,7 +210,6 @@ bool Avionics::readData() {
   data.CURRENT_RB       = sensors.getCurrentSubsystem(RB_CURRENT);
   data.CURRENT_MOTORS   = sensors.getCurrentSubsystem(MOTORS_CURRENT);
   data.CURRENT_PAYLOAD  = sensors.getCurrentSubsystem(PAYLOAD_CURRENT);
-  data.TEMP_NECK        = sensors.getDerivedTemp(NECK_TEMP_SENSOR);
   data.TEMP_EXT         = sensors.getDerivedTemp(EXT_TEMP_SENSOR);
   data.RAW_TEMP_1       = sensors.getRawTemp(1);
   data.RAW_TEMP_2       = sensors.getRawTemp(2);
@@ -220,7 +219,6 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_2   = sensors.getRawPressure(2);
   data.RAW_PRESSURE_3   = sensors.getRawPressure(3);
   data.RAW_PRESSURE_4   = sensors.getRawPressure(4);
-  data.ALTITUDE_LAST    = data.ALTITUDE;
   if (data.GPS_SHOULD_USE && ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL)) readGPS();
   if (data.PAYLOAD_SHOULD_USE) readPayload();
   return true;
@@ -287,7 +285,6 @@ bool Avionics::simulateData() {
   // data.BALLAST_ALTITUDE_DIFF_CONSTANT = simulation.BALLAST_ALTITUDE_DIFF_CONSTANT;
   // data.BALLAST_LAST_ACTION_CONSTANT   = simulation.BALLAST_LAST_ACTION_CONSTANT;
   // data.MANUAL_MODE                    = simulation.MANUAL_MODE;
-  data.ALTITUDE_LAST                  = data.ALTITUDE;
   return true;
 }
 
@@ -307,15 +304,20 @@ bool Avionics::processData() {
   data.BMP_3_REJECTIONS    = filter.getNumRejections(3);
   data.BMP_4_REJECTIONS    = filter.getNumRejections(4);
 
-  data.CURRENT_AVG         = filter.getAverageCurrentSystem(data.CURRENT);
-  data.CURRENT_GPS_AVG     = filter.getAverageCurrentGPS(data.CURRENT_GPS);
-  data.CURRENT_RB_AVG      = filter.getAverageCurrentRB(data.CURRENT_RB);
-  data.CURRENT_MOTORS_AVG  = filter.getAverageCurrentMotors(data.CURRENT_MOTORS, (data.VALVE_STATE || data.BALLAST_STATE));
-  data.CURRENT_PAYLOAD_AVG = filter.getAverageCurrentPayload(data.CURRENT_PAYLOAD);
+  data.CURRENT_AVG         = filter.getAvgCurrentSystem(data.CURRENT);
+  data.CURRENT_MAX         = filter.getMaxCurrentSystem();
+  data.CURRENT_GPS_AVG     = filter.getAvgCurrentGPS(data.CURRENT_GPS);
+  data.CURRENT_GPS_MAX     = filter.getMaxCurrentGPS();
+  data.CURRENT_RB_AVG      = filter.getAvgCurrentRB(data.CURRENT_RB);
+  data.CURRENT_RB_MAX      = filter.getMaxCurrentRB();
+  data.CURRENT_MOTORS_AVG  = filter.getAvgCurrentMotors(data.CURRENT_MOTORS, (data.VALVE_STATE || data.BALLAST_STATE));
+  data.CURRENT_MOTORS_MAX  = filter.getMaxCurrentMotors();
+  data.CURRENT_PAYLOAD_AVG = filter.getAvgCurrentPayload(data.CURRENT_PAYLOAD);
+  data.CURRENT_PAYLOAD_MAX = filter.getMaxCurrentPayload();
 
-  data.EULER_X_AVG         = ValMU.getAverageEuler(0);
-  data.EULER_Y_AVG         = ValMU.getAverageEuler(1);
-  data.EULER_Z_AVG         = ValMU.getAverageEuler(2);
+  data.EULER_X_AVG         = ValMU.getAverageEuler(0, 0);
+  data.EULER_Y_AVG         = ValMU.getAverageEuler(1, 0);
+  data.EULER_Z_AVG         = ValMU.getAverageEuler(2, 0);
 
   data.ALTITUDE            = filter.getAltitude();
   data.ASCENT_RATE         = filter.getAscentRate();
@@ -330,7 +332,7 @@ bool Avionics::processData() {
  * This function calculates if the current state is within bounds.
  */
 bool Avionics::calcVitals() {
-  if(!data.REPORT_MODE) data.SHOULD_REPORT = (data.ASCENT_RATE >= 10) || data.SHOULD_REPORT;
+  if(!data.SHOULD_REPORT == 0) data.SHOULD_REPORT = (data.ASCENT_RATE >= 10) || data.SHOULD_REPORT;////TODO ****************************************************
   if(!data.MANUAL_MODE) data.MANUAL_MODE   = (data.ASCENT_RATE >= 10);
   data.GPS_GOOD_STATE   = (data.LAT_GPS != 1000.0 && data.LAT_GPS != 0.0 && data.LONG_GPS != 1000.0 && data.LONG_GPS != 0.0);
   return true;
@@ -342,9 +344,7 @@ bool Avionics::calcVitals() {
  * This function calculates if the avionics is in debug mode.
  */
 bool Avionics::calcDebug() {
-  if(data.DEBUG_STATE   && (data.ALTITUDE_LAST >= DEBUG_ALT) && (data.ALTITUDE >= DEBUG_ALT)) {
-    data.DEBUG_STATE = false;
-  }
+  if(data.DEBUG_STATE && data.ALTITUDE >= DEBUG_ALT) data.DEBUG_STATE = false;
   return true;
 }
 
@@ -377,11 +377,7 @@ bool Avionics::calcCutdown() {
     (((data.LAT_GPS < GPS_FENCE_LAT_MIN) || (data.LAT_GPS > GPS_FENCE_LAT_MAX)) ||
     ((data.LONG_GPS < GPS_FENCE_LON_MIN) || (data.LONG_GPS > GPS_FENCE_LON_MAX)))
   ) data.SHOULD_CUTDOWN  = true;
-
-  if(CUTDOWN_ALT_ENABLE && !data.CUTDOWN_STATE &&
-    (data.ALTITUDE_LAST >= CUTDOWN_ALT) &&
-    (data.ALTITUDE      >= CUTDOWN_ALT)
-  ) data.SHOULD_CUTDOWN  = true;
+  if(CUTDOWN_ALT_ENABLE && !data.CUTDOWN_STATE && data.ALTITUDE >= CUTDOWN_ALT) data.SHOULD_CUTDOWN  = true;
   return true;
 }
 
@@ -406,6 +402,7 @@ bool Avionics::runHeaters() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runValve() {
+  PCB.updateMechanicalConstants(data.VALVE_MOTOR_SPEED, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_TIMEOUT, data.VALVE_CLOSING_TIMEOUT);
   if((data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
     data.NUM_VALVE_ATTEMPTS++;
     bool shouldValve = (!data.MANUAL_MODE || data.FORCE_VALVE);
@@ -428,6 +425,7 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runBallast() {
+  PCB.updateMechanicalConstants(data.VALVE_MOTOR_SPEED, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_TIMEOUT, data.VALVE_CLOSING_TIMEOUT);
   if((data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
     data.NUM_BALLAST_ATTEMPTS++;
     bool shouldBallast = (!data.MANUAL_MODE || data.FORCE_BALLAST);
@@ -549,21 +547,25 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 14) data.PRESS_BASELINE = value;
   else if (index == 15) data.BALLAST_REVERSE_TIMEOUT = value * 60000;
   else if (index == 16) data.BALLAST_STALL_CURRENT = value;
-  else if (index == 17) data.TEMP_SETPOINT = value;
-  else if (index == 18) data.SHOULD_LED = value;
-  else if (index == 19) data.COMMS_INTERVAL = value * 60000;
-  else if (index == 20) data.GPS_INTERVAL = value * 60000;
-  else if (index == 21) parseManualCommand(value);
-  else if (index == 22) parseReportCommand(value);
-  else if (index == 23) parseSensorsCommand(value);
-  else if (index == 24) parseValveCommand(value);
-  else if (index == 25) parseBallastCommand(value);
-  else if (index == 26) parseRockBLOCKPowerCommand(value);
-  else if (index == 27) parseGPSPowerCommand(value);
-  else if (index == 28) parseHeaterPowerCommand(value);
-  else if (index == 29) parseHeaterModeCommand(value);
-  else if (index == 30) parsePayloadPowerCommand(value);
-  else if (index == 31) parsePayloadModeCommand(value);
+  else if (index == 17) data.VALVE_MOTOR_SPEED = value;
+  else if (index == 18) data.BALLAST_MOTOR_SPEED = value;
+  else if (index == 19) data.VALVE_OPENING_TIMEOUT = value;
+  else if (index == 20) data.VALVE_CLOSING_TIMEOUT = value;
+  else if (index == 21) data.TEMP_SETPOINT = value;
+  else if (index == 22) data.SHOULD_LED = value;
+  else if (index == 23) data.COMMS_INTERVAL = value * 60000;
+  else if (index == 24) data.GPS_INTERVAL = value * 60000;
+  else if (index == 25) parseManualCommand(value);
+  else if (index == 26) parseReportCommand(value);
+  else if (index == 27) parseSensorsCommand(value);
+  else if (index == 28) parseValveCommand(value);
+  else if (index == 29) parseBallastCommand(value);
+  else if (index == 30) parseRockBLOCKPowerCommand(value);
+  else if (index == 31) parseGPSPowerCommand(value);
+  else if (index == 32) parseHeaterPowerCommand(value);
+  else if (index == 33) parseHeaterModeCommand(value);
+  else if (index == 34) parsePayloadPowerCommand(value);
+  else if (index == 35) parsePayloadModeCommand(value);
 }
 
 /*
@@ -582,7 +584,7 @@ void Avionics::parseManualCommand(bool command) {
  * -------------------
  * This function parses the REPORT_MODE mode command.
  */
-void Avionics::parseReportCommand(bool command) {
+void Avionics::parseReportCommand(uint8_t command) {
   data.REPORT_MODE = command;
 }
 
@@ -826,7 +828,6 @@ int16_t Avionics::compressVariable(float var, float minimum, float maximum, int1
 int16_t Avionics::compressData() {
   int16_t lengthBits  = 0;
   int16_t lengthBytes = 0;
-  if(data.REPORT_MODE) data.SHOULD_REPORT = true;
   for(uint16_t i = 0; i < BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
   lengthBits += compressVariable(data.TIME / 1000,                      0,    3000000, 20, lengthBits);
   lengthBits += compressVariable(data.LAT_GPS,                         -90,   90,      21, lengthBits);
@@ -840,106 +841,93 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.BALLAST_STATE,                    0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.VALVE_QUEUE,                      0,    1000000, 10, lengthBits);
   lengthBits += compressVariable(data.BALLAST_QUEUE,                    0,    1000000, 10, lengthBits);
-  lengthBits += compressVariable(data.NUM_VALVES,                       0,    4095,    12, lengthBits);
-  lengthBits += compressVariable(data.NUM_BALLASTS,                     0,    4095,    12, lengthBits);
-  lengthBits += compressVariable(data.NUM_VALVE_ATTEMPTS,               0,    4095,    12, lengthBits);
-  lengthBits += compressVariable(data.NUM_BALLAST_ATTEMPTS,             0,    4095,    12, lengthBits);
-  lengthBits += compressVariable(data.NUM_BALLAST_OVER_CURRENTS,        0,    4095,    12, lengthBits);
+  lengthBits += compressVariable(data.NUM_VALVES,                       0,    50,      6,  lengthBits);
+  lengthBits += compressVariable(data.NUM_BALLASTS,                     0,    50,      6,  lengthBits);
+  lengthBits += compressVariable(data.NUM_VALVE_ATTEMPTS,               0,    50,      6,  lengthBits);
+  lengthBits += compressVariable(data.NUM_BALLAST_ATTEMPTS,             0,    50,      6,  lengthBits);
+  lengthBits += compressVariable(data.NUM_BALLAST_OVER_CURRENTS,        0,    50,      6,  lengthBits);
   lengthBits += compressVariable(data.CUTDOWN_STATE,                    0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.PRESS,                            0,    500000,  12, lengthBits);
-  lengthBits += compressVariable(data.TEMP_IN,                         -50,   100,     9,  lengthBits);
+  lengthBits += compressVariable(data.TEMP_IN,                         -70,   80,      9,  lengthBits);
   lengthBits += compressVariable(data.JOULES,                           0,    1500000, 18, lengthBits);
   lengthBits += compressVariable(data.VOLTAGE,                          0,    5,       9,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_AVG,                      0,    5000,    8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_GPS_AVG,                  0,    3000,    6,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_RB_AVG,                   0,    3000,    6,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_MOTORS_AVG,               0,    3000,    6,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_PAYLOAD_AVG,              0,    3000,    6,  lengthBits);
-  lengthBits += compressVariable(data.TEMP_NECK,                       -100,  100,     9,  lengthBits);
-  lengthBits += compressVariable(data.TEMP_EXT,                        -100,  100,     9,  lengthBits);
-  lengthBits += compressVariable(data.SPEED_GPS,                       -100,  100,     9,  lengthBits);
-  lengthBits += compressVariable(data.HEADING_GPS,                     -2000, 40000,   10, lengthBits);
-  lengthBits += compressVariable(data.NUM_SATS_GPS,                     0,    25,      4,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_AVG,                      0,    4000,    12, lengthBits);
+  lengthBits += compressVariable(data.CURRENT_MIN,                      0,    4000,    12, lengthBits);
+  lengthBits += compressVariable(data.CURRENT_MAX,                      0,    4000,    12, lengthBits);
+  lengthBits += compressVariable(data.CURRENT_GPS_AVG,                  0,    200,     8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_GPS_MAX,                  0,    200,     8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_RB_AVG,                   0,    1000,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_RB_MAX,                   0,    1000,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_MOTORS_AVG,               0,    1000,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_MOTORS_MAX,               0,    1000,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_PAYLOAD_AVG,              0,    500,     8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_PAYLOAD_MAX,              0,    500,     8,  lengthBits);
+  lengthBits += compressVariable(data.TEMP_EXT,                        -100,  30,      6,  lengthBits);
   lengthBits += compressVariable(data.LOOP_TIME,                        0,    10000,   10, lengthBits);
   lengthBits += compressVariable(data.RB_SENT_COMMS,                    0,    8191,    13, lengthBits);
-  lengthBits += compressVariable(data.EULER_X_AVG,                      0,    360,     8, lengthBits);
-  lengthBits += compressVariable(data.EULER_Y_AVG,                     -180,  180,     8, lengthBits);
-  lengthBits += compressVariable(data.EULER_Z_AVG,                     -90,   90,      4, lengthBits);
-  lengthBits += compressVariable(data.TEMP_SETPOINT,                   -20,   40,      6,  lengthBits);
+  lengthBits += compressVariable(data.EULER_X_AVG,                      0,    360,     8,  lengthBits);
+  lengthBits += compressVariable(data.EULER_Y_AVG,                     -180,  180,     8,  lengthBits);
+  lengthBits += compressVariable(data.EULER_Z_AVG,                     -90,   90,      7,  lengthBits);
   lengthBits += compressVariable(data.MANUAL_MODE,                      0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.RB_SHOULD_USE,                    0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.GPS_SHOULD_USE,                   0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.HEATER_SHOULD_USE,                0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.PAYLOAD_SHOULD_USE,               0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.HEATER_STRONG_ENABLE,             0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.HEATER_WEEK_ENABLE,               0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.GPS_GOOD_STATE,                   0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.REPORT_MODE,                      0,    2,       2,  lengthBits);
   lengthBits += compressVariable(data.SHOULD_REPORT,                    0,    1,       1,  lengthBits);
-  if (data.SHOULD_REPORT) {
+  if (data.SHOULD_REPORT || data.REPORT_MODE != 0) {
+    lengthBits += compressVariable(data.RB_SHOULD_USE,                  0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.GPS_SHOULD_USE,                 0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.HEATER_SHOULD_USE,              0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.PAYLOAD_SHOULD_USE,             0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.HEATER_STRONG_ENABLE,           0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.HEATER_WEEK_ENABLE,             0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.GPS_GOOD_STATE,                 0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.SPEED_GPS,                      0,    150,     7,  lengthBits);
+    lengthBits += compressVariable(data.HEADING_GPS,                    0,    360,     8,  lengthBits);
+    lengthBits += compressVariable(data.NUM_SATS_GPS,                   0,    25,      3,  lengthBits);
+    lengthBits += compressVariable(data.INCENTIVE_NOISE,                0,    4,       8,  lengthBits);
+    lengthBits += compressVariable(data.RE_ARM_CONSTANT,                0,    4,       8,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_ALT_LAST,                -2000, 50000,   11, lengthBits);
+    lengthBits += compressVariable(data.BALLAST_ALT_LAST,              -2000, 50000,   11, lengthBits);
+    lengthBits += compressVariable(data.SHOULD_LED,                     0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.DEBUG_STATE,                    0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.FORCE_VALVE,                    0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.FORCE_BALLAST,                  0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.BMP_1_ENABLE,                   0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.BMP_2_ENABLE,                   0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.BMP_3_ENABLE,                   0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.BMP_4_ENABLE,                   0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(log2(data.BMP_1_REJECTIONS + 1),     0,    6,       4,  lengthBits);
+    lengthBits += compressVariable(log2(data.BMP_2_REJECTIONS + 1),     0,    6,       4,  lengthBits);
+    lengthBits += compressVariable(log2(data.BMP_3_REJECTIONS + 1),     0,    6,       4,  lengthBits);
+    lengthBits += compressVariable(log2(data.BMP_4_REJECTIONS + 1),     0,    6,       4,  lengthBits);
+  }
+  if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
+    lengthBits += compressVariable(data.TEMP_SETPOINT,                 -40,   40,      6,  lengthBits);
     lengthBits += compressVariable(data.COMMS_INTERVAL,                 0,    1000000, 10, lengthBits);
     lengthBits += compressVariable(data.GPS_INTERVAL,                   0,    1000000, 10, lengthBits);
     lengthBits += compressVariable(data.PRESS_BASELINE,                 0,    500000,  19, lengthBits);
-    lengthBits += compressVariable(data.INCENTIVE_NOISE,                0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.INCENTIVE_THRESHOLD,            0,    4,       8,  lengthBits);
-    lengthBits += compressVariable(data.RE_ARM_CONSTANT,                0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_ARM_ALT,               -2000, 40000,   16, lengthBits);
-    lengthBits += compressVariable(data.BALLAST_REVERSE_TIMEOUT,        0,    1000000, 4, lengthBits);
-    lengthBits += compressVariable(data.BALLAST_STALL_CURRENT,          0,    3000,    4,  lengthBits);
+    lengthBits += compressVariable(data.BALLAST_REVERSE_TIMEOUT,        0,    1000000, 4,  lengthBits);
+    lengthBits += compressVariable(data.BALLAST_STALL_CURRENT,          0,    500,     4,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_MOTOR_SPEED,              0,    255,     4,  lengthBits);
+    lengthBits += compressVariable(data.BALLAST_MOTOR_SPEED,            0,    255,     4,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_OPENING_TIMEOUT,          0,    10000,   5,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_CLOSING_TIMEOUT,          0,    10000,   5,  lengthBits);
     lengthBits += compressVariable(data.VALVE_SETPOINT,                -2000, 50000,   11, lengthBits);
     lengthBits += compressVariable(data.VALVE_DURATION,                 0,    1000000, 6,  lengthBits);
     lengthBits += compressVariable(data.VALVE_FORCE_DURATION,           0,    1000000, 6,  lengthBits);
-    lengthBits += compressVariable(data.VALVE_ALT_LAST,                -2000, 50000,   11, lengthBits);
     lengthBits += compressVariable(data.VALVE_VELOCITY_CONSTANT,        0,    5,       8,  lengthBits);
     lengthBits += compressVariable(data.VALVE_ALTITUDE_DIFF_CONSTANT,   0,    4000,    8,  lengthBits);
     lengthBits += compressVariable(data.VALVE_LAST_ACTION_CONSTANT,     0,    4000,    8,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_SETPOINT,              -2000, 50000,   11, lengthBits);
     lengthBits += compressVariable(data.BALLAST_DURATION,               0,    1000000, 6,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_FORCE_DURATION,         0,    1000000, 6,  lengthBits);
-    lengthBits += compressVariable(data.BALLAST_ALT_LAST,              -2000, 50000,   11, lengthBits);
     lengthBits += compressVariable(data.BALLAST_VELOCITY_CONSTANT,      0,    5,       8,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_ALTITUDE_DIFF_CONSTANT, 0,    4000,    8,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_LAST_ACTION_CONSTANT,   0,    4000,    8,  lengthBits);
-    lengthBits += compressVariable(data.SHOULD_CUTDOWN,                 0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.SHOULD_LED,                     0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.SETUP_STATE,                    0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.DEBUG_STATE,                    0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.FORCE_VALVE,                    0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.FORCE_BALLAST,                  0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.REPORT_MODE,                    0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.BMP_1_ENABLE,                   0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.BMP_2_ENABLE,                   0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.BMP_3_ENABLE,                   0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.BMP_4_ENABLE,                   0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.BMP_1_REJECTIONS,               0,    1000000, 6,  lengthBits);
-    lengthBits += compressVariable(data.BMP_2_REJECTIONS,               0,    1000000, 6,  lengthBits);
-    lengthBits += compressVariable(data.BMP_3_REJECTIONS,               0,    1000000, 6,  lengthBits);
-    lengthBits += compressVariable(data.BMP_4_REJECTIONS,               0,    1000000, 6,  lengthBits);
-    lengthBits += compressVariable(data.RAW_TEMP_1,                    -50,   100,     9,  lengthBits);
-    lengthBits += compressVariable(data.RAW_TEMP_2,                    -50,   100,     9,  lengthBits);
-    lengthBits += compressVariable(data.RAW_TEMP_3,                    -50,   100,     9,  lengthBits);
-    lengthBits += compressVariable(data.RAW_TEMP_4,                    -50,   100,     9,  lengthBits);
-    lengthBits += compressVariable(data.RAW_PRESSURE_1,                 0,    1000000, 19, lengthBits);
-    lengthBits += compressVariable(data.RAW_PRESSURE_2,                 0,    1000000, 19, lengthBits);
-    lengthBits += compressVariable(data.RAW_PRESSURE_3,                 0,    1000000, 19, lengthBits);
-    lengthBits += compressVariable(data.RAW_PRESSURE_4,                 0,    1000000, 19, lengthBits);
-    lengthBits += compressVariable(data.CURRENT,                        0,    5000,    4,  lengthBits);
-    lengthBits += compressVariable(data.CURRENT_GPS,                    0,    3000,    4,  lengthBits);
-    lengthBits += compressVariable(data.CURRENT_RB,                     0,    3000,    4,  lengthBits);
-    lengthBits += compressVariable(data.CURRENT_MOTORS,                 0,    3000,    4,  lengthBits);
-    lengthBits += compressVariable(data.CURRENT_PAYLOAD,                0,    3000,    4,  lengthBits);
-    lengthBits += compressVariable(data.EULER_X,                        0,    360,     8,  lengthBits);
-    lengthBits += compressVariable(data.EULER_Y,                       -180,  180,     8,  lengthBits);
-    lengthBits += compressVariable(data.EULER_Z,                       -90,   90,      4,  lengthBits);
     lengthBits += compressVariable(data.EULER_HISTORY,                  0,    30,      5,  lengthBits);
-    lengthBits += compressVariable(data.ALTITUDE_LAST,                 -2000, 40000,   16, lengthBits);
-    lengthBits += compressVariable(data.GPS_LAST,                       0,    500000,  10, lengthBits);
-    lengthBits += compressVariable(data.COMMS_LAST,                     0,    500000,  10, lengthBits);
-    lengthBits += compressVariable(data.DATAFILE_LAST,                  0,    500000,  10, lengthBits);
-    lengthBits += compressVariable(data.COMMS_LENGTH,                   0,    200,     8,  lengthBits);
     for(size_t i = 0; i < data.EULER_HISTORY; i++) {
-      lengthBits += compressVariable(ValMU.getPastEuler(0, i),         0,    360,     8,  lengthBits);
-      lengthBits += compressVariable(ValMU.getPastEuler(1, i),        -180,  180,     8,  lengthBits);
-      lengthBits += compressVariable(ValMU.getPastEuler(2, i),        -90,   90,      4,  lengthBits);
+      lengthBits += compressVariable(ValMU.getAverageEuler(0, i),       0,    360,     8,  lengthBits);
+      lengthBits += compressVariable(ValMU.getAverageEuler(1, i),      -180,  180,     8,  lengthBits);
+      lengthBits += compressVariable(ValMU.getAverageEuler(2, i),      -90,   90,      4,  lengthBits);
     }
   }
   lengthBits += 8 - (lengthBits % 8);
@@ -971,7 +959,12 @@ int16_t Avionics::compressData() {
   }
   logFile.print('\n');
   if(data.DEBUG_STATE) Serial.print('\n');
-  filter.clearAverages();
+  filter.clearCurrentValues();
+  data.NUM_VALVES = 0;
+  data.NUM_BALLASTS = 0;
+  data.NUM_VALVE_ATTEMPTS = 0;
+  data.NUM_BALLAST_ATTEMPTS = 0;
+  data.NUM_BALLAST_OVER_CURRENTS = 0;
   return lengthBytes;
 }
 
@@ -1050,20 +1043,35 @@ void Avionics::printState() {
   Serial.print("CURRENT_AVG:");
   Serial.print(data.CURRENT_AVG);
   Serial.print(',');
+  Serial.print("CURRENT_MIN:");
+  Serial.print(data.CURRENT_MIN);
+  Serial.print(',');
+  Serial.print("CURRENT_MAX:");
+  Serial.print(data.CURRENT_MAX);
+  Serial.print(',');
   Serial.print("CURRENT_GPS_AVG:");
   Serial.print(data.CURRENT_GPS_AVG);
+  Serial.print(',');
+  Serial.print("CURRENT_GPS_MAX:");
+  Serial.print(data.CURRENT_GPS_MAX);
   Serial.print(',');
   Serial.print("CURRENT_RB_AVG:");
   Serial.print(data.CURRENT_RB_AVG);
   Serial.print(',');
+  Serial.print("CURRENT_RB_MAX:");
+  Serial.print(data.CURRENT_RB_MAX);
+  Serial.print(',');
   Serial.print("CURRENT_MOTORS_AVG:");
   Serial.print(data.CURRENT_MOTORS_AVG);
+  Serial.print(',');
+  Serial.print("CURRENT_MOTORS_MAX:");
+  Serial.print(data.CURRENT_MOTORS_MAX);
   Serial.print(',');
   Serial.print("CURRENT_PAYLOAD_AVG:");
   Serial.print(data.CURRENT_PAYLOAD_AVG);
   Serial.print(',');
-  Serial.print("TEMP_NECK:");
-  Serial.print(data.TEMP_NECK);
+  Serial.print("CURRENT_PAYLOAD_MAX:");
+  Serial.print(data.CURRENT_PAYLOAD_MAX);
   Serial.print(',');
   Serial.print("TEMP_EXT:");
   Serial.print(data.TEMP_EXT);
@@ -1148,6 +1156,18 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print("BALLAST_STALL_CURRENT:");
   Serial.print(data.BALLAST_STALL_CURRENT);
+  Serial.print(',');
+  Serial.print("VALVE_MOTOR_SPEED:");
+  Serial.print(data.VALVE_MOTOR_SPEED);
+  Serial.print(',');
+  Serial.print("BALLAST_MOTOR_SPEED:");
+  Serial.print(data.BALLAST_MOTOR_SPEED);
+  Serial.print(',');
+  Serial.print("VALVE_OPENING_TIMEOUT:");
+  Serial.print(data.VALVE_OPENING_TIMEOUT);
+  Serial.print(',');
+  Serial.print("VALVE_CLOSING_TIMEOUT:");
+  Serial.print(data.VALVE_CLOSING_TIMEOUT);
   Serial.print(',');
   Serial.print("VALVE_SETPOINT:");
   Serial.print(data.VALVE_SETPOINT);
@@ -1287,9 +1307,6 @@ void Avionics::printState() {
   Serial.print("EULER_HISTORY:");
   Serial.print(data.EULER_HISTORY);
   Serial.print(',');
-  Serial.print("ALTITUDE_LAST:");
-  Serial.print(data.ALTITUDE_LAST);
-  Serial.print(',');
   Serial.print("GPS_LAST:");
   Serial.print(data.GPS_LAST);
   Serial.print(',');
@@ -1358,15 +1375,25 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.CURRENT_AVG);
   dataFile.print(',');
+  dataFile.print(data.CURRENT_MIN);
+  dataFile.print(',');
+  dataFile.print(data.CURRENT_MAX);
+  dataFile.print(',');
   dataFile.print(data.CURRENT_GPS_AVG);
+  dataFile.print(',');
+  dataFile.print(data.CURRENT_GPS_MAX);
   dataFile.print(',');
   dataFile.print(data.CURRENT_RB_AVG);
   dataFile.print(',');
+  dataFile.print(data.CURRENT_RB_MAX);
+  dataFile.print(',');
   dataFile.print(data.CURRENT_MOTORS_AVG);
+  dataFile.print(',');
+  dataFile.print(data.CURRENT_MOTORS_MAX);
   dataFile.print(',');
   dataFile.print(data.CURRENT_PAYLOAD_AVG);
   dataFile.print(',');
-  dataFile.print(data.TEMP_NECK);
+  dataFile.print(data.CURRENT_PAYLOAD_MAX);
   dataFile.print(',');
   dataFile.print(data.TEMP_EXT);
   dataFile.print(',');
@@ -1515,8 +1542,6 @@ bool Avionics::logData() {
   dataFile.print(data.EULER_Z);
   dataFile.print(',');
   dataFile.print(data.EULER_HISTORY);
-  dataFile.print(',');
-  dataFile.print(data.ALTITUDE_LAST);
   dataFile.print(',');
   dataFile.print(data.GPS_LAST);
   dataFile.print(',');

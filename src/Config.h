@@ -45,8 +45,7 @@ static const uint8_t   GPS_CURRENT                           =                1;
 static const uint8_t   RB_CURRENT                            =                2;
 static const uint8_t   MOTORS_CURRENT                        =                3;
 static const uint8_t   PAYLOAD_CURRENT                       =                4;
-static const uint8_t   NECK_TEMP_SENSOR                      =               A2;
-static const uint8_t   EXT_TEMP_SENSOR                       =              A15;
+static const uint8_t   EXT_TEMP_SENSOR                       =              A20;
 
 /****************************  EDITABLE CONSTANTS  ****************************/
 static const char      MISSION_NUMBER[]                      =         "SSI-53";
@@ -105,13 +104,13 @@ static const float     BALLAST_VELOCITY_DEFAULT              =              1.0;
 static const float     BALLAST_ALTITUDE_DIFF_DEFAULT         =     1.0 / 1500.0;
 static const float     BALLAST_LAST_ACTION_DEFAULT           =     1.0 / 1500.0;
 
-static const uint32_t  VALVE_OPENING_TIMEOUT                 =             1000;
-static const uint32_t  VALVE_CLOSING_TIMEOUT                 =             2500;
+static const uint16_t  VALVE_MOTOR_SPEED_DEFAULT             =              255;
+static const uint16_t  BALLAST_MOTOR_SPEED_DEFAULT           =              255;
+static const uint32_t  VALVE_OPENING_TIMEOUT_DEFAULT         =             1000;
+static const uint32_t  VALVE_CLOSING_TIMEOUT_DEFAULT         =             2500;
 static const uint32_t  VALVE_CUTDOWN_TIMEOUT                 =            10000;
 static const uint32_t  VALVE_LEAK_TIMEOUT                    =           600000;
 static const uint16_t  BALLAST_STALL_TIMEOUT                 =             3000;
-static const uint16_t  VALVE_MOTOR_SPEED                     =              255;
-static const uint16_t  BALLAST_MOTOR_SPEED                   =              255;
 
 static const double    MAX_PRESURE                           =           107500;
 static const double    MIN_PRESURE                           =             1131;

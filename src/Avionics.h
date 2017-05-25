@@ -99,7 +99,7 @@ private:
   char COMMS_BUFFER[BUFFER_SIZE];
   DataFrame data;
   File dataFile;
-  File logFile;
+  // File logFile;
   Hardware PCB;
   Sensors sensors;
   Simulator HITL;

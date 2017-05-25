@@ -37,6 +37,7 @@ void Avionics::init() {
   if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE))  logAlert("unable to initialize Heaters", true);
   if(!ValMU.init(data.PAYLOAD_SHOULD_USE))         logAlert("unable to initialize Payload", true);
   data.SETUP_STATE = false;
+  data.TIME = millis();
 }
 
 /*
@@ -100,7 +101,7 @@ void Avionics::actuateState() {
 void Avionics::logState() {
   if (millis() - data.DATAFILE_LAST > FILE_RESET_TIME) {
     dataFile.close();
-    logFile.close();
+    // logFile.close();
     setupLog();
     printHeader();
     data.DATAFILE_LAST = millis();
@@ -191,6 +192,8 @@ bool Avionics::readHistory() {
   return true;
 }
 
+uint32_t max = 0;
+
 /*
  * Function: readData
  * -------------------
@@ -199,6 +202,14 @@ bool Avionics::readHistory() {
 bool Avionics::readData() {
   data.LOOP_TIME        = millis() - data.TIME;
   data.TIME             = millis();
+
+
+
+  if (data.LOOP_TIME > max) max = data.LOOP_TIME;
+  Serial.print(max);
+  Serial.print("\n");
+
+
   data.VOLTAGE          = sensors.getVoltage();
   data.CURRENT          = sensors.getCurrent();
   data.JOULES           = sensors.getJoules();
@@ -725,12 +736,12 @@ void Avionics::setupLog() {
     filename[6] = i / 10 + '0';
     filename[7] = i % 10 + '0';
     if (!SD.exists(filename)) {
-      dataFile = SD.open(filename, FILE_WRITE);
+      dataFile = SD.open(filename, O_WRITE | O_CREAT);
       break;
     }
   }
-  logFile = SD.open("EVENTS.txt", FILE_WRITE);
-  if (!dataFile || !logFile) {
+  // logFile = SD.open("EVENTS.txt", O_WRITE | O_CREAT);
+  if (!dataFile){// || !logFile) {
     Serial.println ("ERROR: COULD NOT CREATE FILE");
   }
   else {
@@ -770,17 +781,16 @@ void Avionics::logHeader() {
  * This function logs important information whenever a specific event occurs.
  */
 void Avionics::logAlert(const char* debug, bool fatal) {
-  if(logFile) {
-    logFile.print(data.TIME);
-    logFile.print(',');
-    if(fatal) logFile.print("FATAL ERROR!!!!!!!!!!: ");
-    else logFile.print("Alert: ");
-    logFile.print(debug);
-    logFile.print("...\n");
-    logFile.flush();
-  }
+  // if(logFile) {
+  //   logFile.print(millis());
+  //   logFile.print(',');
+  //   if(fatal) logFile.print("FATAL ERROR!!!!!!!!!!: ");
+  //   else logFile.print("Alert: ");
+  //   logFile.print(debug);
+  //   logFile.print("...\n");
+  // }
   if(data.DEBUG_STATE) {
-    Serial.print(data.TIME);
+    Serial.print(millis());
     Serial.print(',');
     if(fatal) Serial.print("FATAL ERROR!!!!!!!!!!: ");
     else Serial.print("Alert: ");
@@ -819,7 +829,6 @@ int16_t Avionics::compressVariable(float var, float minimum, float maximum, int1
  * This function compresses the data frame into a bit stream.
  * The total bitstream cannot exceed 100 bytes.
  */
-
  ///12 bits valve TIme and ballast Time??????????????????????/ 8191 12(seconds)
 int16_t Avionics::compressData() {
   int16_t lengthBits  = 0;
@@ -930,18 +939,18 @@ int16_t Avionics::compressData() {
   lengthBytes = lengthBits / 8;
   data.SHOULD_REPORT = false;
   data.COMMS_LENGTH = lengthBytes;
-  logFile.print(data.TIME);
-  logFile.print(',');
+  // logFile.print(data.TIME);
+  // logFile.print(',');
   for (int16_t i = 0; i < lengthBytes; i++) {
     uint8_t byte = COMMS_BUFFER[i];
-    (byte & 0x80 ? logFile.print('1') : logFile.print('0'));
-    (byte & 0x40 ? logFile.print('1') : logFile.print('0'));
-    (byte & 0x20 ? logFile.print('1') : logFile.print('0'));
-    (byte & 0x10 ? logFile.print('1') : logFile.print('0'));
-    (byte & 0x08 ? logFile.print('1') : logFile.print('0'));
-    (byte & 0x04 ? logFile.print('1') : logFile.print('0'));
-    (byte & 0x02 ? logFile.print('1') : logFile.print('0'));
-    (byte & 0x01 ? logFile.print('1') : logFile.print('0'));
+    // (byte & 0x80 ? logFile.print('1') : logFile.print('0'));
+    // (byte & 0x40 ? logFile.print('1') : logFile.print('0'));
+    // (byte & 0x20 ? logFile.print('1') : logFile.print('0'));
+    // (byte & 0x10 ? logFile.print('1') : logFile.print('0'));
+    // (byte & 0x08 ? logFile.print('1') : logFile.print('0'));
+    // (byte & 0x04 ? logFile.print('1') : logFile.print('0'));
+    // (byte & 0x02 ? logFile.print('1') : logFile.print('0'));
+    // (byte & 0x01 ? logFile.print('1') : logFile.print('0'));
     if(data.DEBUG_STATE) {
       (byte & 0x80 ? Serial.print('1') : Serial.print('0'));
       (byte & 0x40 ? Serial.print('1') : Serial.print('0'));
@@ -953,7 +962,7 @@ int16_t Avionics::compressData() {
       (byte & 0x01 ? Serial.print('1') : Serial.print('0'));
     }
   }
-  logFile.print('\n');
+  // logFile.print('\n');
   if(data.DEBUG_STATE) Serial.print('\n');
   filter.clearCurrentValues();
   data.NUM_VALVES = 0;
@@ -1556,5 +1565,6 @@ bool Avionics::logData() {
   dataFile.print(data.COMMS_LENGTH);
   dataFile.print('\n');
   dataFile.flush();
+  // // logFile.flush();
   return sucess;
 }

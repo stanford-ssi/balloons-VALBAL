@@ -290,19 +290,29 @@ uint32_t Hardware::getNumBallastOverCurrents() {
  * -------------------
  * This function triggers the mechanical cutdown of the payload.
  */
-void Hardware::cutDown(bool on) {
+void Hardware::cutDown() {
   turnOffHeaters();
   clearValveQueue();
   clearBallastQueue();
-  if(on) {
-    analogWrite(VALVE_FORWARD, LOW);
-    analogWrite(VALVE_REVERSE, valveMotorSpeed);
-  }
-  else {
-    analogWrite(VALVE_FORWARD, LOW);
-    analogWrite(VALVE_REVERSE, LOW);
+  for(size_t i = 0; i < 3; i++){
+    openValve();
+    delay(CUTDOWN_DURATION);
+    closeValve();
+    delay(valveClosingTimeout);
+    stopValve();
   }
 }
+
+/*
+ * Function: stopValve
+ * -------------------
+ * This function stops the valve.
+ */
+void Hardware::stopValve() {
+  analogWrite(VALVE_FORWARD, LOW);
+  analogWrite(VALVE_REVERSE, LOW);
+}
+
 
 /*
  * Function: EEPROMReadlong
@@ -334,16 +344,6 @@ void Hardware::EEPROMWritelong(uint8_t address, int32_t value) {
 }
 
 /*********************************  HELPERS  **********************************/
-/*
- * Function: stopValve
- * -------------------
- * This function stops the valve.
- */
-void Hardware::stopValve() {
-  analogWrite(VALVE_FORWARD, LOW);
-  analogWrite(VALVE_REVERSE, LOW);
-}
-
 /*
  * Function: openValve
  * -------------------

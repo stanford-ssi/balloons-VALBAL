@@ -20,18 +20,18 @@
 bool Filters::init() {
   bool sucess = true;
   findLastAccepted();
-  char filename[] = "FILTER00.TXT";
-  for (uint8_t i = 0; i < 100; i++) {
-    filename[6] = i / 10 + '0';
-    filename[7] = i % 10 + '0';
-    if (!SD.exists(filename)) {
-      debugFile = SD.open(filename, FILE_WRITE);
-      break;
-    }
-  }
-  if (!debugFile) {
-    Serial.println ("ERROR: COULD NOT CREATE DEBUG FILE");
-  }
+  // char filename[] = "FILTER00.TXT";
+  // for (uint8_t i = 0; i < 100; i++) {
+  //   filename[6] = i / 10 + '0';
+  //   filename[7] = i % 10 + '0';
+  //   if (!SD.exists(filename)) {
+  //     debugFile = SD.open(filename, FILE_WRITE);
+  //     break;
+  //   }
+  // }
+  // if (!debugFile) {
+  //   Serial.println ("ERROR: COULD NOT CREATE DEBUG FILE");
+  // }
   return sucess;
 }
 
@@ -76,20 +76,19 @@ void Filters::storeData(uint32_t time_stamp, double RAW_PRESSURE_1, double RAW_P
 
   if(altitudeIndex == 0) firstBUFFER = false;
 
-  debugFile.flush();
-  debugFile.print("\n");
-  debugFile.print("time_stamp "); debugFile.print(time_stamp);
-  debugFile.print("alt index ");debugFile.print(altitudeIndex);
-  debugFile.print("\n");
+  // debugFile.flush();
+  // debugFile.print("\n");
+  // debugFile.print("time_stamp "); debugFile.print(time_stamp);
+  // debugFile.print("alt index ");debugFile.print(altitudeIndex);
+  // debugFile.print("\n");
 
   for (size_t i = 0; i < 4; i++){
     if(!altitudeErrors[i][altitudeIndex]){
-      debugFile.print("sensor  "); debugFile.print(i);
-
-      debugFile.print(" removing ");
-      debugFile.print(" alt ") ; debugFile.print(altitudeBuffer[i][altitudeIndex]);
-      debugFile.print(" time ") ; debugFile.print(sampleTimeSeconds[altitudeIndex]) ;
-       debugFile.print("\n");
+      // debugFile.print("sensor  "); debugFile.print(i);
+      // debugFile.print(" removing ");
+      // debugFile.print(" alt ") ; debugFile.print(altitudeBuffer[i][altitudeIndex]);
+      // debugFile.print(" time ") ; debugFile.print(sampleTimeSeconds[altitudeIndex]) ;
+      // debugFile.print("\n");
       sumX[i] -= sampleTimeSeconds[altitudeIndex];
       sumY[i] -= altitudeBuffer[i][altitudeIndex];
       sumXY[i] -= sampleTimeSeconds[altitudeIndex] * altitudeBuffer[i][altitudeIndex];
@@ -100,32 +99,32 @@ void Filters::storeData(uint32_t time_stamp, double RAW_PRESSURE_1, double RAW_P
 
   sampleTimeSeconds[altitudeIndex] = (float)time_stamp/1000;
 
-  debugFile.print(" sampleTimeSeconds "); debugFile.print(sampleTimeSeconds[altitudeIndex]);
-  debugFile.print("\n");
+  // debugFile.print(" sampleTimeSeconds "); debugFile.print(sampleTimeSeconds[altitudeIndex]);
+  // debugFile.print("\n");
 
   pressures[0] = RAW_PRESSURE_1;
   pressures[1] = RAW_PRESSURE_2;
   pressures[2] = RAW_PRESSURE_3;
   pressures[3] = RAW_PRESSURE_4;
 
-  debugFile.print("pressures "); debugFile.print(RAW_PRESSURE_1);
-  debugFile.print(" "); debugFile.print(RAW_PRESSURE_2);
-  debugFile.print(" ") ; debugFile.print(RAW_PRESSURE_3);
-  debugFile.print(" ") ; debugFile.print(RAW_PRESSURE_4);
-  debugFile.print("\n");
+  // debugFile.print("pressures "); debugFile.print(RAW_PRESSURE_1);
+  // debugFile.print(" "); debugFile.print(RAW_PRESSURE_2);
+  // debugFile.print(" ") ; debugFile.print(RAW_PRESSURE_3);
+  // debugFile.print(" ") ; debugFile.print(RAW_PRESSURE_4);
+  // debugFile.print("\n");
 
   for(int i = 0; i<4;i++) altitudeErrors[i][altitudeIndex] = !enabledSensors[i];
   errorCheckAltitudes();
 
   for (size_t i = 0; i < 4; i++){
-    debugFile.print("sensor "); debugFile.print(i);
-    debugFile.print(" last Alt ") ; debugFile.print(lastAcceptedAltitudes[i]);
-    debugFile.print(" last Time ") ; debugFile.print(lastAcceptedTimes[i]);
+    // debugFile.print("sensor "); debugFile.print(i);
+    // debugFile.print(" last Alt ") ; debugFile.print(lastAcceptedAltitudes[i]);
+    // debugFile.print(" last Time ") ; debugFile.print(lastAcceptedTimes[i]);
     if(!altitudeErrors[i][altitudeIndex]){
-      debugFile.print(" adding  ");
-      debugFile.print(" alt ") ; debugFile.print(altitudeBuffer[i][altitudeIndex]);
-      debugFile.print(" time ") ; debugFile.print(sampleTimeSeconds[altitudeIndex]) ;
-      debugFile.print("\n");
+      // debugFile.print(" adding  ");
+      // debugFile.print(" alt ") ; debugFile.print(altitudeBuffer[i][altitudeIndex]);
+      // debugFile.print(" time ") ; debugFile.print(sampleTimeSeconds[altitudeIndex]) ;
+      // debugFile.print("\n");
 
       sumX[i] += sampleTimeSeconds[altitudeIndex];
       sumY[i] += altitudeBuffer[i][altitudeIndex];
@@ -133,14 +132,14 @@ void Filters::storeData(uint32_t time_stamp, double RAW_PRESSURE_1, double RAW_P
       sumX2[i] += pow(sampleTimeSeconds[altitudeIndex],2);
       sampleCount[i]++;
 
-      debugFile.print("SumX  "); debugFile.print(sumY[i]);
-      debugFile.print(" SumY  "); debugFile.print(sumX[i]);
-      debugFile.print(" SumXY  "); debugFile.print(sumXY[i]);
-      debugFile.print(" SumX2  "); debugFile.print(sumX2[i]);
+      // debugFile.print("SumX  "); debugFile.print(sumY[i]);
+      // debugFile.print(" SumY  "); debugFile.print(sumX[i]);
+      // debugFile.print(" SumXY  "); debugFile.print(sumXY[i]);
+      // debugFile.print(" SumX2  "); debugFile.print(sumX2[i]);
 
     }
-    debugFile.print(" sampleCount "); debugFile.print(sampleCount[i]);
-    debugFile.print("\n");
+    // debugFile.print(" sampleCount "); debugFile.print(sampleCount[i]);
+    // debugFile.print("\n");
   }
 }
 
@@ -325,8 +324,8 @@ double Filters::getAltitude(){
       }
   }
 
-  debugFile.print("meanAltitude"); debugFile.print((sumOfAltitudes/acceptedStreams));
-  debugFile.print(" altitude acceptedStreams "); debugFile.print((acceptedStreams)); debugFile.print("\n");
+  // debugFile.print("meanAltitude"); debugFile.print((sumOfAltitudes/acceptedStreams));
+  // debugFile.print(" altitude acceptedStreams "); debugFile.print((acceptedStreams)); debugFile.print("\n");
 
   return sumOfAltitudes / acceptedStreams;
 }
@@ -374,8 +373,8 @@ double Filters::getAscentRate() {
 
   }
 
-  debugFile.print("meanAscentRate "); debugFile.print((sumOfAscentRates/acceptedStreams));
-  debugFile.print(" AscentRate acceptedStreams "); debugFile.print((acceptedStreams)); debugFile.print("\n");
+  // debugFile.print("meanAscentRate "); debugFile.print((sumOfAscentRates/acceptedStreams));
+  // debugFile.print(" AscentRate acceptedStreams "); debugFile.print((acceptedStreams)); debugFile.print("\n");
 
   return sumOfAscentRates/ acceptedStreams;
 }
@@ -415,28 +414,28 @@ void Filters::errorCheckAltitudes() {
   }
   //disable checks during the first loop
   if(!firstBUFFER){
-    debugFile.print("altitudes 1: "); debugFile.print(altitudeBuffer[0][altitudeIndex]);
-    debugFile.print(" 2: "); debugFile.print(altitudeBuffer[1][altitudeIndex]);
-    debugFile.print(" 3: "); debugFile.print(altitudeBuffer[2][altitudeIndex]);
-    debugFile.print(" 4: "); debugFile.print(altitudeBuffer[3][altitudeIndex]);
-    debugFile.print("\n");
-    debugFile.print("Errors org1: "); debugFile.print(altitudeErrors[0][altitudeIndex]);
-    debugFile.print(" 2: "); debugFile.print(altitudeErrors[1][altitudeIndex]);
-    debugFile.print(" 3: "); debugFile.print(altitudeErrors[2][altitudeIndex]);
-    debugFile.print(" 4: "); debugFile.print(altitudeErrors[3][altitudeIndex]);
-    debugFile.print("\n");
+    // debugFile.print("altitudes 1: "); debugFile.print(altitudeBuffer[0][altitudeIndex]);
+    // debugFile.print(" 2: "); debugFile.print(altitudeBuffer[1][altitudeIndex]);
+    // debugFile.print(" 3: "); debugFile.print(altitudeBuffer[2][altitudeIndex]);
+    // debugFile.print(" 4: "); debugFile.print(altitudeBuffer[3][altitudeIndex]);
+    // debugFile.print("\n");
+    // debugFile.print("Errors org1: "); debugFile.print(altitudeErrors[0][altitudeIndex]);
+    // debugFile.print(" 2: "); debugFile.print(altitudeErrors[1][altitudeIndex]);
+    // debugFile.print(" 3: "); debugFile.print(altitudeErrors[2][altitudeIndex]);
+    // debugFile.print(" 4: "); debugFile.print(altitudeErrors[3][altitudeIndex]);
+    // debugFile.print("\n");
     consensousCheck();
-    debugFile.print("Errors conc1: "); debugFile.print(altitudeErrors[0][altitudeIndex]);
-    debugFile.print(" 2: "); debugFile.print(altitudeErrors[1][altitudeIndex]);
-    debugFile.print(" 3: "); debugFile.print(altitudeErrors[2][altitudeIndex]);
-    debugFile.print(" 4: "); debugFile.print(altitudeErrors[3][altitudeIndex]);
-    debugFile.print("\n");
+    // debugFile.print("Errors conc1: "); debugFile.print(altitudeErrors[0][altitudeIndex]);
+    // debugFile.print(" 2: "); debugFile.print(altitudeErrors[1][altitudeIndex]);
+    // debugFile.print(" 3: "); debugFile.print(altitudeErrors[2][altitudeIndex]);
+    // debugFile.print(" 4: "); debugFile.print(altitudeErrors[3][altitudeIndex]);
+    // debugFile.print("\n");
     velocityCheck();
-    debugFile.print("Errors vel1: "); debugFile.print(altitudeErrors[0][altitudeIndex]);
-    debugFile.print(" 2: "); debugFile.print(altitudeErrors[1][altitudeIndex]);
-    debugFile.print(" 3: "); debugFile.print(altitudeErrors[2][altitudeIndex]);
-    debugFile.print(" 4: "); debugFile.print(altitudeErrors[3][altitudeIndex]);
-    debugFile.print("\n");
+    // debugFile.print("Errors vel1: "); debugFile.print(altitudeErrors[0][altitudeIndex]);
+    // debugFile.print(" 2: "); debugFile.print(altitudeErrors[1][altitudeIndex]);
+    // debugFile.print(" 3: "); debugFile.print(altitudeErrors[2][altitudeIndex]);
+    // debugFile.print(" 4: "); debugFile.print(altitudeErrors[3][altitudeIndex]);
+    // debugFile.print("\n");
   }
   findLastAccepted();
 }

@@ -45,14 +45,10 @@ void Avionics::init() {
  * This function tests the hardware.
  */
 void Avionics::test() {
-  data.SHOULD_CUTDOWN = true;
   data.MANUAL_MODE = false;
-  PCB.queueBallast(30000, true);
-  PCB.clearBallastQueue();
-  PCB.queueBallast(15000, true);
+  data.SHOULD_CUTDOWN = true;
   PCB.queueValve(30000, true);
-  PCB.clearValveQueue();
-  PCB.queueValve(15000, true);
+  PCB.queueBallast(1200000, true);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -191,8 +187,8 @@ bool Avionics::readHistory() {
     if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
     double ballastAltLast = PCB.EEPROMReadlong(EEPROM_BALLAST_ALT_LAST);
     if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
-    return true;
   #endif
+  return true;
 }
 
 /*
@@ -450,9 +446,7 @@ bool Avionics::runBallast() {
  */
 bool Avionics::runCutdown() {
   if(data.SHOULD_CUTDOWN) {
-    PCB.cutDown(true);
-    gpsModule.smartDelay(CUTDOWN_DURATION);
-    PCB.cutDown(false);
+    PCB.cutDown();
     data.SHOULD_CUTDOWN = false;
     data.CUTDOWN_STATE = true;
     logAlert("completed cutdown", false);
@@ -825,6 +819,8 @@ int16_t Avionics::compressVariable(float var, float minimum, float maximum, int1
  * This function compresses the data frame into a bit stream.
  * The total bitstream cannot exceed 100 bytes.
  */
+
+ ///12 bits valve TIme and ballast Time??????????????????????/ 8191 12(seconds)
 int16_t Avionics::compressData() {
   int16_t lengthBits  = 0;
   int16_t lengthBytes = 0;
@@ -1318,6 +1314,7 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" COMMS_LENGTH:");
   Serial.print(data.COMMS_LENGTH);
+  Serial.print("\n\r");
   Serial.print("\n\r");
 }
 

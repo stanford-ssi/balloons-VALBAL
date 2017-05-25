@@ -58,7 +58,7 @@ struct DataFrame {
   float      EULER_Z_AVG                      =                               0;
 
   bool       MANUAL_MODE                      =             MANUAL_MODE_DEFAULT;
-  uint8_t    REPORT_MODE                      =                               0;
+  uint8_t    REPORT_MODE                      =                               2;
   bool       SHOULD_REPORT                    =                            true;
 
 /*****************************  SECONDARY DATA  *******************************/
@@ -78,7 +78,7 @@ struct DataFrame {
   double     VALVE_ALT_LAST                   =          VALVE_ALT_LAST_DEFAULT;
   double     BALLAST_ALT_LAST                 =        BALLAST_ALT_LAST_DEFAULT;
 
-  bool       SHOULD_LED                       =                           false;
+  bool       SHOULD_LED                       =                            true;
   bool       DEBUG_STATE                      =                            true;
   bool       FORCE_VALVE                      =                           false;
   bool       FORCE_BALLAST                    =                           false;

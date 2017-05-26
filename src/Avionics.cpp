@@ -202,11 +202,6 @@ uint32_t max = 0;
 bool Avionics::readData() {
   data.LOOP_TIME        = millis() - data.TIME;
   data.TIME             = millis();
-  //TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if (data.LOOP_TIME > max) max = data.LOOP_TIME;
-  Serial.print(max);
-  Serial.print("\n");
-  //TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   data.VOLTAGE          = sensors.getVoltage();
   data.CURRENT          = sensors.getCurrent();
   data.JOULES           = sensors.getJoules();

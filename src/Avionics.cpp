@@ -101,7 +101,7 @@ void Avionics::actuateState() {
 void Avionics::logState() {
   if (millis() - data.DATAFILE_LAST > FILE_RESET_TIME) {
     dataFile.close();
-    // logFile.close();
+    logFile.close();
     setupLog();
     printHeader();
     data.DATAFILE_LAST = millis();
@@ -202,14 +202,11 @@ uint32_t max = 0;
 bool Avionics::readData() {
   data.LOOP_TIME        = millis() - data.TIME;
   data.TIME             = millis();
-
-
-
+  //TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (data.LOOP_TIME > max) max = data.LOOP_TIME;
   Serial.print(max);
   Serial.print("\n");
-
-
+  //TODO~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   data.VOLTAGE          = sensors.getVoltage();
   data.CURRENT          = sensors.getCurrent();
   data.JOULES           = sensors.getJoules();
@@ -339,8 +336,8 @@ bool Avionics::processData() {
  * This function calculates if the current state is within bounds.
  */
 bool Avionics::calcVitals() {
-  if(!data.SHOULD_REPORT == 0) data.SHOULD_REPORT = (data.ASCENT_RATE >= 10) || data.SHOULD_REPORT;////TODO ****************************************************
-  if(!data.MANUAL_MODE) data.MANUAL_MODE   = (data.ASCENT_RATE >= 10);
+  if(!data.SHOULD_REPORT) data.SHOULD_REPORT = (data.ASCENT_RATE >= 10);
+  if(!data.MANUAL_MODE)   data.MANUAL_MODE   = (data.ASCENT_RATE >= 10);
   data.GPS_GOOD_STATE   = (data.LAT_GPS != 1000.0 && data.LAT_GPS != 0.0 && data.LONG_GPS != 1000.0 && data.LONG_GPS != 0.0);
   return true;
 }
@@ -419,6 +416,7 @@ bool Avionics::runValve() {
     if(data.FORCE_VALVE) valveTime = data.VALVE_FORCE_DURATION;
     PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
     PCB.queueValve(valveTime, shouldValve);
+    data.VALVE_TIME_TOTAL += valveTime;
     data.FORCE_VALVE = false;
   }
   data.VALVE_QUEUE = PCB.getValveQueue();
@@ -442,6 +440,7 @@ bool Avionics::runBallast() {
     if(data.FORCE_BALLAST) ballastTime = data.BALLAST_FORCE_DURATION;
     PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
     PCB.queueBallast(ballastTime, shouldBallast);
+    data.BALLAST_TIME_TOTAL += ballastTime;
     data.FORCE_BALLAST = false;
   }
   data.BALLAST_QUEUE = PCB.getBallastQueue();
@@ -740,8 +739,8 @@ void Avionics::setupLog() {
       break;
     }
   }
-  // logFile = SD.open("EVENTS.txt", O_WRITE | O_CREAT);
-  if (!dataFile){// || !logFile) {
+  logFile = SD.open("EVENTS.txt", O_WRITE | O_CREAT);
+  if (!dataFile || !logFile) {
     Serial.println ("ERROR: COULD NOT CREATE FILE");
   }
   else {
@@ -781,14 +780,14 @@ void Avionics::logHeader() {
  * This function logs important information whenever a specific event occurs.
  */
 void Avionics::logAlert(const char* debug, bool fatal) {
-  // if(logFile) {
-  //   logFile.print(millis());
-  //   logFile.print(',');
-  //   if(fatal) logFile.print("FATAL ERROR!!!!!!!!!!: ");
-  //   else logFile.print("Alert: ");
-  //   logFile.print(debug);
-  //   logFile.print("...\n");
-  // }
+  if(logFile) {
+    logFile.print(millis());
+    logFile.print(',');
+    if(fatal) logFile.print("FATAL ERROR!!!!!!!!!!: ");
+    else logFile.print("Alert: ");
+    logFile.print(debug);
+    logFile.print("...\n");
+  }
   if(data.DEBUG_STATE) {
     Serial.print(millis());
     Serial.print(',');
@@ -827,9 +826,8 @@ int16_t Avionics::compressVariable(float var, float minimum, float maximum, int1
  * Function: compressData
  * -------------------
  * This function compresses the data frame into a bit stream.
- * The total bitstream cannot exceed 100 bytes.
+ * The total bitstream cannot exceed 400 bytes.
  */
- ///12 bits valve TIme and ballast Time??????????????????????/ 8191 12(seconds)
 int16_t Avionics::compressData() {
   int16_t lengthBits  = 0;
   int16_t lengthBytes = 0;
@@ -846,6 +844,8 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.BALLAST_STATE,                    0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.VALVE_QUEUE,                      0,    1000000, 10, lengthBits);
   lengthBits += compressVariable(data.BALLAST_QUEUE,                    0,    1000000, 10, lengthBits);
+  lengthBits += compressVariable(data.VALVE_TIME_TOTAL,                 0,    8191000, 12, lengthBits);
+  lengthBits += compressVariable(data.BALLAST_TIME_TOTAL,               0,    8191000, 12, lengthBits);
   lengthBits += compressVariable(data.NUM_VALVES,                       0,    50,      6,  lengthBits);
   lengthBits += compressVariable(data.NUM_BALLASTS,                     0,    50,      6,  lengthBits);
   lengthBits += compressVariable(data.NUM_VALVE_ATTEMPTS,               0,    50,      6,  lengthBits);
@@ -939,18 +939,18 @@ int16_t Avionics::compressData() {
   lengthBytes = lengthBits / 8;
   data.SHOULD_REPORT = false;
   data.COMMS_LENGTH = lengthBytes;
-  // logFile.print(data.TIME);
-  // logFile.print(',');
+  logFile.print(data.TIME);
+  logFile.print(',');
   for (int16_t i = 0; i < lengthBytes; i++) {
     uint8_t byte = COMMS_BUFFER[i];
-    // (byte & 0x80 ? logFile.print('1') : logFile.print('0'));
-    // (byte & 0x40 ? logFile.print('1') : logFile.print('0'));
-    // (byte & 0x20 ? logFile.print('1') : logFile.print('0'));
-    // (byte & 0x10 ? logFile.print('1') : logFile.print('0'));
-    // (byte & 0x08 ? logFile.print('1') : logFile.print('0'));
-    // (byte & 0x04 ? logFile.print('1') : logFile.print('0'));
-    // (byte & 0x02 ? logFile.print('1') : logFile.print('0'));
-    // (byte & 0x01 ? logFile.print('1') : logFile.print('0'));
+    (byte & 0x80 ? logFile.print('1') : logFile.print('0'));
+    (byte & 0x40 ? logFile.print('1') : logFile.print('0'));
+    (byte & 0x20 ? logFile.print('1') : logFile.print('0'));
+    (byte & 0x10 ? logFile.print('1') : logFile.print('0'));
+    (byte & 0x08 ? logFile.print('1') : logFile.print('0'));
+    (byte & 0x04 ? logFile.print('1') : logFile.print('0'));
+    (byte & 0x02 ? logFile.print('1') : logFile.print('0'));
+    (byte & 0x01 ? logFile.print('1') : logFile.print('0'));
     if(data.DEBUG_STATE) {
       (byte & 0x80 ? Serial.print('1') : Serial.print('0'));
       (byte & 0x40 ? Serial.print('1') : Serial.print('0'));
@@ -962,7 +962,7 @@ int16_t Avionics::compressData() {
       (byte & 0x01 ? Serial.print('1') : Serial.print('0'));
     }
   }
-  // logFile.print('\n');
+  logFile.print('\n');
   if(data.DEBUG_STATE) Serial.print('\n');
   filter.clearCurrentValues();
   data.NUM_VALVES = 0;
@@ -1014,6 +1014,12 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" BALLAST_QUEUE:");
   Serial.print(data.BALLAST_QUEUE);
+  Serial.print(',');
+  Serial.print("VALVE_TIME_TOTAL");
+  Serial.print(data.VALVE_TIME_TOTAL);
+  Serial.print(',');
+  Serial.print("BALLAST_TIME_TOTAL");
+  Serial.print(data.BALLAST_TIME_TOTAL);
   Serial.print(',');
   Serial.print(" NUM_VALVES:");
   Serial.print(data.NUM_VALVES);
@@ -1358,6 +1364,10 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.BALLAST_QUEUE);
   dataFile.print(',');
+  dataFile.print(data.VALVE_TIME_TOTAL);
+  dataFile.print(',');
+  dataFile.print(data.BALLAST_TIME_TOTAL);
+  dataFile.print(',');
   dataFile.print(data.NUM_VALVES);
   dataFile.print(',');
   dataFile.print(data.NUM_BALLASTS);
@@ -1564,7 +1574,7 @@ bool Avionics::logData() {
   if(dataFile.print(',') != 1) sucess = false;
   dataFile.print(data.COMMS_LENGTH);
   dataFile.print('\n');
-  // dataFile.flush();
-  // // logFile.flush();
+  dataFile.flush();
+  logFile.flush();
   return sucess;
 }

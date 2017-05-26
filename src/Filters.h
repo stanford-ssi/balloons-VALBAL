@@ -13,9 +13,7 @@
 #define FILTERS_H
 
 #include "Config.h"
-
-//Debugging only
-#include <SD.h>
+//#include <SD.h>
 
 class Filters {
 public:

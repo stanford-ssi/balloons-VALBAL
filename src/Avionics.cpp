@@ -1564,7 +1564,7 @@ bool Avionics::logData() {
   if(dataFile.print(',') != 1) sucess = false;
   dataFile.print(data.COMMS_LENGTH);
   dataFile.print('\n');
-  dataFile.flush();
+  // dataFile.flush();
   // // logFile.flush();
   return sucess;
 }

@@ -85,8 +85,8 @@ static const double    PRESS_BASELINE_DEFAULT                =         101325.0;
 static const float     INCENTIVE_NOISE_DEFAULT               =                0;
 static const float     INCENTIVE_THRESHOLD_DEFAULT           =             0.75;
 static const float     RE_ARM_DEFAULT                        =                0;
-static const float     BALLAST_ARM_ALT_DEFAULT               =          13000.0;
-static const float     BALLAST_ALT_LAST_FILLER               =          13500.0;
+static const float     BALLAST_ARM_ALT_DEFAULT               =          13250.0;
+static const float     BALLAST_ALT_LAST_FILLER               =          14000.0;
 static const uint32_t  BALLAST_REVERSE_TIMEOUT_DEFAULT       =           600000;
 static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              270;
 
@@ -94,8 +94,8 @@ static const float     VALVE_SETPOINT_DEFAULT                =          14500.0;
 static const uint32_t  VALVE_DURATION_DEFAULT                =            20000;
 static const float     VALVE_ALT_LAST_DEFAULT                =                0;
 static const float     VALVE_VELOCITY_DEFAULT                =              1.0;
-static const float     VALVE_ALTITUDE_DIFF_DEFAULT           =     1.0 / 1250.0;
-static const float     VALVE_LAST_ACTION_DEFAULT             =     1.0 / 1250.0;
+static const float     VALVE_ALTITUDE_DIFF_DEFAULT           =     1.0 / 1500.0;
+static const float     VALVE_LAST_ACTION_DEFAULT             =     1.0 / 1500.0;
 
 static const float     BALLAST_SETPOINT_DEFAULT              =          13500.0;
 static const uint32_t  BALLAST_DURATION_DEFAULT              =            20000;

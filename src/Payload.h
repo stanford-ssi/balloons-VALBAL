@@ -31,12 +31,12 @@ public:
   float   getAverageEuler(uint8_t axis, uint8_t index);
 private:
 /*********************************  OBJECTS  **********************************/
-  static const uint8_t EULER_BUFFER_SIZE = 100;
+  static const uint8_t EULER_BUFFER_SIZE = 20;
   uint8_t  payloadGate;
   uint8_t  EEPROMAddress;
   char     buf[100]  = {0};
   float    values[3] = {0};
-  
+
   double   eulerXBuf[EULER_BUFFER_SIZE] = {0};
   double   eulerYBuf[EULER_BUFFER_SIZE] = {0};
   double   eulerZBuf[EULER_BUFFER_SIZE] = {0};

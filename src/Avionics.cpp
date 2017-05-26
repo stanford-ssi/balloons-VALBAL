@@ -36,6 +36,7 @@ void Avionics::init() {
   #endif
   if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE))  logAlert("unable to initialize Heaters", true);
   if(!ValMU.init(data.PAYLOAD_SHOULD_USE))         logAlert("unable to initialize Payload", true);
+  PCB.initResolutions();
   data.SETUP_STATE = false;
   data.TIME = millis();
 }
@@ -998,10 +999,10 @@ void Avionics::printState() {
   Serial.print(" BALLAST_QUEUE:");
   Serial.print(data.BALLAST_QUEUE);
   Serial.print(',');
-  Serial.print("VALVE_TIME_TOTAL");
+  Serial.print(" VALVE_TIME_TOTAL:");
   Serial.print(data.VALVE_TIME_TOTAL);
   Serial.print(',');
-  Serial.print("BALLAST_TIME_TOTAL");
+  Serial.print(" BALLAST_TIME_TOTAL:");
   Serial.print(data.BALLAST_TIME_TOTAL);
   Serial.print(',');
   Serial.print(" NUM_VALVES:");
@@ -1217,11 +1218,11 @@ void Avionics::printState() {
   Serial.print(" VALVE_VELOCITY_CONSTANT:");
   Serial.print(data.VALVE_VELOCITY_CONSTANT);
   Serial.print(',');
-  Serial.print(" VALVE_ALTITUDE_DIFF_CONSTANT:");
-  Serial.print(data.VALVE_ALTITUDE_DIFF_CONSTANT);
+  Serial.print(" VALVE_ALTITUDE_DIFF_CONSTANT (1.0 / ):");
+  Serial.print(1.0 / data.VALVE_ALTITUDE_DIFF_CONSTANT);
   Serial.print(',');
-  Serial.print(" VALVE_LAST_ACTION_CONSTANT:");
-  Serial.print(data.VALVE_LAST_ACTION_CONSTANT);
+  Serial.print(" VALVE_LAST_ACTION_CONSTANT (1.0 / ):");
+  Serial.print(1.0 / data.VALVE_LAST_ACTION_CONSTANT);
   Serial.print(',');
   Serial.print(" BALLAST_SETPOINT:");
   Serial.print(data.BALLAST_SETPOINT);
@@ -1235,11 +1236,11 @@ void Avionics::printState() {
   Serial.print(" BALLAST_VELOCITY_CONSTANT:");
   Serial.print(data.BALLAST_VELOCITY_CONSTANT);
   Serial.print(',');
-  Serial.print(" BALLAST_ALTITUDE_DIFF_CONSTANT:");
-  Serial.print(data.BALLAST_ALTITUDE_DIFF_CONSTANT);
+  Serial.print(" BALLAST_ALTITUDE_DIFF_CONSTANT (1.0 / ):");
+  Serial.print(1.0 / data.BALLAST_ALTITUDE_DIFF_CONSTANT);
   Serial.print(',');
-  Serial.print(" BALLAST_LAST_ACTION_CONSTANT:");
-  Serial.print(data.BALLAST_LAST_ACTION_CONSTANT);
+  Serial.print(" BALLAST_LAST_ACTION_CONSTANT (1.0 / ):");
+  Serial.print(1.0 / data.BALLAST_LAST_ACTION_CONSTANT);
   Serial.print(',');
   Serial.print(" SETUP_STATE:");
   Serial.print(data.SETUP_STATE);
@@ -1490,9 +1491,9 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.VALVE_VELOCITY_CONSTANT);
   dataFile.print(',');
-  dataFile.print(data.VALVE_ALTITUDE_DIFF_CONSTANT);
+  dataFile.print(1.0 / data.VALVE_ALTITUDE_DIFF_CONSTANT);
   dataFile.print(',');
-  dataFile.print(data.VALVE_LAST_ACTION_CONSTANT);
+  dataFile.print(1.0 / data.VALVE_LAST_ACTION_CONSTANT);
   dataFile.print(',');
   dataFile.print(data.BALLAST_SETPOINT);
   dataFile.print(',');
@@ -1502,9 +1503,9 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.BALLAST_VELOCITY_CONSTANT);
   dataFile.print(',');
-  dataFile.print(data.BALLAST_ALTITUDE_DIFF_CONSTANT);
+  dataFile.print(1.0 / data.BALLAST_ALTITUDE_DIFF_CONSTANT);
   dataFile.print(',');
-  dataFile.print(data.BALLAST_LAST_ACTION_CONSTANT);
+  dataFile.print(1.0 / data.BALLAST_LAST_ACTION_CONSTANT);
   dataFile.print(',');
   dataFile.print(data.SETUP_STATE);
   dataFile.print(',');

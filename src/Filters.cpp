@@ -150,7 +150,7 @@ void Filters::storeData(uint32_t time_stamp, double RAW_PRESSURE_1, double RAW_P
 */
 double   Filters::getAvgCurrentSystem(double current) {
   if(current > currentSystemMax) currentSystemMax = current;
-  if(current < currentSystemMin) currentSystemMax = current;
+  if(current < currentSystemMin) currentSystemMin = current;
   currentSystemCount++;
   currentSystemTotal += current;
   return currentSystemTotal / currentSystemCount;
@@ -269,6 +269,7 @@ double Filters::getMaxCurrentPayload() {
 void Filters::clearCurrentValues() {
   currentSystemTotal = 0;
   currentSystemMax = 0;
+  currentSystemMin = 10000;
   currentSystemCount = 0;
   currentGPSTotal = 0;
   currentGPSMax = 0;

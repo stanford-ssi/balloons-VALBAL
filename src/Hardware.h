@@ -24,6 +24,7 @@ public:
     pid(&PIDTempVar, &PIDOutVar, &PIDSetVar, 2, 5, 1, DIRECT) {
   }
   void     init();
+  void     initResolutions();
 /********************************  FUNCTIONS  *********************************/
   void     runLED(bool on);
 

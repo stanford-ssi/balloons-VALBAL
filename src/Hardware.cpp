@@ -20,7 +20,12 @@
  */
 void Hardware::init() {
   pinMode(REBOOT_ENABLE, OUTPUT);
-  digitalWrite(REBOOT_ENABLE, HIGH);
+  #ifdef STORAGE_MODE_FLAG
+    digitalWrite(REBOOT_ENABLE, LOW);
+  #endif
+  #ifndef STORAGE_MODE_FLAG
+    digitalWrite(REBOOT_ENABLE, HIGH);
+  #endif
   pinMode(LED_PIN, OUTPUT);
   pinMode(VALVE_FORWARD, OUTPUT);
   pinMode(VALVE_REVERSE, OUTPUT);
@@ -33,9 +38,17 @@ void Hardware::init() {
   analogWrite(HEATER_INTERNAL_STRONG, 0);
   analogWrite(HEATER_INTERNAL_WEAK, 0);
   digitalWrite(PAYLOAD_GATE, LOW);
+  pid.SetMode(AUTOMATIC);
+}
+
+/*
+ * Function: initResolutions
+ * -------------------
+ * This function is called after every pinmode is set.
+ */
+void Hardware::initResolutions() {
   analogReference(INTERNAL);
   analogReadResolution(12);
-  pid.SetMode(AUTOMATIC);
 }
 
 /********************************  FUNCTIONS  *********************************/

@@ -95,7 +95,7 @@ float Payload::getCurrentEuler(uint8_t axis) {
 float Payload::getAverageEuler(uint8_t axis, uint8_t index) {
   if(millis() - eulerAverageStartTime >= 5000){
     eulerAverageStartTime = millis();
-    for(size_t i = 12; i > 0; i++) {
+    for(size_t i = 12; i > 0; i--) {
       eulerXAvgBuf[i] = eulerXAvgBuf[i - 1];
       eulerYAvgBuf[i] = eulerYAvgBuf[i - 1];
       eulerZAvgBuf[i] = eulerZAvgBuf[i - 1];

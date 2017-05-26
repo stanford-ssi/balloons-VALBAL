@@ -92,7 +92,7 @@ double Sensors::getCurrentSubsystem(uint8_t subsystem) {
  * This function gets the total joules.
  */
 double Sensors::getJoules() {
-  joules += internalCurrentMonitor * voltage * (millis() - lastJoulesCall) / 1000;
+  joules += (internalCurrentMonitor / 1000) * voltage * (millis() - lastJoulesCall) / 1000;
   lastJoulesCall = millis();
   return joules;
 }

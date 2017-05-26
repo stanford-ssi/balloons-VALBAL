@@ -36,15 +36,16 @@ private:
   uint8_t  EEPROMAddress;
   char     buf[100]  = {0};
   float    values[3] = {0};
+  
   double   eulerXBuf[EULER_BUFFER_SIZE] = {0};
   double   eulerYBuf[EULER_BUFFER_SIZE] = {0};
   double   eulerZBuf[EULER_BUFFER_SIZE] = {0};
   uint8_t  eulerIndex = 0;
 
   uint32_t eulerAverageStartTime = 0;
-  double   eulerXAvgBuf[EULER_BUFFER_SIZE] = {0};
-  double   eulerYAvgBuf[EULER_BUFFER_SIZE] = {0};
-  double   eulerZAvgBuf[EULER_BUFFER_SIZE] = {0};
+  double   eulerXAvgBuf[12] = {0};
+  double   eulerYAvgBuf[12] = {0};
+  double   eulerZAvgBuf[12] = {0};
   uint8_t  eulerAvgIndex = 0;
 };
 

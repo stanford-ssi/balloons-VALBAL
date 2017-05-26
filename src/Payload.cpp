@@ -93,9 +93,24 @@ float Payload::getCurrentEuler(uint8_t axis) {
  * This function returns the averaged Euler value.
  */
 float Payload::getAverageEuler(uint8_t axis, uint8_t index) {
-  double total = 0;
-  if(axis == 0) for(size_t i = 0; i < EULER_BUFFER_SIZE; i++) total += eulerXBuf[i];
-  if(axis == 1) for(size_t i = 0; i < EULER_BUFFER_SIZE; i++) total += eulerYBuf[i];
-  if(axis == 2) for(size_t i = 0; i < EULER_BUFFER_SIZE; i++) total += eulerZBuf[i];
-  return total / EULER_BUFFER_SIZE;
+  if(millis() - eulerAverageStartTime >= 5000){
+    eulerAverageStartTime = millis();
+    for(size_t i = 12; i > 0; i++) {
+      eulerXAvgBuf[i] = eulerXAvgBuf[i - 1];
+      eulerYAvgBuf[i] = eulerYAvgBuf[i - 1];
+      eulerZAvgBuf[i] = eulerZAvgBuf[i - 1];
+    }
+    double total = 0;
+    for(size_t i = 0; i < EULER_BUFFER_SIZE; i++) total += eulerXBuf[i];
+    eulerXAvgBuf[0] = total / EULER_BUFFER_SIZE;
+    total = 0;
+    for(size_t i = 0; i < EULER_BUFFER_SIZE; i++) total += eulerYBuf[i];
+    eulerYAvgBuf[0] = total / EULER_BUFFER_SIZE;
+    total = 0;
+    for(size_t i = 0; i < EULER_BUFFER_SIZE; i++) total += eulerZBuf[i];
+    eulerZAvgBuf[0] = total / EULER_BUFFER_SIZE;
+  }
+  if(axis == 0) return eulerXAvgBuf[index];
+  if(axis == 1) return eulerYAvgBuf[index];
+  if(axis == 2) return eulerZAvgBuf[index];
 }

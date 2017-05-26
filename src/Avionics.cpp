@@ -223,7 +223,7 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_2   = sensors.getRawPressure(2);
   data.RAW_PRESSURE_3   = sensors.getRawPressure(3);
   data.RAW_PRESSURE_4   = sensors.getRawPressure(4);
-  if (data.GPS_SHOULD_USE && ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL)) readGPS();
+  if (data.GPS_SHOULD_USE && ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) && (!data.VALVE_STATE)) readGPS();
   if (data.PAYLOAD_SHOULD_USE) readPayload();
   return true;
 }

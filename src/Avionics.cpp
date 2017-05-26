@@ -319,6 +319,7 @@ bool Avionics::processData() {
   data.EULER_Z_AVG         = ValMU.getAverageEuler(2, 0);
 
   data.ALTITUDE            = filter.getAltitude();
+  jank.heresAnAltitudeKid(millis(), data.ALTITUDE);
   data.ASCENT_RATE         = filter.getAscentRate();
   data.INCENTIVE_NOISE     = filter.getIncentiveNoise(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
   if (data.ASCENT_RATE    >= 10) success = false;
@@ -480,6 +481,7 @@ bool Avionics::sendSATCOMS() {
   data.RB_SENT_COMMS++;
   #ifndef RB_DISABLED_FLAG
     int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
+    jank.kommuniziert();
     if(ret < 0) return false;
     if(ret > 0) parseCommand(ret);
   #endif
@@ -920,6 +922,9 @@ int16_t Avionics::compressData() {
   }
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
+  if (data.SHOULD_REPORT || data.REPORT_MODE != 0) {
+    lengthBytes = jank.giveMeBitsBitte((uint8_t*)COMMS_BUFFER, lengthBytes, 15, data.ALTITUDE);
+  }
   data.SHOULD_REPORT = false;
   data.COMMS_LENGTH = lengthBytes;
   logFile.print(data.TIME);

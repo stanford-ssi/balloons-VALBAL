@@ -23,6 +23,8 @@
 #include "Hardware.h"
 #include "Controller.h"
 #include "Payload.h"
+#include "Jankompress.h"
+#include "pca_data.h"
 #include <SD.h>
 #include <GPS.h>
 #include <RockBLOCK.h>
@@ -35,8 +37,9 @@ public:
     sensors(),
     gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIME, GPS_QUIT_TIME),
     RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK),
-    ValMU(PAYLOAD_GATE, EEPROM_PAYLOAD) {
-  }
+    ValMU(PAYLOAD_GATE, EEPROM_PAYLOAD),
+    jank(ALT_HUFFMAN, ALT_LENGTHS, ALT_Q, 10, 150)
+    {}
   void    init();
   void    test();
 /********************************  FUNCTIONS  *********************************/
@@ -107,6 +110,7 @@ private:
   GPS gpsModule;
   RockBLOCK RBModule;
   Payload ValMU;
+  Jankompress jank;
 };
 
 #endif

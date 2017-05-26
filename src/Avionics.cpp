@@ -49,7 +49,7 @@ void Avionics::test() {
   data.MANUAL_MODE = false;
   data.SHOULD_CUTDOWN = true;
   PCB.queueValve(30000, true);
-  PCB.queueBallast(1200000, true);
+  PCB.queueBallast(120000, true);
 }
 
 /********************************  FUNCTIONS  *********************************/

@@ -886,7 +886,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(log2(data.BMP_2_REJECTIONS + 1),     0,    6,       4,  lengthBits);
     lengthBits += compressVariable(log2(data.BMP_3_REJECTIONS + 1),     0,    6,       4,  lengthBits);
     lengthBits += compressVariable(log2(data.BMP_4_REJECTIONS + 1),     0,    6,       4,  lengthBits);
-    for(size_t i = 0; i < 15; i++) {
+    for(size_t i = 0; i < 12; i++) {
       lengthBits += compressVariable(ValMU.getAverageEuler(0, i),       0,    360,     8,  lengthBits);
       lengthBits += compressVariable(ValMU.getAverageEuler(1, i),      -180,  180,     8,  lengthBits);
       lengthBits += compressVariable(ValMU.getAverageEuler(2, i),      -90,   90,      4,  lengthBits);

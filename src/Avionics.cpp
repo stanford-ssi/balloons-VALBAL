@@ -564,7 +564,6 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 32) parseHeaterPowerCommand(value);
   else if (index == 33) parseHeaterModeCommand(value);
   else if (index == 34) parsePayloadPowerCommand(value);
-  else if (index == 35) parsePayloadModeCommand(value);
 }
 
 /*
@@ -696,16 +695,6 @@ void Avionics::parsePayloadPowerCommand(bool command) {
     data.PAYLOAD_SHOULD_USE = false;
     ValMU.shutdown();
   }
-}
-
-/*
- * Function: parsePayloadModeCommand
- * -------------------
- * This function parses the Payload mode command.
- */
-void Avionics::parsePayloadModeCommand(uint8_t command){
-  if(command >= 30) return;
-  data.EULER_HISTORY = command;
 }
 
 /*
@@ -897,6 +886,11 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(log2(data.BMP_2_REJECTIONS + 1),     0,    6,       4,  lengthBits);
     lengthBits += compressVariable(log2(data.BMP_3_REJECTIONS + 1),     0,    6,       4,  lengthBits);
     lengthBits += compressVariable(log2(data.BMP_4_REJECTIONS + 1),     0,    6,       4,  lengthBits);
+    for(size_t i = 0; i < 15; i++) {
+      lengthBits += compressVariable(ValMU.getAverageEuler(0, i),       0,    360,     8,  lengthBits);
+      lengthBits += compressVariable(ValMU.getAverageEuler(1, i),      -180,  180,     8,  lengthBits);
+      lengthBits += compressVariable(ValMU.getAverageEuler(2, i),      -90,   90,      4,  lengthBits);
+    }
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.TEMP_SETPOINT,                 -40,   40,      6,  lengthBits);
@@ -923,12 +917,6 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.BALLAST_VELOCITY_CONSTANT,      0,    5,       8,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_ALTITUDE_DIFF_CONSTANT, 0,    4000,    8,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_LAST_ACTION_CONSTANT,   0,    4000,    8,  lengthBits);
-    lengthBits += compressVariable(data.EULER_HISTORY,                  0,    30,      5,  lengthBits);
-    for(size_t i = 0; i < data.EULER_HISTORY; i++) {
-      lengthBits += compressVariable(ValMU.getAverageEuler(0, i),       0,    360,     8,  lengthBits);
-      lengthBits += compressVariable(ValMU.getAverageEuler(1, i),      -180,  180,     8,  lengthBits);
-      lengthBits += compressVariable(ValMU.getAverageEuler(2, i),      -90,   90,      4,  lengthBits);
-    }
   }
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
@@ -1253,9 +1241,6 @@ void Avionics::printState() {
   Serial.print(" BALLAST_LAST_ACTION_CONSTANT:");
   Serial.print(data.BALLAST_LAST_ACTION_CONSTANT);
   Serial.print(',');
-  Serial.print(" EULER_HISTORY:");
-  Serial.print(data.EULER_HISTORY);
-  Serial.print(',');
   Serial.print(" SETUP_STATE:");
   Serial.print(data.SETUP_STATE);
   Serial.print(',');
@@ -1520,8 +1505,6 @@ bool Avionics::logData() {
   dataFile.print(data.BALLAST_ALTITUDE_DIFF_CONSTANT);
   dataFile.print(',');
   dataFile.print(data.BALLAST_LAST_ACTION_CONSTANT);
-  dataFile.print(',');
-  dataFile.print(data.EULER_HISTORY);
   dataFile.print(',');
   dataFile.print(data.SETUP_STATE);
   dataFile.print(',');

@@ -83,7 +83,6 @@ private:
   void    parseHeaterPowerCommand(bool command);
   void    parseHeaterModeCommand(uint8_t command);
   void    parsePayloadPowerCommand(bool command);
-  void    parsePayloadModeCommand(uint8_t command);
 
   bool    debugState();
   void    setupLog();

@@ -122,7 +122,6 @@ struct DataFrame {
   float      BALLAST_VELOCITY_CONSTANT        =        BALLAST_VELOCITY_DEFAULT;
   float      BALLAST_ALTITUDE_DIFF_CONSTANT   =   BALLAST_ALTITUDE_DIFF_DEFAULT;
   float      BALLAST_LAST_ACTION_CONSTANT     =     BALLAST_LAST_ACTION_DEFAULT;
-  uint8_t    EULER_HISTORY                    =                               0;
 
 /*******************************  EXTRA DATA  *********************************/
   bool       SETUP_STATE                      =                            true;

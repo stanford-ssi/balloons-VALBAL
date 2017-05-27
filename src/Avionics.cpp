@@ -804,7 +804,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.LAT_GPS,                              -90,   90,      21, lengthBits);
   lengthBits += compressVariable(data.LONG_GPS,                             -180,  180,     22, lengthBits);
   lengthBits += compressVariable(data.ALTITUDE,                             -2000, 40000,   16, lengthBits);
-  lengthBits += compressVariable(data.ALTITUDE_GPS,                         -2000, 40000,   16, lengthBits);
+  lengthBits += compressVariable(data.ALTITUDE_GPS,                         -2000, 40000,   14, lengthBits);
   lengthBits += compressVariable(data.ASCENT_RATE,                          -10,   10,      11, lengthBits);
   lengthBits += compressVariable(data.VALVE_INCENTIVE,                      -50,   10,      12, lengthBits);
   lengthBits += compressVariable(data.BALLAST_INCENTIVE,                    -50,   10,      12, lengthBits);
@@ -812,8 +812,8 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.BALLAST_STATE,                         0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.VALVE_QUEUE,                           0,    1000000, 10, lengthBits);
   lengthBits += compressVariable(data.BALLAST_QUEUE,                         0,    1000000, 10, lengthBits);
-  lengthBits += compressVariable(data.VALVE_TIME_TOTAL,                      0,    8191000, 12, lengthBits);
-  lengthBits += compressVariable(data.BALLAST_TIME_TOTAL,                    0,    8191000, 12, lengthBits);
+  lengthBits += compressVariable(data.VALVE_TIME_TOTAL / 1000,               0,    16384,   13, lengthBits);
+  lengthBits += compressVariable(data.BALLAST_TIME_TOTAL / 1000,             0,    16384,   13, lengthBits);
   lengthBits += compressVariable(data.NUM_VALVES,                            0,    50,      6,  lengthBits);
   lengthBits += compressVariable(data.NUM_BALLASTS,                          0,    50,      6,  lengthBits);
   lengthBits += compressVariable(data.NUM_VALVE_ATTEMPTS,                    0,    50,      6,  lengthBits);

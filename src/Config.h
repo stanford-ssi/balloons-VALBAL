@@ -77,6 +77,7 @@ static const uint32_t  RB_BAUD                               =            19200;
 /***************************  Flight Parameters  ******************************/
 static const double    TEMP_SETPOINT_DEFAULT                 =                0;
 static const bool      MANUAL_MODE_DEFAULT                   =             true;
+static const uint8_t   REPORT_MODE_DEFAULT                   =                2;
 static const uint32_t  QUEUE_APPEND_THRESHOLD                =             1000;
 
 static const double    PRESS_BASELINE_DEFAULT                =         101325.0;

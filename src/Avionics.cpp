@@ -78,6 +78,7 @@ void Avionics::evaluateState() {
   if(!calcVitals())     logAlert("unable to calculate vitals", true);
   if(!calcDebug())      logAlert("unable to calculate debug", true);
   if(!calcIncentives()) logAlert("unable to calculate incentives", true);
+  if(!calcCutdown())    logAlert("unable to calculate cutdown", true);
 }
 
 /*
@@ -365,6 +366,20 @@ bool Avionics::calcIncentives() {
   return success;
 }
 
+/* Function: calcCutdown
+* -------------------
+* This function calculates if the avionics should cutdown.
+*/
+bool Avionics::calcCutdown() {
+ if(data.CUTDOWN_STATE) return true;
+ if(CUTDOWN_GPS_ENABLE && data.GPS_GOOD_STATE &&
+   (((data.LAT_GPS < GPS_FENCE_LAT_MIN) || (data.LAT_GPS > GPS_FENCE_LAT_MAX)) ||
+   ((data.LONG_GPS < GPS_FENCE_LON_MIN) || (data.LONG_GPS > GPS_FENCE_LON_MAX)))
+ ) data.SHOULD_CUTDOWN  = true;
+ if(CUTDOWN_ALT_ENABLE && data.ALTITUDE >= CUTDOWN_ALT) data.SHOULD_CUTDOWN  = true;
+ return true;
+}
+
 /*
  * Function: runHeaters
  * -------------------
@@ -485,7 +500,6 @@ void Avionics::parseCommand(int16_t len) {
     &commandIndexes[0], commandStrings[0],
     &commandIndexes[1], commandStrings[1],
     &commandIndexes[2], commandStrings[2],
-    &commandIndexes[2], commandStrings[2],
     &commandIndexes[3], commandStrings[3],
     &commandIndexes[4], commandStrings[4],
     &commandIndexes[5], commandStrings[5],
@@ -496,7 +510,7 @@ void Avionics::parseCommand(int16_t len) {
 
   for (uint8_t i = 0; i < numScanned / 2; i++) {
     uint8_t index = commandIndexes[i];
-    if (index == CUTDOWN_INDEX && strncmp(commandStrings[i], CUTDOWN_COMMAND, strlen(commandStrings[i])) == 0) {
+    if (index == CUTDOWN_INDEX && (strlen(CUTDOWN_COMMAND) == strlen(commandStrings[i])) && strncmp(commandStrings[i], CUTDOWN_COMMAND, strlen(commandStrings[i])) == 0) {
       data.SHOULD_CUTDOWN = true;
     }
     if (index < 0 || index > 80) return;
@@ -803,48 +817,48 @@ int16_t Avionics::compressData() {
   for(uint16_t i = 0; i < BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
 
   lengthBits += compressVariable(data.TIME / 1000,                           0,    3000000, 20, lengthBits);
-  lengthBits += compressVariable(data.LAT_GPS,                         -90,   90,      21, lengthBits); // latitude
-  lengthBits += compressVariable(data.LONG_GPS,                        -180,  180,     22, lengthBits); // longitude
-  lengthBits += compressVariable(data.ALTITUDE,                        -2000, 40000,   16, lengthBits); // altitude_barometer
-  lengthBits += compressVariable(data.ALTITUDE_GPS,                    -2000, 40000,   16, lengthBits);
-  lengthBits += compressVariable(data.ASCENT_RATE,                     -10,   10,      11, lengthBits);
-  lengthBits += compressVariable(data.VALVE_INCENTIVE,                 -50,   10,      12, lengthBits);
-  lengthBits += compressVariable(data.BALLAST_INCENTIVE,               -50,   10,      12, lengthBits);
-  lengthBits += compressVariable(data.VALVE_STATE,                      0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.BALLAST_STATE,                    0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.VALVE_QUEUE,                      0,    1000000, 10, lengthBits);
-  lengthBits += compressVariable(data.BALLAST_QUEUE,                    0,    1000000, 10, lengthBits);
-  lengthBits += compressVariable(data.VALVE_TIME_TOTAL,                 0,    8191000, 12, lengthBits);
-  lengthBits += compressVariable(data.BALLAST_TIME_TOTAL,               0,    8191000, 12, lengthBits);
-  lengthBits += compressVariable(data.NUM_VALVES,                       0,    50,      6,  lengthBits);
-  lengthBits += compressVariable(data.NUM_BALLASTS,                     0,    50,      6,  lengthBits);
-  lengthBits += compressVariable(data.NUM_VALVE_ATTEMPTS,               0,    50,      6,  lengthBits);
-  lengthBits += compressVariable(data.NUM_BALLAST_ATTEMPTS,             0,    50,      6,  lengthBits);
-  lengthBits += compressVariable(data.NUM_BALLAST_OVER_CURRENTS,        0,    50,      6,  lengthBits);
-  lengthBits += compressVariable(data.CUTDOWN_STATE,                    0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.TEMP_IN,                         -70,   80,      9,  lengthBits);
-  lengthBits += compressVariable(data.JOULES,                           0,    1500000, 18, lengthBits);
-  lengthBits += compressVariable(data.VOLTAGE,                          0,    5,       9,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_AVG,                      0,    4000,    12, lengthBits);
-  lengthBits += compressVariable(data.CURRENT_MIN,                      0,    4000,    12, lengthBits);
-  lengthBits += compressVariable(data.CURRENT_MAX,                      0,    4000,    12, lengthBits);
-  lengthBits += compressVariable(data.CURRENT_GPS_AVG,                  0,    200,     8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_GPS_MAX,                  0,    200,     8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_RB_AVG,                   0,    1000,    8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_RB_MAX,                   0,    1000,    8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_MOTORS_AVG,               0,    1000,    8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_MOTORS_MAX,               0,    1000,    8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_PAYLOAD_AVG,              0,    500,     8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_PAYLOAD_MAX,              0,    500,     8,  lengthBits);
-  lengthBits += compressVariable(data.TEMP_EXT,                        -100,  30,      6,  lengthBits);
-  lengthBits += compressVariable(data.LOOP_TIME,                        0,    10000,   10, lengthBits);
-  lengthBits += compressVariable(data.RB_SENT_COMMS,                    0,    8191,    13, lengthBits);
-  lengthBits += compressVariable(data.EULER_X_AVG,                      0,    360,     8,  lengthBits);
-  lengthBits += compressVariable(data.EULER_Y_AVG,                     -180,  180,     8,  lengthBits);
-  lengthBits += compressVariable(data.EULER_Z_AVG,                     -90,   90,      7,  lengthBits);
-  lengthBits += compressVariable(data.MANUAL_MODE,                      0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.REPORT_MODE,                      0,    2,       2,  lengthBits);
-  lengthBits += compressVariable(data.SHOULD_REPORT,                    0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.LAT_GPS,                              -90,   90,      21, lengthBits); // latitude
+  lengthBits += compressVariable(data.LONG_GPS,                             -180,  180,     22, lengthBits); // longitude
+  lengthBits += compressVariable(data.ALTITUDE,                             -2000, 40000,   16, lengthBits); // altitude_barometer
+  lengthBits += compressVariable(data.ALTITUDE_GPS,                         -2000, 40000,   14, lengthBits);
+  lengthBits += compressVariable(data.ASCENT_RATE,                          -10,   10,      11, lengthBits);
+  lengthBits += compressVariable(data.VALVE_INCENTIVE,                      -50,   10,      12, lengthBits);
+  lengthBits += compressVariable(data.BALLAST_INCENTIVE,                    -50,   10,      12, lengthBits);
+  lengthBits += compressVariable(data.VALVE_STATE,                           0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.BALLAST_STATE,                         0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.VALVE_QUEUE,                           0,    1000000, 10, lengthBits);
+  lengthBits += compressVariable(data.BALLAST_QUEUE,                         0,    1000000, 10, lengthBits);
+  lengthBits += compressVariable(data.VALVE_TIME_TOTAL / 1000,               0,    16384,   13, lengthBits); // valve time total
+  lengthBits += compressVariable(data.BALLAST_TIME_TOTAL / 1000,             0,    16384,   13, lengthBits); // ballast time total
+  lengthBits += compressVariable(data.NUM_VALVES,                            0,    50,      6,  lengthBits);
+  lengthBits += compressVariable(data.NUM_BALLASTS,                          0,    50,      6,  lengthBits);
+  lengthBits += compressVariable(data.NUM_VALVE_ATTEMPTS,                    0,    50,      6,  lengthBits);
+  lengthBits += compressVariable(data.NUM_BALLAST_ATTEMPTS,                  0,    50,      6,  lengthBits);
+  lengthBits += compressVariable(data.NUM_BALLAST_OVER_CURRENTS,             0,    50,      6,  lengthBits);
+  lengthBits += compressVariable(data.CUTDOWN_STATE,                         0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.TEMP_IN,                              -70,   80,      9,  lengthBits);
+  lengthBits += compressVariable(data.JOULES,                                0,    1500000, 18, lengthBits);
+  lengthBits += compressVariable(data.VOLTAGE,                               0,    5,       9,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_AVG,                           0,    4000,    12, lengthBits);
+  lengthBits += compressVariable(data.CURRENT_MIN,                           0,    4000,    12, lengthBits);
+  lengthBits += compressVariable(data.CURRENT_MAX,                           0,    4000,    12, lengthBits);
+  lengthBits += compressVariable(data.CURRENT_GPS_AVG,                       0,    200,     8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_GPS_MAX,                       0,    200,     8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_RB_AVG,                        0,    1000,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_RB_MAX,                        0,    1000,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_MOTORS_AVG,                    0,    1000,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_MOTORS_MAX,                    0,    1000,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_PAYLOAD_AVG,                   0,    500,     8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_PAYLOAD_MAX,                   0,    500,     8,  lengthBits);
+  lengthBits += compressVariable(data.TEMP_EXT,                             -100,  30,      6,  lengthBits);
+  lengthBits += compressVariable(data.LOOP_TIME,                             0,    10000,   10, lengthBits);
+  lengthBits += compressVariable(data.RB_SENT_COMMS,                         0,    8191,    13, lengthBits);
+  lengthBits += compressVariable(data.EULER_X_AVG,                           0,    360,     8,  lengthBits);
+  lengthBits += compressVariable(data.EULER_Y_AVG,                          -180,  180,     8,  lengthBits);
+  lengthBits += compressVariable(data.EULER_Z_AVG,                          -90,   90,      7,  lengthBits);
+  lengthBits += compressVariable(data.MANUAL_MODE,                           0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.REPORT_MODE,                           0,    2,       2,  lengthBits);
+  lengthBits += compressVariable(data.SHOULD_REPORT,                         0,    1,       1,  lengthBits);
   if (data.SHOULD_REPORT || data.REPORT_MODE != 0) {
     lengthBits += compressVariable(data.RB_SHOULD_USE,                  0,    1,       1,  lengthBits); // RB Power State
     lengthBits += compressVariable(data.GPS_SHOULD_USE,                 0,    1,       1,  lengthBits); // GPS Power State

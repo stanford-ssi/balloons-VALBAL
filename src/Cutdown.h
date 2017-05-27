@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | March 2017
+  Balloons | VALBAL | May 2017
   Davy Ragland | dragland@stanford.edu
 
   File: Cutdown.h
@@ -14,7 +14,6 @@
 #include <stdint.h>
 
 /****************************  EDITABLE CONSTANTS  ****************************/
-static const uint8_t   CUTDOWN_INDEX       =                    0;
-static const char      CUTDOWN_COMMAND[]   =    "NOT REAL STRING";
+static const char CUTDOWN_COMMAND[] = "NOT_REAL_STRING";
 
 #endif

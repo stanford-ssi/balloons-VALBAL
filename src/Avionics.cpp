@@ -78,6 +78,7 @@ void Avionics::evaluateState() {
   if(!calcVitals())     logAlert("unable to calculate vitals", true);
   if(!calcDebug())      logAlert("unable to calculate debug", true);
   if(!calcIncentives()) logAlert("unable to calculate incentives", true);
+  if(!calcCutdown())    logAlert("unable to calculate cutdown", true);
 }
 
 /*
@@ -363,6 +364,20 @@ bool Avionics::calcIncentives() {
   data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE, data.BALLAST_ALT_LAST);
   if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) success =  false;
   return success;
+}
+
+/* Function: calcCutdown
+* -------------------
+* This function calculates if the avionics should cutdown.
+*/
+bool Avionics::calcCutdown() {
+ if(data.CUTDOWN_STATE) return true;
+ if(CUTDOWN_GPS_ENABLE && data.GPS_GOOD_STATE &&
+   (((data.LAT_GPS < GPS_FENCE_LAT_MIN) || (data.LAT_GPS > GPS_FENCE_LAT_MAX)) ||
+   ((data.LONG_GPS < GPS_FENCE_LON_MIN) || (data.LONG_GPS > GPS_FENCE_LON_MAX)))
+ ) data.SHOULD_CUTDOWN  = true;
+ if(CUTDOWN_ALT_ENABLE && data.ALTITUDE >= CUTDOWN_ALT) data.SHOULD_CUTDOWN  = true;
+ return true;
 }
 
 /*

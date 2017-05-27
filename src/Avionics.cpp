@@ -25,15 +25,15 @@ void Avionics::init() {
   if(!setupSDCard())                               logAlert("unable to initialize SD Card", true);
   if(!readHistory())                               logAlert("unable to initialize EEPROM", true);
   if(!sensors.init())                              logAlert("unable to initialize Sensors", true);
-  #ifdef HITL_ENABLED_FLAG
-    if(!HITL.init())                               logAlert("unable to initialize Simulations", true);
-  #endif
+#ifdef HITL_ENABLED_FLAG
+  if(!HITL.init())                               logAlert("unable to initialize Simulations", true);
+#endif
   if(!filter.init())                               logAlert("unable to initialize Filters", true);
   if(!computer.init())                             logAlert("unable to initialize Flight Controller", true);
   if(!gpsModule.init(data.GPS_SHOULD_USE))         logAlert("unable to initialize GPS", true);
-  #ifndef RB_DISABLED_FLAG
-    if(!RBModule.init(data.RB_SHOULD_USE))         logAlert("unable to initialize RockBlock", true);
-  #endif
+#ifndef RB_DISABLED_FLAG
+  if(!RBModule.init(data.RB_SHOULD_USE))         logAlert("unable to initialize RockBlock", true);
+#endif
   if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE))  logAlert("unable to initialize Heaters", true);
   if(!ValMU.init(data.PAYLOAD_SHOULD_USE))         logAlert("unable to initialize Payload", true);
   PCB.initResolutions();
@@ -60,12 +60,12 @@ void Avionics::test() {
  * This function handles basic flight data collection.
  */
 void Avionics::updateState() {
-  #ifndef HITL_ENABLED_FLAG
-    if(!readData())     logAlert("unable to read Data", true);
-  #endif
-  #ifdef HITL_ENABLED_FLAG
-    if(!simulateData()) logAlert("unable to simulate Data", true);
-  #endif
+#ifndef HITL_ENABLED_FLAG
+  if(!readData())     logAlert("unable to read Data", true);
+#endif
+#ifdef HITL_ENABLED_FLAG
+  if(!simulateData()) logAlert("unable to simulate Data", true);
+#endif
   if(!processData())    logAlert("unable to process Data", true);
 }
 
@@ -119,12 +119,12 @@ void Avionics::logState() {
 void Avionics::sendComms() {
   if(data.DEBUG_STATE && ((millis() - data.COMMS_LAST) < COMMS_DEBUG_INTERVAL)) return;
   if(!data.DEBUG_STATE && ((millis() - data.COMMS_LAST) < data.COMMS_INTERVAL)) return;
-  #ifndef RB_DISABLED_FLAG
-    if (!data.RB_SHOULD_USE && ((millis() - data.COMMS_LAST) > COMMS_RESTART_INTERVAL)) {
-      data.RB_SHOULD_USE = true;
-      RBModule.restart();
-    }
-  #endif
+#ifndef RB_DISABLED_FLAG
+  if (!data.RB_SHOULD_USE && ((millis() - data.COMMS_LAST) > COMMS_RESTART_INTERVAL)) {
+    data.RB_SHOULD_USE = true;
+    RBModule.restart();
+  }
+#endif
   if(compressData() < 0) logAlert("unable to compress Data", true);
   if(!sendSATCOMS()) logAlert("unable to communicate over RB", true);
   data.COMMS_LAST = millis();
@@ -171,25 +171,25 @@ bool Avionics::setupSDCard() {
  * if avionics is restarted mid flight.
  */
 bool Avionics::readHistory() {
-  #ifdef RESET_EEPROM_FLAG
-    for(size_t i = 0; i < 1023; i++)   EEPROM.write(i, 0x0);
+#ifdef RESET_EEPROM_FLAG
+  for(size_t i = 0; i < 1023; i++)   EEPROM.write(i, 0x0);
     EEPROM.write(EEPROM_ROCKBLOCK, true);
     EEPROM.write(EEPROM_GPS, true);
     EEPROM.write(EEPROM_HEATER, true);
     EEPROM.write(EEPROM_PAYLOAD, true);
     PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
     PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
-  #endif
-  #ifndef RESET_EEPROM_FLAG
-    if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.RB_SHOULD_USE = false;
-    if(!EEPROM.read(EEPROM_GPS)) data.GPS_SHOULD_USE = false;
-    if(!EEPROM.read(EEPROM_HEATER)) data.HEATER_SHOULD_USE = false;
-    if(!EEPROM.read(EEPROM_PAYLOAD)) data.PAYLOAD_SHOULD_USE = false;
-    double valveAltLast = PCB.EEPROMReadlong(EEPROM_VALVE_ALT_LAST);
-    if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
-    double ballastAltLast = PCB.EEPROMReadlong(EEPROM_BALLAST_ALT_LAST);
-    if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
-  #endif
+#endif
+#ifndef RESET_EEPROM_FLAG
+  if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.RB_SHOULD_USE = false;
+  if(!EEPROM.read(EEPROM_GPS)) data.GPS_SHOULD_USE = false;
+  if(!EEPROM.read(EEPROM_HEATER)) data.HEATER_SHOULD_USE = false;
+  if(!EEPROM.read(EEPROM_PAYLOAD)) data.PAYLOAD_SHOULD_USE = false;
+  double valveAltLast = PCB.EEPROMReadlong(EEPROM_VALVE_ALT_LAST);
+  if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
+  double ballastAltLast = PCB.EEPROMReadlong(EEPROM_BALLAST_ALT_LAST);
+  if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
+#endif
   return true;
 }
 
@@ -371,13 +371,13 @@ bool Avionics::calcIncentives() {
 * This function calculates if the avionics should cutdown.
 */
 bool Avionics::calcCutdown() {
- if(data.CUTDOWN_STATE) return true;
- if(CUTDOWN_GPS_ENABLE && data.GPS_GOOD_STATE &&
-   (((data.LAT_GPS < GPS_FENCE_LAT_MIN) || (data.LAT_GPS > GPS_FENCE_LAT_MAX)) ||
-   ((data.LONG_GPS < GPS_FENCE_LON_MIN) || (data.LONG_GPS > GPS_FENCE_LON_MAX)))
- ) data.SHOULD_CUTDOWN  = true;
- if(CUTDOWN_ALT_ENABLE && data.ALTITUDE >= CUTDOWN_ALT) data.SHOULD_CUTDOWN  = true;
- return true;
+  if(data.CUTDOWN_STATE) return true;
+  if(CUTDOWN_GPS_ENABLE && data.GPS_GOOD_STATE &&
+     (((data.LAT_GPS < GPS_FENCE_LAT_MIN) || (data.LAT_GPS > GPS_FENCE_LAT_MAX)) ||
+      ((data.LONG_GPS < GPS_FENCE_LON_MIN) || (data.LONG_GPS > GPS_FENCE_LON_MAX)))
+          ) data.SHOULD_CUTDOWN  = true;
+  if(CUTDOWN_ALT_ENABLE && data.ALTITUDE >= CUTDOWN_ALT) data.SHOULD_CUTDOWN  = true;
+  return true;
 }
 
 /*
@@ -478,11 +478,11 @@ bool Avionics::runLED() {
 bool Avionics::sendSATCOMS() {
   logAlert("sending Rockblock message", false);
   data.RB_SENT_COMMS++;
-  #ifndef RB_DISABLED_FLAG
-    int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
-    if(ret < 0) return false;
-    if(ret > 0) parseCommand(ret);
-  #endif
+#ifndef RB_DISABLED_FLAG
+  int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
+  if(ret < 0) return false;
+  if(ret > 0) parseCommand(ret);
+#endif
   return true;
 }
 
@@ -497,14 +497,14 @@ void Avionics::parseCommand(int16_t len) {
   uint8_t commandIndexes[8] = {0};
   char commandStrings[8][100] = {{0},{0},{0},{0},{0},{0},{0},{0}};
   uint8_t numScanned = sscanf(COMMS_BUFFER, commandStrFormat,
-    &commandIndexes[0], commandStrings[0],
-    &commandIndexes[1], commandStrings[1],
-    &commandIndexes[2], commandStrings[2],
-    &commandIndexes[3], commandStrings[3],
-    &commandIndexes[4], commandStrings[4],
-    &commandIndexes[5], commandStrings[5],
-    &commandIndexes[6], commandStrings[6],
-    &commandIndexes[7], commandStrings[7]);
+                              &commandIndexes[0], commandStrings[0],
+                              &commandIndexes[1], commandStrings[1],
+                              &commandIndexes[2], commandStrings[2],
+                              &commandIndexes[3], commandStrings[3],
+                              &commandIndexes[4], commandStrings[4],
+                              &commandIndexes[5], commandStrings[5],
+                              &commandIndexes[6], commandStrings[6],
+                              &commandIndexes[7], commandStrings[7]);
   if (numScanned % 2 != 0) return;
   data.SHOULD_REPORT = true;
 
@@ -815,8 +815,7 @@ int16_t Avionics::compressData() {
   int16_t lengthBits  = 0;
   int16_t lengthBytes = 0;
   for(uint16_t i = 0; i < BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
-
-  lengthBits += compressVariable(data.TIME / 1000,                           0,    3000000, 20, lengthBits);
+  lengthBits += compressVariable(data.TIME / 1000,                           0,    3000000, 20, lengthBits); // time
   lengthBits += compressVariable(data.LAT_GPS,                              -90,   90,      21, lengthBits); // latitude
   lengthBits += compressVariable(data.LONG_GPS,                             -180,  180,     22, lengthBits); // longitude
   lengthBits += compressVariable(data.ALTITUDE,                             -2000, 40000,   16, lengthBits); // altitude_barometer
@@ -860,36 +859,36 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.REPORT_MODE,                           0,    2,       2,  lengthBits);
   lengthBits += compressVariable(data.SHOULD_REPORT,                         0,    1,       1,  lengthBits);
   if (data.SHOULD_REPORT || data.REPORT_MODE != 0) {
-    lengthBits += compressVariable(data.RB_SHOULD_USE,                  0,    1,       1,  lengthBits); // RB Power State
-    lengthBits += compressVariable(data.GPS_SHOULD_USE,                 0,    1,       1,  lengthBits); // GPS Power State
-    lengthBits += compressVariable(data.HEATER_SHOULD_USE,              0,    1,       1,  lengthBits); // Heater Power State
-    lengthBits += compressVariable(data.PAYLOAD_SHOULD_USE,             0,    1,       1,  lengthBits); // Payload Power State
-    lengthBits += compressVariable(data.HEATER_STRONG_ENABLE,           0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.HEATER_WEEK_ENABLE,             0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.GPS_GOOD_STATE,                 0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.SPEED_GPS,                      0,    150,     7,  lengthBits);
-    lengthBits += compressVariable(data.HEADING_GPS,                    0,    360,     8,  lengthBits);
-    lengthBits += compressVariable(data.NUM_SATS_GPS,                   0,    25,      3,  lengthBits);
-    lengthBits += compressVariable(data.INCENTIVE_NOISE,                0,    4,       8,  lengthBits);
-    lengthBits += compressVariable(data.RE_ARM_CONSTANT,                0,    4,       8,  lengthBits);
-    lengthBits += compressVariable(data.VALVE_ALT_LAST,                -2000, 50000,   11, lengthBits); // Altitude During Last Venting Event
-    lengthBits += compressVariable(data.BALLAST_ALT_LAST,              -2000, 50000,   11, lengthBits); // Altitude During Last Ballast Event
-    lengthBits += compressVariable(data.SHOULD_LED,                     0,    1,       1,  lengthBits); // LED Power state
-    lengthBits += compressVariable(data.DEBUG_STATE,                    0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.FORCE_VALVE,                    0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.FORCE_BALLAST,                  0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.BMP_1_ENABLE,                   0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.BMP_2_ENABLE,                   0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.BMP_3_ENABLE,                   0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.BMP_4_ENABLE,                   0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(log2(data.BMP_1_REJECTIONS + 1),     0,    6,       4,  lengthBits); // sensor_1_logrejections
-    lengthBits += compressVariable(log2(data.BMP_2_REJECTIONS + 1),     0,    6,       4,  lengthBits); // sensor_2_logrejections
-    lengthBits += compressVariable(log2(data.BMP_3_REJECTIONS + 1),     0,    6,       4,  lengthBits); // sensor_3_logrejections
-    lengthBits += compressVariable(log2(data.BMP_4_REJECTIONS + 1),     0,    6,       4,  lengthBits); // sensor_4_logrejections
+    lengthBits += compressVariable(data.RB_SHOULD_USE,                       0,    1,       1,  lengthBits); // RB Power State
+    lengthBits += compressVariable(data.GPS_SHOULD_USE,                      0,    1,       1,  lengthBits); // GPS Power State
+    lengthBits += compressVariable(data.HEATER_SHOULD_USE,                   0,    1,       1,  lengthBits); // Heater Power State
+    lengthBits += compressVariable(data.PAYLOAD_SHOULD_USE,                  0,    1,       1,  lengthBits); // Payload Power State
+    lengthBits += compressVariable(data.HEATER_STRONG_ENABLE,                0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.HEATER_WEEK_ENABLE,                  0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.GPS_GOOD_STATE,                      0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.SPEED_GPS,                           0,    150,     7,  lengthBits);
+    lengthBits += compressVariable(data.HEADING_GPS,                         0,    360,     8,  lengthBits);
+    lengthBits += compressVariable(data.NUM_SATS_GPS,                        0,    25,      3,  lengthBits);
+    lengthBits += compressVariable(data.INCENTIVE_NOISE,                     0,    4,       8,  lengthBits);
+    lengthBits += compressVariable(data.RE_ARM_CONSTANT,                     0,    4,       8,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_ALT_LAST,                     -2000, 50000,   11, lengthBits); // Altitude During Last Venting Event
+    lengthBits += compressVariable(data.BALLAST_ALT_LAST,                   -2000, 50000,   11, lengthBits); // Altitude During Last Ballast Event
+    lengthBits += compressVariable(data.SHOULD_LED,                          0,    1,       1,  lengthBits); // LED Power state
+    lengthBits += compressVariable(data.DEBUG_STATE,                         0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.FORCE_VALVE,                         0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.FORCE_BALLAST,                       0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.BMP_1_ENABLE,                        0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.BMP_2_ENABLE,                        0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.BMP_3_ENABLE,                        0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.BMP_4_ENABLE,                        0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(log2(data.BMP_1_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_1_logrejections
+    lengthBits += compressVariable(log2(data.BMP_2_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_2_logrejections
+    lengthBits += compressVariable(log2(data.BMP_3_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_3_logrejections
+    lengthBits += compressVariable(log2(data.BMP_4_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_4_logrejections
     for(size_t i = 0; i < 12; i++) {
-      lengthBits += compressVariable(ValMU.getAverageEuler(0, i),       0,    360,     8,  lengthBits); // average euler 0 i
-      lengthBits += compressVariable(ValMU.getAverageEuler(1, i),      -180,  180,     8,  lengthBits); // average euler 1 i
-      lengthBits += compressVariable(ValMU.getAverageEuler(2, i),      -90,   90,      4,  lengthBits); // average euler 2 i
+      lengthBits += compressVariable(ValMU.getAverageEuler(0, i),            0,    360,     8,  lengthBits); // average euler 0 i
+      lengthBits += compressVariable(ValMU.getAverageEuler(1, i),           -180,  180,     8,  lengthBits); // average euler 1 i
+      lengthBits += compressVariable(ValMU.getAverageEuler(2, i),           -90,   90,      4,  lengthBits); // average euler 2 i
     }
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {

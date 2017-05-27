@@ -485,7 +485,6 @@ void Avionics::parseCommand(int16_t len) {
     &commandIndexes[0], commandStrings[0],
     &commandIndexes[1], commandStrings[1],
     &commandIndexes[2], commandStrings[2],
-    &commandIndexes[2], commandStrings[2],
     &commandIndexes[3], commandStrings[3],
     &commandIndexes[4], commandStrings[4],
     &commandIndexes[5], commandStrings[5],
@@ -496,7 +495,7 @@ void Avionics::parseCommand(int16_t len) {
 
   for (uint8_t i = 0; i < numScanned / 2; i++) {
     uint8_t index = commandIndexes[i];
-    if (index == CUTDOWN_INDEX && strncmp(commandStrings[i], CUTDOWN_COMMAND, strlen(commandStrings[i])) == 0) {
+    if (index == CUTDOWN_INDEX && (strlen(CUTDOWN_COMMAND) == strlen(commandStrings[i])) && strncmp(commandStrings[i], CUTDOWN_COMMAND, strlen(commandStrings[i])) == 0) {
       data.SHOULD_CUTDOWN = true;
     }
     if (index < 0 || index > 80) return;

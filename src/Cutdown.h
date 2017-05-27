@@ -14,7 +14,7 @@
 #include <stdint.h>
 
 /****************************  EDITABLE CONSTANTS  ****************************/
-static const uint8_t   CUTDOWN_INDEX       =                    0;
-static const char      CUTDOWN_COMMAND[]   =    "NOT REAL STRING";
+static const uint8_t   CUTDOWN_INDEX       =                   99;
+static const char      CUTDOWN_COMMAND[]   =    "NOT_REAL_STRING";
 
 #endif

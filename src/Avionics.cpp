@@ -47,10 +47,10 @@ void Avionics::init() {
  * This function tests the hardware.
  */
 void Avionics::test() {
-  data.MANUAL_MODE = false;
-  data.SHOULD_CUTDOWN = true;
-  PCB.queueValve(30000, true);
-  PCB.queueBallast(120000, true);
+  // data.MANUAL_MODE = false;
+  // data.SHOULD_CUTDOWN = true;
+  // PCB.queueValve(30000, true);
+  // PCB.queueBallast(5000, true);
 }
 
 /********************************  FUNCTIONS  *********************************/

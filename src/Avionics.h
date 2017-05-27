@@ -62,7 +62,6 @@ private:
   bool    calcVitals();
   bool    calcDebug();
   bool    calcIncentives();
-  bool    calcCutdown();
 
   bool    runHeaters();
   bool    runValve();

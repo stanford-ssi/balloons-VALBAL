@@ -44,6 +44,7 @@ public:
   uint32_t getValveQueue();
   uint32_t getBallastQueue();
   uint32_t getNumBallastOverCurrents();
+  void     clearBallastOverCurrents();
 
   void     cutDown();
 

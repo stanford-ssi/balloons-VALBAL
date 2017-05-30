@@ -62,7 +62,6 @@ private:
   bool    calcVitals();
   bool    calcDebug();
   bool    calcIncentives();
-  bool    calcCutdown();
 
   bool    runHeaters();
   bool    runValve();
@@ -88,7 +87,7 @@ private:
   void    setupLog();
   void    printHeader();
   void    logHeader();
-  void    logAlert(const char*, bool fatal);
+  void    alert(const char*, bool fatal);
   int16_t compressVariable(float var, float minimum, float maximum, int16_t resolution, int16_t length);
   void    printState();
   bool    logData();
@@ -98,7 +97,6 @@ private:
   char COMMS_BUFFER[BUFFER_SIZE];
   DataFrame data;
   File dataFile;
-  File logFile;
   Hardware PCB;
   Sensors sensors;
   Simulator HITL;

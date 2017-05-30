@@ -299,6 +299,15 @@ uint32_t Hardware::getNumBallastOverCurrents() {
 }
 
 /*
+ * Function: clearBallastOverCurrents
+ * -------------------
+ * This function clears the number of times that the ballast has over currented.
+ */
+void Hardware::clearBallastOverCurrents() {
+  numBallastOverCurrents = 0;
+}
+
+/*
  * Function: cutDown
  * -------------------
  * This function triggers the mechanical cutdown of the payload.

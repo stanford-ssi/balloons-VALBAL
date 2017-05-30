@@ -53,6 +53,7 @@ struct DataFrame {
   double     CURRENT_PAYLOAD_MAX              =                               0;
   double     TEMP_EXT                         =                               0;
   uint32_t   LOOP_TIME                        =                               0;
+  uint32_t   LOOP_TIME_MAX                    =                               0;
   uint32_t   RB_SENT_COMMS                    =                               0;
 
   float      EULER_X_AVG                      =                               0;

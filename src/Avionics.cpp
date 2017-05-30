@@ -22,20 +22,20 @@
 void Avionics::init() {
   PCB.init();
   Serial.begin(CONSOLE_BAUD);
-  if(!setupSDCard())                               logAlert("unable to initialize SD Card", true);
-  if(!readHistory())                               logAlert("unable to initialize EEPROM", true);
-  if(!sensors.init())                              logAlert("unable to initialize Sensors", true);
+  if(!setupSDCard())                               alert("unable to initialize SD Card", true);
+  if(!readHistory())                               alert("unable to initialize EEPROM", true);
+  if(!sensors.init())                              alert("unable to initialize Sensors", true);
 #ifdef HITL_ENABLED_FLAG
-  if(!HITL.init())                               logAlert("unable to initialize Simulations", true);
+  if(!HITL.init())                               alert("unable to initialize Simulations", true);
 #endif
-  if(!filter.init())                               logAlert("unable to initialize Filters", true);
-  if(!computer.init())                             logAlert("unable to initialize Flight Controller", true);
-  if(!gpsModule.init(data.GPS_SHOULD_USE))         logAlert("unable to initialize GPS", true);
+  if(!filter.init())                               alert("unable to initialize Filters", true);
+  if(!computer.init())                             alert("unable to initialize Flight Controller", true);
+  if(!gpsModule.init(data.GPS_SHOULD_USE))         alert("unable to initialize GPS", true);
 #ifndef RB_DISABLED_FLAG
-  if(!RBModule.init(data.RB_SHOULD_USE))         logAlert("unable to initialize RockBlock", true);
+  if(!RBModule.init(data.RB_SHOULD_USE))         alert("unable to initialize RockBlock", true);
 #endif
-  if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE))  logAlert("unable to initialize Heaters", true);
-  if(!ValMU.init(data.PAYLOAD_SHOULD_USE))         logAlert("unable to initialize Payload", true);
+  if(!PCB.startUpHeaters(data.HEATER_SHOULD_USE))  alert("unable to initialize Heaters", true);
+  if(!ValMU.init(data.PAYLOAD_SHOULD_USE))         alert("unable to initialize Payload", true);
   PCB.initResolutions();
   data.SETUP_STATE = false;
   data.TIME = millis();
@@ -61,12 +61,12 @@ void Avionics::test() {
  */
 void Avionics::updateState() {
 #ifndef HITL_ENABLED_FLAG
-  if(!readData())     logAlert("unable to read Data", true);
+  if(!readData())     alert("unable to read Data", true);
 #endif
 #ifdef HITL_ENABLED_FLAG
-  if(!simulateData()) logAlert("unable to simulate Data", true);
+  if(!simulateData()) alert("unable to simulate Data", true);
 #endif
-  if(!processData())    logAlert("unable to process Data", true);
+  if(!processData())    alert("unable to process Data", true);
 }
 
 /*
@@ -75,10 +75,9 @@ void Avionics::updateState() {
  * This function intelligently calculates the current state.
  */
 void Avionics::evaluateState() {
-  if(!calcVitals())     logAlert("unable to calculate vitals", true);
-  if(!calcDebug())      logAlert("unable to calculate debug", true);
-  if(!calcIncentives()) logAlert("unable to calculate incentives", true);
-  if(!calcCutdown())    logAlert("unable to calculate cutdown", true);
+  if(!calcVitals())     alert("unable to calculate vitals", true);
+  if(!calcDebug())      alert("unable to calculate debug", true);
+  if(!calcIncentives()) alert("unable to calculate incentives", true);
 }
 
 /*
@@ -87,11 +86,11 @@ void Avionics::evaluateState() {
  * This function intelligently reacts to the current data frame.
  */
 void Avionics::actuateState() {
-  if(!runHeaters()) logAlert("unable to run heaters", true);
-  if(!runValve())   logAlert("unable to run valve", true);
-  if(!runBallast()) logAlert("unable to run ballast", true);
-  if(!runCutdown()) logAlert("unable to run cutdown", true);
-  if(!runLED())     logAlert("unable to run LED", true);
+  if(!runHeaters()) alert("unable to run heaters", true);
+  if(!runValve())   alert("unable to run valve", true);
+  if(!runBallast()) alert("unable to run ballast", true);
+  if(!runCutdown()) alert("unable to run cutdown", true);
+  if(!runLED())     alert("unable to run LED", true);
 }
 
 /*
@@ -102,13 +101,12 @@ void Avionics::actuateState() {
 void Avionics::logState() {
   if (millis() - data.DATAFILE_LAST > FILE_RESET_TIME) {
     dataFile.close();
-    logFile.close();
     setupLog();
     printHeader();
     data.DATAFILE_LAST = millis();
   }
-  if(!logData())    logAlert("unable to log Data", true);
-  if(!debugState()) logAlert("unable to debug state", true);
+  if(!logData())    alert("unable to log Data", true);
+  if(!debugState()) alert("unable to debug state", true);
 }
 
 /*
@@ -125,8 +123,8 @@ void Avionics::sendComms() {
     RBModule.restart();
   }
 #endif
-  if(compressData() < 0) logAlert("unable to compress Data", true);
-  if(!sendSATCOMS()) logAlert("unable to communicate over RB", true);
+  if(compressData() < 0) alert("unable to compress Data", true);
+  if(!sendSATCOMS()) alert("unable to communicate over RB", true);
   data.COMMS_LAST = millis();
 }
 
@@ -305,6 +303,7 @@ bool Avionics::processData() {
   data.BMP_4_REJECTIONS    = filter.getNumRejections(4);
 
   data.CURRENT_AVG         = filter.getAvgCurrentSystem(data.CURRENT);
+  data.CURRENT_MIN         = filter.getMinCurrentSystem();
   data.CURRENT_MAX         = filter.getMaxCurrentSystem();
   data.CURRENT_GPS_AVG     = filter.getAvgCurrentGPS(data.CURRENT_GPS);
   data.CURRENT_GPS_MAX     = filter.getMaxCurrentGPS();
@@ -314,6 +313,8 @@ bool Avionics::processData() {
   data.CURRENT_MOTORS_MAX  = filter.getMaxCurrentMotors();
   data.CURRENT_PAYLOAD_AVG = filter.getAvgCurrentPayload(data.CURRENT_PAYLOAD);
   data.CURRENT_PAYLOAD_MAX = filter.getMaxCurrentPayload();
+
+  data.LOOP_TIME_MAX       = max(data.LOOP_TIME, data.LOOP_TIME_MAX);
 
   data.EULER_X_AVG         = ValMU.getAverageEuler(0, 0);
   data.EULER_Y_AVG         = ValMU.getAverageEuler(1, 0);
@@ -366,20 +367,6 @@ bool Avionics::calcIncentives() {
   return success;
 }
 
-/* Function: calcCutdown
-* -------------------
-* This function calculates if the avionics should cutdown.
-*/
-bool Avionics::calcCutdown() {
-  if(data.CUTDOWN_STATE) return true;
-  if(CUTDOWN_GPS_ENABLE && data.GPS_GOOD_STATE &&
-     (((data.LAT_GPS < GPS_FENCE_LAT_MIN) || (data.LAT_GPS > GPS_FENCE_LAT_MAX)) ||
-      ((data.LONG_GPS < GPS_FENCE_LON_MIN) || (data.LONG_GPS > GPS_FENCE_LON_MAX)))
-          ) data.SHOULD_CUTDOWN  = true;
-  if(CUTDOWN_ALT_ENABLE && data.ALTITUDE >= CUTDOWN_ALT) data.SHOULD_CUTDOWN  = true;
-  return true;
-}
-
 /*
  * Function: runHeaters
  * -------------------
@@ -409,9 +396,9 @@ bool Avionics::runValve() {
     if(!data.FORCE_VALVE) data.VALVE_ALT_LAST = data.ALTITUDE;
     uint32_t valveTime = data.VALVE_DURATION;
     if(data.FORCE_VALVE) valveTime = data.VALVE_FORCE_DURATION;
+    if(shouldValve) data.VALVE_TIME_TOTAL += valveTime;
     PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
     PCB.queueValve(valveTime, shouldValve);
-    data.VALVE_TIME_TOTAL += valveTime;
     data.FORCE_VALVE = false;
   }
   data.VALVE_QUEUE = PCB.getValveQueue();
@@ -433,9 +420,9 @@ bool Avionics::runBallast() {
     if(!data.FORCE_BALLAST) data.BALLAST_ALT_LAST = data.ALTITUDE;
     uint32_t ballastTime = data.BALLAST_DURATION;
     if(data.FORCE_BALLAST) ballastTime = data.BALLAST_FORCE_DURATION;
+    if(shouldBallast) data.BALLAST_TIME_TOTAL += ballastTime;
     PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
     PCB.queueBallast(ballastTime, shouldBallast);
-    data.BALLAST_TIME_TOTAL += ballastTime;
     data.FORCE_BALLAST = false;
   }
   data.BALLAST_QUEUE = PCB.getBallastQueue();
@@ -454,7 +441,7 @@ bool Avionics::runCutdown() {
     PCB.cutDown();
     data.SHOULD_CUTDOWN = false;
     data.CUTDOWN_STATE = true;
-    logAlert("completed cutdown", false);
+    alert("completed cutdown", false);
   }
   return true;
 }
@@ -476,7 +463,7 @@ bool Avionics::runLED() {
  * This function sends the current data frame over the ROCKBLOCK IO.
  */
 bool Avionics::sendSATCOMS() {
-  logAlert("sending Rockblock message", false);
+  alert("sending Rockblock message", false);
   data.RB_SENT_COMMS++;
 #ifndef RB_DISABLED_FLAG
   int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
@@ -722,10 +709,7 @@ void Avionics::setupLog() {
       break;
     }
   }
-  logFile = SD.open("EVENTS.txt", O_WRITE | O_CREAT);
-  if (!dataFile || !logFile) {
-    Serial.println ("ERROR: COULD NOT CREATE FILE");
-  }
+  if (!dataFile) Serial.println ("ERROR: COULD NOT CREATE FILE");
   else {
     Serial.print("Logging to: ");
     Serial.println(filename);
@@ -758,27 +742,18 @@ void Avionics::logHeader() {
 }
 
 /*
-   * Function: logAlert
+   * Function: alert
  * -------------------
- * This function logs important information whenever a specific event occurs.
+ * This function alerts important information whenever a specific event occurs.
  */
-void Avionics::logAlert(const char* debug, bool fatal) {
-  if(logFile) {
-    logFile.print(millis());
-    logFile.print(',');
-    if(fatal) logFile.print("FATAL ERROR!!!!!!!!!!: ");
-    else logFile.print("Alert: ");
-    logFile.print(debug);
-    logFile.print("...\n");
-  }
-  if(data.DEBUG_STATE) {
-    Serial.print(millis());
-    Serial.print(',');
-    if(fatal) Serial.print("FATAL ERROR!!!!!!!!!!: ");
-    else Serial.print("Alert: ");
-    Serial.print(debug);
-    Serial.print("...\n");
-  }
+void Avionics::alert(const char* debug, bool fatal) {
+  if(!data.DEBUG_STATE) return;
+  Serial.print(millis());
+  Serial.print(',');
+  if(fatal) Serial.print("FATAL ERROR!!!!!!!!!!: ");
+  else Serial.print("Alert: ");
+  Serial.print(debug);
+  Serial.print("...\n");
 }
 
 /*
@@ -850,7 +825,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.CURRENT_PAYLOAD_AVG,                   0,    500,     8,  lengthBits);
   lengthBits += compressVariable(data.CURRENT_PAYLOAD_MAX,                   0,    500,     8,  lengthBits);
   lengthBits += compressVariable(data.TEMP_EXT,                             -100,  30,      6,  lengthBits);
-  lengthBits += compressVariable(data.LOOP_TIME,                             0,    10000,   10, lengthBits);
+  lengthBits += compressVariable(data.LOOP_TIME_MAX,                         0,    10000,   10, lengthBits);
   lengthBits += compressVariable(data.RB_SENT_COMMS,                         0,    8191,    13, lengthBits);
   lengthBits += compressVariable(data.EULER_X_AVG,                           0,    360,     8,  lengthBits);
   lengthBits += compressVariable(data.EULER_Y_AVG,                          -180,  180,     8,  lengthBits);
@@ -921,18 +896,8 @@ int16_t Avionics::compressData() {
   lengthBytes = lengthBits / 8;
   data.SHOULD_REPORT = false;
   data.COMMS_LENGTH = lengthBytes;
-  logFile.print(data.TIME);
-  logFile.print(',');
   for (int16_t i = 0; i < lengthBytes; i++) {
     uint8_t byte = COMMS_BUFFER[i];
-    (byte & 0x80 ? logFile.print('1') : logFile.print('0'));
-    (byte & 0x40 ? logFile.print('1') : logFile.print('0'));
-    (byte & 0x20 ? logFile.print('1') : logFile.print('0'));
-    (byte & 0x10 ? logFile.print('1') : logFile.print('0'));
-    (byte & 0x08 ? logFile.print('1') : logFile.print('0'));
-    (byte & 0x04 ? logFile.print('1') : logFile.print('0'));
-    (byte & 0x02 ? logFile.print('1') : logFile.print('0'));
-    (byte & 0x01 ? logFile.print('1') : logFile.print('0'));
     if(data.DEBUG_STATE) {
       (byte & 0x80 ? Serial.print('1') : Serial.print('0'));
       (byte & 0x40 ? Serial.print('1') : Serial.print('0'));
@@ -944,14 +909,14 @@ int16_t Avionics::compressData() {
       (byte & 0x01 ? Serial.print('1') : Serial.print('0'));
     }
   }
-  logFile.print('\n');
   if(data.DEBUG_STATE) Serial.print('\n');
   filter.clearCurrentValues();
+  PCB.clearBallastOverCurrents();
   data.NUM_VALVES = 0;
   data.NUM_BALLASTS = 0;
   data.NUM_VALVE_ATTEMPTS = 0;
   data.NUM_BALLAST_ATTEMPTS = 0;
-  data.NUM_BALLAST_OVER_CURRENTS = 0;
+  data.LOOP_TIME_MAX = 0;
   return lengthBytes;
 }
 
@@ -1068,6 +1033,9 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" LOOP_TIME:");
   Serial.print(data.LOOP_TIME);
+  Serial.print(',');
+  Serial.print(" LOOP_TIME_MAX:");
+  Serial.print(data.LOOP_TIME_MAX);
   Serial.print(',');
   Serial.print(" RB_SENT_COMMS:");
   Serial.print(data.RB_SENT_COMMS);
@@ -1391,6 +1359,8 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.LOOP_TIME);
   dataFile.print(',');
+  dataFile.print(data.LOOP_TIME_MAX);
+  dataFile.print(',');
   dataFile.print(data.RB_SENT_COMMS);
   dataFile.print(',');
   dataFile.print(data.EULER_X_AVG);
@@ -1552,6 +1522,5 @@ bool Avionics::logData() {
   dataFile.print(data.COMMS_LENGTH);
   dataFile.print('\n');
   dataFile.flush();
-  logFile.flush();
   return sucess;
 }

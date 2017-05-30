@@ -63,24 +63,19 @@ Here is the current status of the code:
 6. PID Heating on inboard heater trace.
 7. Integration of uBlox M8Q GPS.
 8. RockBlock data downlink.
-9. Flight termination optionally based on altitude and GPS setpoints.
-10. 1Hz LED in compliance with FAA.
+9. 1Hz LED in compliance with FAA.
 
 #### Useful Flight Features
-1. MicroSD logging of errors and notable events to log.txt.
-2. Ascent rate calculations from filtered and error checked data.
-3. Balloon neck temperature readings.
-4. Subsystem current readings.
-5. Subsystem shutdown if failure to restart.
-6. Low power mode for ARM Cortex M4.
-7. GPS successful set to flight mode.
+1. Ascent rate calculations from filtered and error checked data.
+2. Balloon neck temperature readings.
+3. Subsystem current readings.
+4. Subsystem shutdown if failure to restart.
+5. Low power mode for ARM Cortex M4.
+6. GPS successful set to flight mode.
+7. GPS succesfull set to low power mode over I2C.
 8. Compression of data frame into bitstream for comms.
 9. RockBlock command parsing for satcomms uplink.
-10. Manual control of flight Parameters.
-11. Debug mode disabled at altitude.
-12. HITL simulations testing suite.
-
-#### TODO
-1. GPS low power mode 1 Hz using i2c.
-2. RB sleep mode between comms.
-3. Heaters damp PID constants.
+10. RockBLOCK sleep mode between comms.
+11. Manual control of flight Parameters.
+12. Debug mode disabled at altitude.
+13. HITL simulations testing suite.

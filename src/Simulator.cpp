@@ -51,13 +51,13 @@ DataFrame Simulator::readData() {
   simulated.PRESS_BASELINE                 = values[10];
   simulated.BALLAST_ARM_ALT                = values[11];
   simulated.VALVE_SETPOINT                 = values[12];
-  simulated.VALVE_DURATION                 = values[13];
+  simulated.VALVE_VENT_DURATION            = values[13];
   simulated.VALVE_ALT_LAST                 = values[14];
   simulated.VALVE_VELOCITY_CONSTANT        = values[15];
   simulated.VALVE_ALTITUDE_DIFF_CONSTANT   = values[16];
   simulated.VALVE_LAST_ACTION_CONSTANT     = values[17];
   simulated.BALLAST_SETPOINT               = values[18];
-  simulated.BALLAST_DURATION               = values[19];
+  simulated.BALLAST_DROP_DURATION          = values[19];
   simulated.BALLAST_ALT_LAST               = values[20];
   simulated.BALLAST_VELOCITY_CONSTANT      = values[21];
   simulated.BALLAST_ALTITUDE_DIFF_CONSTANT = values[22];

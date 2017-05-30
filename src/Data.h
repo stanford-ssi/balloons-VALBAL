@@ -47,18 +47,16 @@ struct DataFrame {
   double     CURRENT_GPS_MAX                  =                               0;
   double     CURRENT_RB_AVG                   =                               0;
   double     CURRENT_RB_MAX                   =                               0;
-  double     CURRENT_MOTORS_AVG               =                               0;
-  double     CURRENT_MOTORS_MAX               =                               0;
+  double     CURRENT_MOTOR_VALVE_AVG          =                               0;
+  double     CURRENT_MOTOR_VALVE_MAX          =                               0;
+  double     CURRENT_MOTOR_BALLAST_AVG        =                               0;
+  double     CURRENT_MOTOR_BALLAST_MAX        =                               0;
   double     CURRENT_PAYLOAD_AVG              =                               0;
   double     CURRENT_PAYLOAD_MAX              =                               0;
   double     TEMP_EXT                         =                               0;
   uint32_t   LOOP_TIME                        =                               0;
   uint32_t   LOOP_TIME_MAX                    =                               0;
   uint32_t   RB_SENT_COMMS                    =                               0;
-
-  float      EULER_X_AVG                      =                               0;
-  float      EULER_Y_AVG                      =                               0;
-  float      EULER_Z_AVG                      =                               0;
 
   bool       MANUAL_MODE                      =             MANUAL_MODE_DEFAULT;
   uint8_t    REPORT_MODE                      =             REPORT_MODE_DEFAULT;
@@ -111,15 +109,15 @@ struct DataFrame {
   uint32_t   VALVE_CLOSING_TIMEOUT            =   VALVE_CLOSING_TIMEOUT_DEFAULT;
 
   float      VALVE_SETPOINT                   =          VALVE_SETPOINT_DEFAULT;
-  uint32_t   VALVE_DURATION                   =          VALVE_DURATION_DEFAULT;
-  uint32_t   VALVE_FORCE_DURATION             =          VALVE_DURATION_DEFAULT;
+  uint32_t   VALVE_VENT_DURATION                   =     VALVE_VENT_DURATION_DEFAULT;
+  uint32_t   VALVE_FORCE_DURATION             =     VALVE_VENT_DURATION_DEFAULT;
   float      VALVE_VELOCITY_CONSTANT          =          VALVE_VELOCITY_DEFAULT;
   float      VALVE_ALTITUDE_DIFF_CONSTANT     =     VALVE_ALTITUDE_DIFF_DEFAULT;
   float      VALVE_LAST_ACTION_CONSTANT       =       VALVE_LAST_ACTION_DEFAULT;
 
   float      BALLAST_SETPOINT                 =        BALLAST_SETPOINT_DEFAULT;
-  uint32_t   BALLAST_DURATION                 =        BALLAST_DURATION_DEFAULT;
-  uint32_t   BALLAST_FORCE_DURATION           =        BALLAST_DURATION_DEFAULT;
+  uint32_t   BALLAST_DROP_DURATION            =   BALLAST_DROP_DURATION_DEFAULT;
+  uint32_t   BALLAST_FORCE_DURATION           =   BALLAST_DROP_DURATION_DEFAULT;
   float      BALLAST_VELOCITY_CONSTANT        =        BALLAST_VELOCITY_DEFAULT;
   float      BALLAST_ALTITUDE_DIFF_CONSTANT   =   BALLAST_ALTITUDE_DIFF_DEFAULT;
   float      BALLAST_LAST_ACTION_CONSTANT     =     BALLAST_LAST_ACTION_DEFAULT;
@@ -140,11 +138,10 @@ struct DataFrame {
   double     CURRENT                          =                               0;
   double     CURRENT_GPS                      =                               0;
   double     CURRENT_RB                       =                               0;
-  double     CURRENT_MOTORS                   =                               0;
+  double     CURRENT_MOTOR_VALVE              =                               0;
+  double     CURRENT_MOTOR_BALLAST            =                               0;
   double     CURRENT_PAYLOAD                  =                               0;
-  float      EULER_X                          =                               0;
-  float      EULER_Y                          =                               0;
-  float      EULER_Z                          =                               0;
+  uint32_t   PAYLOAD_MESSAGE_SIZE             =                               0;
 
   uint32_t   GPS_LAST                         =                               0;
   uint32_t   COMMS_LAST                       =                               0;

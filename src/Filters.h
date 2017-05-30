@@ -29,14 +29,16 @@ public:
   double   getAvgCurrentSystem(double current);
   double   getAvgCurrentGPS(double current);
   double   getAvgCurrentRB(double current);
-  double   getAvgCurrentMotors(double current,bool on);
+  double   getAvgCurrentMotorValve(double current,bool on);
+  double   getAvgCurrentMotorBallast(double current,bool on);
   double   getAvgCurrentPayload(double current);
 
   double   getMinCurrentSystem();
   double   getMaxCurrentSystem();
   double   getMaxCurrentGPS();
   double   getMaxCurrentRB();
-  double   getMaxCurrentMotors();
+  double   getMaxCurrentMotorValve();
+  double   getMaxCurrentMotorBallast();
   double   getMaxCurrentPayload();
 
   double   getPressure();
@@ -69,9 +71,12 @@ private:
   double   currentRBTotal = 0;
   double   currentRBMax = 0;
   uint32_t currentRBCount = 0;
-  double   currentMotorsTotal = 0;
-  double   currentMotorsMax = 0;
-  uint32_t currentMotorsCount = 0;
+  double   currentMotorValveTotal = 0;
+  double   currentMotorValveMax = 0;
+  uint32_t currentMotorValveCount = 0;
+  double   currentMotorBallastTotal = 0;
+  double   currentMotorBallastMax = 0;
+  uint32_t currentMotorBallastCount = 0;
   double   currentPayloadTotal = 0;
   double   currentPayloadMax = 0;
   uint32_t currentPayloadCount = 0;

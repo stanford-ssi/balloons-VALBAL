@@ -181,18 +181,31 @@ double   Filters::getAvgCurrentRB(double current) {
 }
 
 /*
-* Function: getAverageCurrentMotors
+* Function: getAverageCurrentMotorValve
 * -------------------
 * This function returns the average subsytem current over the last window.
 */
-double   Filters::getAvgCurrentMotors(double current,bool on) {
+double   Filters::getAvgCurrentMotorValve(double current,bool on) {
   if(on) {
-    if(current > currentMotorsMax) currentMotorsMax = current;
-    currentMotorsTotal += current;
-    currentMotorsCount++;
+    if(current > currentMotorValveMax) currentMotorValveMax = current;
+    currentMotorValveTotal += current;
+    currentMotorValveCount++;
   }
-  if(currentMotorsCount == 0) return 0;
-  return currentMotorsTotal / currentMotorsCount;
+  return ((currentMotorValveCount != 0) ? (currentMotorValveTotal / currentMotorValveCount): 0);
+}
+
+/*
+* Function: getAverageCurrentMotorBallast
+* -------------------
+* This function returns the average subsytem current over the last window.
+*/
+double   Filters::getAvgCurrentMotorBallast(double current,bool on) {
+  if(on) {
+    if(current > currentMotorBallastMax) currentMotorBallastMax = current;
+    currentMotorBallastTotal += current;
+    currentMotorBallastCount++;
+  }
+  return ((currentMotorBallastCount != 0) ? (currentMotorBallastTotal / currentMotorBallastCount): 0);
 }
 
 /*
@@ -244,12 +257,21 @@ double Filters::getMaxCurrentRB() {
 }
 
 /*
-* Function: getMaxCurrentMotors
+* Function: getMaxCurrentMotorValve
 * -------------------
 * This function returns the maximum subsytem current over the last window.
 */
-double Filters::getMaxCurrentMotors() {
-  return currentMotorsMax;
+double Filters::getMaxCurrentMotorValve() {
+  return currentMotorValveMax;
+}
+
+/*
+* Function: getMaxCurrentMotorBallast
+* -------------------
+* This function returns the maximum subsytem current over the last window.
+*/
+double Filters::getMaxCurrentMotorBallast() {
+  return currentMotorBallastMax;
 }
 
 /*
@@ -277,9 +299,12 @@ void Filters::clearCurrentValues() {
   currentRBTotal = 0;
   currentRBMax = 0;
   currentRBCount = 0;
-  currentMotorsTotal = 0;
-  currentMotorsMax = 0;
-  currentMotorsCount = 0;
+  currentMotorValveTotal = 0;
+  currentMotorValveMax = 0;
+  currentMotorValveCount = 0;
+  currentMotorBallastTotal = 0;
+  currentMotorBallastMax = 0;
+  currentMotorBallastCount = 0;
   currentPayloadTotal = 0;
   currentPayloadMax = 0;
   currentPayloadCount = 0;

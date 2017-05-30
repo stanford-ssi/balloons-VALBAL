@@ -67,12 +67,12 @@ Here is the current status of the code:
 
 #### Useful Flight Features
 1. Ascent rate calculations from filtered and error checked data.
-2. Balloon neck temperature readings.
+2. External temperature readings.
 3. Subsystem current readings.
 4. Subsystem shutdown if failure to restart.
 5. Low power mode for ARM Cortex M4.
 6. GPS successful set to flight mode.
-7. GPS succesfull set to low power mode over I2C.
+7. GPS successful set to low power mode over I2C.
 8. Compression of data frame into bitstream for comms.
 9. RockBlock command parsing for satcomms uplink.
 10. RockBLOCK sleep mode between comms.

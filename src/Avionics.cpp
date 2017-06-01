@@ -398,7 +398,7 @@ bool Avionics::runValve() {
     data.FORCE_VALVE = false;
   }
   data.VALVE_QUEUE = PCB.getValveQueue();
-  data.VALVE_STATE = PCB.checkValve(data.CURRENT_MOTOR_BALLAST);
+  data.VALVE_STATE = PCB.checkValve(data.CURRENT_MOTOR_VALVE, data.VALVE_LEAK_INTERVAL);
   return true;
 }
 
@@ -527,25 +527,26 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 13) data.BALLAST_DROP_DURATION = value;
   else if (index == 14) data.PRESS_BASELINE = value;
   else if (index == 15) data.BALLAST_REVERSE_INTERVAL = value * 60000;
-  else if (index == 16) data.BALLAST_STALL_CURRENT = value;
-  else if (index == 17) data.VALVE_MOTOR_SPEED = value;
-  else if (index == 18) data.BALLAST_MOTOR_SPEED = value;
-  else if (index == 19) data.VALVE_OPENING_DURATION = value;
-  else if (index == 20) data.VALVE_CLOSING_DURATION = value;
-  else if (index == 21) data.TEMP_SETPOINT = value;
-  else if (index == 22) data.POWER_STATE_LED = value;
-  else if (index == 23) data.RB_INTERVAL = value * 60000;
-  else if (index == 24) data.GPS_INTERVAL = value * 60000;
-  else if (index == 25) parseManualCommand(value);
-  else if (index == 26) parseReportCommand(value);
-  else if (index == 27) parseSensorsCommand(value);
-  else if (index == 28) parseValveCommand(value);
-  else if (index == 29) parseBallastCommand(value);
-  else if (index == 30) parseRockBLOCKPowerCommand(value);
-  else if (index == 31) parseGPSPowerCommand(value);
-  else if (index == 32) parseHeaterPowerCommand(value);
-  else if (index == 33) parseHeaterModeCommand(value);
-  else if (index == 34) parsePayloadPowerCommand(value);
+  else if (index == 16) data.VALVE_LEAK_INTERVAL = value * 60000;
+  else if (index == 17) data.BALLAST_STALL_CURRENT = value;
+  else if (index == 18) data.VALVE_MOTOR_SPEED = value;
+  else if (index == 19) data.BALLAST_MOTOR_SPEED = value;
+  else if (index == 20) data.VALVE_OPENING_DURATION = value;
+  else if (index == 21) data.VALVE_CLOSING_DURATION = value;
+  else if (index == 22) data.TEMP_SETPOINT = value;
+  else if (index == 23) data.POWER_STATE_LED = value;
+  else if (index == 24) data.RB_INTERVAL = value * 60000;
+  else if (index == 25) data.GPS_INTERVAL = value * 60000;
+  else if (index == 26) parseManualCommand(value);
+  else if (index == 27) parseReportCommand(value);
+  else if (index == 28) parseSensorsCommand(value);
+  else if (index == 29) parseValveCommand(value);
+  else if (index == 30) parseBallastCommand(value);
+  else if (index == 31) parseRockBLOCKPowerCommand(value);
+  else if (index == 32) parseGPSPowerCommand(value);
+  else if (index == 33) parseHeaterPowerCommand(value);
+  else if (index == 34) parseHeaterModeCommand(value);
+  else if (index == 35) parsePayloadPowerCommand(value);
 }
 
 /*
@@ -862,6 +863,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.INCENTIVE_THRESHOLD,                 0,    4,       3,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_ARM_ALT,                    -2000, 40000,   16, lengthBits); // Ballast Arming Altitude
     lengthBits += compressVariable(data.BALLAST_REVERSE_INTERVAL,            0,    1000000, 4,  lengthBits); // Ballast reverse interval
+    lengthBits += compressVariable(data.VALVE_LEAK_INTERVAL,                 0,    1000000, 4,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_STALL_CURRENT,               0,    500,     4,  lengthBits);
     lengthBits += compressVariable(data.VALVE_OPENING_DURATION,              0,    10000,   5,  lengthBits);
     lengthBits += compressVariable(data.VALVE_CLOSING_DURATION,              0,    10000,   5,  lengthBits);
@@ -1144,6 +1146,9 @@ void Avionics::printState() {
   Serial.print(" BALLAST_REVERSE_INTERVAL:");
   Serial.print(data.BALLAST_REVERSE_INTERVAL);
   Serial.print(',');
+  Serial.print(" VALVE_LEAK_INTERVAL:");
+  Serial.print(data.VALVE_LEAK_INTERVAL);
+  Serial.print(',');
   Serial.print(" BALLAST_STALL_CURRENT:");
   Serial.print(data.BALLAST_STALL_CURRENT);
   Serial.print(',');
@@ -1423,6 +1428,8 @@ bool Avionics::logData() {
   dataFile.print(data.BALLAST_ARM_ALT);
   dataFile.print(',');
   dataFile.print(data.BALLAST_REVERSE_INTERVAL);
+  dataFile.print(',');
+  dataFile.print(data.VALVE_LEAK_INTERVAL);
   dataFile.print(',');
   dataFile.print(data.BALLAST_STALL_CURRENT);
   dataFile.print(',');

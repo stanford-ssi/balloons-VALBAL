@@ -102,7 +102,7 @@ float Sensors::getCurrentSubsystem(uint8_t subsystem) {
  * This function gets the total joules.
  */
 float Sensors::getJoules() {
-  joules += (internalCurrentMonitor / 1000) * voltage5V * (millis() - lastJoulesCall) / 1000;
+  joules += (internalCurrentMonitor / 1000) * voltagePrimary * (millis() - lastJoulesCall) / 1000;
   lastJoulesCall = millis();
   return joules;
 }

@@ -182,9 +182,9 @@ void Hardware::clearBallastQueue() {
  * This function provides a non-hanging interface to check the timer queue.
  * Called every loop; updates and acts on the current state of the valve.
  */
-bool Hardware::checkValve(float current) {
+bool Hardware::checkValve(float current, uint32_t leakTimeout) {
   if (valveState == CLOSED) {
-    if ((millis() - valveLeakStartTime) >= VALVE_LEAK_INTERVAL) {
+    if (((millis() - valveLeakStartTime) >= leakTimeout) && (ballastState == CLOSED)) {
       valveLeakStartTime = millis();
       valveActionStartTime = millis();
       valveState = CLOSING;

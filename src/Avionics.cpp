@@ -519,25 +519,25 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index ==  9) data.BALLAST_VELOCITY_CONSTANT = value;
   else if (index == 10) data.BALLAST_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
   else if (index == 11) data.BALLAST_LAST_ACTION_CONSTANT = 1.0 / value;
-  else if (index == 12) data.VALVE_VENT_DURATION = value;
-  else if (index == 13) data.BALLAST_DROP_DURATION = value;
+  else if (index == 12) data.VALVE_VENT_DURATION = value * 1000;
+  else if (index == 13) data.BALLAST_DROP_DURATION = value * 1000;
   else if (index == 14) data.PRESS_BASELINE = value;
-  else if (index == 15) data.BALLAST_REVERSE_INTERVAL = value * 60000;
-  else if (index == 16) data.VALVE_LEAK_INTERVAL = value * 60000;
+  else if (index == 15) data.BALLAST_REVERSE_INTERVAL = value * 1000;
+  else if (index == 16) data.VALVE_LEAK_INTERVAL = value * 1000;
   else if (index == 17) data.BALLAST_STALL_CURRENT = value;
   else if (index == 18) data.VALVE_MOTOR_SPEED = value;
   else if (index == 19) data.BALLAST_MOTOR_SPEED = value;
-  else if (index == 20) data.VALVE_OPENING_DURATION = value;
-  else if (index == 21) data.VALVE_CLOSING_DURATION = value;
+  else if (index == 20) data.VALVE_OPENING_DURATION = value * 1000;
+  else if (index == 21) data.VALVE_CLOSING_DURATION = value * 1000;
   else if (index == 22) data.TEMP_SETPOINT = value;
   else if (index == 23) data.POWER_STATE_LED = value;
-  else if (index == 24) data.RB_INTERVAL = value * 60000;
-  else if (index == 25) data.GPS_INTERVAL = value * 60000;
+  else if (index == 24) data.RB_INTERVAL = value * 1000;
+  else if (index == 25) data.GPS_INTERVAL = value * 1000;
   else if (index == 26) parseManualCommand(value);
   else if (index == 27) parseReportCommand(value);
   else if (index == 28) parseSensorsCommand(value);
-  else if (index == 29) parseValveCommand(value);
-  else if (index == 30) parseBallastCommand(value);
+  else if (index == 29) parseValveCommand(value * 1000);
+  else if (index == 30) parseBallastCommand(value * 1000);
   else if (index == 31) parseRockBLOCKPowerCommand(value);
   else if (index == 32) parseGPSPowerCommand(value);
   else if (index == 33) parseHeaterPowerCommand(value);
@@ -793,8 +793,8 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.BALLAST_INCENTIVE,                    -50,   10,      12, lengthBits);
   lengthBits += compressVariable(data.VALVE_STATE,                           0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_STATE,                         0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.VALVE_QUEUE,                           0,    1000000, 10, lengthBits);
-  lengthBits += compressVariable(data.BALLAST_QUEUE,                         0,    1000000, 10, lengthBits);
+  lengthBits += compressVariable(data.VALVE_QUEUE / 1000,                    0,    1000,    10, lengthBits);
+  lengthBits += compressVariable(data.BALLAST_QUEUE / 1000,                  0,    1000,    10, lengthBits);
   lengthBits += compressVariable(data.VALVE_TIME_TOTAL / 1000,               0,    16384,   13, lengthBits); // valve time total
   lengthBits += compressVariable(data.BALLAST_TIME_TOTAL / 1000,             0,    16384,   13, lengthBits); // ballast time total
   lengthBits += compressVariable(data.VALVE_NUM_ACTIONS,                     0,    50,      6,  lengthBits);
@@ -851,28 +851,28 @@ int16_t Avionics::compressData() {
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.TEMP_SETPOINT,                      -40,   40,      6,  lengthBits); // Payload temperature setpoint
-    lengthBits += compressVariable(data.RB_INTERVAL,                         0,    1000000, 10, lengthBits); // RB communication interval
-    lengthBits += compressVariable(data.GPS_INTERVAL,                        0,    1000000, 10, lengthBits); // GPS communication interval
+    lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1000,    10, lengthBits); // RB communication interval
+    lengthBits += compressVariable(data.GPS_INTERVAL / 1000,                 0,    1000,    10, lengthBits); // GPS communication interval
     lengthBits += compressVariable(data.PRESS_BASELINE,                      0,    500000,  19, lengthBits); // Pressure baseline
     lengthBits += compressVariable(data.INCENTIVE_THRESHOLD,                 0,    4,       3,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_ARM_ALT,                    -2000, 40000,   16, lengthBits); // Ballast Arming Altitude
-    lengthBits += compressVariable(data.BALLAST_REVERSE_INTERVAL,            0,    1000000, 4,  lengthBits); // Ballast reverse interval
-    lengthBits += compressVariable(data.VALVE_LEAK_INTERVAL,                 0,    1000000, 4,  lengthBits);
+    lengthBits += compressVariable(data.BALLAST_REVERSE_INTERVAL / 1000,     0,    1000,    4,  lengthBits); // Ballast reverse interval
+    lengthBits += compressVariable(data.VALVE_LEAK_INTERVAL / 1000,          0,    1000,    4,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_STALL_CURRENT,               0,    500,     4,  lengthBits);
-    lengthBits += compressVariable(data.VALVE_OPENING_DURATION,              0,    10000,   5,  lengthBits);
-    lengthBits += compressVariable(data.VALVE_CLOSING_DURATION,              0,    10000,   5,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_OPENING_DURATION / 1000,       0,    10,      5,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_CLOSING_DURATION / 1000,       0,    10,      5,  lengthBits);
     lengthBits += compressVariable(data.VALVE_SETPOINT,                     -2000, 50000,   11, lengthBits);
-    lengthBits += compressVariable(data.VALVE_VENT_DURATION,                 0,    1000000, 6,  lengthBits);
-    lengthBits += compressVariable(data.VALVE_FORCE_DURATION,                0,    1000000, 6,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_VENT_DURATION / 1000,          0,    1000,    6,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_FORCE_DURATION / 1000,         0,    1000,    6,  lengthBits);
     lengthBits += compressVariable(data.VALVE_VELOCITY_CONSTANT,             0,    5,       8,  lengthBits); // Valve Speed Constant
-    lengthBits += compressVariable(1.0/ data.VALVE_ALTITUDE_DIFF_CONSTANT,   0,    4000,    8,  lengthBits); // Valve Altitude Difference Constant
-    lengthBits += compressVariable(1.0/ data.VALVE_LAST_ACTION_CONSTANT,     0,    4000,    8,  lengthBits); // Valve last action constant
+    lengthBits += compressVariable(1.0 / data.VALVE_ALTITUDE_DIFF_CONSTANT,  0,    4000,    8,  lengthBits); // Valve Altitude Difference Constant
+    lengthBits += compressVariable(1.0 / data.VALVE_LAST_ACTION_CONSTANT,    0,    4000,    8,  lengthBits); // Valve last action constant
     lengthBits += compressVariable(data.BALLAST_SETPOINT,                   -2000, 50000,   11, lengthBits);
-    lengthBits += compressVariable(data.BALLAST_DROP_DURATION,               0,    1000000, 6,  lengthBits);
-    lengthBits += compressVariable(data.BALLAST_FORCE_DURATION,              0,    1000000, 6,  lengthBits);
+    lengthBits += compressVariable(data.BALLAST_DROP_DURATION / 1000,        0,    1000,    6,  lengthBits);
+    lengthBits += compressVariable(data.BALLAST_FORCE_DURATION / 1000,       0,    1000,    6,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_VELOCITY_CONSTANT,           0,    5,       8,  lengthBits); // Ballast Speed Constant
-    lengthBits += compressVariable(1.0/ data.BALLAST_ALTITUDE_DIFF_CONSTANT, 0,    4000,    8,  lengthBits); // Ballast Altitude Difference Constant
-    lengthBits += compressVariable(1.0/ data.BALLAST_LAST_ACTION_CONSTANT,   0,    4000,    8,  lengthBits); // Ballast last action constant
+    lengthBits += compressVariable(1.0 / data.BALLAST_ALTITUDE_DIFF_CONSTANT,0,    4000,    8,  lengthBits); // Ballast Altitude Difference Constant
+    lengthBits += compressVariable(1.0 / data.BALLAST_LAST_ACTION_CONSTANT,  0,    4000,    8,  lengthBits); // Ballast last action constant
   }
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;

@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | May 2017
+  Balloons | VALBAL | June 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Matthew Tan | mratan@stanford.edu
@@ -184,7 +184,7 @@ void Hardware::clearBallastQueue() {
  */
 bool Hardware::checkValve(float current) {
   if (valveState == CLOSED) {
-    if ((millis() - valveLeakStartTime) >= VALVE_LEAK_TIMEOUT) {
+    if ((millis() - valveLeakStartTime) >= VALVE_LEAK_INTERVAL) {
       valveLeakStartTime = millis();
       valveActionStartTime = millis();
       valveState = CLOSING;

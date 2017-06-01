@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | May 2017
+  Balloons | VALBAL | June 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
   Joan Creus-Costa | jcreus@stanford.edu
@@ -46,7 +46,6 @@ bool ISBDCallback() {
 
 /* TODO
 1) Valve leak check should not run during ballast motor use and be controllable over RB
-2) Variable names from FLOPS
 3) all times should be in seconds
 4) Readback units should match uplink units
 5) Counter variables should have range set to a power of 2 to maximise useful data.

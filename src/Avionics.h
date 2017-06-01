@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | April 2017
+  Balloons | VALBAL | June 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
@@ -33,7 +33,7 @@ public:
   Avionics() :
     PCB(),
     sensors(),
-    gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIME, GPS_QUIT_TIME),
+    gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIMEOUT, GPS_QUIT_TIMEOUT),
     RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK),
     ValMU(PAYLOAD_GATE, EEPROM_PAYLOAD) {
   }
@@ -94,7 +94,7 @@ private:
   int16_t compressData();
 
 /*********************************  OBJECTS  **********************************/
-  char COMMS_BUFFER[BUFFER_SIZE];
+  char COMMS_BUFFER[COMMS_BUFFER_SIZE];
   DataFrame data;
   File dataFile;
   Hardware PCB;

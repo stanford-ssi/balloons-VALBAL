@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | April 2017
+  Balloons | VALBAL | June 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
 
@@ -87,7 +87,7 @@ float GPS::getLongitude() {
  * -------------------
  * This function returns the current altitude in meters.
  */
-double GPS::getAltitude() {
+float GPS::getAltitude() {
   return tinygps.altitude.meters();
 }
 
@@ -96,7 +96,7 @@ double GPS::getAltitude() {
  * -------------------
  * This function returns the current speed in mph.
  */
-double GPS::getSpeed() {
+float GPS::getSpeed() {
   return tinygps.speed.mph();
 }
 
@@ -105,7 +105,7 @@ double GPS::getSpeed() {
  * -------------------
  * This function returns the current heading in degrees.
  */
-double GPS::getCourse() {
+float GPS::getCourse() {
   return tinygps.course.deg();
 }
 
@@ -114,7 +114,7 @@ double GPS::getCourse() {
  * -------------------
  * This function returns the number of satelites detected.
  */
-uint32_t GPS::getSats() {
+uint8_t GPS::getSats() {
   return tinygps.satellites.value();
 }
 
@@ -172,7 +172,7 @@ void GPS::sendUBX(uint8_t* MSG, uint8_t len) {
  * -------------------
  * This function calculates the expected UBX ACK packet and parses the UBX response from GPS.
  */
-boolean GPS::getUBX_ACK(uint8_t* MSG) {
+bool GPS::getUBX_ACK(uint8_t* MSG) {
   uint8_t  b;
   uint8_t  ackByteID = 0;
   uint8_t  ackPacket[10];

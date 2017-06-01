@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | May 2017
+  Balloons | VALBAL | June 2017
   Davy Ragland | dragland@stanford.edu
 
   File: Simulator.cpp
@@ -46,7 +46,7 @@ DataFrame Simulator::readData() {
   simulated.BMP_2_ENABLE                   = values[5];
   simulated.BMP_3_ENABLE                   = values[6];
   simulated.BMP_4_ENABLE                   = values[7];
-  simulated.ALTITUDE                       = values[8];
+  simulated.ALTITUDE_BAROMETER             = values[8];
   simulated.ASCENT_RATE                    = values[9];
   simulated.PRESS_BASELINE                 = values[10];
   simulated.BALLAST_ARM_ALT                = values[11];
@@ -64,8 +64,8 @@ DataFrame Simulator::readData() {
   simulated.BALLAST_LAST_ACTION_CONSTANT   = values[23];
   simulated.VALVE_INCENTIVE                = values[24];
   simulated.BALLAST_INCENTIVE              = values[25];
-  simulated.NUM_VALVES                     = values[26];
-  simulated.NUM_BALLASTS                   = values[27];
+  simulated.VALVE_NUM_ACTIONS              = values[26];
+  simulated.BALLAST_NUM_ACTIONS            = values[27];
   loopInterval                             = values[28];
   // simulated.INCENTIVE_THRESHOLD            = values[28];
   // simulated.RE_ARM_CONSTANT                = values[29];
@@ -74,8 +74,8 @@ DataFrame Simulator::readData() {
   // simulated.BALLAST_STATE                  = values[32];
   // simulated.VALVE_QUEUE                    = values[33];
   // simulated.BALLAST_QUEUE                  = values[34];
-  // simulated.NUM_VALVE_ATTEMPTS             = values[45];
-  // simulated.NUM_BALLAST_ATTEMPTS           = values[36];
+  // simulated.VALVE_NUM_ATTEMPTS             = values[45];
+  // simulated.BALLAST_NUM_ATTEMPTS           = values[36];
   return simulated;
 }
 

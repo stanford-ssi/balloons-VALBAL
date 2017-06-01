@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | May 2017
+  Balloons | VALBAL | June 2017
   Davy Ragland | dragland@stanford.edu
 
   File: Simulator.h

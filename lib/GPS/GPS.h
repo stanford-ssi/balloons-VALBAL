@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | April 2017
+  Balloons | VALBAL | June 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | satedjarati@stanford.edu
 
@@ -32,10 +32,10 @@ public:
   void     shutdown();
   float    getLatitude();
   float    getLongitude();
-  double   getAltitude();
-  double   getSpeed();
-  double   getCourse();
-  uint32_t getSats();
+  float    getAltitude();
+  float    getSpeed();
+  float    getCourse();
+  uint8_t  getSats();
   void     smartDelay(uint32_t ms);
 private:
 /*********************************  HELPERS  **********************************/

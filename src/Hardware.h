@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | May 2017
+  Balloons | VALBAL | June 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Matthew Tan | mratan@stanford.edu
@@ -70,10 +70,10 @@ private:
   uint32_t ballastQueue = 0;
   uint32_t ballastQueueFake = 0;
 
-  uint16_t   valveMotorSpeed = 0;
-  uint16_t   ballastMotorSpeed = 0;
-  uint32_t   valveOpeningTimeout = 0;
-  uint32_t   valveClosingTimeout = 0;
+  uint16_t valveMotorSpeed = 0;
+  uint16_t ballastMotorSpeed = 0;
+  uint32_t valveOpeningTimeout = 0;
+  uint32_t valveClosingTimeout = 0;
 
   uint32_t valveLeakStartTime = 0;
   uint32_t valveActionStartTime = 0;

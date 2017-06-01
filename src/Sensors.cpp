@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | May 2017
+  Balloons | VALBAL | June 2017
   Davy Ragland | dragland@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
   Jesus Cervantes | cerjesus@stanford.edu
@@ -56,13 +56,23 @@ bool Sensors::init() {
 
 /********************************  FUNCTIONS  *********************************/
 /*
- * Function: getVoltage
+ * Function: getVoltagePrimary
  * -------------------
- * This function gets the battery voltage.
+ * This function gets the primary battery voltage.
  */
-double Sensors::getVoltage() {
-  voltage = analogRead(BATT_VOLTAGE) * 1.2 * 4.0 / (double)pow(2, 12);
-  return voltage;
+float Sensors::getVoltagePrimary() {
+  voltagePrimary = analogRead(BATT_VOLTAGE) * 1.2 * 4.0 / (double)pow(2, 12);
+  return voltagePrimary;
+}
+
+/*
+ * Function: getVoltage5V
+ * -------------------
+ * This function gets the 5V line voltage.
+ */
+float Sensors::getVoltage5V() {
+  voltage5V = analogRead(BATT_VOLTAGE) * 1.2 * 4.0 / (double)pow(2, 12);
+  return voltage5V;
 }
 
 /*
@@ -70,7 +80,7 @@ double Sensors::getVoltage() {
  * -------------------
  * This function gets the total current draw.
  */
-double Sensors::getCurrent() {
+float Sensors::getCurrent() {
   internalCurrentMonitor = ((double)analogRead(BATT_CURRENT)     / (double)pow(2, 12) * 1.2 * 4.0 / 0.496) * 1000;
   externalCurrentMonitor = ((double)analogRead(EXTERNAL_CURRENT) / (double)pow(2, 12) * 1.2 * 4.0 / 0.496) * 1000;
   return internalCurrentMonitor + externalCurrentMonitor;
@@ -81,7 +91,7 @@ double Sensors::getCurrent() {
  * -------------------
  * This function gets the subsystem current draw.
  */
-double Sensors::getCurrentSubsystem(uint8_t subsystem) {
+float Sensors::getCurrentSubsystem(uint8_t subsystem) {
   float currentMonitor = readCurrent(subsystem);
   return currentMonitor;
 }
@@ -91,8 +101,8 @@ double Sensors::getCurrentSubsystem(uint8_t subsystem) {
  * -------------------
  * This function gets the total joules.
  */
-double Sensors::getJoules() {
-  joules += (internalCurrentMonitor / 1000) * voltage * (millis() - lastJoulesCall) / 1000;
+float Sensors::getJoules() {
+  joules += (internalCurrentMonitor / 1000) * voltage5V * (millis() - lastJoulesCall) / 1000;
   lastJoulesCall = millis();
   return joules;
 }
@@ -102,7 +112,7 @@ double Sensors::getJoules() {
  * -------------------
  * This function gets the extrapolated temperature.
  */
-double Sensors::getDerivedTemp(uint8_t sensor) {
+float Sensors::getDerivedTemp(uint8_t sensor) {
   double vA = analogRead(sensor) * 1.2 / (pow(2.0, 12.0));
   double x = log(vA * 100000.0 / (1.0 - vA));
   double a =   4.00141132e+02;
@@ -119,8 +129,8 @@ double Sensors::getDerivedTemp(uint8_t sensor) {
  * -------------------
  * This function returns a raw reading from each of the sensors.
  */
-double Sensors::getRawTemp(uint8_t sensor) {
-  double value =  -1;
+float Sensors::getRawTemp(uint8_t sensor) {
+  float value =  -1;
   if (sensor == 1) value = bme1.readTemperature();
   if (sensor == 2) value = bme2.readTemperature();
   if (sensor == 3) value = bme3.readTemperature();
@@ -133,8 +143,8 @@ double Sensors::getRawTemp(uint8_t sensor) {
  * -------------------
  * This function returns a raw reading from each of the sensors.
  */
-double Sensors::getRawPressure(uint8_t sensor) {
-  double value =  -1;
+float Sensors::getRawPressure(uint8_t sensor) {
+  float value =  -1;
   if (sensor == 1) value = bme1.readPressure();
   if (sensor == 2) value = bme2.readPressure();
   if (sensor == 3) value = bme3.readPressure();

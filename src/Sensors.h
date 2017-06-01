@@ -32,7 +32,8 @@ public:
 /********************************  FUNCTIONS  *********************************/
   float    getVoltagePrimary();
   float    getVoltage5V();
-  float    getCurrent();
+  float    getCurrentUSB();
+  float    getCurrentTotal();
   float    getCurrentSubsystem(uint8_t subsystem);
   float    getJoules();
   float    getDerivedTemp(uint8_t sensor);
@@ -46,9 +47,7 @@ private:
   Adafruit_BMP280 bme4;
   uint32_t lastJoulesCall = 0;
   float internalCurrentMonitor = 0;
-  float externalCurrentMonitor = 0;
   float voltagePrimary = 0;
-  float voltage5V = 0;
   float joules = 0;
 };
 

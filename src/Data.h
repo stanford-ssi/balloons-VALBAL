@@ -41,11 +41,9 @@ struct DataFrame {
   float      JOULES_TOTAL                    =                                0;
   float      VOLTAGE_PRIMARY                 =                                0;
   float      VOLTAGE_5V                      =                                0;
-  float      CURRENT_AVG                     =                                0;
-  float      CURRENT_MIN                     =                                0;
-  float      CURRENT_MAX                     =                                0;
-  float      CURRENT_GPS_AVG                 =                                0;
-  float      CURRENT_GPS_MAX                 =                                0;
+  float      CURRENT_TOTAL_AVG               =                                0;
+  float      CURRENT_TOTAL_MIN               =                                0;
+  float      CURRENT_TOTAL_MAX               =                                0;
   float      CURRENT_RB_AVG                  =                                0;
   float      CURRENT_RB_MAX                  =                                0;
   float      CURRENT_MOTOR_VALVE_AVG         =                                0;
@@ -82,6 +80,7 @@ struct DataFrame {
   bool       DEBUG_STATE                     =                             true;
   bool       FORCE_VALVE                     =                            false;
   bool       FORCE_BALLAST                   =                            false;
+
   bool       BMP_1_ENABLE                    =                             true;
   bool       BMP_2_ENABLE                    =                             true;
   bool       BMP_3_ENABLE                    =                             true;
@@ -136,8 +135,8 @@ struct DataFrame {
   float      RAW_PRESSURE_3                  =                                0;
   float      RAW_PRESSURE_4                  =                                0;
   float      PRESS                           =                                0;
-  float      CURRENT                         =                                0;
-  float      CURRENT_GPS                     =                                0;
+  float      CURRENT_USB                     =                                0;
+  float      CURRENT_TOTAL                   =                                0;
   float      CURRENT_RB                      =                                0;
   float      CURRENT_MOTOR_VALVE             =                                0;
   float      CURRENT_MOTOR_BALLAST           =                                0;

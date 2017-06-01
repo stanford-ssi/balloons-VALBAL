@@ -20,10 +20,10 @@
  */
 bool Sensors::init() {
   bool sucess = true;
-  pinMode(BATT_VOLTAGE,     INPUT);
-  pinMode(BATT_CURRENT,     INPUT);
-  pinMode(EXTERNAL_CURRENT, INPUT);
-  pinMode(EXT_TEMP_SENSOR,  INPUT);
+  pinMode(BATT_VOLTAGE,    INPUT);
+  pinMode(BOOST_VOLTAGE,   INPUT);
+  pinMode(USB_CURRENT,     INPUT);
+  pinMode(EXT_TEMP_SENSOR, INPUT);
   if (!bme1.begin()) {
     Serial.println("Could not initialize BMP280 sensor 1, check wiring!");
     sucess = false;
@@ -71,19 +71,28 @@ float Sensors::getVoltagePrimary() {
  * This function gets the 5V line voltage.
  */
 float Sensors::getVoltage5V() {
-  voltage5V = analogRead(BATT_VOLTAGE) * 1.2 * 4.0 / (double)pow(2, 12);
+  float voltage5V = analogRead(BOOST_VOLTAGE) * 1.2 * 6.0 / (double)pow(2, 12);
   return voltage5V;
 }
 
 /*
- * Function: getCurrent
+ * Function: getCurrentUSB
+ * -------------------
+ * This function gets the USB current draw.
+ */
+float Sensors::getCurrentUSB() {
+  float externalCurrentMonitor = ((double)analogRead(USB_CURRENT) / (double)pow(2, 12) * 1.2 * 4.0 / 0.496) * 1000;
+  return externalCurrentMonitor;
+}
+
+/*
+ * Function: getCurrentTotal
  * -------------------
  * This function gets the total current draw.
  */
-float Sensors::getCurrent() {
-  internalCurrentMonitor = ((double)analogRead(BATT_CURRENT)     / (double)pow(2, 12) * 1.2 * 4.0 / 0.496) * 1000;
-  externalCurrentMonitor = ((double)analogRead(EXTERNAL_CURRENT) / (double)pow(2, 12) * 1.2 * 4.0 / 0.496) * 1000;
-  return internalCurrentMonitor + externalCurrentMonitor;
+float Sensors::getCurrentTotal() {
+  internalCurrentMonitor = 2.0 * readCurrent(TOTAL_CURRENT);
+  return internalCurrentMonitor;
 }
 
 /*

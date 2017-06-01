@@ -47,10 +47,10 @@ void Avionics::init() {
  * This function tests the hardware.
  */
 void Avionics::test() {
-  // data.MANUAL_MODE = false;
-  // data.SHOULD_CUTDOWN = true;
+  data.MANUAL_MODE = false;
+  data.SHOULD_CUTDOWN = true;
+  PCB.queueBallast(5000, true);
   // PCB.queueValve(30000, true);
-  // PCB.queueBallast(5000, true);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -191,8 +191,6 @@ bool Avionics::readHistory() {
   return true;
 }
 
-uint32_t max = 0;
-
 /*
  * Function: readData
  * -------------------
@@ -203,9 +201,9 @@ bool Avionics::readData() {
   data.TIME                  = millis();
   data.VOLTAGE_PRIMARY       = sensors.getVoltagePrimary();
   data.VOLTAGE_5V            = sensors.getVoltage5V();
-  data.CURRENT               = sensors.getCurrent();
+  data.CURRENT_USB           = sensors.getCurrentUSB();
+  data.CURRENT_TOTAL         = sensors.getCurrentTotal();
   data.JOULES_TOTAL          = sensors.getJoules();
-  data.CURRENT_GPS           = sensors.getCurrentSubsystem(GPS_CURRENT);
   data.CURRENT_RB            = sensors.getCurrentSubsystem(RB_CURRENT);
   data.CURRENT_MOTOR_VALVE   = (data.VALVE_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
   data.CURRENT_MOTOR_BALLAST = (data.BALLAST_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
@@ -301,11 +299,9 @@ bool Avionics::processData() {
   data.BMP_3_REJECTIONS           = filter.getNumRejections(3);
   data.BMP_4_REJECTIONS           = filter.getNumRejections(4);
 
-  data.CURRENT_AVG                = filter.getAvgCurrentSystem(data.CURRENT);
-  data.CURRENT_MIN                = filter.getMinCurrentSystem();
-  data.CURRENT_MAX                = filter.getMaxCurrentSystem();
-  data.CURRENT_GPS_AVG            = filter.getAvgCurrentGPS(data.CURRENT_GPS);
-  data.CURRENT_GPS_MAX            = filter.getMaxCurrentGPS();
+  data.CURRENT_TOTAL_AVG          = filter.getAvgCurrentSystem(data.CURRENT_TOTAL);
+  data.CURRENT_TOTAL_MIN          = filter.getMinCurrentSystem();
+  data.CURRENT_TOTAL_MAX          = filter.getMaxCurrentSystem();
   data.CURRENT_RB_AVG             = filter.getAvgCurrentRB(data.CURRENT_RB);
   data.CURRENT_RB_MAX             = filter.getMaxCurrentRB();
   data.CURRENT_MOTOR_VALVE_AVG    = filter.getAvgCurrentMotorValve(data.CURRENT_MOTOR_VALVE, (data.VALVE_STATE));
@@ -811,11 +807,9 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.JOULES_TOTAL,                          0,    1500000, 18, lengthBits);
   lengthBits += compressVariable(data.VOLTAGE_PRIMARY,                       0,    5,       9,  lengthBits);
   lengthBits += compressVariable(data.VOLTAGE_5V,                            0,    5,       9,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_AVG,                           0,    4000,    12, lengthBits);
-  lengthBits += compressVariable(data.CURRENT_MIN,                           0,    4000,    12, lengthBits);
-  lengthBits += compressVariable(data.CURRENT_MAX,                           0,    4000,    12, lengthBits);
-  lengthBits += compressVariable(data.CURRENT_GPS_AVG,                       0,    200,     8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_GPS_MAX,                       0,    200,     8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_TOTAL_AVG,                     0,    4000,    12, lengthBits);
+  lengthBits += compressVariable(data.CURRENT_TOTAL_MIN,                     0,    4000,    12, lengthBits);
+  lengthBits += compressVariable(data.CURRENT_TOTAL_MAX,                     0,    4000,    12, lengthBits);
   lengthBits += compressVariable(data.CURRENT_RB_AVG,                        0,    1000,    8,  lengthBits);
   lengthBits += compressVariable(data.CURRENT_RB_MAX,                        0,    1000,    8,  lengthBits);
   lengthBits += compressVariable(data.CURRENT_MOTOR_VALVE_AVG,               0,    1000,    8,  lengthBits);
@@ -990,20 +984,14 @@ void Avionics::printState() {
   Serial.print(" VOLTAGE_5V:");
   Serial.print(data.VOLTAGE_5V);
   Serial.print(',');
-  Serial.print(" CURRENT_AVG:");
-  Serial.print(data.CURRENT_AVG);
+  Serial.print(" CURRENT_TOTAL_AVG:");
+  Serial.print(data.CURRENT_TOTAL_AVG);
   Serial.print(',');
-  Serial.print(" CURRENT_MIN:");
-  Serial.print(data.CURRENT_MIN);
+  Serial.print(" CURRENT_TOTAL_MIN:");
+  Serial.print(data.CURRENT_TOTAL_MIN);
   Serial.print(',');
-  Serial.print(" CURRENT_MAX:");
-  Serial.print(data.CURRENT_MAX);
-  Serial.print(',');
-  Serial.print(" CURRENT_GPS_AVG:");
-  Serial.print(data.CURRENT_GPS_AVG);
-  Serial.print(',');
-  Serial.print(" CURRENT_GPS_MAX:");
-  Serial.print(data.CURRENT_GPS_MAX);
+  Serial.print(" CURRENT_TOTAL_MAX:");
+  Serial.print(data.CURRENT_TOTAL_MAX);
   Serial.print(',');
   Serial.print(" CURRENT_RB_AVG:");
   Serial.print(data.CURRENT_RB_AVG);
@@ -1236,11 +1224,11 @@ void Avionics::printState() {
   Serial.print(" PRESS:");
   Serial.print(data.PRESS);
   Serial.print(',');
-  Serial.print(" CURRENT:");
-  Serial.print(data.CURRENT);
+  Serial.print(" CURRENT_USB:");
+  Serial.print(data.CURRENT_USB);
   Serial.print(',');
-  Serial.print(" CURRENT_GPS:");
-  Serial.print(data.CURRENT_GPS);
+  Serial.print(" CURRENT_TOTAL:");
+  Serial.print(data.CURRENT_TOTAL);
   Serial.print(',');
   Serial.print(" CURRENT_RB:");
   Serial.print(data.CURRENT_RB);
@@ -1327,15 +1315,11 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.VOLTAGE_5V);
   dataFile.print(',');
-  dataFile.print(data.CURRENT_AVG);
+  dataFile.print(data.CURRENT_TOTAL_AVG);
   dataFile.print(',');
-  dataFile.print(data.CURRENT_MIN);
+  dataFile.print(data.CURRENT_TOTAL_MIN);
   dataFile.print(',');
-  dataFile.print(data.CURRENT_MAX);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_GPS_AVG);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_GPS_MAX);
+  dataFile.print(data.CURRENT_TOTAL_MAX);
   dataFile.print(',');
   dataFile.print(data.CURRENT_RB_AVG);
   dataFile.print(',');
@@ -1489,9 +1473,9 @@ bool Avionics::logData() {
   dataFile.print(',');
   dataFile.print(data.PRESS);
   dataFile.print(',');
-  dataFile.print(data.CURRENT);
+  dataFile.print(data.CURRENT_USB);
   dataFile.print(',');
-  dataFile.print(data.CURRENT_GPS);
+  dataFile.print(data.CURRENT_TOTAL);
   dataFile.print(',');
   dataFile.print(data.CURRENT_RB);
   dataFile.print(',');

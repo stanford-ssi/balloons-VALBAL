@@ -56,7 +56,7 @@ void Filters::enableSensors(bool BMP1Enable, bool BMP2Enable, bool BMP3Enable, b
 * -------------------
 * This function returns a sensor fused temperature.
 */
-double Filters::getTemp(double RAW_TEMP_1, double RAW_TEMP_2, double RAW_TEMP_3, double RAW_TEMP_4) {
+float Filters::getTemp(float RAW_TEMP_1, float RAW_TEMP_2, float RAW_TEMP_3, float RAW_TEMP_4) {
   double temp = 0;
   if (enabledSensors[0]) temp += RAW_TEMP_1;
   if (enabledSensors[1]) temp += RAW_TEMP_2;
@@ -70,7 +70,7 @@ double Filters::getTemp(double RAW_TEMP_1, double RAW_TEMP_2, double RAW_TEMP_3,
 * -------------------
 * This function returns a bounds checked pressure mean
 */
-void Filters::storeData(uint32_t time_stamp, double RAW_PRESSURE_1, double RAW_PRESSURE_2, double RAW_PRESSURE_3, double RAW_PRESSURE_4, double pressureBaselineArg){
+void Filters::storeData(uint32_t time_stamp, float RAW_PRESSURE_1, float RAW_PRESSURE_2, float RAW_PRESSURE_3, float RAW_PRESSURE_4, float pressureBaselineArg){
   pressureBaseline = pressureBaselineArg;
   altitudeIndex = (altitudeIndex + 1) % ALTITUDE_BUFFER_SIZE;
 
@@ -148,32 +148,19 @@ void Filters::storeData(uint32_t time_stamp, double RAW_PRESSURE_1, double RAW_P
 * -------------------
 * This function returns the average subsytem current over the last window.
 */
-double   Filters::getAvgCurrentSystem(double current) {
+float   Filters::getAvgCurrentSystem(float current) {
   if(current > currentSystemMax) currentSystemMax = current;
   if(current < currentSystemMin) currentSystemMin = current;
-  currentSystemCount++;
   currentSystemTotal += current;
+  currentSystemCount++;
   return currentSystemTotal / currentSystemCount;
 }
-
-/*
-* Function: getAverageCurrentGPS
-* -------------------
-* This function returns the average subsytem current over the last window.
-*/
-double   Filters::getAvgCurrentGPS(double current) {
-  if(current > currentGPSMax) currentGPSMax = current;
-  currentGPSTotal += current;
-  currentGPSCount++;
-  return currentGPSTotal / currentGPSCount;
-}
-
 /*
 * Function: getAverageCurrentRB
 * -------------------
 * This function returns the average subsytem current over the last window.
 */
-double   Filters::getAvgCurrentRB(double current) {
+float Filters::getAvgCurrentRB(float current) {
   if(current > currentRBMax) currentRBMax = current;
   currentRBTotal += current;
   currentRBCount++;
@@ -185,7 +172,7 @@ double   Filters::getAvgCurrentRB(double current) {
 * -------------------
 * This function returns the average subsytem current over the last window.
 */
-double   Filters::getAvgCurrentMotorValve(double current,bool on) {
+float Filters::getAvgCurrentMotorValve(float current,bool on) {
   if(on) {
     if(current > currentMotorValveMax) currentMotorValveMax = current;
     currentMotorValveTotal += current;
@@ -199,7 +186,7 @@ double   Filters::getAvgCurrentMotorValve(double current,bool on) {
 * -------------------
 * This function returns the average subsytem current over the last window.
 */
-double   Filters::getAvgCurrentMotorBallast(double current,bool on) {
+float Filters::getAvgCurrentMotorBallast(float current,bool on) {
   if(on) {
     if(current > currentMotorBallastMax) currentMotorBallastMax = current;
     currentMotorBallastTotal += current;
@@ -213,7 +200,7 @@ double   Filters::getAvgCurrentMotorBallast(double current,bool on) {
 * -------------------
 * This function returns the average subsytem current over the last window.
 */
-double Filters::getAvgCurrentPayload(double current) {
+float Filters::getAvgCurrentPayload(float current) {
   if(current > currentPayloadMax) currentPayloadMax = current;
   currentPayloadTotal += current;
   currentPayloadCount++;
@@ -225,7 +212,7 @@ double Filters::getAvgCurrentPayload(double current) {
 * -------------------
 * This function returns the maximum subsytem current over the last window.
 */
-double Filters::getMaxCurrentSystem() {
+float Filters::getMaxCurrentSystem() {
   return currentSystemMax;
 }
 
@@ -234,17 +221,8 @@ double Filters::getMaxCurrentSystem() {
 * -------------------
 * This function returns the minimum subsytem current over the last window.
 */
-double Filters::getMinCurrentSystem() {
+float Filters::getMinCurrentSystem() {
   return currentSystemMin;
-}
-
-/*
-* Function: getMaxCurrentGPS
-* -------------------
-* This function returns the maximum subsytem current over the last window.
-*/
-double Filters::getMaxCurrentGPS() {
-  return currentGPSMax;
 }
 
 /*
@@ -252,7 +230,7 @@ double Filters::getMaxCurrentGPS() {
 * -------------------
 * This function returns the maximum subsytem current over the last window.
 */
-double Filters::getMaxCurrentRB() {
+float Filters::getMaxCurrentRB() {
   return currentRBMax;
 }
 
@@ -261,7 +239,7 @@ double Filters::getMaxCurrentRB() {
 * -------------------
 * This function returns the maximum subsytem current over the last window.
 */
-double Filters::getMaxCurrentMotorValve() {
+float Filters::getMaxCurrentMotorValve() {
   return currentMotorValveMax;
 }
 
@@ -270,7 +248,7 @@ double Filters::getMaxCurrentMotorValve() {
 * -------------------
 * This function returns the maximum subsytem current over the last window.
 */
-double Filters::getMaxCurrentMotorBallast() {
+float Filters::getMaxCurrentMotorBallast() {
   return currentMotorBallastMax;
 }
 
@@ -279,7 +257,7 @@ double Filters::getMaxCurrentMotorBallast() {
 * -------------------
 * This function returns the maximum subsytem current over the last window.
 */
-double Filters::getMaxCurrentPayload() {
+float Filters::getMaxCurrentPayload() {
   return currentPayloadMax;
 }
 
@@ -293,9 +271,6 @@ void Filters::clearCurrentValues() {
   currentSystemMax = 0;
   currentSystemMin = 10000;
   currentSystemCount = 0;
-  currentGPSTotal = 0;
-  currentGPSMax = 0;
-  currentGPSCount = 0;
   currentRBTotal = 0;
   currentRBMax = 0;
   currentRBCount = 0;
@@ -547,7 +522,7 @@ void Filters::consensousCheck(){
 * This function returns a higher precision altitude value
 * based on the US 1976 Standard Atmosphere.
 */
-double Filters::calculateAltitude(double pressure) {
+double Filters::calculateAltitude(float pressure) {
   double calculatedAltitude;
   if (pressure > 22632.1) calculatedAltitude = (44330.7 * (1 - pow(pressure / pressureBaseline, 0.190266)));
   else calculatedAltitude =  -6341.73 * log((0.176481 * pressure) / 22632.1);

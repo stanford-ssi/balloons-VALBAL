@@ -17,29 +17,26 @@
 
 class Filters {
 public:
-  // File debugFile;
 /**********************************  SETUP  ***********************************/
   bool     init();
 /********************************  FUNCTIONS  *********************************/
   void     enableSensors(bool BMP1Enable, bool BMP2Enable, bool BMP3Enable, bool BMP4Enable);
-  double   getTemp(double RAW_TEMP_1,double RAW_TEMP_2,double RAW_TEMP_3,double RAW_TEMP_4);
-  void     storeData(uint32_t time_stamp, double RAW_PRESSURE_1,double RAW_PRESSURE_2,double RAW_PRESSURE_3,double RAW_PRESSURE_4,double pressureBaselineArg);
+  float    getTemp(float RAW_TEMP_1, float RAW_TEMP_2, float RAW_TEMP_3, float RAW_TEMP_4);
+  void     storeData(uint32_t time_stamp, float RAW_PRESSURE_1, float RAW_PRESSURE_2, float RAW_PRESSURE_3, float RAW_PRESSURE_4, float pressureBaselineArg);
   uint32_t getNumRejections(uint8_t sensor);
 
-  double   getAvgCurrentSystem(double current);
-  double   getAvgCurrentGPS(double current);
-  double   getAvgCurrentRB(double current);
-  double   getAvgCurrentMotorValve(double current,bool on);
-  double   getAvgCurrentMotorBallast(double current,bool on);
-  double   getAvgCurrentPayload(double current);
+  float    getAvgCurrentSystem(float current);
+  float    getAvgCurrentRB(float current);
+  float    getAvgCurrentMotorValve(float current,bool on);
+  float    getAvgCurrentMotorBallast(float current,bool on);
+  float    getAvgCurrentPayload(float current);
 
-  double   getMinCurrentSystem();
-  double   getMaxCurrentSystem();
-  double   getMaxCurrentGPS();
-  double   getMaxCurrentRB();
-  double   getMaxCurrentMotorValve();
-  double   getMaxCurrentMotorBallast();
-  double   getMaxCurrentPayload();
+  float    getMinCurrentSystem();
+  float    getMaxCurrentSystem();
+  float    getMaxCurrentRB();
+  float    getMaxCurrentMotorValve();
+  float    getMaxCurrentMotorBallast();
+  float    getMaxCurrentPayload();
 
   double   getPressure();
   double   getAltitude();
@@ -54,34 +51,31 @@ private:
   void     velocityCheck();
   void     findLastAccepted();
   void     errorCheckAltitudes();
-  double   calculateAltitude(double pressure);
+  double   calculateAltitude(float pressure);
   void     markFailure(uint8_t sensor);
 /*********************************  OBJECTS  **********************************/
   bool     enabledSensors[4] = {true};
   uint32_t rejectedSensors[4] = {0};
   uint8_t  numSensors;
 
-  double   currentSystemTotal = 0;
-  double   currentSystemMax = 0;
-  double   currentSystemMin = 10000;
+  float    currentSystemTotal = 0;
+  float    currentSystemMax = 0;
+  float    currentSystemMin = 10000;
   uint32_t currentSystemCount = 0;
-  double   currentGPSTotal = 0;
-  double   currentGPSMax = 0;
-  uint32_t currentGPSCount = 0;
-  double   currentRBTotal = 0;
-  double   currentRBMax = 0;
+  float    currentRBTotal = 0;
+  float    currentRBMax = 0;
   uint32_t currentRBCount = 0;
-  double   currentMotorValveTotal = 0;
-  double   currentMotorValveMax = 0;
+  float    currentMotorValveTotal = 0;
+  float    currentMotorValveMax = 0;
   uint32_t currentMotorValveCount = 0;
-  double   currentMotorBallastTotal = 0;
-  double   currentMotorBallastMax = 0;
+  float    currentMotorBallastTotal = 0;
+  float    currentMotorBallastMax = 0;
   uint32_t currentMotorBallastCount = 0;
-  double   currentPayloadTotal = 0;
-  double   currentPayloadMax = 0;
+  float    currentPayloadTotal = 0;
+  float    currentPayloadMax = 0;
   uint32_t currentPayloadCount = 0;
 
-  double   pressureBaseline;
+  float    pressureBaseline;
   float    meanAscentRates[4];
   float    meanAltitudes[4];
   uint16_t altitudeIndex = 0;
@@ -102,6 +96,7 @@ private:
   double   pressures[4];
   bool     filtered = false;
 
+  // File debugFile;
 };
 
 #endif

@@ -36,12 +36,15 @@ bool GPS::init(bool shouldStartup) {
  * This function restarts the GPS.
  */
 bool GPS::restart() {
+  bool success = false;
   EEPROM.write(EEPROMAddress, false);
   digitalWrite(GPS_ENABLE_PIN, HIGH);
   delay(1000);
   EEPROM.write(EEPROMAddress, true);
   delay(3000);
-  return setFlightMode(GPS_LOCK_TIME);
+  success =  setFlightMode(GPS_LOCK_TIME);
+  success =  setLowPowerMode(GPS_LOCK_TIME);
+  return success;
 }
 
 /*
@@ -132,6 +135,25 @@ void GPS::smartDelay(uint32_t ms) {
 }
 
 /*********************************  HELPERS  **********************************/
+/*
+ * Function: setLowPowerMode
+ * -------------------
+ * This function sets the GPS module into low power mode.
+ */
+bool GPS::setLowPowerMode(uint16_t GPS_LOCK_TIME) {
+  Serial.println("Setting uBlox pwr mode: ");
+  uint32_t startTime = millis();
+  uint8_t gps_set_sucess = 0;
+  uint8_t setOneHz[] = { 0xB5, 0x62, 0x06, 0x08, 0x06, 0x00, 0xE8, 0x03, 0x01, 0x00, 0x01, 0x00, 0x01, 0x39 };
+  while(!gps_set_sucess) {
+    if(millis() - startTime > GPS_TIMEOUT_TIME) return false;
+    sendUBX(setOneHz, sizeof(setOneHz)/sizeof(uint8_t));
+    gps_set_sucess = getUBX_ACK(setOneHz);
+  }
+  smartDelay(GPS_LOCK_TIME);
+  return true;
+}
+
 /*
  * Function: setFlightMode
  * -------------------

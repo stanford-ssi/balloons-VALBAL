@@ -39,6 +39,7 @@ public:
   void     smartDelay(uint32_t ms);
 private:
 /*********************************  HELPERS  **********************************/
+  bool     setLowPowerMode(uint16_t GPS_LOCK_TIME);
   bool     setFlightMode(uint16_t GPS_LOCK_TIME);
   void     sendUBX(uint8_t* MSG, uint8_t len);
   bool     getUBX_ACK(uint8_t* MSG);

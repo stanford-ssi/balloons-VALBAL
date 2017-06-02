@@ -42,8 +42,11 @@ bool GPS::restart() {
   delay(1000);
   EEPROM.write(EEPROMAddress, true);
   delay(3000);
-  success =  setFlightMode(GPS_LOCK_TIME);
-  success =  setLowPowerMode(GPS_LOCK_TIME);
+  success = setGPSMode(GPSOnlyExtra, sizeof(GPSOnlyExtra)/sizeof(uint8_t), GPS_LOCK_TIME);
+  success = setGPSMode(powerSave, sizeof(powerSave)/sizeof(uint8_t), GPS_LOCK_TIME);
+  success = setGPSMode(powerInterval, sizeof(powerInterval)/sizeof(uint8_t), GPS_LOCK_TIME);
+  success = setGPSMode(setTenthHz, sizeof(setTenthHz)/sizeof(uint8_t), GPS_LOCK_TIME);
+  success = setGPSMode(flightMode, sizeof(flightMode)/sizeof(uint8_t), GPS_LOCK_TIME);
   return success;
 }
 
@@ -130,47 +133,23 @@ uint8_t GPS::getSats() {
 void GPS::smartDelay(uint32_t ms) {
   uint32_t startt = millis();
   do {
-    while (Serial1.available()) tinygps.encode(Serial1.read());
+    while (Serial1.available()) {
+      char c = Serial1.read();
+      Serial.write(c); //TODO GET RID OF LATER
+      tinygps.encode(c);
+    }
   } while (millis() - startt < ms);
 }
 
 /*********************************  HELPERS  **********************************/
-/*
- * Function: setLowPowerMode
- * -------------------
- * This function sets the GPS module into low power mode.
- */
-bool GPS::setLowPowerMode(uint16_t GPS_LOCK_TIME) {
-  Serial.println("Setting uBlox pwr mode: ");
+bool GPS::setGPSMode(uint8_t* MSG, uint8_t len, uint16_t GPS_LOCK_TIME){
+  Serial.println("Setting uBlox mode: ");
   uint32_t startTime = millis();
   uint8_t gps_set_sucess = 0;
-  uint8_t setOneHz[] = { 0xB5, 0x62, 0x06, 0x08, 0x06, 0x00, 0xE8, 0x03, 0x01, 0x00, 0x01, 0x00, 0x01, 0x39 };
   while(!gps_set_sucess) {
     if(millis() - startTime > GPS_TIMEOUT_TIME) return false;
-    sendUBX(setOneHz, sizeof(setOneHz)/sizeof(uint8_t));
-    gps_set_sucess = getUBX_ACK(setOneHz);
-  }
-  smartDelay(GPS_LOCK_TIME);
-  return true;
-}
-
-/*
- * Function: setFlightMode
- * -------------------
- * This function sets the GPS module into flight mode.
- */
-bool GPS::setFlightMode(uint16_t GPS_LOCK_TIME){
-  Serial.println("Setting uBlox nav mode: ");
-  uint32_t startTime = millis();
-  uint8_t gps_set_sucess = 0;
-  uint8_t setNav[] = {
-    0xB5, 0x62, 0x06, 0x24, 0x24, 0x00, 0xFF, 0xFF, 0x06, 0x03, 0x00, 0x00, 0x00, 0x00, 0x10, 0x27, 0x00, 0x00,
-    0x05, 0x00, 0xFA, 0x00, 0xFA, 0x00, 0x64, 0x00, 0x2C, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x16, 0xDC };
-  while(!gps_set_sucess) {
-    if(millis() - startTime > GPS_TIMEOUT_TIME) return false;
-    sendUBX(setNav, sizeof(setNav)/sizeof(uint8_t));
-    gps_set_sucess = getUBX_ACK(setNav);
+    sendUBX(MSG, len);
+    gps_set_sucess = getUBX_ACK(MSG);
   }
   smartDelay(GPS_LOCK_TIME);
   return true;

@@ -47,6 +47,40 @@ bool ISBDCallback() {
 /* TODO
 1) GPS low power mode via I2C comms must happen
 2) Rockblock sleep must be implemented properly. A sleep counter should be sent over RB.  A way to disable sleep should be implemented.  Restart should be implemented in case all else fails (edited)
-3) You need to identify the key reasons for your loop rate, then figure out how to drop it below 25ms (or if you can, 10-15ms).  This is because we will be downclocking the teensy from now on.  This will require you to need an external teensy to print to serial and debug since serial does not work below 24MHz.  After downclocking, we will resume a ~50ms loop rate because of the lower clock.  If you need to investigate other SD card libraries, do it, just make sure this happens or we will weep.  During testing, however, you will not need to downclock.  Only for final verification will we need to downclock.  For testing, stay at 24MHz and try to get <25ms loop rate (edited)
-4) A couple of pins changed but I can let you know of those later (edited)
 */
+
+// #include "Config.h"
+// #include <GPS.h>
+// #include "Sensors.h"
+//
+// int main(void) {
+//   GPS gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIMEOUT, GPS_QUIT_TIMEOUT);
+//   Sensors sensors;
+//   gpsModule.init(true);
+//   sensors.init();
+//
+//   float currents[255] = {100};
+//   uint8_t currentIndex = 0;
+//   while(true){
+//     gpsModule.smartDelay(50);
+//
+//     float current = sensors.getCurrentTotal() / 2.0;
+//     currents[currentIndex] = current;
+//     currentIndex++;
+//     float currentAverage = 0;
+//     for(size_t i = 0; i < 255; i++) currentAverage += currents[i];
+//
+//     Serial.print("CURRENT :");
+//     Serial.print(current);
+//     Serial.print(" CURRENT AVERAGE :");
+//     Serial.print(currentAverage / 255);
+//     Serial.print(" LATITUDDE: ");
+//     Serial.print(gpsModule.getLatitude());
+//     Serial.print(" lONGITUDE: ");
+//     Serial.print(gpsModule.getLongitude());
+//     Serial.print(" NUM SATS: ");
+//     Serial.print(gpsModule.getSats());
+//     Serial.print('\n');
+//   }
+//   return 0;
+// }

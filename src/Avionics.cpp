@@ -797,11 +797,11 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.BALLAST_QUEUE / 1000,                  0,    1000,    10, lengthBits);
   lengthBits += compressVariable(data.VALVE_TIME_TOTAL / 1000,               0,    16384,   13, lengthBits); // valve time total
   lengthBits += compressVariable(data.BALLAST_TIME_TOTAL / 1000,             0,    16384,   13, lengthBits); // ballast time total
-  lengthBits += compressVariable(data.VALVE_NUM_ACTIONS,                     0,    50,      6,  lengthBits);
-  lengthBits += compressVariable(data.BALLAST_NUM_ACTIONS,                   0,    50,      6,  lengthBits);
-  lengthBits += compressVariable(data.VALVE_NUM_ATTEMPTS,                    0,    50,      6,  lengthBits);
-  lengthBits += compressVariable(data.BALLAST_NUM_ATTEMPTS,                  0,    50,      6,  lengthBits);
-  lengthBits += compressVariable(data.BALLAST_NUM_OVERCURRENTS,              0,    50,      6,  lengthBits);
+  lengthBits += compressVariable(data.VALVE_NUM_ACTIONS,                     0,    63,      6,  lengthBits);
+  lengthBits += compressVariable(data.BALLAST_NUM_ACTIONS,                   0,    63,      6,  lengthBits);
+  lengthBits += compressVariable(data.VALVE_NUM_ATTEMPTS,                    0,    63,      6,  lengthBits);
+  lengthBits += compressVariable(data.BALLAST_NUM_ATTEMPTS,                  0,    63,      6,  lengthBits);
+  lengthBits += compressVariable(data.BALLAST_NUM_OVERCURRENTS,              0,    63,      6,  lengthBits);
   lengthBits += compressVariable(data.CUTDOWN_STATE,                         0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.TEMP_INT,                             -70,   80,      9,  lengthBits);
   lengthBits += compressVariable(data.JOULES_TOTAL,                          0,    1500000, 18, lengthBits);
@@ -832,7 +832,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.POWER_STATE_PAYLOAD,                 0,    1,       1,  lengthBits); // Payload Power State
     lengthBits += compressVariable(data.HEATER_STRONG_ENABLE,                0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.HEATER_WEEK_ENABLE,                  0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.NUM_SATS_GPS,                        0,    25,      3,  lengthBits);
+    lengthBits += compressVariable(data.NUM_SATS_GPS,                        0,    15,      3,  lengthBits);
     lengthBits += compressVariable(data.INCENTIVE_NOISE,                     0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.RE_ARM_CONSTANT,                     0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.VALVE_ALT_LAST,                     -2000, 50000,   11, lengthBits); // Altitude During Last Venting Event

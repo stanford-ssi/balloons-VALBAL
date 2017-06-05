@@ -45,42 +45,8 @@ bool ISBDCallback() {
 }
 
 /* TODO
-1) GPS low power mode via I2C comms must happen
-2) Rockblock sleep must be implemented properly. A sleep counter should be sent over RB.  A way to disable sleep should be implemented.  Restart should be implemented in case all else fails (edited)
+1) Rockblock sleep must be implemented properly.
+2) A sleep counter should be sent over RB.
+3) A way to disable sleep should be implemented.
+4) Restart should be implemented in case all else fails
 */
-
-// #include "Config.h"
-// #include <GPS.h>
-// #include "Sensors.h"
-//
-// int main(void) {
-//   GPS gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIMEOUT, GPS_QUIT_TIMEOUT);
-//   Sensors sensors;
-//   gpsModule.init(true);
-//   sensors.init();
-//
-//   float currents[255] = {100};
-//   uint8_t currentIndex = 0;
-//   while(true){
-//     gpsModule.smartDelay(50);
-//
-//     float current = sensors.getCurrentTotal() / 2.0;
-//     currents[currentIndex] = current;
-//     currentIndex++;
-//     float currentAverage = 0;
-//     for(size_t i = 0; i < 255; i++) currentAverage += currents[i];
-//
-//     Serial.print("CURRENT :");
-//     Serial.print(current);
-//     Serial.print(" CURRENT AVERAGE :");
-//     Serial.print(currentAverage / 255);
-//     Serial.print(" LATITUDDE: ");
-//     Serial.print(gpsModule.getLatitude());
-//     Serial.print(" lONGITUDE: ");
-//     Serial.print(gpsModule.getLongitude());
-//     Serial.print(" NUM SATS: ");
-//     Serial.print(gpsModule.getSats());
-//     Serial.print('\n');
-//   }
-//   return 0;
-// }

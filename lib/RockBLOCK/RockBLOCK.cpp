@@ -50,12 +50,32 @@ void RockBLOCK::restart() {
 /*
  * Function: shutdown
  * -------------------
- * This function shutdown the RockBLOCK.
+ * This function shuts down the RockBLOCK.
  */
 void RockBLOCK::shutdown() {
   digitalWrite(RB_GATE, LOW);
   EEPROM.write(EEPROMAddress, false);
   isbd.begin();
+}
+
+/*
+ * Function: wake
+ * -------------------
+ * This function wakes up the RockBLOCK.
+ */
+bool RockBLOCK::wake() {
+  Serial3.begin(RB_BAUD);
+  return isbd.begin() == ISBD_SUCCESS;
+}
+
+/*
+ * Function: sleep
+ * -------------------
+ * This function sleeps the RockBLOCK.
+ */
+void RockBLOCK::sleep() {
+  isbd.sleep();
+  Serial3.end();
 }
 
 /*

@@ -28,6 +28,8 @@ public:
 /********************************  FUNCTIONS  *********************************/
   void    restart();
   void    shutdown();
+  bool    wake();
+  void    sleep();
   int16_t writeRead(char* buff, uint16_t len);
 private:
 /*********************************  HELPERS  **********************************/

@@ -13,6 +13,12 @@
 
 #include "Avionics.h"
 
+
+// regualar min and max is not compatible with vector in std
+// so we define out own
+#define _min(a,b) ((a)<(b)?(a):(b))
+#define _max(a,b) ((a)>(b)?(a):(b))
+
 /**********************************  SETUP  ***********************************/
 /*
  * Function: init
@@ -311,7 +317,7 @@ bool Avionics::processData() {
   data.CURRENT_PAYLOAD_AVG        = filter.getAvgCurrentPayload(data.CURRENT_PAYLOAD);
   data.CURRENT_PAYLOAD_MAX        = filter.getMaxCurrentPayload();
 
-  data.LOOP_TIME_MAX              = max(data.LOOP_TIME, data.LOOP_TIME_MAX);
+  data.LOOP_TIME_MAX              = _max(data.LOOP_TIME, data.LOOP_TIME_MAX);
 
   data.ALTITUDE_BAROMETER         = filter.getAltitude();
   data.ASCENT_RATE                = filter.getAscentRate();

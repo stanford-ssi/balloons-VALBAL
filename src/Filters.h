@@ -13,6 +13,7 @@
 #define FILTERS_H
 
 #include "Config.h"
+#include <bitset>         // std::bitset
 //#include <SD.h>
 
 class Filters {
@@ -81,7 +82,10 @@ private:
   uint16_t altitudeIndex = 0;
   double   sampleTimeSeconds[ALTITUDE_BUFFER_SIZE] = {0};
   float    altitudeBuffer[4][ALTITUDE_BUFFER_SIZE] = {{0}};
-  bool     altitudeErrors[4][ALTITUDE_BUFFER_SIZE] = {{false}};
+
+  // we use a bitset to optimise the memory footprint
+  // bool     altitudeErrors[4][ALTITUDE_BUFFER_SIZE] = {{false}};
+  std::bitset<ALTITUDE_BUFFER_SIZE> altitudeErrors[4];
 
   double   sumX[4] = {0};
   double   sumY[4] = {0};

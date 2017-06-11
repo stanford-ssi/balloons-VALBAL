@@ -17,7 +17,7 @@
  * -------------------
  * This function initializes the RockBlock module.
  */
-bool RockBLOCK::init(bool shouldStartup) {
+bool RockBLOCK::init(bool shouldStartup, bool sleep) {
   bool success = false;
   pinMode(RB_GATE, OUTPUT);
   digitalWrite(RB_GATE, LOW);
@@ -27,7 +27,7 @@ bool RockBLOCK::init(bool shouldStartup) {
   isbd.setPowerProfile(1);
   Serial3.begin(RB_BAUD);
   if (shouldStartup) {
-    restart();
+    restart(sleep);
     success = true;
   }
   return success;
@@ -39,13 +39,13 @@ bool RockBLOCK::init(bool shouldStartup) {
  * -------------------
  * This function restarts the RockBLOCK.
  */
-void RockBLOCK::restart() {
+void RockBLOCK::restart(bool sleep) {
   EEPROM.write(EEPROMAddress, false);
   digitalWrite(RB_GATE, HIGH);
   delay(1000);
   wake();
   delay(3000);
-  snooze();
+  if(sleep) snooze();
   delay(1000);
   EEPROM.write(EEPROMAddress, true);
 }

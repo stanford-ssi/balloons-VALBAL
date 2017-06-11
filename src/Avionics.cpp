@@ -22,20 +22,20 @@
 void Avionics::init() {
   PCB.init();
   Serial.begin(CONSOLE_BAUD);
-  if(!setupSDCard())                                alert("unable to initialize SD Card", true);
-  if(!readHistory())                                alert("unable to initialize EEPROM", true);
-  if(!sensors.init())                               alert("unable to initialize Sensors", true);
+  if(!setupSDCard())                                            alert("unable to initialize SD Card", true);
+  if(!readHistory())                                            alert("unable to initialize EEPROM", true);
+  if(!sensors.init())                                           alert("unable to initialize Sensors", true);
 #ifdef HITL_ENABLED_FLAG
-  if(!HITL.init())                                  alert("unable to initialize Simulations", true);
+  if(!HITL.init())                                              alert("unable to initialize Simulations", true);
 #endif
-  if(!filter.init())                                alert("unable to initialize Filters", true);
-  if(!computer.init())                              alert("unable to initialize Flight Controller", true);
-  if(!gpsModule.init(data.POWER_STATE_GPS))         alert("unable to initialize GPS", true);
+  if(!filter.init())                                            alert("unable to initialize Filters", true);
+  if(!computer.init())                                          alert("unable to initialize Flight Controller", true);
+  if(!gpsModule.init(data.POWER_STATE_GPS))                     alert("unable to initialize GPS", true);
 #ifndef RB_DISABLED_FLAG
-  if(!RBModule.init(data.POWER_STATE_RB))           alert("unable to initialize RockBlock", true);
+  if(!RBModule.init(data.POWER_STATE_RB, data.RB_SHOULD_SLEEP)) alert("unable to initialize RockBlock", true);
 #endif
-  if(!PCB.startUpHeaters(data.POWER_STATE_HEATER))  alert("unable to initialize Heaters", true);
-  if(!ValMU.init(data.POWER_STATE_PAYLOAD))         alert("unable to initialize Payload", true);
+  if(!PCB.startUpHeaters(data.POWER_STATE_HEATER))              alert("unable to initialize Heaters", true);
+  if(!ValMU.init(data.POWER_STATE_PAYLOAD))                     alert("unable to initialize Payload", true);
   PCB.initResolutions();
   data.SETUP_STATE = false;
   data.TIME = millis();
@@ -120,7 +120,7 @@ void Avionics::sendComms() {
 #ifndef RB_DISABLED_FLAG
   if (!data.POWER_STATE_RB && ((millis() - data.RB_LAST) > RB_RESTART_INTERVAL)) {
     data.POWER_STATE_RB = true;
-    RBModule.restart();
+    RBModule.restart(data.RB_SHOULD_SLEEP);
   }
 #endif
   if(compressData() < 0) alert("unable to compress Data", true);
@@ -458,7 +458,7 @@ bool Avionics::sendSATCOMS() {
   alert("sending Rockblock message", false);
   data.RB_SENT_COMMS++;
 #ifndef RB_DISABLED_FLAG
-  int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH, true);
+  int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH, data.RB_SHOULD_SLEEP);
   if(ret < 0) return false;
   if(ret > 0) parseCommand(ret);
 #endif
@@ -539,10 +539,11 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 29) parseValveCommand(value * 1000);
   else if (index == 30) parseBallastCommand(value * 1000);
   else if (index == 31) parseRockBLOCKPowerCommand(value);
-  else if (index == 32) parseGPSPowerCommand(value);
-  else if (index == 33) parseHeaterPowerCommand(value);
-  else if (index == 34) parseHeaterModeCommand(value);
-  else if (index == 35) parsePayloadPowerCommand(value);
+  else if (index == 32) parseRockBLOCKModeCommand(value);
+  else if (index == 33) parseGPSPowerCommand(value);
+  else if (index == 34) parseHeaterPowerCommand(value);
+  else if (index == 35) parseHeaterModeCommand(value);
+  else if (index == 36) parsePayloadPowerCommand(value);
 }
 
 /*
@@ -611,12 +612,23 @@ void Avionics::parseBallastCommand(uint32_t command) {
 void Avionics::parseRockBLOCKPowerCommand(bool command) {
   if (command && !data.POWER_STATE_RB) {
     data.POWER_STATE_RB = true;
-    RBModule.restart();
+    RBModule.restart(data.RB_SHOULD_SLEEP);
   }
   else if (!command) {
     data.POWER_STATE_RB = false;
     RBModule.shutdown();
   }
+}
+
+/*
+ * Function: parseRockBLOCKModeCommand
+ * -------------------
+ * This function parses the mode RockBLOCK command.
+ */
+void Avionics::parseRockBLOCKModeCommand(bool command) {
+  if(data.RB_SHOULD_SLEEP && !command) RBModule.wake();
+  if(!data.RB_SHOULD_SLEEP && command) RBModule.snooze();
+  data.RB_SHOULD_SLEEP = command;
 }
 
 /*
@@ -853,6 +865,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.TEMP_SETPOINT,                      -40,   40,      6,  lengthBits); // Payload temperature setpoint
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1000,    10, lengthBits); // RB communication interval
     lengthBits += compressVariable(data.GPS_INTERVAL / 1000,                 0,    1000,    10, lengthBits); // GPS communication interval
+    lengthBits += compressVariable(data.RB_SHOULD_SLEEP,                     0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.PRESS_BASELINE,                      0,    500000,  19, lengthBits); // Pressure baseline
     lengthBits += compressVariable(data.INCENTIVE_THRESHOLD,                 0,    4,       3,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_ARM_ALT,                    -2000, 40000,   16, lengthBits); // Ballast Arming Altitude
@@ -1121,6 +1134,9 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" GPS_INTERVAL:");
   Serial.print(data.GPS_INTERVAL);
+  Serial.print(',');
+  Serial.print(" RB_SHOULD_SLEEP:");
+  Serial.print(data.RB_SHOULD_SLEEP);
   Serial.print(',');
   Serial.print(" PRESS_BASELINE:");
   Serial.print(data.PRESS_BASELINE);
@@ -1404,6 +1420,8 @@ bool Avionics::logData() {
   dataFile.print(data.RB_INTERVAL);
   dataFile.print(',');
   dataFile.print(data.GPS_INTERVAL);
+  dataFile.print(',');
+  dataFile.print(data.RB_SHOULD_SLEEP);
   dataFile.print(',');
   dataFile.print(data.PRESS_BASELINE);
   dataFile.print(',');

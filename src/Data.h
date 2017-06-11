@@ -94,6 +94,7 @@ struct DataFrame {
   float      TEMP_SETPOINT                   =            TEMP_SETPOINT_DEFAULT;
   uint32_t   RB_INTERVAL                     =              RB_INTERVAL_DEFAULT;
   uint32_t   GPS_INTERVAL                    =             GPS_INTERVAL_DEFAULT;
+  bool       RB_SHOULD_SLEEP                 =          RB_SHOULD_SLEEP_DEFAULT;
 
   float      PRESS_BASELINE                  =           PRESS_BASELINE_DEFAULT;
   float      INCENTIVE_THRESHOLD             =      INCENTIVE_THRESHOLD_DEFAULT;

@@ -45,9 +45,7 @@ bool ISBDCallback() {
 }
 
 /* TODO
-1) isbd.begin(), transmit, isbd.sleep()
-2) wait at least 3 seconds after shutting down or sleeping, to rewaking it
-3) A way to disable sleep should be implemented.
-4) if isbd.begin() fails or isbd.sleep(), you want to restart the system by fetting it off for 2min and then back on, and set back to no sleep
-5) a failure counter should be sent over RB of how many times we restart.
+1) wait at least 3 seconds after shutting down or sleeping, to rewaking it
+2) a failure counter should be sent over RB of how many times we restart.
+3) if isbd.begin() fails or isbd.sleep(), you want to restart the system by fetting it off for 2min and then back on, and set back to no sleep
 */

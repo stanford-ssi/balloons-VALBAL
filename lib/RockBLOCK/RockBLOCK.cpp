@@ -69,6 +69,7 @@ void RockBLOCK::shutdown() {
 bool RockBLOCK::wake() {
   uint8_t ret = isbd.begin();
   if(ret != ISBD_SUCCESS) {
+    failureWakeCount++;
     Serial.print("isbd.begin() failed with error code ");
     Serial.print(ret);
     Serial.print('\n');
@@ -85,6 +86,7 @@ bool RockBLOCK::wake() {
 bool RockBLOCK::snooze() {
   uint8_t ret = isbd.sleep();
   if(ret != ISBD_SUCCESS) {
+    failureSleepCount++;
     Serial.print("isbd.sleep() failed with error code ");
     Serial.print(ret);
     Serial.print('\n');
@@ -111,6 +113,14 @@ int16_t RockBLOCK::writeRead(char* buff, uint16_t len, bool sleep) {
   return bufferSize;
 }
 
+/*
+ * Function: getNumFailures
+ * -------------------
+ * This function returns the number of failures to sleep or wake.
+ */
+uint32_t RockBLOCK::getNumFailures(){
+  return failureWakeCount + failureSleepCount;
+}
 /*********************************  HELPERS  **********************************/
 /*
  * Function: write

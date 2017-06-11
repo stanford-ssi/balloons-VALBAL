@@ -55,6 +55,7 @@ struct DataFrame {
   float      TEMP_EXT                        =                                0;
   uint32_t   LOOP_TIME_MAX                   =                                0;
   uint32_t   RB_SENT_COMMS                   =                                0;
+  uint32_t   RB_SLEEP_FAILS                  =                                0;
 
   bool       MANUAL_MODE                     =              MANUAL_MODE_DEFAULT;
   uint8_t    REPORT_MODE                     =              REPORT_MODE_DEFAULT;

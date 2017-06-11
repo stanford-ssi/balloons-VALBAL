@@ -24,23 +24,26 @@ public:
     EEPROMAddress(EEPROMAddressVal),
     isbd(Serial3, RB_SleepPinNum) {
   }
-  bool    init(bool shouldStartup, bool sleep);
+  bool     init(bool shouldStartup, bool sleep);
 /********************************  FUNCTIONS  *********************************/
-  void    restart(bool sleep);
-  void    shutdown();
-  bool    wake();
-  bool    snooze();
-  int16_t writeRead(char* buff, uint16_t len, bool sleep);
+  void     restart(bool sleep);
+  void     shutdown();
+  bool     wake();
+  bool     snooze();
+  int16_t  writeRead(char* buff, uint16_t len, bool sleep);
+  uint32_t getNumFailures();
 private:
 /*********************************  HELPERS  **********************************/
-  void    write(char* buff, uint16_t len);
-  void    read(char* buff, uint16_t len);
+  void     write(char* buff, uint16_t len);
+  void     read(char* buff, uint16_t len);
 /*********************************  OBJECTS  **********************************/
   static const uint16_t BUFFER_SIZE = 200;
   uint8_t    rxBuffer[BUFFER_SIZE] = {0};
   uint8_t    RB_GATE;
   uint16_t   RB_BAUD;
   uint8_t    EEPROMAddress;
+  uint32_t   failureWakeCount;
+  uint32_t   failureSleepCount;
   IridiumSBD isbd;
 };
 

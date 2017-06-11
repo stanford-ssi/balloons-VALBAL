@@ -115,17 +115,22 @@ void Avionics::logState() {
  * This function sends the current data frame down.
  */
 void Avionics::sendComms() {
+#ifndef RB_DISABLED_FLAG
+  if(!data.VALVE_STATE && (
+    (RBModule.getNumFailures() > data.RB_SLEEP_FAILS) ||
+    (!data.POWER_STATE_RB && ((millis() - data.RB_LAST) > RB_RESTART_INTERVAL))
+  )) {
+    data.RB_SLEEP_FAILS = RBModule.getNumFailures();
+    data.RB_SHOULD_SLEEP = false;
+    RBModule.restart(data.RB_SHOULD_SLEEP);
+    data.RB_LAST = millis();
+  }
   if(data.DEBUG_STATE && ((millis() - data.RB_LAST) < RB_DEBUG_INTERVAL)) return;
   if(!data.DEBUG_STATE && ((millis() - data.RB_LAST) < data.RB_INTERVAL)) return;
-#ifndef RB_DISABLED_FLAG
-  if (!data.POWER_STATE_RB && ((millis() - data.RB_LAST) > RB_RESTART_INTERVAL)) {
-    data.POWER_STATE_RB = true;
-    RBModule.restart(data.RB_SHOULD_SLEEP);
-  }
-#endif
   if(compressData() < 0) alert("unable to compress Data", true);
-  if(!sendSATCOMS()) alert("unable to communicate over RB", true);
-  data.RB_LAST = millis();
+  if(!sendSATCOMS())     alert("unable to communicate over RB", true);
+  else data.RB_LAST = millis();
+#endif
 }
 
 /*
@@ -618,6 +623,7 @@ void Avionics::parseRockBLOCKPowerCommand(bool command) {
     data.POWER_STATE_RB = false;
     RBModule.shutdown();
   }
+  data.RB_LAST = millis();
 }
 
 /*
@@ -629,6 +635,7 @@ void Avionics::parseRockBLOCKModeCommand(bool command) {
   if(data.RB_SHOULD_SLEEP && !command) RBModule.wake();
   if(!data.RB_SHOULD_SLEEP && command) RBModule.snooze();
   data.RB_SHOULD_SLEEP = command;
+  data.RB_LAST = millis();
 }
 
 /*
@@ -833,6 +840,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.TEMP_EXT,                             -100,  30,      6,  lengthBits);
   lengthBits += compressVariable(data.LOOP_TIME_MAX,                         0,    10000,   10, lengthBits);
   lengthBits += compressVariable(data.RB_SENT_COMMS,                         0,    8191,    13, lengthBits);
+  lengthBits += compressVariable(data.RB_SLEEP_FAILS,                        0,    8191,    13, lengthBits);
   lengthBits += compressVariable(data.MANUAL_MODE,                           0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.REPORT_MODE,                           0,    2,       2,  lengthBits);
   lengthBits += compressVariable(data.SHOULD_REPORT,                         0,    1,       1,  lengthBits);
@@ -1041,6 +1049,9 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" RB_SENT_COMMS:");
   Serial.print(data.RB_SENT_COMMS);
+  Serial.print(',');
+  Serial.print(" RB_SLEEP_FAILS:");
+  Serial.print(data.RB_SLEEP_FAILS);
   Serial.print(',');
   Serial.print(" MANUAL_MODE:");
   Serial.print(data.MANUAL_MODE);
@@ -1358,6 +1369,8 @@ bool Avionics::logData() {
   dataFile.print(data.LOOP_TIME_MAX);
   dataFile.print(',');
   dataFile.print(data.RB_SENT_COMMS);
+  dataFile.print(',');
+  dataFile.print(data.RB_SLEEP_FAILS);
   dataFile.print(',');
   dataFile.print(data.MANUAL_MODE);
   dataFile.print(',');

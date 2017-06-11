@@ -28,13 +28,13 @@ public:
 /********************************  FUNCTIONS  *********************************/
   void    restart();
   void    shutdown();
-  bool    wake();
-  void    sleep();
-  int16_t writeRead(char* buff, uint16_t len);
+  int16_t writeRead(char* buff, uint16_t len, bool sleep);
 private:
 /*********************************  HELPERS  **********************************/
   void    write(char* buff, uint16_t len);
   void    read(char* buff, uint16_t len);
+  bool    wake();
+  bool    snooze();
 /*********************************  OBJECTS  **********************************/
   static const uint16_t BUFFER_SIZE = 200;
   uint8_t    rxBuffer[BUFFER_SIZE] = {0};

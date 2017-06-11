@@ -27,6 +27,10 @@
 #include <GPS.h>
 #include <RockBLOCK.h>
 
+// regualar min and max is not compatible with vector in std
+#define _min(a,b) ((a)<(b)?(a):(b))
+#define _max(a,b) ((a)>(b)?(a):(b))
+
 class Avionics {
 public:
 /**********************************  SETUP  ***********************************/

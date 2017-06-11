@@ -13,12 +13,6 @@
 
 #include "Avionics.h"
 
-
-// regualar min and max is not compatible with vector in std
-// so we define out own
-#define _min(a,b) ((a)<(b)?(a):(b))
-#define _max(a,b) ((a)>(b)?(a):(b))
-
 /**********************************  SETUP  ***********************************/
 /*
  * Function: init
@@ -464,7 +458,7 @@ bool Avionics::sendSATCOMS() {
   alert("sending Rockblock message", false);
   data.RB_SENT_COMMS++;
 #ifndef RB_DISABLED_FLAG
-  int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
+  int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH, true);
   if(ret < 0) return false;
   if(ret > 0) parseCommand(ret);
 #endif

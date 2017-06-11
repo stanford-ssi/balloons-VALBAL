@@ -43,7 +43,10 @@ void RockBLOCK::restart() {
   EEPROM.write(EEPROMAddress, false);
   digitalWrite(RB_GATE, HIGH);
   delay(1000);
-  isbd.begin();
+  wake();
+  delay(3000);
+  snooze();
+  delay(1000);
   EEPROM.write(EEPROMAddress, true);
 }
 
@@ -64,18 +67,30 @@ void RockBLOCK::shutdown() {
  * This function wakes up the RockBLOCK.
  */
 bool RockBLOCK::wake() {
-  Serial3.begin(RB_BAUD);
-  return isbd.begin() == ISBD_SUCCESS;
+  uint8_t ret = isbd.begin();
+  if(ret != ISBD_SUCCESS) {
+    Serial.print("isbd.begin() failed with error code ");
+    Serial.print(ret);
+    Serial.print('\n');
+    return false;
+  }
+  return true;
 }
 
 /*
- * Function: sleep
+ * Function: snooze
  * -------------------
  * This function sleeps the RockBLOCK.
  */
-void RockBLOCK::sleep() {
-  isbd.sleep();
-  Serial3.end();
+bool RockBLOCK::snooze() {
+  uint8_t ret = isbd.sleep();
+  if(ret != ISBD_SUCCESS) {
+    Serial.print("isbd.sleep() failed with error code ");
+    Serial.print(ret);
+    Serial.print('\n');
+    return false;
+  }
+  return true;
 }
 
 /*
@@ -84,13 +99,15 @@ void RockBLOCK::sleep() {
  * This function writes a bitstream across the communication interface.
  * It returns the length of a read message.
  */
-int16_t RockBLOCK::writeRead(char* buff, uint16_t len) {
+int16_t RockBLOCK::writeRead(char* buff, uint16_t len, bool sleep) {
   if(len > BUFFER_SIZE) return -1;
   if(len < 0) return -1;
+  if(sleep && !wake()) return -1;
   size_t  bufferSize = sizeof(rxBuffer);
   write(buff, len);
   if(isbd.sendReceiveSBDBinary(rxBuffer, len, rxBuffer, bufferSize) != ISBD_SUCCESS) return -1 ;
   read(buff, bufferSize);
+  if(sleep && !snooze()) return -1;
   return bufferSize;
 }
 

@@ -48,8 +48,12 @@ public:
 
   void     cutDown();
 
-  void     EEPROMWritelong(uint8_t address, int32_t value);
-  int32_t  EEPROMReadlong(uint8_t address);
+  static void     EEPROMWritelong(uint8_t address, int32_t value);
+  static int32_t  EEPROMReadlong(uint8_t address);
+
+  enum state_t {OPEN, OPENING, CLOSED, CLOSING};
+  state_t  valveState = CLOSED;
+  state_t  ballastState = CLOSED;
 
 private:
 /*********************************  HELPERS  **********************************/
@@ -61,9 +65,6 @@ private:
   void     dropBallast(bool direction);
 
 /*********************************  OBJECTS  **********************************/
-  enum state_t {OPEN, OPENING, CLOSED, CLOSING};
-  state_t  valveState = CLOSED;
-  state_t  ballastState = CLOSED;
 
   uint32_t valveQueue = 0;
   uint32_t valveQueueFake = 0;

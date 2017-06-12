@@ -23,6 +23,9 @@
  PRIVATE FUNCTIONS
  ***************************************************************************/
 
+ void flushthefuck(void) {
+ 				SPI0_MCR |= SPI_MCR_CLR_RXF;
+ }
 
 Adafruit_BMP280::Adafruit_BMP280()
   : _cs(-1), _mosi(-1), _miso(-1), _sck(-1)
@@ -125,8 +128,10 @@ uint8_t Adafruit_BMP280::read8(byte reg)
     value = Wire.read();
 
   } else {
-    if (_sck == -1)
+    if (_sck == -1) {
       SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
+      flushthefuck();
+    }
     digitalWrite(_cs, LOW);
     spixfer(reg | 0x80); // read, bit 7 high
     value = spixfer(0);
@@ -154,8 +159,10 @@ uint16_t Adafruit_BMP280::read16(byte reg)
     value = (Wire.read() << 8) | Wire.read();
 
   } else {
-    if (_sck == -1)
+    if (_sck == -1) {
       SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
+      flushthefuck();
+    }
     digitalWrite(_cs, LOW);
     spixfer(reg | 0x80); // read, bit 7 high
     value = (spixfer(0) << 8) | spixfer(0);
@@ -213,8 +220,10 @@ uint32_t Adafruit_BMP280::read24(byte reg)
     value |= Wire.read();
 
   } else {
-    if (_sck == -1)
+    if (_sck == -1) {
       SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
+      flushthefuck();
+    }
     digitalWrite(_cs, LOW);
     spixfer(reg | 0x80); // read, bit 7 high
 

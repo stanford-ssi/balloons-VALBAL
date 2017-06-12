@@ -136,4 +136,7 @@ static const uint8_t   EEPROM_BALLAST_VELOCITY_CONSTANT      =               32;
 static const uint8_t   EEPROM_BALLAST_ALTITUDE_DIFF_CONSTANT =               36;
 static const uint8_t   EEPROM_BALLAST_LAST_ACTION_CONSTANT   =               40;
 
+static const uint8_t   EEPROM_LOG_BLOCK_CUR                  =              112;
+static const uint8_t   EEPROM_LOG_FILE_NUM                   =              116;
+
 #endif

@@ -14,16 +14,16 @@
 #ifndef AVIONICS_H
 #define AVIONICS_H
 
+#include "Logger.h"
 #include "Config.h"
 #include "Cutdown.h"
 #include "Data.h"
 #include "Sensors.h"
-#include "Simulator.h"
+//#include "Simulator.h"
 #include "Filters.h"
 #include "Hardware.h"
 #include "Controller.h"
 #include "Payload.h"
-#include <SD.h>
 #include <GPS.h>
 #include <RockBLOCK.h>
 
@@ -101,10 +101,10 @@ private:
 /*********************************  OBJECTS  **********************************/
   char COMMS_BUFFER[COMMS_BUFFER_SIZE];
   DataFrame data;
-  File dataFile;
+  Logger log;
   Hardware PCB;
   Sensors sensors;
-  Simulator HITL;
+  //Simulator HITL;
   Filters filter;
   Controller computer;
   GPS gpsModule;

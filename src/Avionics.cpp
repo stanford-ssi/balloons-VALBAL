@@ -99,14 +99,8 @@ void Avionics::actuateState() {
  * This function logs the current data frame.
  */
 void Avionics::logState() {
-  if (millis() - data.DATAFILE_LAST > FILE_RESET_INTERVAL) {
-    dataFile.close();
-    setupLog();
-    printHeader();
-    data.DATAFILE_LAST = millis();
-  }
-  if(!logData())    alert("unable to log Data", true);
-  if(!debugState()) alert("unable to debug state", true);
+  if(!log.log(&data, PCB.valveState != PCB.OPENING)) alert("unable to log Data", true);
+  if(!debugState())   alert("unable to debug state", true);
 }
 
 /*
@@ -141,6 +135,7 @@ void Avionics::sendComms() {
 void Avionics::sleep() {
   uint32_t loopTime = millis() - data.TIME;
   if (loopTime < LOOP_INTERVAL) gpsModule.smartDelay(LOOP_INTERVAL - loopTime);
+  data.LOOP_NUMBER++;
 }
 
 /*
@@ -159,12 +154,14 @@ bool Avionics::finishedSetup() {
  * This function sets up the SD card for logging.
  */
 bool Avionics::setupSDCard() {
-  bool success = false;
-  printHeader();
-  if(SD.begin(SD_CS)) success = true;
-  setupLog();
-  logHeader();
-  return success;
+  log.initialize();
+
+  #ifdef RESET_EEPROM_FLAG
+    PCB.EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, 0);
+    PCB.EEPROMWritelong(EEPROM_LOG_FILE_NUM, 0);
+  #endif
+
+  return log.setupLogfile();
 }
 
 /*
@@ -254,6 +251,7 @@ bool Avionics::readPayload() {
   return true;
 }
 
+#ifdef HITL_ENABLED_FLAG
 bool Avionics::simulateData() {
   DataFrame simulation = HITL.readData();
   data.LOOP_TIME                      = millis() - data.TIME;
@@ -287,6 +285,7 @@ bool Avionics::simulateData() {
   // data.MANUAL_MODE                    = simulation.MANUAL_MODE;
   return true;
 }
+#endif
 
 /*
  * Function: processData
@@ -706,29 +705,6 @@ bool Avionics::debugState() {
 }
 
 /*
- * Function: setupLog
- * -------------------
- * This function initializes the SD card file.
- */
-void Avionics::setupLog() {
-  Serial.println("Card Initialitzed");
-  char filename[] = "LOGGER00.txt";
-  for (uint8_t i = 0; i < 100; i++) {
-    filename[6] = i / 10 + '0';
-    filename[7] = i % 10 + '0';
-    if (!SD.exists(filename)) {
-      dataFile = SD.open(filename, O_WRITE | O_CREAT);
-      break;
-    }
-  }
-  if (!dataFile) Serial.println ("ERROR: COULD NOT CREATE FILE");
-  else {
-    Serial.print("Logging to: ");
-    Serial.println(filename);
-  }
-}
-
-/*
  * Function: printHeader
  * -------------------
  * This function prints the CSV header.
@@ -737,20 +713,6 @@ void Avionics::printHeader() {
   Serial.print("Stanford Student Space Initiative Balloons Launch ");
   Serial.print(MISSION_NUMBER);
   Serial.print('\n');
-}
-
-/*
- * Function: logHeader
- * -------------------
- * This function logs the CSV header.
- */
-void Avionics::logHeader() {
-  dataFile.print("Stanford Student Space Initiative Balloons Launch ");
-  dataFile.print(MISSION_NUMBER);
-  dataFile.print('\n');
-  dataFile.print(CSV_DATA_HEADER);
-  dataFile.print('\n');
-  dataFile.flush();
 }
 
 /*
@@ -1285,247 +1247,4 @@ void Avionics::printState() {
   Serial.print(data.COMMS_LENGTH);
   Serial.print("\n\r");
   Serial.print("\n\r");
-}
-
-/*
- * Function: logData
- * -------------------
- * This function logs the current data frame.
- */
-bool Avionics::logData() {
-  bool sucess = true;
-  dataFile.print(data.TIME);
-  dataFile.print(',');
-  dataFile.print(data.LAT_GPS, 4);
-  dataFile.print(',');
-  dataFile.print(data.LONG_GPS, 4);
-  dataFile.print(',');
-  dataFile.print(data.ALTITUDE_BAROMETER);
-  dataFile.print(',');
-  dataFile.print(data.ALTITUDE_GPS);
-  dataFile.print(',');
-  dataFile.print(data.ASCENT_RATE);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_INCENTIVE);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_INCENTIVE);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_STATE);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_STATE);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_QUEUE);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_QUEUE);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_TIME_TOTAL);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_TIME_TOTAL);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_NUM_ACTIONS);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_NUM_ACTIONS);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_NUM_ATTEMPTS);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_NUM_ATTEMPTS);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_NUM_OVERCURRENTS);
-  dataFile.print(',');
-  dataFile.print(data.CUTDOWN_STATE);
-  dataFile.print(',');
-  dataFile.print(data.TEMP_INT);
-  dataFile.print(',');
-  dataFile.print(data.JOULES_TOTAL);
-  dataFile.print(',');
-  dataFile.print(data.VOLTAGE_PRIMARY);
-  dataFile.print(',');
-  dataFile.print(data.VOLTAGE_5V);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_TOTAL_AVG);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_TOTAL_MIN);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_TOTAL_MAX);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_RB_AVG);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_RB_MAX);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_MOTOR_VALVE_AVG);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_MOTOR_VALVE_MAX);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_MOTOR_BALLAST_AVG);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_MOTOR_BALLAST_MAX);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_PAYLOAD_AVG);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_PAYLOAD_MAX);
-  dataFile.print(',');
-  dataFile.print(data.TEMP_EXT);
-  dataFile.print(',');
-  dataFile.print(data.LOOP_TIME_MAX);
-  dataFile.print(',');
-  dataFile.print(data.RB_SENT_COMMS);
-  dataFile.print(',');
-  dataFile.print(data.RB_SLEEP_FAILS);
-  dataFile.print(',');
-  dataFile.print(data.MANUAL_MODE);
-  dataFile.print(',');
-  dataFile.print(data.REPORT_MODE);
-  dataFile.print(',');
-  dataFile.print(data.SHOULD_REPORT);
-  dataFile.print(',');
-  dataFile.print(data.POWER_STATE_LED);
-  dataFile.print(',');
-  dataFile.print(data.POWER_STATE_RB);
-  dataFile.print(',');
-  dataFile.print(data.POWER_STATE_GPS);
-  dataFile.print(',');
-  dataFile.print(data.POWER_STATE_HEATER);
-  dataFile.print(',');
-  dataFile.print(data.POWER_STATE_PAYLOAD);
-  dataFile.print(',');
-  dataFile.print(data.HEATER_STRONG_ENABLE);
-  dataFile.print(',');
-  dataFile.print(data.HEATER_WEEK_ENABLE);
-  dataFile.print(',');
-  dataFile.print(data.NUM_SATS_GPS);
-  dataFile.print(',');
-  dataFile.print(data.SPEED_GPS);
-  dataFile.print(',');
-  dataFile.print(data.HEADING_GPS);
-  dataFile.print(',');
-  dataFile.print(data.INCENTIVE_NOISE);
-  dataFile.print(',');
-  dataFile.print(data.RE_ARM_CONSTANT);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_ALT_LAST);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_ALT_LAST);
-  dataFile.print(',');
-  dataFile.print(data.DEBUG_STATE);
-  dataFile.print(',');
-  dataFile.print(data.FORCE_VALVE);
-  dataFile.print(',');
-  dataFile.print(data.FORCE_BALLAST);
-  dataFile.print(',');
-  dataFile.print(data.BMP_1_ENABLE);
-  dataFile.print(',');
-  dataFile.print(data.BMP_2_ENABLE);
-  dataFile.print(',');
-  dataFile.print(data.BMP_3_ENABLE);
-  dataFile.print(',');
-  dataFile.print(data.BMP_4_ENABLE);
-  dataFile.print(',');
-  dataFile.print(data.BMP_1_REJECTIONS);
-  dataFile.print(',');
-  dataFile.print(data.BMP_2_REJECTIONS);
-  dataFile.print(',');
-  dataFile.print(data.BMP_3_REJECTIONS);
-  dataFile.print(',');
-  dataFile.print(data.BMP_4_REJECTIONS);
-  dataFile.print(',');
-  dataFile.print(data.TEMP_SETPOINT);
-  dataFile.print(',');
-  dataFile.print(data.RB_INTERVAL);
-  dataFile.print(',');
-  dataFile.print(data.GPS_INTERVAL);
-  dataFile.print(',');
-  dataFile.print(data.RB_SHOULD_SLEEP);
-  dataFile.print(',');
-  dataFile.print(data.PRESS_BASELINE);
-  dataFile.print(',');
-  dataFile.print(data.INCENTIVE_THRESHOLD);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_ARM_ALT);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_REVERSE_INTERVAL);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_LEAK_INTERVAL);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_STALL_CURRENT);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_MOTOR_SPEED);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_MOTOR_SPEED);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_OPENING_DURATION);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_CLOSING_DURATION);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_SETPOINT);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_VENT_DURATION);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_FORCE_DURATION);
-  dataFile.print(',');
-  dataFile.print(data.VALVE_VELOCITY_CONSTANT);
-  dataFile.print(',');
-  dataFile.print(1.0 / data.VALVE_ALTITUDE_DIFF_CONSTANT);
-  dataFile.print(',');
-  dataFile.print(1.0 / data.VALVE_LAST_ACTION_CONSTANT);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_SETPOINT);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_DROP_DURATION);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_FORCE_DURATION);
-  dataFile.print(',');
-  dataFile.print(data.BALLAST_VELOCITY_CONSTANT);
-  dataFile.print(',');
-  dataFile.print(1.0 / data.BALLAST_ALTITUDE_DIFF_CONSTANT);
-  dataFile.print(',');
-  dataFile.print(1.0 / data.BALLAST_LAST_ACTION_CONSTANT);
-  dataFile.print(',');
-  dataFile.print(data.SETUP_STATE);
-  dataFile.print(',');
-  dataFile.print(data.SHOULD_CUTDOWN);
-  dataFile.print(',');
-  dataFile.print(data.LOOP_TIME);
-  dataFile.print(',');
-  dataFile.print(data.RAW_TEMP_1);
-  dataFile.print(',');
-  dataFile.print(data.RAW_TEMP_2);
-  dataFile.print(',');
-  dataFile.print(data.RAW_TEMP_3);
-  dataFile.print(',');
-  dataFile.print(data.RAW_TEMP_4);
-  dataFile.print(',');
-  dataFile.print(data.RAW_PRESSURE_1);
-  dataFile.print(',');
-  dataFile.print(data.RAW_PRESSURE_2);
-  dataFile.print(',');
-  dataFile.print(data.RAW_PRESSURE_3);
-  dataFile.print(',');
-  dataFile.print(data.RAW_PRESSURE_4);
-  dataFile.print(',');
-  dataFile.print(data.PRESS);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_USB);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_TOTAL);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_RB);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_MOTOR_VALVE);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_MOTOR_BALLAST);
-  dataFile.print(',');
-  dataFile.print(data.CURRENT_PAYLOAD);
-  dataFile.print(',');
-  dataFile.print(data.PAYLOAD_MESSAGE_SIZE);
-  dataFile.print(',');
-  dataFile.print(data.GPS_LAST);
-  dataFile.print(',');
-  dataFile.print(data.RB_LAST);
-  dataFile.print(',');
-  dataFile.print(data.DATAFILE_LAST);
-  if(dataFile.print(',') != 1) sucess = false;
-  dataFile.print(data.COMMS_LENGTH);
-  dataFile.print('\n');
-  dataFile.flush();
-  return sucess;
 }

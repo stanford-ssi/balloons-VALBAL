@@ -17,6 +17,7 @@
 struct DataFrame {
 /******************************  PRIMARY DATA  ********************************/
   uint32_t   TIME                            =                                0;
+  uint32_t   LOOP_NUMBER                     =                                0; // Useful for checking data integrity
   float      LAT_GPS                         =                                0;
   float      LONG_GPS                        =                                0;
   float      ALTITUDE_BAROMETER              =                                0;
@@ -149,6 +150,6 @@ struct DataFrame {
   uint32_t   RB_LAST                         =                                0;
   uint32_t   DATAFILE_LAST                   =                                0;
   uint16_t   COMMS_LENGTH                    =                                0;
-};
+} __attribute__((packed));
 
 #endif

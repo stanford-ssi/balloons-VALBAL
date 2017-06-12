@@ -129,6 +129,7 @@ struct DataFrame {
   bool       SHOULD_CUTDOWN                  =                            false;
 
   uint32_t   LOOP_TIME                       =                                0;
+  uint32_t   LOG_TIME                        =                                0;
   float      RAW_TEMP_1                      =                                0;
   float      RAW_TEMP_2                      =                                0;
   float      RAW_TEMP_3                      =                                0;
@@ -150,6 +151,7 @@ struct DataFrame {
   uint32_t   RB_LAST                         =                                0;
   uint32_t   DATAFILE_LAST                   =                                0;
   uint16_t   COMMS_LENGTH                    =                                0;
+  uint32_t   LOOP_NUMBER2                    =                                0;
 } __attribute__((packed));
 
 #endif

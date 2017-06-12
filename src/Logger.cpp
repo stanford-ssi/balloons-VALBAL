@@ -7,7 +7,7 @@
 #include <SdFat.h>
 
 //const int MAX_BLOCK = 6135923; // Pi gigabytes
-const int MAX_BLOCK = 61359; // CHANGE BEFORE FLIGHT TO PI GIGABYTES
+const int MAX_BLOCK = 613592; // CHANGE BEFORE FLIGHT TO PI GIGABYTES
 
 bool Logger::initialize() {
   avail.set();
@@ -93,25 +93,34 @@ uint8_t Logger::next(uint8_t idx) {
 
 bool Logger::writeCache(bool justDoIt, int max) {
   // Write cache contents first
-  bool shouldcache = false;
-  for (int i=0; i<max; i++) {
-    if (avail[to_write]) break;
-
-    if (!sd.card()->isBusy() || justDoIt) {
-      if (!sd.card()->writeBlock(curBlock, (uint8_t*) cache[to_write])) {
-        Serial.println("[ERROR] writing blocks sucks y'know!");
-        shouldcache = true;
-        break;
-      }
-      curBlock++;
-      avail[to_write] = 1;
-    } else {
-      shouldcache = true;
-      break;
+  if (!sd.card()->isBusy() || justDoIt) {
+    int cnt;
+    int tmp = to_write;
+    for (cnt=0; cnt<max; cnt++) {
+      if (avail[tmp]) break;
+      tmp = next(tmp);
     }
-    to_write = next(to_write);
+    if (cnt < 8) return false;
+    if (!sd.card()->writeStart(curBlock)) {
+      Serial.println("[ERROR] something v wrong!");
+      return true;
+    }
+    for (int i=0; i<cnt; i++) {
+      sd.card()->writeData((uint8_t*) cache[to_write]);
+      curBlock++;
+
+      if (curBlock % 1000 == 0) {
+        Hardware::EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, curBlock-bgnBlock);
+        Hardware::EEPROMWritelong(EEPROM_LOG_FILE_NUM, fileNum);
+      }
+
+      avail[to_write] = true;
+      to_write = next(to_write);
+    }
+    sd.card()->writeStop();
+    return false;
   }
-  return shouldcache;
+  return true;
 }
 /*
 
@@ -122,39 +131,32 @@ static const uint8_t   EEPROM_LOG_FILE_NUM                   =              120;
 /* */
 bool Logger::log(struct DataFrame* frame, bool sadness) {
   if (!logOk) return false;
-  if (curBlock % 100 == 0) {
-    Hardware::EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, curBlock-bgnBlock);
-    Hardware::EEPROMWritelong(EEPROM_LOG_FILE_NUM, fileNum);
-  }
+  /*Serial.print(to_insert);
+  Serial.print(",");
+  Serial.print(to_write);
+  Serial.print("   ");
+  for (int i=0; i < CACHE_SIZE; i++) Serial.print(avail[i] ? '1' : '0');
+  Serial.println();*/
 
   if ((MAX_BLOCK - curBlock) < 1000 && sadness) {
     setupLogfile();
   }
-  bool shouldcache = writeCache(false, CACHE_SIZE);
-  if (!shouldcache && !sd.card()->isBusy()) { // Not busy, write that shit ASAP
-    if (!sd.card()->writeBlock(curBlock, (uint8_t*)frame)) {
-      Serial.println("[ERROR] writing blocks sucks y'know :(");
-      return false;
-    }
-    curBlock++;
-    return true;
-  } else {
-    if (!sadness && !avail[to_insert]) {
-      Serial.println("[ERROR] no sadness allowed, losing data.");
-      return false; // bye, bye, data
-    }
-
-    if (!avail[to_insert]) {
-      Serial.println("Ran out of cache, resorting to sadness.");
-      writeCache(true, 2);
-    }
-
-    memcpy(cache[to_insert], frame, sizeof(DataFrame));
-    avail[to_insert] = 0;
-    to_insert = next(to_insert);
-    return true;
+  writeCache(false, CACHE_SIZE);
+  if (!sadness && !avail[to_insert]) {
+    Serial.println("[ERROR] no sadness allowed, losing data.");
+    return false; // bye, bye, data
   }
-  return false; // wat
+
+  if (!avail[to_insert]) {
+    Serial.println("Ran out of cache, resorting to sadness.");
+    writeCache(true, 2);
+  }
+
+  memcpy(cache[to_insert], frame, sizeof(DataFrame));
+  avail[to_insert] = 0;
+  to_insert = next(to_insert);
+
+  return true; // wat
 }
 
 bool Logger::findFilename() {

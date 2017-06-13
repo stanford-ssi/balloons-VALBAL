@@ -91,9 +91,9 @@ void Hardware::heater(double tempSetpoint, double temp, bool strong, bool weak) 
   PIDTempVar = temp;
   pid.Compute();
   if (PIDOutVar != 0.0) {
-    if (strong)  analogWrite(HEATER_INTERNAL_STRONG, PIDOutVar / 2 + 127.5);
+    if (strong)  analogWrite(HEATER_INTERNAL_STRONG, PIDOutVar);
     if (!strong) analogWrite(HEATER_INTERNAL_STRONG, 0);
-    if (weak)    analogWrite(HEATER_INTERNAL_WEAK, PIDOutVar / 2 + 127.5);
+    if (weak)    analogWrite(HEATER_INTERNAL_WEAK, PIDOutVar);
     if (!weak)   analogWrite(HEATER_INTERNAL_WEAK, 0);
   }
   else {
@@ -120,6 +120,15 @@ void Hardware::turnOffHeaters() {
  */
 void Hardware::setHeaterMode(bool on) {
   EEPROM.write(EEPROM_HEATER, on);
+}
+
+/*
+ * Function: getHeaterPID
+ * -------------------
+ * This function gets the computed PID.
+ */
+float Hardware::getHeaterPID(){
+  return PIDOutVar;
 }
 
 /*

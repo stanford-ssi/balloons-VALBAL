@@ -211,11 +211,14 @@ bool Avionics::readData() {
   data.CURRENT_USB           = sensors.getCurrentUSB();
   data.CURRENT_TOTAL         = sensors.getCurrentTotal();
   data.JOULES_TOTAL          = sensors.getJoules();
+  data.PID_OUTPUT            = PCB.getHeaterPID();
+  data.JOULES_HEATER         = sensors.getJoulesHeater(data.PID_OUTPUT, data.HEATER_STRONG_ENABLE, data.HEATER_WEEK_ENABLE);
   data.CURRENT_RB            = sensors.getCurrentSubsystem(RB_CURRENT);
   data.CURRENT_MOTOR_VALVE   = (data.VALVE_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
   data.CURRENT_MOTOR_BALLAST = (data.BALLAST_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
   data.CURRENT_PAYLOAD       = sensors.getCurrentSubsystem(PAYLOAD_CURRENT);
   data.TEMP_EXT              = sensors.getDerivedTemp(EXT_TEMP_SENSOR);
+  data.BLACK_BODY_TEMP       = sensors.getDerivedTemp(BLACK_BODY_TEMP_SENSOR);
   data.RAW_TEMP_1            = sensors.getRawTemp(1);
   data.RAW_TEMP_2            = sensors.getRawTemp(2);
   data.RAW_TEMP_3            = sensors.getRawTemp(3);
@@ -779,33 +782,33 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.BALLAST_INCENTIVE,                    -50,   10,      12, lengthBits);
   lengthBits += compressVariable(data.VALVE_STATE,                           0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_STATE,                         0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.VALVE_QUEUE / 1000,                    0,    1000,    10, lengthBits);
-  lengthBits += compressVariable(data.BALLAST_QUEUE / 1000,                  0,    1000,    10, lengthBits);
-  lengthBits += compressVariable(data.VALVE_TIME_TOTAL / 1000,               0,    16384,   13, lengthBits); // valve time total
-  lengthBits += compressVariable(data.BALLAST_TIME_TOTAL / 1000,             0,    16384,   13, lengthBits); // ballast time total
+  lengthBits += compressVariable(data.VALVE_QUEUE / 1000,                    0,    1023,    10, lengthBits);
+  lengthBits += compressVariable(data.BALLAST_QUEUE / 1000,                  0,    1023,    10, lengthBits);
+  lengthBits += compressVariable(data.VALVE_TIME_TOTAL / 1000,               0,    16383,   13, lengthBits); // valve time total
+  lengthBits += compressVariable(data.BALLAST_TIME_TOTAL / 1000,             0,    16383,   13, lengthBits); // ballast time total
   lengthBits += compressVariable(data.VALVE_NUM_ACTIONS,                     0,    63,      6,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_NUM_ACTIONS,                   0,    63,      6,  lengthBits);
   lengthBits += compressVariable(data.VALVE_NUM_ATTEMPTS,                    0,    63,      6,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_NUM_ATTEMPTS,                  0,    63,      6,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_NUM_OVERCURRENTS,              0,    63,      6,  lengthBits);
   lengthBits += compressVariable(data.CUTDOWN_STATE,                         0,    1,       1,  lengthBits);
-  lengthBits += compressVariable(data.TEMP_INT,                             -70,   80,      9,  lengthBits);
-  lengthBits += compressVariable(data.JOULES_TOTAL,                          0,    1500000, 18, lengthBits);
-  lengthBits += compressVariable(data.VOLTAGE_PRIMARY,                       0,    5,       9,  lengthBits);
-  lengthBits += compressVariable(data.VOLTAGE_5V,                            0,    5,       9,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_TOTAL_AVG,                     0,    4000,    12, lengthBits);
-  lengthBits += compressVariable(data.CURRENT_TOTAL_MIN,                     0,    4000,    12, lengthBits);
-  lengthBits += compressVariable(data.CURRENT_TOTAL_MAX,                     0,    4000,    12, lengthBits);
-  lengthBits += compressVariable(data.CURRENT_RB_AVG,                        0,    1000,    8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_RB_MAX,                        0,    1000,    8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_MOTOR_VALVE_AVG,               0,    1000,    8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_MOTOR_VALVE_MAX,               0,    1000,    8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_MOTOR_BALLAST_AVG,             0,    1000,    8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_MOTOR_BALLAST_MAX,             0,    1000,    8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_PAYLOAD_AVG,                   0,    500,     8,  lengthBits);
-  lengthBits += compressVariable(data.CURRENT_PAYLOAD_MAX,                   0,    500,     8,  lengthBits);
-  lengthBits += compressVariable(data.TEMP_EXT,                             -100,  30,      6,  lengthBits);
-  lengthBits += compressVariable(data.LOOP_TIME_MAX,                         0,    10000,   10, lengthBits);
+  lengthBits += compressVariable(data.TEMP_INT,                             -85,   65,      9,  lengthBits);
+  lengthBits += compressVariable(data.JOULES_TOTAL,                          0,    1572863, 18, lengthBits);
+  lengthBits += compressVariable(data.VOLTAGE_PRIMARY,                       0,    6,       9,  lengthBits);
+  lengthBits += compressVariable(data.VOLTAGE_5V,                            4,    6,       7,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_TOTAL_AVG,                     0,    4095,    12, lengthBits);
+  lengthBits += compressVariable(data.CURRENT_TOTAL_MIN,                     0,    4095,    12, lengthBits);
+  lengthBits += compressVariable(data.CURRENT_TOTAL_MAX,                     0,    4095,    12, lengthBits);
+  lengthBits += compressVariable(data.CURRENT_RB_AVG,                        0,    1023,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_RB_MAX,                        0,    1023,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_MOTOR_VALVE_AVG,               0,    1023,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_MOTOR_VALVE_MAX,               0,    1023,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_MOTOR_BALLAST_AVG,             0,    1023,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_MOTOR_BALLAST_MAX,             0,    1023,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_PAYLOAD_AVG,                   0,    1023,    8,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_PAYLOAD_MAX,                   0,    1023,    8,  lengthBits);
+  lengthBits += compressVariable(data.TEMP_EXT,                             -100,  30,      8,  lengthBits);
+  lengthBits += compressVariable(data.LOOP_TIME_MAX,                         0,    10239,   10, lengthBits);
   lengthBits += compressVariable(data.RB_SENT_COMMS,                         0,    8191,    13, lengthBits);
   lengthBits += compressVariable(data.RB_SLEEP_FAILS,                        0,    8191,    13, lengthBits);
   lengthBits += compressVariable(data.MANUAL_MODE,                           0,    1,       1,  lengthBits);
@@ -835,32 +838,34 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(log2(data.BMP_2_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_2_logrejections
     lengthBits += compressVariable(log2(data.BMP_3_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_3_logrejections
     lengthBits += compressVariable(log2(data.BMP_4_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_4_logrejections
+    lengthBits += compressVariable(data.BLACK_BODY_TEMP,                    -100,  30,      8,  lengthBits);
+    lengthBits += compressVariable(data.JOULES_HEATER,                       0,    819199,  13, lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
-    lengthBits += compressVariable(data.TEMP_SETPOINT,                      -40,   40,      6,  lengthBits); // Payload temperature setpoint
-    lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1000,    10, lengthBits); // RB communication interval
-    lengthBits += compressVariable(data.GPS_INTERVAL / 1000,                 0,    1000,    10, lengthBits); // GPS communication interval
+    lengthBits += compressVariable(data.TEMP_SETPOINT,                      -70,   40,      6,  lengthBits); // Payload temperature setpoint
+    lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval
+    lengthBits += compressVariable(data.GPS_INTERVAL / 1000,                 0,    1023,    10, lengthBits); // GPS communication interval
     lengthBits += compressVariable(data.RB_SHOULD_SLEEP,                     0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.PRESS_BASELINE,                      0,    500000,  19, lengthBits); // Pressure baseline
+    lengthBits += compressVariable(data.PRESS_BASELINE,                      0,    131071,  17, lengthBits); // Pressure baseline
     lengthBits += compressVariable(data.INCENTIVE_THRESHOLD,                 0,    4,       3,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_ARM_ALT,                    -2000, 40000,   16, lengthBits); // Ballast Arming Altitude
-    lengthBits += compressVariable(data.BALLAST_REVERSE_INTERVAL / 1000,     0,    1000,    4,  lengthBits); // Ballast reverse interval
-    lengthBits += compressVariable(data.VALVE_LEAK_INTERVAL / 1000,          0,    1000,    4,  lengthBits);
-    lengthBits += compressVariable(data.BALLAST_STALL_CURRENT,               0,    500,     4,  lengthBits);
+    lengthBits += compressVariable(data.BALLAST_REVERSE_INTERVAL / 1000,     0,    1599,    4,  lengthBits); // Ballast reverse interval
+    lengthBits += compressVariable(data.VALVE_LEAK_INTERVAL / 1000,          0,    1599,    4,  lengthBits);
+    lengthBits += compressVariable(data.BALLAST_STALL_CURRENT,               0,    511,     4,  lengthBits);
     lengthBits += compressVariable(data.VALVE_OPENING_DURATION / 1000,       0,    10,      5,  lengthBits);
     lengthBits += compressVariable(data.VALVE_CLOSING_DURATION / 1000,       0,    10,      5,  lengthBits);
     lengthBits += compressVariable(data.VALVE_SETPOINT,                     -2000, 50000,   11, lengthBits);
-    lengthBits += compressVariable(data.VALVE_VENT_DURATION / 1000,          0,    1000,    6,  lengthBits);
-    lengthBits += compressVariable(data.VALVE_FORCE_DURATION / 1000,         0,    1000,    6,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_VENT_DURATION / 1000,          0,    1023,    6,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_FORCE_DURATION / 1000,         0,    1023,    6,  lengthBits);
     lengthBits += compressVariable(data.VALVE_VELOCITY_CONSTANT,             0,    5,       8,  lengthBits); // Valve Speed Constant
-    lengthBits += compressVariable(1.0 / data.VALVE_ALTITUDE_DIFF_CONSTANT,  0,    4000,    8,  lengthBits); // Valve Altitude Difference Constant
-    lengthBits += compressVariable(1.0 / data.VALVE_LAST_ACTION_CONSTANT,    0,    4000,    8,  lengthBits); // Valve last action constant
+    lengthBits += compressVariable(1.0 / data.VALVE_ALTITUDE_DIFF_CONSTANT,  0,    4095,    8,  lengthBits); // Valve Altitude Difference Constant
+    lengthBits += compressVariable(1.0 / data.VALVE_LAST_ACTION_CONSTANT,    0,    4095,    8,  lengthBits); // Valve last action constant
     lengthBits += compressVariable(data.BALLAST_SETPOINT,                   -2000, 50000,   11, lengthBits);
-    lengthBits += compressVariable(data.BALLAST_DROP_DURATION / 1000,        0,    1000,    6,  lengthBits);
-    lengthBits += compressVariable(data.BALLAST_FORCE_DURATION / 1000,       0,    1000,    6,  lengthBits);
+    lengthBits += compressVariable(data.BALLAST_DROP_DURATION / 1000,        0,    1023,    6,  lengthBits);
+    lengthBits += compressVariable(data.BALLAST_FORCE_DURATION / 1000,       0,    1023,    6,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_VELOCITY_CONSTANT,           0,    5,       8,  lengthBits); // Ballast Speed Constant
-    lengthBits += compressVariable(1.0 / data.BALLAST_ALTITUDE_DIFF_CONSTANT,0,    4000,    8,  lengthBits); // Ballast Altitude Difference Constant
-    lengthBits += compressVariable(1.0 / data.BALLAST_LAST_ACTION_CONSTANT,  0,    4000,    8,  lengthBits); // Ballast last action constant
+    lengthBits += compressVariable(1.0 / data.BALLAST_ALTITUDE_DIFF_CONSTANT,0,    4095,    8,  lengthBits); // Ballast Altitude Difference Constant
+    lengthBits += compressVariable(1.0 / data.BALLAST_LAST_ACTION_CONSTANT,  0,    4095,    8,  lengthBits); // Ballast last action constant
   }
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
@@ -1104,6 +1109,12 @@ void Avionics::printState() {
   Serial.print(" BMP_4_REJECTIONS:");
   Serial.print(data.BMP_4_REJECTIONS);
   Serial.print(',');
+  Serial.print(" BLACK_BODY_TEMP:");
+  Serial.print(data.BLACK_BODY_TEMP);
+  Serial.print(',');
+  Serial.print(" JOULES_HEATER:");
+  Serial.print(data.JOULES_HEATER);
+  Serial.print(',');
   Serial.print(" TEMP_SETPOINT:");
   Serial.print(data.TEMP_SETPOINT);
   Serial.print(',');
@@ -1238,6 +1249,9 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" PAYLOAD_MESSAGE_SIZE:");
   Serial.print(data.PAYLOAD_MESSAGE_SIZE);
+  Serial.print(',');
+  Serial.print(" PID_OUTPUT:");
+  Serial.print(data.PID_OUTPUT);
   Serial.print(',');
   Serial.print(" GPS_LAST:");
   Serial.print(data.GPS_LAST);

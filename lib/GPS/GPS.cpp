@@ -42,10 +42,10 @@ bool GPS::restart() {
   delay(1000);
   EEPROM.write(EEPROMAddress, true);
   delay(3000);
-  success = setGPSMode(GPSOnlyExtra, sizeof(GPSOnlyExtra)/sizeof(uint8_t), GPS_LOCK_TIME);
-  success = setGPSMode(powerSave, sizeof(powerSave)/sizeof(uint8_t), GPS_LOCK_TIME);
-  success = setGPSMode(powerInterval, sizeof(powerInterval)/sizeof(uint8_t), GPS_LOCK_TIME);
-  success = setGPSMode(setTenthHz, sizeof(setTenthHz)/sizeof(uint8_t), GPS_LOCK_TIME);
+  // success = setGPSMode(GPSOnlyExtra, sizeof(GPSOnlyExtra)/sizeof(uint8_t), GPS_LOCK_TIME);
+  // success = setGPSMode(powerSave, sizeof(powerSave)/sizeof(uint8_t), GPS_LOCK_TIME);
+  // success = setGPSMode(powerInterval, sizeof(powerInterval)/sizeof(uint8_t), GPS_LOCK_TIME);
+  // success = setGPSMode(setTenthHz, sizeof(setTenthHz)/sizeof(uint8_t), GPS_LOCK_TIME);
   success = setGPSMode(flightMode, sizeof(flightMode)/sizeof(uint8_t), GPS_LOCK_TIME);
   return success;
 }

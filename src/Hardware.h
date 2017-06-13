@@ -21,7 +21,7 @@ class Hardware {
 public:
 /**********************************  SETUP  ***********************************/
   Hardware() :
-    pid(&PIDTempVar, &PIDOutVar, &PIDSetVar, 2, 5, 1, DIRECT) {
+    pid(&PIDTempVar, &PIDOutVar, &PIDSetVar, 90, 9.7, 0, DIRECT) {
   }
   void     init();
   void     initResolutions();
@@ -32,6 +32,7 @@ public:
   void     heater(double tempSetpoint, double temp, bool strong, bool weak);
   void     turnOffHeaters();
   void     setHeaterMode(bool on);
+  float    getHeaterPID();
 
   void     updateMechanicalConstants(uint16_t valveMotorSpeedValue, uint16_t ballastMotorSpeedValue, uint32_t valveOpeningTimeoutValue, uint32_t valveClosingTimeoutValue);
 

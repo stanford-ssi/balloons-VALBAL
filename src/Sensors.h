@@ -36,6 +36,7 @@ public:
   float    getCurrentTotal();
   float    getCurrentSubsystem(uint8_t subsystem);
   float    getJoules();
+  float    getJoulesHeater(float PID, bool heaterStrongOn, bool heaterWeekOn);
   float    getDerivedTemp(uint8_t sensor);
   float    getRawTemp(uint8_t sensor);
   float    getRawPressure(uint8_t sensor);
@@ -46,9 +47,11 @@ private:
   Adafruit_BMP280 bme3;
   Adafruit_BMP280 bme4;
   uint32_t lastJoulesCall = 0;
+  uint32_t lastJoulesHeaterCall = 0;
   float internalCurrentMonitor = 0;
   float voltagePrimary = 0;
   float joules = 0;
+  float joulesHeater = 0;
 };
 
 #endif

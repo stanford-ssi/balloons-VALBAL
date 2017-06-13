@@ -68,8 +68,8 @@ struct DataFrame {
   bool       POWER_STATE_GPS                 =                             true;
   bool       POWER_STATE_HEATER              =                             true;
   bool       POWER_STATE_PAYLOAD             =                             true;
-  bool       HEATER_STRONG_ENABLE            =                             true;
-  bool       HEATER_WEEK_ENABLE              =                            false;
+  bool       HEATER_STRONG_ENABLE            =                            false;
+  bool       HEATER_WEEK_ENABLE              =                             true;
   uint8_t    NUM_SATS_GPS                    =                                0;
   float      SPEED_GPS                       =                                0;
   float      HEADING_GPS                     =                                0;
@@ -91,6 +91,9 @@ struct DataFrame {
   uint32_t   BMP_2_REJECTIONS                =                                0;
   uint32_t   BMP_3_REJECTIONS                =                                0;
   uint32_t   BMP_4_REJECTIONS                =                                0;
+
+  float      BLACK_BODY_TEMP                 =                                0;
+  float      JOULES_HEATER                   =                                0;
 
 /*****************************  TERTIARY DATA  ********************************/
   float      TEMP_SETPOINT                   =            TEMP_SETPOINT_DEFAULT;
@@ -146,6 +149,7 @@ struct DataFrame {
   float      CURRENT_MOTOR_BALLAST           =                                0;
   float      CURRENT_PAYLOAD                 =                                0;
   uint32_t   PAYLOAD_MESSAGE_SIZE            =                                0;
+  float      PID_OUTPUT                      =                                0;
 
   uint32_t   GPS_LAST                        =                                0;
   uint32_t   RB_LAST                         =                                0;

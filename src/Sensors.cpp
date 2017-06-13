@@ -20,10 +20,11 @@
  */
 bool Sensors::init() {
   bool sucess = true;
-  pinMode(BATT_VOLTAGE,    INPUT);
-  pinMode(BOOST_VOLTAGE,   INPUT);
-  pinMode(USB_CURRENT,     INPUT);
-  pinMode(EXT_TEMP_SENSOR, INPUT);
+  pinMode(BATT_VOLTAGE,           INPUT);
+  pinMode(BOOST_VOLTAGE,          INPUT);
+  pinMode(USB_CURRENT,            INPUT);
+  pinMode(EXT_TEMP_SENSOR,        INPUT);
+  pinMode(BLACK_BODY_TEMP_SENSOR, INPUT);
   if (!bme1.begin()) {
     Serial.println("Could not initialize BMP280 sensor 1, check wiring!");
     sucess = false;
@@ -61,7 +62,7 @@ bool Sensors::init() {
  * This function gets the primary battery voltage.
  */
 float Sensors::getVoltagePrimary() {
-  voltagePrimary = analogRead(BATT_VOLTAGE) * 1.2 * 4.0 / (double)pow(2, 12);
+  voltagePrimary = analogRead(BATT_VOLTAGE) * 1.2 * 5.02 / (double)pow(2, 12);
   return voltagePrimary;
 }
 
@@ -71,7 +72,7 @@ float Sensors::getVoltagePrimary() {
  * This function gets the 5V line voltage.
  */
 float Sensors::getVoltage5V() {
-  float voltage5V = analogRead(BOOST_VOLTAGE) * 1.2 * 6.0 / (double)pow(2, 12);
+  float voltage5V = analogRead(BOOST_VOLTAGE) * 1.2 * 5.99 / (double)pow(2, 12);
   return voltage5V;
 }
 
@@ -114,6 +115,21 @@ float Sensors::getJoules() {
   joules += (internalCurrentMonitor / 1000) * voltagePrimary * (millis() - lastJoulesCall) / 1000;
   lastJoulesCall = millis();
   return joules;
+}
+
+/*
+ * Function: getJoulesHeater
+ * -------------------
+ * This function gets the Heater joules.
+ */
+float Sensors::getJoulesHeater(float PID, bool heaterStrongOn, bool heaterWeekOn) {
+  float resistance = 0;
+  if(heaterStrongOn  &&  heaterWeekOn) resistance = 5.6;
+  if(heaterStrongOn  && !heaterWeekOn) resistance = 8.6;
+  if(!heaterStrongOn &&  heaterWeekOn) resistance = 16;
+  if(PID > 0) joulesHeater += voltagePrimary * voltagePrimary / resistance * (millis() - lastJoulesHeaterCall) / 1000;
+  lastJoulesHeaterCall = millis();
+  return joulesHeater;
 }
 
 /*

@@ -2,7 +2,7 @@
   Stanford Student Space Initiative
   Balloons | VALBAL | April 2017
   Davy Ragland | dragland@stanford.edu
-  Aria Tedjarati | satedjarati@stanford.edu
+  Aria Tedjarati | atedjara@stanford.edu
 
   File: RockBlock.h
   --------------------------
@@ -31,7 +31,8 @@ public:
   bool     wake();
   bool     snooze();
   int16_t  writeRead(char* buff, uint16_t len, bool sleep);
-  uint32_t getNumFailures();
+  uint32_t getNumWakeFailures();
+  uint32_t getNumSleepFailures();
 private:
 /*********************************  HELPERS  **********************************/
   void     write(char* buff, uint16_t len);

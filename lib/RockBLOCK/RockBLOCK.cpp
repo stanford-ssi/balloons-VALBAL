@@ -2,7 +2,7 @@
   Stanford Student Space Initiative
   Balloons | VALBAL | April 2017
   Davy Ragland | dragland@stanford.edu
-  Aria Tedjarati | satedjarati@stanford.edu
+  Aria Tedjarati | atedjara@stanford.edu
 
   File: RockBlock.cpp
   --------------------------
@@ -45,8 +45,10 @@ void RockBLOCK::restart(bool sleep) {
   delay(1000);
   wake();
   delay(3000);
-  if(sleep) snooze();
-  delay(1000);
+  if(sleep) {
+    snooze();
+    delay(1000);
+  }
   EEPROM.write(EEPROMAddress, true);
 }
 
@@ -107,20 +109,33 @@ int16_t RockBLOCK::writeRead(char* buff, uint16_t len, bool sleep) {
   if(sleep && !wake()) return -1;
   size_t  bufferSize = sizeof(rxBuffer);
   write(buff, len);
-  if(isbd.sendReceiveSBDBinary(rxBuffer, len, rxBuffer, bufferSize) != ISBD_SUCCESS) return -1 ;
+  if(isbd.sendReceiveSBDBinary(rxBuffer, len, rxBuffer, bufferSize) != ISBD_SUCCESS) {
+    if(sleep) snooze();
+    return -1;
+  }
   read(buff, bufferSize);
   if(sleep && !snooze()) return -1;
   return bufferSize;
 }
 
 /*
- * Function: getNumFailures
+ * Function: getNumWake
  * -------------------
- * This function returns the number of failures to sleep or wake.
+ * This function returns the number of failures to wake.
  */
-uint32_t RockBLOCK::getNumFailures(){
-  return failureWakeCount + failureSleepCount;
+uint32_t RockBLOCK::getNumWakeFailures(){
+  return failureWakeCount;
 }
+
+/*
+ * Function: getNumSleepFailures
+ * -------------------
+ * This function returns the number of failures to sleep.
+ */
+uint32_t RockBLOCK::getNumSleepFailures(){
+  return failureSleepCount;
+}
+
 /*********************************  HELPERS  **********************************/
 /*
  * Function: write

@@ -2,7 +2,7 @@
   Stanford Student Space Initiative
   Balloons | VALBAL | June 2017
   Davy Ragland | dragland@stanford.edu
-  Aria Tedjarati | satedjarati@stanford.edu
+  Aria Tedjarati | atedjara@stanford.edu
 
   File: GPS.cpp
   --------------------------

@@ -3,7 +3,7 @@
   Balloons | VALBAL | June 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
-  Aria Tedjarati | satedjarati@stanford.edu
+  Aria Tedjarati | atedjarati@stanford.edu
   Joan Creus-Costa | jcreus@stanford.edu
 
   File: Avionics.cpp
@@ -37,8 +37,8 @@ void Avionics::init() {
   if(!PCB.startUpHeaters(data.POWER_STATE_HEATER))              alert("unable to initialize Heaters", true);
   if(!ValMU.init(data.POWER_STATE_PAYLOAD))                     alert("unable to initialize Payload", true);
   PCB.initResolutions();
-  data.SETUP_STATE = false;
   data.TIME = millis();
+  data.SETUP_STATE = false;
 }
 
 /*
@@ -49,8 +49,8 @@ void Avionics::init() {
 void Avionics::test() {
   data.MANUAL_MODE = false;
   data.SHOULD_CUTDOWN = true;
-  PCB.queueBallast(5000, true);
-  // PCB.queueValve(30000, true);
+  PCB.queueBallast(900000, true);
+  PCB.queueValve(30000, true);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -115,14 +115,11 @@ void Avionics::logState() {
  */
 void Avionics::sendComms() {
 #ifndef RB_DISABLED_FLAG
-  if(!data.VALVE_STATE && (
-    (RBModule.getNumFailures() > data.RB_SLEEP_FAILS) ||
-    (!data.POWER_STATE_RB && ((millis() - data.RB_LAST) > RB_RESTART_INTERVAL))
-  )) {
-    data.RB_SLEEP_FAILS = RBModule.getNumFailures();
+  data.RB_WAKE_FAILS = RBModule.getNumWakeFailures();
+  data.RB_SLEEP_FAILS = RBModule.getNumSleepFailures();
+  if(!data.VALVE_STATE && !data.POWER_STATE_RB && ((millis() - data.RB_LAST) > RB_RESTART_INTERVAL)) {
     data.RB_SHOULD_SLEEP = false;
     RBModule.restart(data.RB_SHOULD_SLEEP);
-    data.RB_LAST = millis();
   }
   if(data.DEBUG_STATE && ((millis() - data.RB_LAST) < RB_DEBUG_INTERVAL)) return;
   if(!data.DEBUG_STATE && ((millis() - data.RB_LAST) < data.RB_INTERVAL)) return;
@@ -1021,6 +1018,9 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" RB_SENT_COMMS:");
   Serial.print(data.RB_SENT_COMMS);
+  Serial.print(',');
+  Serial.print(" RB_WAKE_FAILS:");
+  Serial.print(data.RB_WAKE_FAILS);
   Serial.print(',');
   Serial.print(" RB_SLEEP_FAILS:");
   Serial.print(data.RB_SLEEP_FAILS);

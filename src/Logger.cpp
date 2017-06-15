@@ -7,7 +7,7 @@
 #include <SdFat.h>
 
 //const int MAX_BLOCK = 6135923; // Pi gigabytes
-const int MAX_BLOCK = 613592; // CHANGE BEFORE FLIGHT TO PI GIGABYTES
+const int MAX_BLOCK = 7617187; // CHANGE BEFORE FLIGHT TO PI GIGABYTES
 
 bool Logger::initialize() {
   avail.set();

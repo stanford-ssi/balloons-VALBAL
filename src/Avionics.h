@@ -93,6 +93,7 @@ private:
   void    printHeader();
   void    logHeader();
   void    alert(const char*, bool fatal);
+  void    clearVariables();
   int16_t compressVariable(float var, float minimum, float maximum, int16_t resolution, int16_t length);
   void    printState();
   bool    logData();

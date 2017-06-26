@@ -469,6 +469,7 @@ bool Avionics::sendSATCOMS() {
 #ifndef RB_DISABLED_FLAG
   int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH, data.RB_SHOULD_SLEEP);
   if(ret < 0) return false;
+  clearVariables();
   if(ret > 0) parseCommand(ret);
 #endif
   return true;
@@ -721,7 +722,7 @@ void Avionics::printHeader() {
 }
 
 /*
-   * Function: alert
+ * Function: alert
  * -------------------
  * This function alerts important information whenever a specific event occurs.
  */
@@ -733,6 +734,22 @@ void Avionics::alert(const char* debug, bool fatal) {
   else Serial.print("Alert: ");
   Serial.print(debug);
   Serial.print("...\n");
+}
+
+/*
+ * Function: clearVariables
+ * -------------------
+ * This function clears the interval based variables at the end of
+ * a successfull transmission.
+ */
+void Avionics::clearVariables() {
+  filter.clearCurrentValues();
+  PCB.clearBallastOverCurrents();
+  data.VALVE_NUM_ACTIONS = 0;
+  data.BALLAST_NUM_ACTIONS = 0;
+  data.VALVE_NUM_ATTEMPTS = 0;
+  data.BALLAST_NUM_ATTEMPTS = 0;
+  data.LOOP_TIME_MAX = 0;
 }
 
 /*
@@ -886,13 +903,6 @@ int16_t Avionics::compressData() {
     }
     Serial.print('\n');
   }
-  filter.clearCurrentValues();
-  PCB.clearBallastOverCurrents();
-  data.VALVE_NUM_ACTIONS = 0;
-  data.BALLAST_NUM_ACTIONS = 0;
-  data.VALVE_NUM_ATTEMPTS = 0;
-  data.BALLAST_NUM_ATTEMPTS = 0;
-  data.LOOP_TIME_MAX = 0;
   return lengthBytes;
 }
 

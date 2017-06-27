@@ -1,5 +1,5 @@
 # SSI VALBAL:
-### A cost effective endurance platform using a valve and ballast controller for high altitude balloons
+### Low Cost, High Endurance, Altitude-Controlled Latex Balloon for Near-Space Research
 
 ![alt text](VALBAL.jpg "VALBAL")
 

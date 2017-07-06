@@ -49,7 +49,6 @@ static const uint8_t   PAYLOAD_CURRENT                       =                4;
 static const uint8_t   EXT_TEMP_SENSOR                       =              A15;
 static const uint8_t   BLACK_BODY_TEMP_SENSOR                =              A20;
 
-
 /****************************  EDITABLE CONSTANTS  ****************************/
 static const char      MISSION_NUMBER[]                      =         "SSI-54";
 

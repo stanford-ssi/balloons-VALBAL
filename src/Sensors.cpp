@@ -103,7 +103,7 @@ float Sensors::getJoules() {
  */
 float Sensors::getDerivedTemp(uint8_t sensor) {
   double vA = analogRead(sensor) * 1.2 / (pow(2.0, 12.0));
-  double x = log(vA * 100000.0 / (1.0 - vA));
+  double x = log(vA * 100000.0 / (1.2 - vA));
   double a =   4.00141132e+02;
   double b =  -9.94189235e+01;
   double c =   1.16421122e+01;

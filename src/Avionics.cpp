@@ -200,8 +200,6 @@ bool Avionics::readData() {
   data.LOOP_TIME             = millis() - data.TIME;
   data.TIME                  = millis();
   data.VOLTAGE_PRIMARY       = sensors.getVoltagePrimary();
-  data.VOLTAGE_5V            = sensors.getVoltage5V();
-  data.CURRENT_USB           = sensors.getCurrentUSB();
   data.CURRENT_TOTAL         = sensors.getCurrentTotal();
   data.JOULES_TOTAL          = sensors.getJoules();
   data.CURRENT_RB            = sensors.getCurrentSubsystem(RB_CURRENT);
@@ -764,7 +762,6 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.TEMP_INT,                             -85,   65,      9,  lengthBits);
   lengthBits += compressVariable(data.JOULES_TOTAL,                          0,    1572863, 18, lengthBits);
   lengthBits += compressVariable(data.VOLTAGE_PRIMARY,                       0,    6,       9,  lengthBits);
-  lengthBits += compressVariable(data.VOLTAGE_5V,                            4,    6,       7,  lengthBits);
   lengthBits += compressVariable(data.CURRENT_TOTAL_AVG,                     0,    4095,    12, lengthBits);
   lengthBits += compressVariable(data.CURRENT_TOTAL_MIN,                     0,    4095,    12, lengthBits);
   lengthBits += compressVariable(data.CURRENT_TOTAL_MAX,                     0,    4095,    12, lengthBits);
@@ -930,9 +927,6 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" VOLTAGE_PRIMARY:");
   Serial.print(data.VOLTAGE_PRIMARY);
-  Serial.print(',');
-  Serial.print(" VOLTAGE_5V:");
-  Serial.print(data.VOLTAGE_5V);
   Serial.print(',');
   Serial.print(" CURRENT_TOTAL_AVG:");
   Serial.print(data.CURRENT_TOTAL_AVG);
@@ -1173,9 +1167,6 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" PRESS:");
   Serial.print(data.PRESS);
-  Serial.print(',');
-  Serial.print(" CURRENT_USB:");
-  Serial.print(data.CURRENT_USB);
   Serial.print(',');
   Serial.print(" CURRENT_TOTAL:");
   Serial.print(data.CURRENT_TOTAL);

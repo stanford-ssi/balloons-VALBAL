@@ -19,13 +19,6 @@
  * This function initializes the PCB hardware.
  */
 void Hardware::init() {
-  pinMode(REBOOT_ENABLE, OUTPUT);
-  #ifdef STORAGE_MODE_FLAG
-    digitalWrite(REBOOT_ENABLE, LOW);
-  #endif
-  #ifndef STORAGE_MODE_FLAG
-    digitalWrite(REBOOT_ENABLE, HIGH);
-  #endif
   pinMode(LED_PIN, OUTPUT);
   pinMode(VALVE_FORWARD, OUTPUT);
   pinMode(VALVE_REVERSE, OUTPUT);

@@ -16,15 +16,13 @@
 #include <string.h>
 
 /****************************  COMPILE FLAGS  *********************************/
-// #define STORAGE_MODE_FLAG // uncomment for power off
 // #define RESET_EEPROM_FLAG // uncomment for EEPROM
 // #define HITL_ENABLED_FLAG // uncomment for HITL
 // #define RB_DISABLED_FLAG  // uncomment for HITL
 
 /*****************************  TEENSY PIN OUTS  ******************************/
-static const uint8_t   REBOOT_ENABLE                         =               16;
 static const uint8_t   SD_CS                                 =               23;
-static const uint8_t   LED_PIN                               =               33;
+static const uint8_t   LED_PIN                               =               30;
 static const uint8_t   BMP_CS_ONE                            =               32;
 static const uint8_t   BMP_CS_TWO                            =               25;
 static const uint8_t   BMP_CS_THREE                          =               15;
@@ -36,16 +34,20 @@ static const uint8_t   BALLAST_REVERSE                       =                5;
 static const uint8_t   GPS_GATE                              =               17;
 static const uint8_t   RB_GATE                               =               28;
 static const uint8_t   RB_SLEEP                              =               14;
-static const uint8_t   PAYLOAD_GATE                          =               24;
-static const uint8_t   BATT_VOLTAGE                          =              A14;
-static const uint8_t   BOOST_VOLTAGE                         =              A10;
-static const uint8_t   USB_CURRENT                           =              A11;
+static const uint8_t   PAYLOAD_GATE                          =               29;
+static const uint8_t   PAYLOAD_GPIO_1                        =                2;
+static const uint8_t   PAYLOAD_GPIO_2                        =              A16;
+static const uint8_t   BATT_VOLTAGE                          =              A11;
+static const uint8_t   SUPER_CAP_VOLTAGE                     =              A10;
+static const uint8_t   SUPER_CAP_GOOD                        =                3;
+static const uint8_t   SUPER_CAP_ENABLE                      =               16;
+static const uint8_t   FIVE_VOLT_ENABLE                      =                4;
 static const uint8_t   TOTAL_CURRENT                         =                1;
 static const uint8_t   RB_CURRENT                            =                2;
 static const uint8_t   MOTORS_CURRENT                        =                3;
 static const uint8_t   PAYLOAD_CURRENT                       =                4;
-static const uint8_t   EXT_TEMP_SENSOR                       =              A15;
-static const uint8_t   BLACK_BODY_TEMP_SENSOR                =              A20;
+static const uint8_t   EXT_TEMP_SENSOR                       =              A20;
+static const uint8_t   BLACK_BODY_TEMP_SENSOR                =              A15;
 
 /****************************  EDITABLE CONSTANTS  ****************************/
 static const char      MISSION_NUMBER[]                      =         "SSI-56";

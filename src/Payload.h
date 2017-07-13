@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | May 2017
+  Balloons | VALBAL | July 2017
   Davy Ragland | dragland@stanford.edu
 
   File: Payload.h
@@ -18,8 +18,10 @@
 class Payload {
 public:
 /**********************************  SETUP  ***********************************/
-  Payload(uint8_t payloadGatePinNum, uint8_t EEPROMAddressVal) :
+  Payload(uint8_t payloadGatePinNum, uint8_t GPIO_1, uint8_t GPIO_2, uint8_t EEPROMAddressVal) :
     payloadGate(payloadGatePinNum),
+    payloadGPIO1(GPIO_1),
+    payloadGPIO2(GPIO_2),
     EEPROMAddress(EEPROMAddressVal) {
   }
   bool    init(bool shouldStartup);
@@ -27,11 +29,13 @@ public:
   void    restart();
   void    shutdown();
   size_t  getMessage();
-  char     buf[100]  = {0};
+  char    buf[100]  = {0};
 private:
 /*********************************  OBJECTS  **********************************/
-  uint8_t  payloadGate;
-  uint8_t  EEPROMAddress;
+  uint8_t payloadGate;
+  uint8_t payloadGPIO1;
+  uint8_t payloadGPIO2;
+  uint8_t EEPROMAddress;
 };
 
 #endif

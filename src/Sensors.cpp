@@ -21,8 +21,7 @@
 bool Sensors::init() {
   bool sucess = true;
   pinMode(BATT_VOLTAGE,           INPUT);
-  pinMode(BOOST_VOLTAGE,          INPUT);
-  pinMode(USB_CURRENT,            INPUT);
+  pinMode(SUPER_CAP_VOLTAGE,      INPUT);
   pinMode(EXT_TEMP_SENSOR,        INPUT);
   pinMode(BLACK_BODY_TEMP_SENSOR, INPUT);
   if (!bme1.begin()) {
@@ -64,26 +63,6 @@ bool Sensors::init() {
 float Sensors::getVoltagePrimary() {
   voltagePrimary = analogRead(BATT_VOLTAGE) * 1.2 * 5.02 / (double)pow(2, 12);
   return voltagePrimary;
-}
-
-/*
- * Function: getVoltage5V
- * -------------------
- * This function gets the 5V line voltage.
- */
-float Sensors::getVoltage5V() {
-  float voltage5V = analogRead(BOOST_VOLTAGE) * 1.2 * 5.99 / (double)pow(2, 12);
-  return voltage5V;
-}
-
-/*
- * Function: getCurrentUSB
- * -------------------
- * This function gets the USB current draw.
- */
-float Sensors::getCurrentUSB() {
-  float externalCurrentMonitor = ((double)analogRead(USB_CURRENT) / (double)pow(2, 12) * 1.2 * 4.0 / 0.496) * 1000;
-  return externalCurrentMonitor;
 }
 
 /*

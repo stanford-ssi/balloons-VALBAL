@@ -39,7 +39,7 @@ public:
     sensors(),
     gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIMEOUT, GPS_QUIT_TIMEOUT),
     RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK),
-    ValMU(PAYLOAD_GATE, EEPROM_PAYLOAD) {
+    ValMU(PAYLOAD_GATE, PAYLOAD_GPIO_1, PAYLOAD_GPIO_2, EEPROM_PAYLOAD) {
   }
   void    init();
   void    test();

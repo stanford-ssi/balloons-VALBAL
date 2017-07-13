@@ -31,8 +31,6 @@ public:
   bool     init();
 /********************************  FUNCTIONS  *********************************/
   float    getVoltagePrimary();
-  float    getVoltage5V();
-  float    getCurrentUSB();
   float    getCurrentTotal();
   float    getCurrentSubsystem(uint8_t subsystem);
   float    getJoules();

@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | May 2017
+  Balloons | VALBAL | July 2017
   Davy Ragland | dragland@stanford.edu
 
   File: Payload.cpp
@@ -34,6 +34,8 @@ bool Payload::init(bool shouldStartup) {
 void Payload::restart() {
   EEPROM.write(EEPROMAddress, false);
   pinMode(payloadGate, OUTPUT);
+  pinMode(payloadGPIO1, OUTPUT);
+  pinMode(payloadGPIO1, OUTPUT);
   digitalWrite(payloadGate, HIGH);
   delay(1000);
   EEPROM.write(EEPROMAddress, true);

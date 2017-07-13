@@ -60,10 +60,9 @@ Here is the current status of the code:
 3. Valve mechanical actuation
 4. Ballast mechanical actuation
 5. Feedback control algorithm to equilibrate at altitude
-6. PID Heating on inboard heater trace.
-7. Integration of uBlox M8Q GPS.
-8. RockBlock data downlink.
-9. 1Hz LED in compliance with FAA.
+6. Integration of uBlox M8Q GPS.
+7. RockBlock data downlink.
+8. 1Hz LED in compliance with FAA.
 
 #### Useful Flight Features
 1. Ascent rate calculations from filtered and error checked data.

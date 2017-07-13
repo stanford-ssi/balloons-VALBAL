@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | July 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Matthew Tan | mratan@stanford.edu
@@ -31,12 +31,8 @@ void Hardware::init() {
   pinMode(VALVE_REVERSE, OUTPUT);
   pinMode(BALLAST_FORWARD, OUTPUT);
   pinMode(BALLAST_REVERSE, OUTPUT);
-  pinMode(HEATER_INTERNAL_STRONG, OUTPUT);
-  pinMode(HEATER_INTERNAL_WEAK, OUTPUT);
   pinMode(PAYLOAD_GATE, OUTPUT);
   digitalWrite(LED_PIN, LOW);
-  analogWrite(HEATER_INTERNAL_STRONG, 0);
-  analogWrite(HEATER_INTERNAL_WEAK, 0);
   digitalWrite(PAYLOAD_GATE, LOW);
   pid.SetMode(AUTOMATIC);
 }
@@ -59,76 +55,6 @@ void Hardware::initResolutions() {
  */
 void Hardware::runLED(bool on) {
   digitalWrite(LED_PIN, on);
-}
-
-/*
- * Function: startUpHeaters
- * -------------------
- * This function starts up the heaters.
- */
-bool Hardware::startUpHeaters(bool shouldStartup) {
-  bool success = false;
-  if (shouldStartup) {
-    setHeaterMode(false);
-    analogWrite(HEATER_INTERNAL_STRONG, 255);
-    analogWrite(HEATER_INTERNAL_WEAK, 255);
-    delay(1000);
-    analogWrite(HEATER_INTERNAL_STRONG, 0);
-    analogWrite(HEATER_INTERNAL_WEAK, 0);
-    setHeaterMode(true);
-    success = true;
-  }
-  return success;
-}
-
-/*
- * Function: heater
- * -------------------
- * This function runs the PID heater within the board.
- */
-void Hardware::heater(double tempSetpoint, double temp, bool strong, bool weak) {
-  PIDSetVar = tempSetpoint;
-  PIDTempVar = temp;
-  pid.Compute();
-  if (PIDOutVar != 0.0) {
-    if (strong)  analogWrite(HEATER_INTERNAL_STRONG, PIDOutVar);
-    if (!strong) analogWrite(HEATER_INTERNAL_STRONG, 0);
-    if (weak)    analogWrite(HEATER_INTERNAL_WEAK, PIDOutVar);
-    if (!weak)   analogWrite(HEATER_INTERNAL_WEAK, 0);
-  }
-  else {
-    analogWrite(HEATER_INTERNAL_STRONG, 0);
-    analogWrite(HEATER_INTERNAL_WEAK, 0);
-  }
-}
-
-/*
- * Function: turnOffHeaters
- * -------------------
- * This function shuts down the heaters.
- */
-void Hardware::turnOffHeaters() {
-  analogWrite(HEATER_INTERNAL_STRONG, 0);
-  analogWrite(HEATER_INTERNAL_WEAK, 0);
-}
-
-/*
- * Function: setHeaterMode
- * -------------------
- * This function sets the heater mode that
- * persists through system restarts.
- */
-void Hardware::setHeaterMode(bool on) {
-  EEPROM.write(EEPROM_HEATER, on);
-}
-
-/*
- * Function: getHeaterPID
- * -------------------
- * This function gets the computed PID.
- */
-float Hardware::getHeaterPID(){
-  return PIDOutVar;
 }
 
 /*
@@ -322,7 +248,6 @@ void Hardware::clearBallastOverCurrents() {
  * This function triggers the mechanical cutdown of the payload.
  */
 void Hardware::cutDown() {
-  turnOffHeaters();
   clearValveQueue();
   clearBallastQueue();
   for(size_t i = 0; i < 3; i++){

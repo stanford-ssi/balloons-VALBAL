@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | July 2017
   Davy Ragland | dragland@stanford.edu
 
   File: Config.h
@@ -33,8 +33,6 @@ static const uint8_t   VALVE_FORWARD                         =                6;
 static const uint8_t   VALVE_REVERSE                         =               20;
 static const uint8_t   BALLAST_FORWARD                       =               21;
 static const uint8_t   BALLAST_REVERSE                       =                5;
-static const uint8_t   HEATER_INTERNAL_STRONG                =                4;
-static const uint8_t   HEATER_INTERNAL_WEAK                  =                3;
 static const uint8_t   GPS_GATE                              =               17;
 static const uint8_t   RB_GATE                               =               28;
 static const uint8_t   RB_SLEEP                              =               14;
@@ -51,7 +49,7 @@ static const uint8_t   BLACK_BODY_TEMP_SENSOR                =              A20;
 
 
 /****************************  EDITABLE CONSTANTS  ****************************/
-static const char      MISSION_NUMBER[]                      =         "SSI-54";
+static const char      MISSION_NUMBER[]                      =         "SSI-56";
 
 static const uint8_t   CUTDOWN_INDEX                         =               99;
 static const uint16_t  CUTDOWN_DURATION                      =            10000;
@@ -73,7 +71,6 @@ static const uint32_t  GPS_BAUD                              =             9600;
 static const uint32_t  RB_BAUD                               =            19200;
 
 /***************************  Flight Parameters  ******************************/
-static const float     TEMP_SETPOINT_DEFAULT                 =              -40;
 static const bool      MANUAL_MODE_DEFAULT                   =             true;
 static const uint8_t   REPORT_MODE_DEFAULT                   =                2;
 static const bool      RB_SHOULD_SLEEP_DEFAULT               =            false;
@@ -121,8 +118,7 @@ static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =              600;
 /*****************************  EEPROM ADDRESSES  *****************************/
 static const uint8_t   EEPROM_ROCKBLOCK                      =                0;
 static const uint8_t   EEPROM_GPS                            =                1;
-static const uint8_t   EEPROM_HEATER                         =                2;
-static const uint8_t   EEPROM_PAYLOAD                        =                3;
+static const uint8_t   EEPROM_PAYLOAD                        =                2;
 
 static const uint8_t   EEPROM_VALVE_ALT_LAST                 =                4;
 static const uint8_t   EEPROM_BALLAST_ALT_LAST               =                8;

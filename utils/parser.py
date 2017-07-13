@@ -61,10 +61,7 @@ if (data.SHOULD_REPORT || data.REPORT_MODE != 0) {
 lengthBits += compressVariable(data.POWER_STATE_LED,                     0,    1,       1,  lengthBits); // LED Power state
 lengthBits += compressVariable(data.POWER_STATE_RB,                      0,    1,       1,  lengthBits); // RB Power State
 lengthBits += compressVariable(data.POWER_STATE_GPS,                     0,    1,       1,  lengthBits); // GPS Power State
-lengthBits += compressVariable(data.POWER_STATE_HEATER,                  0,    1,       1,  lengthBits); // Heater Power State
 lengthBits += compressVariable(data.POWER_STATE_PAYLOAD,                 0,    1,       1,  lengthBits); // Payload Power State
-lengthBits += compressVariable(data.HEATER_STRONG_ENABLE,                0,    1,       1,  lengthBits);
-lengthBits += compressVariable(data.HEATER_WEEK_ENABLE,                  0,    1,       1,  lengthBits);
 lengthBits += compressVariable(data.NUM_SATS_GPS,                        0,    15,      3,  lengthBits);
 lengthBits += compressVariable(data.INCENTIVE_NOISE,                     0,    4,       8,  lengthBits);
 lengthBits += compressVariable(data.RE_ARM_CONSTANT,                     0,    4,       8,  lengthBits);
@@ -82,10 +79,8 @@ lengthBits += compressVariable(log2(data.BMP_2_REJECTIONS + 1),          0,    6
 lengthBits += compressVariable(log2(data.BMP_3_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_3_logrejections
 lengthBits += compressVariable(log2(data.BMP_4_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_4_logrejections
 lengthBits += compressVariable(data.BLACK_BODY_TEMP,                    -100,  30,      8,  lengthBits);
-lengthBits += compressVariable(data.JOULES_HEATER,                       0,    819199,  13, lengthBits);
 }
 if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
-lengthBits += compressVariable(data.TEMP_SETPOINT,                      -70,   40,      6,  lengthBits); // Payload temperature setpoint
 lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval
 lengthBits += compressVariable(data.GPS_INTERVAL / 1000,                 0,    1023,    10, lengthBits); // GPS communication interval
 lengthBits += compressVariable(data.RB_SHOULD_SLEEP,                     0,    1,       1,  lengthBits);

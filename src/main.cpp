@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | July 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | atedjara@stanford.edu
   Joan Creus-Costa | jcreus@stanford.edu

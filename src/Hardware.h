@@ -28,12 +28,6 @@ public:
 /********************************  FUNCTIONS  *********************************/
   void     runLED(bool on);
 
-  bool     startUpHeaters(bool shouldStartup);
-  void     heater(double tempSetpoint, double temp, bool strong, bool weak);
-  void     turnOffHeaters();
-  void     setHeaterMode(bool on);
-  float    getHeaterPID();
-
   void     updateMechanicalConstants(uint16_t valveMotorSpeedValue, uint16_t ballastMotorSpeedValue, uint32_t valveOpeningTimeoutValue, uint32_t valveClosingTimeoutValue);
 
   void     queueValve(uint32_t  duration, bool real);

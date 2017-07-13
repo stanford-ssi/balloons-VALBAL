@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | July 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Aria Tedjarati | atedjara@stanford.edu
@@ -67,7 +67,6 @@ private:
   bool    calcDebug();
   bool    calcIncentives();
 
-  bool    runHeaters();
   bool    runValve();
   bool    runBallast();
   bool    runCutdown();
@@ -84,8 +83,6 @@ private:
   void    parseRockBLOCKPowerCommand(bool command);
   void    parseRockBLOCKModeCommand(bool command);
   void    parseGPSPowerCommand(uint8_t command);
-  void    parseHeaterPowerCommand(bool command);
-  void    parseHeaterModeCommand(uint8_t command);
   void    parsePayloadPowerCommand(bool command);
 
   bool    debugState();

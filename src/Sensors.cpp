@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | July 2017
   Davy Ragland | dragland@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
   Jesus Cervantes | cerjesus@stanford.edu
@@ -115,21 +115,6 @@ float Sensors::getJoules() {
   joules += (internalCurrentMonitor / 1000) * voltagePrimary * (millis() - lastJoulesCall) / 1000;
   lastJoulesCall = millis();
   return joules;
-}
-
-/*
- * Function: getJoulesHeater
- * -------------------
- * This function gets the Heater joules.
- */
-float Sensors::getJoulesHeater(float PID, bool heaterStrongOn, bool heaterWeekOn) {
-  float resistance = 0;
-  if(heaterStrongOn  &&  heaterWeekOn) resistance = 5.6;
-  if(heaterStrongOn  && !heaterWeekOn) resistance = 8.6;
-  if(!heaterStrongOn &&  heaterWeekOn) resistance = 16;
-  if(PID > 0) joulesHeater += voltagePrimary * voltagePrimary / resistance * (millis() - lastJoulesHeaterCall) / 1000;
-  lastJoulesHeaterCall = millis();
-  return joulesHeater;
 }
 
 /*

@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | July 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Aria Tedjarati | atedjarati@stanford.edu
@@ -34,7 +34,6 @@ void Avionics::init() {
 #ifndef RB_DISABLED_FLAG
   if(!RBModule.init(data.POWER_STATE_RB, data.RB_SHOULD_SLEEP)) alert("unable to initialize RockBlock", true);
 #endif
-  if(!PCB.startUpHeaters(data.POWER_STATE_HEATER))              alert("unable to initialize Heaters", true);
   if(!ValMU.init(data.POWER_STATE_PAYLOAD))                     alert("unable to initialize Payload", true);
   PCB.initResolutions();
   data.TIME = millis();
@@ -86,7 +85,6 @@ void Avionics::evaluateState() {
  * This function intelligently reacts to the current data frame.
  */
 void Avionics::actuateState() {
-  if(!runHeaters()) alert("unable to run heaters", true);
   if(!runValve())   alert("unable to run valve", true);
   if(!runBallast()) alert("unable to run ballast", true);
   if(!runCutdown()) alert("unable to run cutdown", true);
@@ -177,7 +175,6 @@ bool Avionics::readHistory() {
   for(size_t i = 0; i < 1023; i++)   EEPROM.write(i, 0x0);
     EEPROM.write(EEPROM_ROCKBLOCK, true);
     EEPROM.write(EEPROM_GPS, true);
-    EEPROM.write(EEPROM_HEATER, true);
     EEPROM.write(EEPROM_PAYLOAD, true);
     PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
     PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
@@ -185,7 +182,6 @@ bool Avionics::readHistory() {
 #ifndef RESET_EEPROM_FLAG
   if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.POWER_STATE_RB = false;
   if(!EEPROM.read(EEPROM_GPS)) data.POWER_STATE_GPS = false;
-  if(!EEPROM.read(EEPROM_HEATER)) data.POWER_STATE_HEATER = false;
   if(!EEPROM.read(EEPROM_PAYLOAD)) data.POWER_STATE_PAYLOAD = false;
   double valveAltLast = PCB.EEPROMReadlong(EEPROM_VALVE_ALT_LAST);
   if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
@@ -208,8 +204,6 @@ bool Avionics::readData() {
   data.CURRENT_USB           = sensors.getCurrentUSB();
   data.CURRENT_TOTAL         = sensors.getCurrentTotal();
   data.JOULES_TOTAL          = sensors.getJoules();
-  data.PID_OUTPUT            = PCB.getHeaterPID();
-  data.JOULES_HEATER         = sensors.getJoulesHeater(data.PID_OUTPUT, data.HEATER_STRONG_ENABLE, data.HEATER_WEEK_ENABLE);
   data.CURRENT_RB            = sensors.getCurrentSubsystem(RB_CURRENT);
   data.CURRENT_MOTOR_VALVE   = (data.VALVE_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
   data.CURRENT_MOTOR_BALLAST = (data.BALLAST_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
@@ -369,21 +363,6 @@ bool Avionics::calcIncentives() {
 }
 
 /*
- * Function: runHeaters
- * -------------------
- * This function thermally regulates the avionics. Disables heaters
- * if either the ballast or valve is running.
- */
-bool Avionics::runHeaters() {
-  if (!data.POWER_STATE_HEATER || data.VALVE_STATE || data.BALLAST_STATE) {
-    PCB.turnOffHeaters();
-  } else {
-    PCB.heater(data.TEMP_SETPOINT, data.TEMP_INT, data.HEATER_STRONG_ENABLE, data.HEATER_WEEK_ENABLE);
-  }
-  return true;
-}
-
-/*
  * Function: runValve
  * -------------------
  * This function actuates the valve based on the calculated incentive.
@@ -539,21 +518,18 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 19) data.BALLAST_MOTOR_SPEED = value;
   else if (index == 20) data.VALVE_OPENING_DURATION = value * 1000;
   else if (index == 21) data.VALVE_CLOSING_DURATION = value * 1000;
-  else if (index == 22) data.TEMP_SETPOINT = value;
-  else if (index == 23) data.POWER_STATE_LED = value;
-  else if (index == 24) data.RB_INTERVAL = value * 1000;
-  else if (index == 25) data.GPS_INTERVAL = value * 1000;
-  else if (index == 26) parseManualCommand(value);
-  else if (index == 27) parseReportCommand(value);
-  else if (index == 28) parseSensorsCommand(value);
-  else if (index == 29) parseValveCommand(value * 1000);
-  else if (index == 30) parseBallastCommand(value * 1000);
-  else if (index == 31) parseRockBLOCKPowerCommand(value);
-  else if (index == 32) parseRockBLOCKModeCommand(value);
-  else if (index == 33) parseGPSPowerCommand(value);
-  else if (index == 34) parseHeaterPowerCommand(value);
-  else if (index == 35) parseHeaterModeCommand(value);
-  else if (index == 36) parsePayloadPowerCommand(value);
+  else if (index == 22) data.POWER_STATE_LED = value;
+  else if (index == 23) data.RB_INTERVAL = value * 1000;
+  else if (index == 24) data.GPS_INTERVAL = value * 1000;
+  else if (index == 25) parseManualCommand(value);
+  else if (index == 26) parseReportCommand(value);
+  else if (index == 27) parseSensorsCommand(value);
+  else if (index == 28) parseValveCommand(value * 1000);
+  else if (index == 29) parseBallastCommand(value * 1000);
+  else if (index == 30) parseRockBLOCKPowerCommand(value);
+  else if (index == 31) parseRockBLOCKModeCommand(value);
+  else if (index == 32) parseGPSPowerCommand(value);
+  else if (index == 33) parsePayloadPowerCommand(value);
 }
 
 /*
@@ -661,27 +637,6 @@ void Avionics::parseGPSPowerCommand(uint8_t command) {
     gpsModule.hotstart();
     readGPS();
   }
-}
-
-/*
- * Function: parseHeaterPowerCommand
- * -------------------
- * This function parses the heater power command.
- */
-void Avionics::parseHeaterPowerCommand(bool command) {
-  data.POWER_STATE_HEATER = command;
-  PCB.setHeaterMode(command);
-  if (!command) PCB.turnOffHeaters();
-}
-
-/*
- * Function: parseHeaterModeCommand
- * -------------------
- * This function parses the heater mode.
- */
-void Avionics::parseHeaterModeCommand(uint8_t command) {
-  data.HEATER_STRONG_ENABLE = command & 0b0001;
-  data.HEATER_WEEK_ENABLE   = command & 0b0010;
 }
 
 /*
@@ -832,10 +787,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.POWER_STATE_LED,                     0,    1,       1,  lengthBits); // LED Power state
     lengthBits += compressVariable(data.POWER_STATE_RB,                      0,    1,       1,  lengthBits); // RB Power State
     lengthBits += compressVariable(data.POWER_STATE_GPS,                     0,    1,       1,  lengthBits); // GPS Power State
-    lengthBits += compressVariable(data.POWER_STATE_HEATER,                  0,    1,       1,  lengthBits); // Heater Power State
     lengthBits += compressVariable(data.POWER_STATE_PAYLOAD,                 0,    1,       1,  lengthBits); // Payload Power State
-    lengthBits += compressVariable(data.HEATER_STRONG_ENABLE,                0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(data.HEATER_WEEK_ENABLE,                  0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.NUM_SATS_GPS,                        0,    15,      3,  lengthBits);
     lengthBits += compressVariable(data.INCENTIVE_NOISE,                     0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.RE_ARM_CONSTANT,                     0,    4,       8,  lengthBits);
@@ -853,10 +805,8 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(log2(data.BMP_3_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_3_logrejections
     lengthBits += compressVariable(log2(data.BMP_4_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_4_logrejections
     lengthBits += compressVariable(data.BLACK_BODY_TEMP,                    -100,  30,      8,  lengthBits);
-    lengthBits += compressVariable(data.JOULES_HEATER,                       0,    819199,  13, lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
-    lengthBits += compressVariable(data.TEMP_SETPOINT,                      -70,   40,      6,  lengthBits); // Payload temperature setpoint
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval
     lengthBits += compressVariable(data.GPS_INTERVAL / 1000,                 0,    1023,    10, lengthBits); // GPS communication interval
     lengthBits += compressVariable(data.RB_SHOULD_SLEEP,                     0,    1,       1,  lengthBits);
@@ -1053,17 +1003,8 @@ void Avionics::printState() {
   Serial.print(" POWER_STATE_GPS:");
   Serial.print(data.POWER_STATE_GPS);
   Serial.print(',');
-  Serial.print(" POWER_STATE_HEATER:");
-  Serial.print(data.POWER_STATE_HEATER);
-  Serial.print(',');
   Serial.print(" POWER_STATE_PAYLOAD:");
   Serial.print(data.POWER_STATE_PAYLOAD);
-  Serial.print(',');
-  Serial.print(" HEATER_STRONG_ENABLE:");
-  Serial.print(data.HEATER_STRONG_ENABLE);
-  Serial.print(',');
-  Serial.print(" HEATER_WEEK_ENABLE:");
-  Serial.print(data.HEATER_WEEK_ENABLE);
   Serial.print(',');
   Serial.print(" NUM_SATS_GPS:");
   Serial.print(data.NUM_SATS_GPS);
@@ -1121,12 +1062,6 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" BLACK_BODY_TEMP:");
   Serial.print(data.BLACK_BODY_TEMP);
-  Serial.print(',');
-  Serial.print(" JOULES_HEATER:");
-  Serial.print(data.JOULES_HEATER);
-  Serial.print(',');
-  Serial.print(" TEMP_SETPOINT:");
-  Serial.print(data.TEMP_SETPOINT);
   Serial.print(',');
   Serial.print(" RB_INTERVAL:");
   Serial.print(data.RB_INTERVAL);
@@ -1259,9 +1194,6 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" PAYLOAD_MESSAGE_SIZE:");
   Serial.print(data.PAYLOAD_MESSAGE_SIZE);
-  Serial.print(',');
-  Serial.print(" PID_OUTPUT:");
-  Serial.print(data.PID_OUTPUT);
   Serial.print(',');
   Serial.print(" GPS_LAST:");
   Serial.print(data.GPS_LAST);

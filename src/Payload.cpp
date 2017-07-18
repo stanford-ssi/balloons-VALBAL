@@ -18,6 +18,10 @@
  */
 bool Payload::init(bool shouldStartup) {
   bool success = false;
+  pinMode(payloadGate, OUTPUT);
+  pinMode(payloadGPIO1, OUTPUT);
+  pinMode(payloadGPIO1, OUTPUT);
+  digitalWrite(payloadGate, LOW);
   if (shouldStartup) {
     restart();
     success = true;
@@ -33,9 +37,6 @@ bool Payload::init(bool shouldStartup) {
  */
 void Payload::restart() {
   EEPROM.write(EEPROMAddress, false);
-  pinMode(payloadGate, OUTPUT);
-  pinMode(payloadGPIO1, OUTPUT);
-  pinMode(payloadGPIO1, OUTPUT);
   digitalWrite(payloadGate, HIGH);
   delay(1000);
   EEPROM.write(EEPROMAddress, true);

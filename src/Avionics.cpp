@@ -20,7 +20,9 @@
  * This function initializes the avionics flight controller.
  */
 void Avionics::init() {
+  superCap.init();
   PCB.init();
+  actuator.init();
   Serial.begin(CONSOLE_BAUD);
   if(!setupSDCard())                                            alert("unable to initialize SD Card", true);
   if(!readHistory())                                            alert("unable to initialize EEPROM", true);
@@ -48,8 +50,8 @@ void Avionics::init() {
 void Avionics::test() {
   data.MANUAL_MODE = false;
   data.SHOULD_CUTDOWN = true;
-  PCB.queueBallast(900000, true);
-  PCB.queueValve(30000, true);
+  actuator.queueBallast(900000, true);
+  actuator.queueValve(30000, true);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -99,7 +101,7 @@ uint32_t max = 0;
  */
 void Avionics::logState() {
   uint32_t t0 = millis();
-  if(!log.log(&data, PCB.valveState != PCB.OPENING)) alert("unable to log Data", true);
+  if(!log.log(&data, actuator.valveState != actuator.OPENING)) alert("unable to log Data", true);
   data.LOG_TIME = millis() - t0;
   data.LOOP_NUMBER2++;
   max = (data.LOG_TIME > max) ? data.LOG_TIME : max;
@@ -366,8 +368,8 @@ bool Avionics::calcIncentives() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runValve() {
-  PCB.updateMechanicalConstants(data.VALVE_MOTOR_SPEED, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
-  if((data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
+  actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
+  if((data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && actuator.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
     data.VALVE_NUM_ATTEMPTS++;
     bool shouldValve = (!data.MANUAL_MODE || data.FORCE_VALVE);
     if(shouldValve) data.VALVE_NUM_ACTIONS++;
@@ -376,11 +378,11 @@ bool Avionics::runValve() {
     if(data.FORCE_VALVE) valveTime = data.VALVE_FORCE_DURATION;
     if(shouldValve) data.VALVE_TIME_TOTAL += valveTime;
     PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
-    PCB.queueValve(valveTime, shouldValve);
+    actuator.queueValve(valveTime, shouldValve);
     data.FORCE_VALVE = false;
   }
-  data.VALVE_QUEUE = PCB.getValveQueue();
-  data.VALVE_STATE = PCB.checkValve(data.CURRENT_MOTOR_VALVE, data.VALVE_LEAK_INTERVAL);
+  data.VALVE_QUEUE = actuator.getValveQueue();
+  data.VALVE_STATE = actuator.checkValve(data.CURRENT_MOTOR_VALVE, data.VALVE_LEAK_INTERVAL);
   return true;
 }
 
@@ -390,8 +392,8 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runBallast() {
-  PCB.updateMechanicalConstants(data.VALVE_MOTOR_SPEED, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
-  if((data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
+  actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
+  if((data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && actuator.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
     data.BALLAST_NUM_ATTEMPTS++;
     bool shouldBallast = (!data.MANUAL_MODE || data.FORCE_BALLAST);
     if(shouldBallast) data.BALLAST_NUM_ACTIONS++;
@@ -400,12 +402,12 @@ bool Avionics::runBallast() {
     if(data.FORCE_BALLAST) ballastTime = data.BALLAST_FORCE_DURATION;
     if(shouldBallast) data.BALLAST_TIME_TOTAL += ballastTime;
     PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
-    PCB.queueBallast(ballastTime, shouldBallast);
+    actuator.queueBallast(ballastTime, shouldBallast);
     data.FORCE_BALLAST = false;
   }
-  data.BALLAST_QUEUE = PCB.getBallastQueue();
-  data.BALLAST_NUM_OVERCURRENTS = PCB.getNumBallastOverCurrents();
-  data.BALLAST_STATE = PCB.checkBallast(data.CURRENT_MOTOR_BALLAST, data.BALLAST_REVERSE_INTERVAL, data.BALLAST_STALL_CURRENT);
+  data.BALLAST_QUEUE = actuator.getBallastQueue();
+  data.BALLAST_NUM_OVERCURRENTS = actuator.getNumBallastOverCurrents();
+  data.BALLAST_STATE = actuator.checkBallast(data.CURRENT_MOTOR_BALLAST, data.BALLAST_REVERSE_INTERVAL, data.BALLAST_STALL_CURRENT);
   return true;
 }
 
@@ -416,7 +418,7 @@ bool Avionics::runBallast() {
  */
 bool Avionics::runCutdown() {
   if(data.SHOULD_CUTDOWN) {
-    PCB.cutDown();
+    actuator.cutDown();
     data.SHOULD_CUTDOWN = false;
     data.CUTDOWN_STATE = true;
     alert("completed cutdown", false);
@@ -536,8 +538,8 @@ void Avionics::updateConstant(uint8_t index, float value) {
  * This function parses the manual mode command.
  */
 void Avionics::parseManualCommand(bool command) {
-  PCB.clearValveQueue();
-  PCB.clearBallastQueue();
+  actuator.clearValveQueue();
+  actuator.clearBallastQueue();
   data.MANUAL_MODE = command;
 }
 
@@ -568,7 +570,7 @@ void Avionics::parseSensorsCommand(uint8_t command) {
  * This function parses a forced valve command.
  */
 void Avionics::parseValveCommand(uint32_t command) {
-  if(command == 0) PCB.clearValveQueue();
+  if(command == 0) actuator.clearValveQueue();
   else {
     data.FORCE_VALVE = true;
     data.VALVE_FORCE_DURATION = command;
@@ -581,7 +583,7 @@ void Avionics::parseValveCommand(uint32_t command) {
  * This function parses a forced ballast command.
  */
 void Avionics::parseBallastCommand(uint32_t command) {
-  if(command == 0) PCB.clearBallastQueue();
+  if(command == 0) actuator.clearBallastQueue();
   else {
     data.FORCE_BALLAST = true;
     data.BALLAST_FORCE_DURATION = command;
@@ -697,7 +699,7 @@ void Avionics::alert(const char* debug, bool fatal) {
  */
 void Avionics::clearVariables() {
   filter.clearCurrentValues();
-  PCB.clearBallastOverCurrents();
+  actuator.clearBallastOverCurrents();
   data.VALVE_NUM_ACTIONS = 0;
   data.BALLAST_NUM_ACTIONS = 0;
   data.VALVE_NUM_ATTEMPTS = 0;

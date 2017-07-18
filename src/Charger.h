@@ -1,36 +1,36 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | July 2017
   Davy Ragland | dragland@stanford.edu
-  Claire Huang | chuang20@stanford.edu
-  Matthew Tan  | mratan@stanford.edu
 
-  File: Hardware.h
+  File: Charger.h
   --------------------------
-  Interface to PCB hardware.
+  Interface to PCB Charger.
 */
 
-#ifndef HARDWARE_H
-#define HARDWARE_H
+#ifndef CHARGER_H
+#define CHARGER_H
 
 #include "Config.h"
-#include <EEPROM.h>
+#include <PID_v1.h>
 
-class Hardware {
+class Charger {
 public:
 /**********************************  SETUP  ***********************************/
-  void            init();
-  void            initResolutions();
+  Charger() :
+    pid(&PIDTempVar, &PIDOutVar, &PIDSetVar, 90, 9.7, 0, DIRECT) {
+  }
+  void     init();
 /********************************  FUNCTIONS  *********************************/
-  void            runLED(bool on);
-
-  static void     EEPROMWritelong(uint8_t address, int32_t value);
-  static int32_t  EEPROMReadlong(uint8_t address);
 
 private:
 /*********************************  HELPERS  **********************************/
 
 /*********************************  OBJECTS  **********************************/
+  double   PIDSetVar;
+  double   PIDOutVar;
+  double   PIDTempVar;
+  PID pid;
 };
 
 #endif

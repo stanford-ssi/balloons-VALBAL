@@ -20,7 +20,7 @@
  */
 void Hardware::init() {
   pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, LOW);
+  digitalWrite(LED_PIN, HIGH);
 }
 
 /*
@@ -40,7 +40,7 @@ void Hardware::initResolutions() {
  * This function turns the LED on or off.
  */
 void Hardware::runLED(bool on) {
-  digitalWrite(LED_PIN, on);
+  digitalWrite(LED_PIN, !on);
 }
 
 /*

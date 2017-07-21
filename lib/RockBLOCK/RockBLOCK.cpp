@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | April 2017
+  Balloons | VALBAL | July 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | atedjara@stanford.edu
 
@@ -20,7 +20,7 @@
 bool RockBLOCK::init(bool shouldStartup, bool sleep) {
   bool success = false;
   pinMode(RB_GATE, OUTPUT);
-  digitalWrite(RB_GATE, LOW);
+  digitalWrite(RB_GATE, HIGH);
   delay(2000);
   isbd.attachConsole(Serial);
   isbd.attachDiags(Serial);
@@ -41,7 +41,7 @@ bool RockBLOCK::init(bool shouldStartup, bool sleep) {
  */
 void RockBLOCK::restart(bool sleep) {
   EEPROM.write(EEPROMAddress, false);
-  digitalWrite(RB_GATE, HIGH);
+  digitalWrite(RB_GATE, LOW);
   delay(1000);
   wake();
   delay(3000);
@@ -58,7 +58,7 @@ void RockBLOCK::restart(bool sleep) {
  * This function shuts down the RockBLOCK.
  */
 void RockBLOCK::shutdown() {
-  digitalWrite(RB_GATE, LOW);
+  digitalWrite(RB_GATE, HIGH);
   EEPROM.write(EEPROMAddress, false);
   isbd.begin();
 }

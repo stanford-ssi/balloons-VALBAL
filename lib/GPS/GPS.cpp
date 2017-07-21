@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | July 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | atedjara@stanford.edu
 
@@ -20,7 +20,7 @@
 bool GPS::init(bool shouldStartup) {
   bool success = false;
   pinMode(GPS_ENABLE_PIN, OUTPUT);
-  digitalWrite(GPS_ENABLE_PIN, LOW);
+  digitalWrite(GPS_ENABLE_PIN, HIGH);
   delay(2000);
   Serial1.begin(GPS_BAUD);
   if (shouldStartup) {
@@ -38,14 +38,14 @@ bool GPS::init(bool shouldStartup) {
 bool GPS::restart() {
   bool success = false;
   EEPROM.write(EEPROMAddress, false);
-  digitalWrite(GPS_ENABLE_PIN, HIGH);
+  digitalWrite(GPS_ENABLE_PIN, LOW);
   delay(1000);
   EEPROM.write(EEPROMAddress, true);
   delay(3000);
-  // success = setGPSMode(GPSOnlyExtra, sizeof(GPSOnlyExtra)/sizeof(uint8_t), GPS_LOCK_TIME);
-  // success = setGPSMode(powerSave, sizeof(powerSave)/sizeof(uint8_t), GPS_LOCK_TIME);
-  // success = setGPSMode(powerInterval, sizeof(powerInterval)/sizeof(uint8_t), GPS_LOCK_TIME);
-  // success = setGPSMode(setTenthHz, sizeof(setTenthHz)/sizeof(uint8_t), GPS_LOCK_TIME);
+  success = setGPSMode(GPSOnlyExtra, sizeof(GPSOnlyExtra)/sizeof(uint8_t), GPS_LOCK_TIME);
+  success = setGPSMode(powerSave, sizeof(powerSave)/sizeof(uint8_t), GPS_LOCK_TIME);
+  success = setGPSMode(powerInterval, sizeof(powerInterval)/sizeof(uint8_t), GPS_LOCK_TIME);
+  success = setGPSMode(setTenthHz, sizeof(setTenthHz)/sizeof(uint8_t), GPS_LOCK_TIME);
   success = setGPSMode(flightMode, sizeof(flightMode)/sizeof(uint8_t), GPS_LOCK_TIME);
   return success;
 }
@@ -66,7 +66,7 @@ void GPS::hotstart() {
  * This function shutsdown the GPS.
  */
 void GPS::shutdown() {
-  digitalWrite(GPS_ENABLE_PIN, LOW);
+  digitalWrite(GPS_ENABLE_PIN, HIGH);
   EEPROM.write(EEPROMAddress, false);
 }
 

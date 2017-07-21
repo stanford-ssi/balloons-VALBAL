@@ -12,6 +12,7 @@
 #define CHARGER_H
 
 #include "Config.h"
+#include <AD5246.h>
 #include <PID_v1.h>
 
 class Charger {
@@ -22,11 +23,12 @@ public:
   }
   void     init();
 /********************************  FUNCTIONS  *********************************/
-
+  void     runCharger();
 private:
 /*********************************  HELPERS  **********************************/
 
 /*********************************  OBJECTS  **********************************/
+  AD5246   resistor;
   double   PIDSetVar;
   double   PIDOutVar;
   double   PIDTempVar;

@@ -71,6 +71,7 @@ private:
   bool    calcDebug();
   bool    calcIncentives();
 
+  bool    runCharger();
   bool    runValve();
   bool    runBallast();
   bool    runCutdown();

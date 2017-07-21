@@ -20,11 +20,13 @@ public:
   bool    init();
 /********************************  FUNCTIONS  *********************************/
   bool    setResistance(float ohms);
+  float   getCurrentResistance();
 private:
 /*********************************  HELPERS  **********************************/
   uint8_t ohmsToSteps(float ohms);
 /*********************************  OBJECTS  **********************************/
-  static const uint16_t ADDRESS;
+  uint16_t ADDRESS;
+  float    resistance;
 };
 
 #endif

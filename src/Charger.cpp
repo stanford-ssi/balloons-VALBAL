@@ -9,7 +9,6 @@
 */
 
 #include "Charger.h"
-#include <AD5246.h>
 
 /**********************************  SETUP  ***********************************/
 /*
@@ -22,9 +21,21 @@ void Charger::init() {
   pinMode(FIVE_VOLT_ENABLE, OUTPUT);
   digitalWrite(SUPER_CAP_ENABLE, LOW);
   digitalWrite(FIVE_VOLT_ENABLE, LOW);
+  if (resistor.init()){
+    digitalWrite(SUPER_CAP_ENABLE, HIGH);
+  }
   pid.SetMode(AUTOMATIC);
 }
 
 /********************************  FUNCTIONS  *********************************/
+/*
+ * Function: runCharger
+ * -------------------
+ * This function calcualtes and updates the desired charging output.
+ */
+void Charger::runCharger() {
+  float resistance = resistor.getCurrentResistance();
+  float current = 10000 / resistance;
+}
 
 /*********************************  HELPERS  **********************************/

@@ -26,12 +26,21 @@ bool AD5246::init() {
 /*
  * Function: setResistance
  * -------------------
- * This function sets the resistor to the desired resistance
+ * This function sets the resistor to the desired resistance.
  */
 bool AD5246::setResistance(float ohms) {
   bool success = false;
   uint8_t step = ohmsToSteps(ohms);
   return success;
+}
+
+/*
+ * Function: getCurrentResistance
+ * -------------------
+ * This function gets the current resistance that has been stepped to.
+ */
+float AD5246::getCurrentResistance() {
+  return resistance;
 }
 
 /*********************************  HELPERS  **********************************/

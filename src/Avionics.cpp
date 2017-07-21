@@ -87,6 +87,7 @@ void Avionics::evaluateState() {
  * This function intelligently reacts to the current data frame.
  */
 void Avionics::actuateState() {
+  if(!runCharger()) alert("unable to run charger", true);
   if(!runValve())   alert("unable to run valve", true);
   if(!runBallast()) alert("unable to run ballast", true);
   if(!runCutdown()) alert("unable to run cutdown", true);
@@ -360,6 +361,16 @@ bool Avionics::calcIncentives() {
   data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE_BAROMETER, data.BALLAST_ALT_LAST);
   if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) success =  false;
   return success;
+}
+
+/*
+ * Function: runCharger
+ * -------------------
+ * This function updates the ouput of the superCap charging circuit.
+ */
+bool Avionics::runCharger() {
+  superCap.runCharger();
+  return true;
 }
 
 /*

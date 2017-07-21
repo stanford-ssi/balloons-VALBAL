@@ -17,6 +17,10 @@
  * This function initializes the PCB hardware.
  */
 void Charger::init() {
+  pinMode(SUPER_CAP_ENABLE, OUTPUT);
+  pinMode(FIVE_VOLT_ENABLE, OUTPUT);
+  digitalWrite(SUPER_CAP_ENABLE, LOW);
+  digitalWrite(FIVE_VOLT_ENABLE, LOW);
   pid.SetMode(AUTOMATIC);
 }
 

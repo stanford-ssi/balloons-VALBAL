@@ -77,6 +77,10 @@ static const uint8_t   REPORT_MODE_DEFAULT                   =                2;
 static const bool      RB_SHOULD_SLEEP_DEFAULT               =            false;
 static const uint32_t  QUEUE_APPEND_THRESHOLD                =             1000;
 
+static const float     CHARGER_CURRENT_MAX                   =             1500;
+static const float     CHARGER_CURRENT_MIN                   =              100;
+static const float     SUPER_CAP_VOLTAGE_NOMINAL             =              4.5;
+
 static const float     PRESS_BASELINE_DEFAULT                =         101325.0;
 static const float     INCENTIVE_NOISE_DEFAULT               =                0;
 static const float     INCENTIVE_THRESHOLD_DEFAULT           =             0.75;

@@ -34,8 +34,15 @@ void Charger::init() {
  * This function calcualtes and updates the desired charging output.
  */
 void Charger::runCharger() {
-  float resistance = resistor.getCurrentResistance();
-  float current = 10000 / resistance;
+  float resistanceCur = resistor.getCurrentResistance();
+  float currentCurr = 10000 / resistanceCur;
 }
 
 /*********************************  HELPERS  **********************************/
+//initialize resistor
+//initialize superCap
+//wait for supercap voltage to be good
+//turn on 5 volt line
+//initilaize gps
+//initialize rockblock
+//loop continusolu check charger

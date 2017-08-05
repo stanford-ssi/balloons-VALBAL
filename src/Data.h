@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | August 2017
   Davy Ragland | dragland@stanford.edu
 
   File: data.h
@@ -68,7 +68,7 @@ struct DataFrame {
   bool       POWER_STATE_RB                  =                             true;
   bool       POWER_STATE_GPS                 =                             true;
   bool       POWER_STATE_HEATER              =                             true;
-  bool       POWER_STATE_PAYLOAD             =                             true;
+  bool       POWER_STATE_PAYLOAD             =                            false;
   bool       HEATER_STRONG_ENABLE            =                            false;
   bool       HEATER_WEEK_ENABLE              =                             true;
   uint8_t    NUM_SATS_GPS                    =                                0;

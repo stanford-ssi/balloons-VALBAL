@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | August 2017
   Davy Ragland | dragland@stanford.edu
 
   File: Config.h
@@ -51,7 +51,7 @@ static const uint8_t   BLACK_BODY_TEMP_SENSOR                =              A20;
 
 
 /****************************  EDITABLE CONSTANTS  ****************************/
-static const char      MISSION_NUMBER[]                      =         "SSI-54";
+static const char      MISSION_NUMBER[]                      =         "SSI-56";
 
 static const uint8_t   CUTDOWN_INDEX                         =               99;
 static const uint16_t  CUTDOWN_DURATION                      =            10000;
@@ -87,7 +87,7 @@ static const float     BALLAST_ARM_ALT_DEFAULT               =          13250.0;
 static const float     BALLAST_ALT_LAST_FILLER               =          14000.0;
 static const uint32_t  BALLAST_REVERSE_INTERVAL_DEFAULT      =           600000;
 static const uint32_t  VALVE_LEAK_INTERVAL_DEFAULT           =           600000;
-static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              270;
+static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              200;
 
 static const float     VALVE_SETPOINT_DEFAULT                =          14500.0;
 static const uint32_t  VALVE_VENT_DURATION_DEFAULT           =            20000;
@@ -105,7 +105,7 @@ static const float     BALLAST_LAST_ACTION_DEFAULT           =     1.0 / 1500.0;
 
 static const uint16_t  VALVE_MOTOR_SPEED_DEFAULT             =              255;
 static const uint16_t  BALLAST_MOTOR_SPEED_DEFAULT           =              255;
-static const uint32_t  VALVE_OPENING_DURATION_DEFAULT        =             1000;
+static const uint32_t  VALVE_OPENING_DURATION_DEFAULT        =              750;
 static const uint32_t  VALVE_CLOSING_DURATION_DEFAULT        =             2500;
 static const uint16_t  BALLAST_STALL_TIMEOUT                 =             3000;
 

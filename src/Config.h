@@ -51,7 +51,7 @@ static const uint8_t   BLACK_BODY_TEMP_SENSOR                =              A20;
 
 
 /****************************  EDITABLE CONSTANTS  ****************************/
-static const char      MISSION_NUMBER[]                      =         "SSI-56";
+static const char      MISSION_NUMBER[]                      =         "SSI-57";
 
 static const uint8_t   CUTDOWN_INDEX                         =               99;
 static const uint16_t  CUTDOWN_DURATION                      =            10000;
@@ -65,7 +65,7 @@ static const uint32_t  RB_RESTART_INTERVAL                   =          1800000;
 static const uint32_t  RB_DEBUG_INTERVAL                     =            60000;
 static const uint16_t  LOOP_INTERVAL                         =               50;
 
-static const uint16_t  DEBUG_ALT                             =              300;
+static const uint16_t  DEBUG_ALT                             =             2000;
 static const uint16_t  COMMS_BUFFER_SIZE                     =              200;
 static const uint32_t  FILE_RESET_INTERVAL                   =         86400000;
 static const uint32_t  CONSOLE_BAUD                          =           115200;

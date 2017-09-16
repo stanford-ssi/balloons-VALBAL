@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | July 2017
+  Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Matthew Tan  | mratan@stanford.edu
@@ -31,8 +31,9 @@ void Actuators::init() {
  * -------------------
  * This function updates the mechanical constants.
  */
-void Actuators::updateMechanicalConstants(uint16_t valveMotorSpeedValue, uint16_t ballastMotorSpeedValue, uint32_t valveOpeningTimeoutValue, uint32_t valveClosingTimeoutValue) {
-  valveMotorSpeed = valveMotorSpeedValue;
+void Actuators::updateMechanicalConstants(uint16_t valveMotorSpeedOpenValue, uint16_t valveMotorSpeedCloseValue, uint16_t ballastMotorSpeedValue, uint32_t valveOpeningTimeoutValue, uint32_t valveClosingTimeoutValue) {
+  valveMotorSpeedOpen = valveMotorSpeedOpenValue;
+  valveMotorSpeedClose = valveMotorSpeedCloseValue;
   ballastMotorSpeed = ballastMotorSpeedValue;
   valveOpeningTimeout = valveOpeningTimeoutValue;
   valveClosingTimeout = valveClosingTimeoutValue;
@@ -246,7 +247,7 @@ void Actuators::stopValve() {
  */
 void Actuators::openValve() {
   analogWrite(VALVE_FORWARD, LOW);
-  analogWrite(VALVE_REVERSE, valveMotorSpeed);
+  analogWrite(VALVE_REVERSE, valveMotorSpeedOpen);
 }
 
 /*
@@ -255,7 +256,7 @@ void Actuators::openValve() {
  * This function starts closing the valve.
  */
 void Actuators::closeValve() {
-  analogWrite(VALVE_FORWARD, valveMotorSpeed);
+  analogWrite(VALVE_FORWARD, valveMotorSpeedClose);
   analogWrite(VALVE_REVERSE, LOW);
 }
 

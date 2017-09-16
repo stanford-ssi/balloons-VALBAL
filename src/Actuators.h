@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Matthew Tan  | mratan@stanford.edu
@@ -21,7 +21,7 @@ public:
 /**********************************  SETUP  ***********************************/
   void     init();
 /********************************  FUNCTIONS  *********************************/
-  void     updateMechanicalConstants(uint16_t valveMotorSpeedValue, uint16_t ballastMotorSpeedValue, uint32_t valveOpeningTimeoutValue, uint32_t valveClosingTimeoutValue);
+  void     updateMechanicalConstants(uint16_t valveMotorSpeedOpenValue, uint16_t valveMotorSpeedCloseValue, uint16_t ballastMotorSpeedValue, uint32_t valveOpeningTimeoutValue, uint32_t valveClosingTimeoutValue);
 
   void     queueValve(uint32_t  duration, bool real);
   void     queueBallast(uint32_t  duration, bool real);
@@ -56,7 +56,8 @@ private:
   uint32_t ballastQueue = 0;
   uint32_t ballastQueueFake = 0;
 
-  uint16_t valveMotorSpeed = 0;
+  uint16_t valveMotorSpeedOpen = 0;
+  uint16_t valveMotorSpeedClose = 0;
   uint16_t ballastMotorSpeed = 0;
   uint32_t valveOpeningTimeout = 0;
   uint32_t valveClosingTimeout = 0;

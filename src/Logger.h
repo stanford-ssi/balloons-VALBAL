@@ -1,3 +1,13 @@
+/*
+  Stanford Student Space Initiative
+  Balloons | VALBAL | September 2017
+  Joan Creus-Costa | jcreus@stanford.edu
+
+  File: Logger.h
+  --------------------------
+  Interface to commpressed logging utility.
+*/
+
 #ifndef VAL_LOGGER_H
 #define VAL_LOGGER_H
 

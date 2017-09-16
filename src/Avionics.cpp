@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | July 2017
+  Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Aria Tedjarati | atedjarati@stanford.edu
@@ -379,7 +379,7 @@ bool Avionics::runCharger() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runValve() {
-  actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
+  actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
   if((data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && actuator.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
     data.VALVE_NUM_ATTEMPTS++;
     bool shouldValve = (!data.MANUAL_MODE || data.FORCE_VALVE);
@@ -403,7 +403,7 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the calculated incentive.
  */
 bool Avionics::runBallast() {
-  actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
+  actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
   if((data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && actuator.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
     data.BALLAST_NUM_ATTEMPTS++;
     bool shouldBallast = (!data.MANUAL_MODE || data.FORCE_BALLAST);
@@ -525,22 +525,23 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 15) data.BALLAST_REVERSE_INTERVAL = value * 1000;
   else if (index == 16) data.VALVE_LEAK_INTERVAL = value * 1000;
   else if (index == 17) data.BALLAST_STALL_CURRENT = value;
-  else if (index == 18) data.VALVE_MOTOR_SPEED = value;
-  else if (index == 19) data.BALLAST_MOTOR_SPEED = value;
-  else if (index == 20) data.VALVE_OPENING_DURATION = value * 1000;
-  else if (index == 21) data.VALVE_CLOSING_DURATION = value * 1000;
-  else if (index == 22) data.POWER_STATE_LED = value;
-  else if (index == 23) data.RB_INTERVAL = value * 1000;
-  else if (index == 24) data.GPS_INTERVAL = value * 1000;
-  else if (index == 25) parseManualCommand(value);
-  else if (index == 26) parseReportCommand(value);
-  else if (index == 27) parseSensorsCommand(value);
-  else if (index == 28) parseValveCommand(value * 1000);
-  else if (index == 29) parseBallastCommand(value * 1000);
-  else if (index == 30) parseRockBLOCKPowerCommand(value);
-  else if (index == 31) parseRockBLOCKModeCommand(value);
-  else if (index == 32) parseGPSPowerCommand(value);
-  else if (index == 33) parsePayloadPowerCommand(value);
+  else if (index == 18) data.VALVE_MOTOR_SPEED_OPEN = value;
+  else if (index == 19) data.VALVE_MOTOR_SPEED_CLOSE = value;
+  else if (index == 20) data.BALLAST_MOTOR_SPEED = value;
+  else if (index == 21) data.VALVE_OPENING_DURATION = value * 1000;
+  else if (index == 22) data.VALVE_CLOSING_DURATION = value * 1000;
+  else if (index == 23) data.POWER_STATE_LED = value;
+  else if (index == 24) data.RB_INTERVAL = value * 1000;
+  else if (index == 25) data.GPS_INTERVAL = value * 1000;
+  else if (index == 26) parseManualCommand(value);
+  else if (index == 27) parseReportCommand(value);
+  else if (index == 28) parseSensorsCommand(value);
+  else if (index == 29) parseValveCommand(value * 1000);
+  else if (index == 30) parseBallastCommand(value * 1000);
+  else if (index == 31) parseRockBLOCKPowerCommand(value);
+  else if (index == 32) parseRockBLOCKModeCommand(value);
+  else if (index == 33) parseGPSPowerCommand(value);
+  else if (index == 34) parsePayloadPowerCommand(value);
 }
 
 /*
@@ -1097,8 +1098,11 @@ void Avionics::printState() {
   Serial.print(" BALLAST_STALL_CURRENT:");
   Serial.print(data.BALLAST_STALL_CURRENT);
   Serial.print(',');
-  Serial.print(" VALVE_MOTOR_SPEED:");
-  Serial.print(data.VALVE_MOTOR_SPEED);
+  Serial.print(" VALVE_MOTOR_SPEED_OPEN:");
+  Serial.print(data.VALVE_MOTOR_SPEED_OPEN);
+  Serial.print(',');
+  Serial.print(" VALVE_MOTOR_SPEED_CLOSE:");
+  Serial.print(data.VALVE_MOTOR_SPEED_CLOSE);
   Serial.print(',');
   Serial.print(" BALLAST_MOTOR_SPEED:");
   Serial.print(data.BALLAST_MOTOR_SPEED);

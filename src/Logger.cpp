@@ -1,3 +1,13 @@
+/*
+  Stanford Student Space Initiative
+  Balloons | VALBAL | September 2017
+  Joan Creus-Costa | jcreus@stanford.edu
+
+  File: Logger.cpp
+  --------------------------
+  Implementation of Logger.h
+*/
+
 #ifndef LOGGER_H
 #define LOGGER_H
 
@@ -100,7 +110,7 @@ bool Logger::writeCache(bool justDoIt, int max) {
       if (avail[tmp]) break;
       tmp = next(tmp);
     }
-    if (cnt < 8) return false;
+    if (cnt < 1) return false;
     if (!sd.card()->writeStart(curBlock)) {
       Serial.println("[ERROR] something v wrong!");
       return true;

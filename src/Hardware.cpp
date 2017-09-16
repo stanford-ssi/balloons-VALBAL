@@ -136,8 +136,9 @@ float Hardware::getHeaterPID(){
  * -------------------
  * This function updates the mechanical constants.
  */
-void Hardware::updateMechanicalConstants(uint16_t valveMotorSpeedValue, uint16_t ballastMotorSpeedValue, uint32_t valveOpeningTimeoutValue, uint32_t valveClosingTimeoutValue) {
-  valveMotorSpeed = valveMotorSpeedValue;
+void Hardware::updateMechanicalConstants(uint16_t valveMotorSpeedOpenValue, uint16_t valveMotorSpeedCloseValue, uint16_t ballastMotorSpeedValue, uint32_t valveOpeningTimeoutValue, uint32_t valveClosingTimeoutValue) {
+  valveMotorSpeedOpen = valveMotorSpeedOpenValue;
+  valveMotorSpeedClose = valveMotorSpeedCloseValue;
   ballastMotorSpeed = ballastMotorSpeedValue;
   valveOpeningTimeout = valveOpeningTimeoutValue;
   valveClosingTimeout = valveClosingTimeoutValue;
@@ -382,7 +383,7 @@ void Hardware::EEPROMWritelong(uint8_t address, int32_t value) {
  */
 void Hardware::openValve() {
   analogWrite(VALVE_FORWARD, LOW);
-  analogWrite(VALVE_REVERSE, valveMotorSpeed);
+  analogWrite(VALVE_REVERSE, valveMotorSpeedOpen);
 }
 
 /*
@@ -391,7 +392,7 @@ void Hardware::openValve() {
  * This function starts closing the valve.
  */
 void Hardware::closeValve() {
-  analogWrite(VALVE_FORWARD, valveMotorSpeed);
+  analogWrite(VALVE_FORWARD, valveMotorSpeedClose);
   analogWrite(VALVE_REVERSE, LOW);
 }
 

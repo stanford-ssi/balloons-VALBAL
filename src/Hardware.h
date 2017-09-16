@@ -1,9 +1,8 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
-  Matthew Tan  | mratan@stanford.edu
 
   File: Hardware.h
   --------------------------
@@ -15,12 +14,12 @@
 
 #include "Config.h"
 #include <EEPROM.h>
+#include <LTC2991.h>
 
 class Hardware {
 public:
 /**********************************  SETUP  ***********************************/
   void            init();
-  void            initResolutions();
 /********************************  FUNCTIONS  *********************************/
   void            runLED(bool on);
 

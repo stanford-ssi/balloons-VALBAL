@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | July 2017
+  Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
 
   File: Payload.cpp
@@ -20,7 +20,8 @@ bool Payload::init(bool shouldStartup) {
   bool success = false;
   pinMode(payloadGate, OUTPUT);
   pinMode(payloadGPIO1, OUTPUT);
-  pinMode(payloadGPIO1, OUTPUT);
+  pinMode(payloadGPIO2, OUTPUT);
+  pinMode(payloadDAC, OUTPUT);
   digitalWrite(payloadGate, HIGH);
   if (shouldStartup) {
     restart();

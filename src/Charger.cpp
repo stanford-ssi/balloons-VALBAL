@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | July 2017
+  Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
 
   File: Charger.cpp
@@ -16,33 +16,34 @@
  * -------------------
  * This function initializes the PCB hardware.
  */
-void Charger::init() {
+bool Charger::init() {
   pinMode(SUPER_CAP_ENABLE, OUTPUT);
   pinMode(FIVE_VOLT_ENABLE, OUTPUT);
   digitalWrite(SUPER_CAP_ENABLE, LOW);
   digitalWrite(FIVE_VOLT_ENABLE, LOW);
   if (resistor.init()){
     digitalWrite(SUPER_CAP_ENABLE, HIGH);
+    return true;
   }
-  pid.SetMode(AUTOMATIC);
+  return false;
 }
 
 /********************************  FUNCTIONS  *********************************/
+void Charger::enable5VBoost() {
+  digitalWrite(FIVE_VOLT_ENABLE, HIGH);
+}
+void Charger::disable5VBoost() {
+  digitalWrite(FIVE_VOLT_ENABLE, LOW);
+}
+
 /*
  * Function: runCharger
  * -------------------
  * This function calcualtes and updates the desired charging output.
  */
-void Charger::runCharger() {
+void Charger::runCharger(float temp) {
   float resistanceCur = resistor.getCurrentResistance();
   float currentCurr = 10000 / resistanceCur;
 }
 
 /*********************************  HELPERS  **********************************/
-//initialize resistor
-//initialize superCap
-//wait for supercap voltage to be good
-//turn on 5 volt line
-//initilaize gps
-//initialize rockblock
-//loop continusolu check charger

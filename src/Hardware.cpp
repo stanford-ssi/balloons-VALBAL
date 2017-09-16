@@ -1,9 +1,8 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | July 2017
+  Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
-  Matthew Tan  | mratan@stanford.edu
 
   File: Hardware.cpp
   --------------------------
@@ -21,16 +20,10 @@
 void Hardware::init() {
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);
-}
-
-/*
- * Function: initResolutions
- * -------------------
- * This function is called after every pinmode is set.
- */
-void Hardware::initResolutions() {
   analogReference(INTERNAL);
   analogReadResolution(12);
+  wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
+  wire.setDefaultTimeout(5000);
 }
 
 /********************************  FUNCTIONS  *********************************/

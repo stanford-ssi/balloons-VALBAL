@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | July 2017
+  Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
   Jesus Cervantes | cerjesus@stanford.edu
@@ -44,8 +44,6 @@ bool Sensors::init() {
   Serial.println(bme2.readPressure());
   Serial.println(bme3.readPressure());
   Serial.println(bme4.readPressure());
-  wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
-  wire.setDefaultTimeout(5000);
   int8_t ack = 0;
   ack |= LTC2991_register_write(LTC2991_I2C_ADDRESS, LTC2991_CHANNEL_ENABLE_REG, LTC2991_ENABLE_ALL_CHANNELS);
   ack |= LTC2991_register_write(LTC2991_I2C_ADDRESS, LTC2991_CONTROL_V1234_REG, 0x00);
@@ -63,6 +61,16 @@ bool Sensors::init() {
 float Sensors::getVoltagePrimary() {
   voltagePrimary = analogRead(BATT_VOLTAGE) * 1.2 * 5.02 / (double)pow(2, 12);
   return voltagePrimary;
+}
+
+/*
+ * Function: getVoltageSuperCap
+ * -------------------
+ * This function gets the Super Cap voltage.
+ */
+float Sensors::getVoltageSuperCap() {
+  voltageSuperCap = analogRead(SUPER_CAP_VOLTAGE) * 1.2 * 5.99 / (double)pow(2, 12);
+  return voltageSuperCap;
 }
 
 /*

@@ -16,7 +16,7 @@
 #include <string.h>
 
 /****************************  COMPILE FLAGS  *********************************/
-// #define RESET_EEPROM_FLAG // uncomment for EEPROM
+#define RESET_EEPROM_FLAG // uncomment for EEPROM
 // #define HITL_ENABLED_FLAG // uncomment for HITL
 // #define RB_DISABLED_FLAG  // uncomment for HITL
 
@@ -36,10 +36,10 @@ static const uint8_t   RB_GATE                               =               28;
 static const uint8_t   RB_SLEEP                              =               14;
 static const uint8_t   PAYLOAD_GATE                          =               29;
 static const uint8_t   PAYLOAD_GPIO_1                        =                2;
-static const uint8_t   PAYLOAD_GPIO_2                        =              A16;
+static const uint8_t   PAYLOAD_GPIO_2                        =               27;
+static const uint8_t   PAYLOAD_DAC                           =              A14;
 static const uint8_t   BATT_VOLTAGE                          =              A11;
 static const uint8_t   SUPER_CAP_VOLTAGE                     =              A10;
-static const uint8_t   SUPER_CAP_GOOD                        =                3;
 static const uint8_t   SUPER_CAP_ENABLE                      =               16;
 static const uint8_t   FIVE_VOLT_ENABLE                      =                4;
 static const uint8_t   TOTAL_CURRENT                         =                1;

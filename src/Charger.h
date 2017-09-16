@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | July 2017
+  Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
 
   File: Charger.h
@@ -13,26 +13,20 @@
 
 #include "Config.h"
 #include <AD5246.h>
-#include <PID_v1.h>
 
 class Charger {
 public:
 /**********************************  SETUP  ***********************************/
-  Charger() :
-    pid(&PIDTempVar, &PIDOutVar, &PIDSetVar, 90, 9.7, 0, DIRECT) {
-  }
-  void     init();
+  bool init();
 /********************************  FUNCTIONS  *********************************/
-  void     runCharger();
+  void enable5VBoost();
+  void disable5VBoost();
+  void runCharger(float temp);
 private:
 /*********************************  HELPERS  **********************************/
 
 /*********************************  OBJECTS  **********************************/
-  AD5246   resistor;
-  double   PIDSetVar;
-  double   PIDOutVar;
-  double   PIDTempVar;
-  PID pid;
+  AD5246 resistor;
 };
 
 #endif

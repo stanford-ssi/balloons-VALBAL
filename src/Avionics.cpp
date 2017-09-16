@@ -20,10 +20,9 @@
  * This function initializes the avionics flight controller.
  */
 void Avionics::init() {
-  superCap.init();
+  Serial.begin(CONSOLE_BAUD);
   PCB.init();
   actuator.init();
-  Serial.begin(CONSOLE_BAUD);
   if(!setupSDCard())                                            alert("unable to initialize SD Card", true);
   if(!readHistory())                                            alert("unable to initialize EEPROM", true);
   if(!sensors.init())                                           alert("unable to initialize Sensors", true);
@@ -33,11 +32,12 @@ void Avionics::init() {
   if(!filter.init())                                            alert("unable to initialize Filters", true);
   if(!computer.init())                                          alert("unable to initialize Flight Controller", true);
   if(!gpsModule.init(data.POWER_STATE_GPS))                     alert("unable to initialize GPS", true);
+  if(!superCap.init())                                          alert("unable to initialize superCap", true);
+  if(!setup5VLine())                                            alert("unable to initialize 5V line", true);
 #ifndef RB_DISABLED_FLAG
   if(!RBModule.init(data.POWER_STATE_RB, data.RB_SHOULD_SLEEP)) alert("unable to initialize RockBlock", true);
 #endif
-  if(!ValMU.init(data.POWER_STATE_PAYLOAD))                     alert("unable to initialize Payload", true);
-  PCB.initResolutions();
+  if(!ValRF.init(data.POWER_STATE_PAYLOAD))                     alert("unable to initialize Payload", true);
   data.TIME = millis();
   data.SETUP_STATE = false;
 }
@@ -195,6 +195,21 @@ bool Avionics::readHistory() {
 }
 
 /*
+ * Function: setup5VLine
+ * -------------------
+ * This function charges the superCap to 5 Volts.
+ */
+bool Avionics::setup5VLine() {
+  while(sensors.getVoltageSuperCap() <= 5.0) {
+    delay(LOOP_INTERVAL);
+    Serial.println("Waiting for supercap to charge.  It is currently at: ");
+    Serial.print(sensors.getVoltageSuperCap()); Serial.println(" volts.");
+  }
+  superCap.enable5VBoost();
+  return true;
+}
+
+/*
  * Function: readData
  * -------------------
  * This function updates the current data frame.
@@ -247,7 +262,7 @@ bool Avionics::readGPS() {
  * This function reads data from the Payload.
  */
 bool Avionics::readPayload() {
-  data.PAYLOAD_MESSAGE_SIZE = ValMU.getMessage();
+  data.PAYLOAD_MESSAGE_SIZE = ValRF.getMessage();
   return true;
 }
 
@@ -369,7 +384,7 @@ bool Avionics::calcIncentives() {
  * This function updates the ouput of the superCap charging circuit.
  */
 bool Avionics::runCharger() {
-  superCap.runCharger();
+  superCap.runCharger(data.TEMP_INT);
   return true;
 }
 
@@ -659,11 +674,11 @@ void Avionics::parseGPSPowerCommand(uint8_t command) {
 void Avionics::parsePayloadPowerCommand(bool command) {
   if (command && !data.POWER_STATE_PAYLOAD) {
     data.POWER_STATE_PAYLOAD = true;
-    ValMU.restart();
+    ValRF.restart();
   }
   else if (!command) {
     data.POWER_STATE_PAYLOAD = false;
-    ValMU.shutdown();
+    ValRF.shutdown();
   }
 }
 
@@ -845,7 +860,7 @@ int16_t Avionics::compressData() {
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
   for (size_t i = 0; i < data.PAYLOAD_MESSAGE_SIZE; i++) {
-    COMMS_BUFFER[lengthBytes + i] = ValMU.buf[i];
+    COMMS_BUFFER[lengthBytes + i] = ValRF.buf[i];
   }
   lengthBytes += data.PAYLOAD_MESSAGE_SIZE;
   data.SHOULD_REPORT = false;

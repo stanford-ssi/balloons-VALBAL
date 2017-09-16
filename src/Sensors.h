@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | July 2017
+  Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
   Jesus Cervantes | cerjesus@stanford.edu
@@ -28,15 +28,16 @@ public:
     bme3(BMP_CS_THREE),
     bme4(BMP_CS_FOUR) {
   }
-  bool     init();
+  bool  init();
 /********************************  FUNCTIONS  *********************************/
-  float    getVoltagePrimary();
-  float    getCurrentTotal();
-  float    getCurrentSubsystem(uint8_t subsystem);
-  float    getJoules();
-  float    getDerivedTemp(uint8_t sensor);
-  float    getRawTemp(uint8_t sensor);
-  float    getRawPressure(uint8_t sensor);
+  float getVoltagePrimary();
+  float getVoltageSuperCap();
+  float getCurrentTotal();
+  float getCurrentSubsystem(uint8_t subsystem);
+  float getJoules();
+  float getDerivedTemp(uint8_t sensor);
+  float getRawTemp(uint8_t sensor);
+  float getRawPressure(uint8_t sensor);
 private:
 /*********************************  OBJECTS  **********************************/
   Adafruit_BMP280 bme1;
@@ -45,6 +46,7 @@ private:
   Adafruit_BMP280 bme4;
   uint32_t lastJoulesCall = 0;
   float internalCurrentMonitor = 0;
+  float voltageSuperCap = 0;
   float voltagePrimary = 0;
   float joules = 0;
 };

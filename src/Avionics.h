@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | July 2017
+  Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Aria Tedjarati | atedjara@stanford.edu
@@ -43,7 +43,7 @@ public:
     sensors(),
     gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIMEOUT, GPS_QUIT_TIMEOUT),
     RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK),
-    ValMU(PAYLOAD_GATE, PAYLOAD_GPIO_1, PAYLOAD_GPIO_2, EEPROM_PAYLOAD) {
+    ValRF(PAYLOAD_GATE, PAYLOAD_GPIO_1, PAYLOAD_GPIO_2, PAYLOAD_DAC, EEPROM_PAYLOAD) {
   }
   void    init();
   void    test();
@@ -60,6 +60,7 @@ private:
 /*********************************  HELPERS  **********************************/
   bool    setupSDCard();
   bool    readHistory();
+  bool    setup5VLine();
 
   bool    readData();
   bool    readGPS();
@@ -114,7 +115,7 @@ private:
   Controller computer;
   GPS gpsModule;
   RockBLOCK RBModule;
-  Payload ValMU;
+  Payload ValRF;
 };
 
 #endif

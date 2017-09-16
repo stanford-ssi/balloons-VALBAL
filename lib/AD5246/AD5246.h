@@ -1,18 +1,18 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | July 2017
-  Vaiva Snapkauskaite | vaivas@stanford.edu
-  Davy Ragland        | dragland@stanford.edu
+  Balloons | VALBAL | September 2017
+  Davy Ragland | dragland@stanford.edu
 
   File: AD5246.h
   --------------------------
-  Interface to 100kOhm i2c AD5246 resistor
+  Interface to 100kOhm i2c AD5246 resistor.
 */
 
 #ifndef AD5246_H
 #define AD5246_H
 
 #include <Arduino.h>
+#include <LTC2991.h>
 
 class AD5246 {
 public:

@@ -1,8 +1,7 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | July 2017
-  Vaiva Snapkauskaite | vaivas@stanford.edu
-  Davy Ragland        | dragland@stanford.edu
+  Balloons | VALBAL | September 2017
+  Davy Ragland | dragland@stanford.edu
 
   File: AD5246.cpp
   --------------------------
@@ -18,8 +17,11 @@
  * This function initializes the AD5246 resistor.
  */
 bool AD5246::init() {
-  bool success = false;
-  return success;
+  wire.beginTransmission(0x2E);
+  wire.write(byte(0x10));
+  wire.endTransmission();
+  delay(100);
+  return true;
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -53,3 +55,18 @@ float AD5246::getCurrentResistance() {
 uint8_t AD5246::ohmsToSteps(float ohms) {
   return 0;
 }
+
+
+// void highBoostPower(){
+//     Wire.beginTransmission(0x2E);
+//     Wire.write(byte(0x10));
+//     Wire.endTransmission();
+// }
+//
+// /*************************************************************************************************************************************************************************************************/
+//
+// void lowBoostPower(){
+//     Wire.beginTransmission(0x2E);
+//     Wire.write(byte(0x7F));
+//     Wire.endTransmission();
+// }

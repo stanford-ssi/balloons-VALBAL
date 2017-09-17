@@ -59,7 +59,7 @@ bool Sensors::init() {
  * This function gets the primary battery voltage.
  */
 float Sensors::getVoltagePrimary() {
-  voltagePrimary = analogRead(BATT_VOLTAGE) * 1.2 * 5.02 / (double)pow(2, 12);
+  voltagePrimary = analogRead(BATT_VOLTAGE) * 1.2 * 5.99 / (double)pow(2, 12);
   return voltagePrimary;
 }
 

@@ -37,6 +37,7 @@ struct DataFrame {
   uint32_t   BALLAST_NUM_ATTEMPTS            =                                0;
   uint32_t   BALLAST_NUM_OVERCURRENTS        =                                0;
   bool       CUTDOWN_STATE                   =                            false;
+  uint8_t    SYSTEM_POWER_STATE              =                                0;
 
   float      TEMP_INT                        =                                0;
   float      JOULES_TOTAL                    =                                0;
@@ -58,7 +59,7 @@ struct DataFrame {
   uint32_t   RB_SENT_COMMS                   =                                0;
   uint32_t   RB_WAKE_FAILS                   =                                0;
   uint32_t   RB_SLEEP_FAILS                  =                                0;
-  uint8_t    RESISTOR_MODE                   =                                0;                
+  uint8_t    RESISTOR_MODE                   =                                0;
 
   bool       MANUAL_MODE                     =              MANUAL_MODE_DEFAULT;
   uint8_t    REPORT_MODE                     =              REPORT_MODE_DEFAULT;

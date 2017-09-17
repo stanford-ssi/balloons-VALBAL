@@ -387,16 +387,53 @@ bool Avionics::calcIncentives() {
  */
 bool Avionics::runCharger() {
   uint8_t resistance = 0x10;
-  if (data.TEMP_INT <= CHARGER_TEMP_THRESH_HIGH) resistance = 0x23;
-  if (data.TEMP_INT <= CHARGER_TEMP_THRESH_LOW) resistance = 0x7F;
+  if (data.RESISTOR_MODE == 0){
+    if (data.TEMP_INT <= CHARGER_TEMP_THRESH_HIGH) resistance = 0x23;
+    if (data.TEMP_INT <= CHARGER_TEMP_THRESH_LOW) resistance = 0x7F;
+  }
   if (data.RESISTOR_MODE == 1) resistance = 0x7F;
   if (data.RESISTOR_MODE == 2) resistance = 0x23;
   if (data.RESISTOR_MODE == 3) resistance = 0x10;
   if (data.RESISTOR_MODE == 4) resistance = 0x08;
   superCap.runCharger(resistance);
-  // if supercap voltage below threshold turn off led
-  // if supercap voltage below threshold turn off Rockblock
-  // if supercap voltage below threshold turn off motors
+
+  if(data.SYSTEM_POWER_STATE == 0) {
+    if (data.VOLTAGE_SUPERCAP < 3.5) {
+      data.POWER_STATE_LED = false;
+      data.SYSTEM_POWER_STATE = 1;
+    }
+  }
+  if(data.SYSTEM_POWER_STATE == 1) {
+    if (data.VOLTAGE_SUPERCAP < 3.0) {
+      data.POWER_STATE_RB = false;
+      RBModule.shutdown();
+      data.RB_LAST = millis();
+      data.SYSTEM_POWER_STATE = 2;
+    }
+    if (data.VOLTAGE_SUPERCAP > 4.0) {
+      data.POWER_STATE_LED = true;
+      data.SYSTEM_POWER_STATE = 0;
+    }
+  }
+  if(data.SYSTEM_POWER_STATE == 2) {
+    if (data.VOLTAGE_SUPERCAP < 2.6) {
+      superCap.disable5VBoost();
+      data.SYSTEM_POWER_STATE = 3;
+    }
+    if (data.VOLTAGE_SUPERCAP > 3.5) {
+      data.POWER_STATE_RB = true;
+      RBModule.restart(data.RB_SHOULD_SLEEP);
+      data.RB_LAST = millis();
+      data.SYSTEM_POWER_STATE = 1;
+    }
+  }
+  if(data.SYSTEM_POWER_STATE == 3) {
+  if (data.VOLTAGE_SUPERCAP > 3.0) {
+    superCap.enable5VBoost();
+    data.SYSTEM_POWER_STATE = 2;
+  }
+
+  }
   return true;
 }
 
@@ -810,6 +847,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.BALLAST_NUM_ATTEMPTS,                  0,    63,      6,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_NUM_OVERCURRENTS,              0,    63,      6,  lengthBits);
   lengthBits += compressVariable(data.CUTDOWN_STATE,                         0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.SYSTEM_POWER_STATE,                    0,    3,       2,  lengthBits);
   lengthBits += compressVariable(data.TEMP_INT,                             -85,   65,      9,  lengthBits);
   lengthBits += compressVariable(data.JOULES_TOTAL,                          0,    1572863, 18, lengthBits);
   lengthBits += compressVariable(data.VOLTAGE_PRIMARY,                       0,    6,       9,  lengthBits);
@@ -971,6 +1009,9 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" CUTDOWN_STATE:");
   Serial.print(data.CUTDOWN_STATE);
+  Serial.print(',');
+  Serial.print(" SYSTEM_POWER_STATE:");
+  Serial.print(data.SYSTEM_POWER_STATE);
   Serial.print(',');
   Serial.print(" TEMP_INT:");
   Serial.print(data.TEMP_INT);

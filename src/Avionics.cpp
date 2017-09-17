@@ -200,10 +200,11 @@ bool Avionics::readHistory() {
  * This function charges the superCap to 5 Volts.
  */
 bool Avionics::setup5VLine() {
-  while(sensors.getVoltageSuperCap() <= 5.0) {
+  while(sensors.getVoltageSuperCap() <= SUPER_CAP_VOLTAGE_NOMINAL) {
     delay(LOOP_INTERVAL);
-    Serial.println("Waiting for supercap to charge.  It is currently at: ");
-    Serial.print(sensors.getVoltageSuperCap()); Serial.println(" volts.");
+    Serial.print("SuperCap is currently at: ");
+    Serial.print(sensors.getVoltageSuperCap());
+    Serial.println(" volts.");
   }
   superCap.enable5VBoost();
   return true;
@@ -218,6 +219,7 @@ bool Avionics::readData() {
   data.LOOP_TIME             = millis() - data.TIME;
   data.TIME                  = millis();
   data.VOLTAGE_PRIMARY       = sensors.getVoltagePrimary();
+  data.VOLTAGE_SUPERCAP      = sensors.getVoltageSuperCap();
   data.CURRENT_TOTAL         = sensors.getCurrentTotal();
   data.JOULES_TOTAL          = sensors.getJoules();
   data.CURRENT_RB            = sensors.getCurrentSubsystem(RB_CURRENT);
@@ -384,7 +386,17 @@ bool Avionics::calcIncentives() {
  * This function updates the ouput of the superCap charging circuit.
  */
 bool Avionics::runCharger() {
-  superCap.runCharger(data.TEMP_INT);
+  uint8_t resistance = 0x10;
+  if (data.TEMP_INT <= CHARGER_TEMP_THRESH_HIGH) resistance = 0x23;
+  if (data.TEMP_INT <= CHARGER_TEMP_THRESH_LOW) resistance = 0x7F;
+  if (data.RESISTOR_MODE == 1) resistance = 0x7F;
+  if (data.RESISTOR_MODE == 2) resistance = 0x23;
+  if (data.RESISTOR_MODE == 3) resistance = 0x10;
+  if (data.RESISTOR_MODE == 4) resistance = 0x08;
+  superCap.runCharger(resistance);
+  // if supercap voltage below threshold turn off led
+  // if supercap voltage below threshold turn off Rockblock
+  // if supercap voltage below threshold turn off motors
   return true;
 }
 
@@ -556,7 +568,8 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 31) parseRockBLOCKPowerCommand(value);
   else if (index == 32) parseRockBLOCKModeCommand(value);
   else if (index == 33) parseGPSPowerCommand(value);
-  else if (index == 34) parsePayloadPowerCommand(value);
+  else if (index == 34) parseResistorPowerCommand(value);
+  else if (index == 35) parsePayloadPowerCommand(value);
 }
 
 /*
@@ -664,6 +677,15 @@ void Avionics::parseGPSPowerCommand(uint8_t command) {
     gpsModule.hotstart();
     readGPS();
   }
+}
+
+/*
+ * Function: parseResistorPowerCommand
+ * -------------------
+ * This function parses the Resistor power command.
+ */
+void Avionics::parseResistorPowerCommand(uint8_t command) {
+  data.RESISTOR_MODE = command;
 }
 
 /*
@@ -791,6 +813,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.TEMP_INT,                             -85,   65,      9,  lengthBits);
   lengthBits += compressVariable(data.JOULES_TOTAL,                          0,    1572863, 18, lengthBits);
   lengthBits += compressVariable(data.VOLTAGE_PRIMARY,                       0,    6,       9,  lengthBits);
+  lengthBits += compressVariable(data.VOLTAGE_SUPERCAP,                      0,    6,       9,  lengthBits);
   lengthBits += compressVariable(data.CURRENT_TOTAL_AVG,                     0,    4095,    12, lengthBits);
   lengthBits += compressVariable(data.CURRENT_TOTAL_MIN,                     0,    4095,    12, lengthBits);
   lengthBits += compressVariable(data.CURRENT_TOTAL_MAX,                     0,    4095,    12, lengthBits);
@@ -806,6 +829,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.LOOP_TIME_MAX,                         0,    10239,   10, lengthBits);
   lengthBits += compressVariable(data.RB_SENT_COMMS,                         0,    8191,    13, lengthBits);
   lengthBits += compressVariable(data.RB_SLEEP_FAILS,                        0,    8191,    13, lengthBits);
+  lengthBits += compressVariable(data.RESISTOR_MODE,                         0,    4,       3,  lengthBits);
   lengthBits += compressVariable(data.MANUAL_MODE,                           0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.REPORT_MODE,                           0,    2,       2,  lengthBits);
   lengthBits += compressVariable(data.SHOULD_REPORT,                         0,    1,       1,  lengthBits);
@@ -957,6 +981,9 @@ void Avionics::printState() {
   Serial.print(" VOLTAGE_PRIMARY:");
   Serial.print(data.VOLTAGE_PRIMARY);
   Serial.print(',');
+  Serial.print(" VOLTAGE_SUPERCAP:");
+  Serial.print(data.VOLTAGE_SUPERCAP);
+  Serial.print(',');
   Serial.print(" CURRENT_TOTAL_AVG:");
   Serial.print(data.CURRENT_TOTAL_AVG);
   Serial.print(',');
@@ -1007,6 +1034,9 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" RB_SLEEP_FAILS:");
   Serial.print(data.RB_SLEEP_FAILS);
+  Serial.print(',');
+  Serial.print(" RESISTOR_MODE:");
+  Serial.print(data.RESISTOR_MODE);
   Serial.print(',');
   Serial.print(" MANUAL_MODE:");
   Serial.print(data.MANUAL_MODE);

@@ -2,6 +2,7 @@
   Stanford Student Space Initiative
   Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
+  Aria Tedjarati | atedjarati@stanford.edu
 
   File: Charger.h
   --------------------------
@@ -21,7 +22,7 @@ public:
 /********************************  FUNCTIONS  *********************************/
   void enable5VBoost();
   void disable5VBoost();
-  void runCharger(float temp);
+  void runCharger(uint8_t hex);
 private:
 /*********************************  HELPERS  **********************************/
 

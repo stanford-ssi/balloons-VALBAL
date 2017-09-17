@@ -2,6 +2,7 @@
   Stanford Student Space Initiative
   Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
+  Aria Tedjarati | atedjarati@stanford.edu
 
   File: Charger.cpp
   --------------------------
@@ -41,9 +42,8 @@ void Charger::disable5VBoost() {
  * -------------------
  * This function calcualtes and updates the desired charging output.
  */
-void Charger::runCharger(float temp) {
-  float resistanceCur = resistor.getCurrentResistance();
-  float currentCurr = 10000 / resistanceCur;
+void Charger::runCharger(uint8_t hex) {
+  resistor.setResistance(hex);
 }
 
 /*********************************  HELPERS  **********************************/

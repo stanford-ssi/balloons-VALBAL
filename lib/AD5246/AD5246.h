@@ -2,6 +2,7 @@
   Stanford Student Space Initiative
   Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
+  Aria Tedjarati | atedjarati@stanford.edu
 
   File: AD5246.h
   --------------------------
@@ -17,16 +18,12 @@
 class AD5246 {
 public:
 /**********************************  SETUP  ***********************************/
-  bool    init();
+  bool init();
 /********************************  FUNCTIONS  *********************************/
-  bool    setResistance(float ohms);
-  float   getCurrentResistance();
+  bool setResistance(uint8_t hex);
 private:
-/*********************************  HELPERS  **********************************/
-  uint8_t ohmsToSteps(float ohms);
 /*********************************  OBJECTS  **********************************/
-  uint16_t ADDRESS;
-  float    resistance;
+  uint16_t ADDRESS = 0x2E;
 };
 
 #endif

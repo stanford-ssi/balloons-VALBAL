@@ -3,7 +3,6 @@
   Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
-  Matthew Tan  | mratan@stanford.edu
 
   File: Actuators.h
   --------------------------

@@ -41,6 +41,7 @@ struct DataFrame {
   float      TEMP_INT                        =                                0;
   float      JOULES_TOTAL                    =                                0;
   float      VOLTAGE_PRIMARY                 =                                0;
+  float      VOLTAGE_SUPERCAP                =                                0;
   float      CURRENT_TOTAL_AVG               =                                0;
   float      CURRENT_TOTAL_MIN               =                                0;
   float      CURRENT_TOTAL_MAX               =                                0;
@@ -57,6 +58,7 @@ struct DataFrame {
   uint32_t   RB_SENT_COMMS                   =                                0;
   uint32_t   RB_WAKE_FAILS                   =                                0;
   uint32_t   RB_SLEEP_FAILS                  =                                0;
+  uint8_t    RESISTOR_MODE                   =                                0;                
 
   bool       MANUAL_MODE                     =              MANUAL_MODE_DEFAULT;
   uint8_t    REPORT_MODE                     =              REPORT_MODE_DEFAULT;

@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | May 2017
+  Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
 
@@ -26,6 +26,7 @@ public:
   void     storeData(uint32_t time_stamp, float RAW_PRESSURE_1, float RAW_PRESSURE_2, float RAW_PRESSURE_3, float RAW_PRESSURE_4, float pressureBaselineArg);
   uint32_t getNumRejections(uint8_t sensor);
 
+  float    getAvgVoltageSuperCap(float voltage);
   float    getAvgCurrentSystem(float current);
   float    getAvgCurrentRB(float current);
   float    getAvgCurrentMotorValve(float current,bool on);
@@ -58,6 +59,9 @@ private:
   bool     enabledSensors[4] = {true};
   uint32_t rejectedSensors[4] = {0};
   uint8_t  numSensors;
+
+  float    superCapVoltageBuffer[VOLTAGE_BUFFER_SIZE] = {0};
+  uint16_t superCapVoltageIndex = 0;
 
   float    currentSystemTotal = 0;
   float    currentSystemMax = 0;

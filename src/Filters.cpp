@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | May 2017
+  Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
 
@@ -19,6 +19,7 @@
 */
 bool Filters::init() {
   bool sucess = true;
+  for (uint16_t i = 0; i < VOLTAGE_BUFFER_SIZE; i++) superCapVoltageBuffer[i] = 5.0;
   findLastAccepted();
   // char filename[] = "FILTER00.TXT";
   // for (uint8_t i = 0; i < 100; i++) {
@@ -144,11 +145,25 @@ void Filters::storeData(uint32_t time_stamp, float RAW_PRESSURE_1, float RAW_PRE
 }
 
 /*
+* Function: getAvgVoltageSuperCap
+* -------------------
+* This function returns the average superCap voltage over the last window.
+*/
+float Filters::getAvgVoltageSuperCap(float voltage) {
+  superCapVoltageBuffer[superCapVoltageIndex] = voltage;
+  superCapVoltageIndex++;
+  superCapVoltageIndex %= VOLTAGE_BUFFER_SIZE;
+  float superCapVoltageTotal = 0;
+  for (uint16_t i = 0; i < VOLTAGE_BUFFER_SIZE; i++) superCapVoltageTotal += superCapVoltageBuffer[i];
+  return superCapVoltageTotal / VOLTAGE_BUFFER_SIZE;
+}
+
+/*
 * Function: getAverageCurrentSystem
 * -------------------
 * This function returns the average subsytem current over the last window.
 */
-float   Filters::getAvgCurrentSystem(float current) {
+float Filters::getAvgCurrentSystem(float current) {
   if(current > currentSystemMax) currentSystemMax = current;
   if(current < currentSystemMin) currentSystemMin = current;
   currentSystemTotal += current;

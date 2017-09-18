@@ -317,6 +317,7 @@ bool Avionics::processData() {
   data.BMP_3_REJECTIONS           = filter.getNumRejections(3);
   data.BMP_4_REJECTIONS           = filter.getNumRejections(4);
 
+  data.VOLTAGE_SUPERCAP_AVG       = filter.getAvgVoltageSuperCap(data.VOLTAGE_SUPERCAP);
   data.CURRENT_TOTAL_AVG          = filter.getAvgCurrentSystem(data.CURRENT_TOTAL);
   data.CURRENT_TOTAL_MIN          = filter.getMinCurrentSystem();
   data.CURRENT_TOTAL_MAX          = filter.getMaxCurrentSystem();
@@ -415,29 +416,29 @@ bool Avionics::runCharger() {
   superCap.runCharger(resistance);
 
   if(data.SYSTEM_POWER_STATE == 0) {
-    if (data.VOLTAGE_SUPERCAP < 3.5) {
+    if (data.VOLTAGE_SUPERCAP_AVG < 3.5) {
       data.POWER_STATE_LED = false;
       data.SYSTEM_POWER_STATE = 1;
     }
   }
   if(data.SYSTEM_POWER_STATE == 1) {
-    if (data.VOLTAGE_SUPERCAP < 3.0) {
+    if (data.VOLTAGE_SUPERCAP_AVG < 3.0) {
       data.POWER_STATE_RB = false;
       RBModule.shutdown();
       data.RB_LAST = millis();
       data.SYSTEM_POWER_STATE = 2;
     }
-    if (data.VOLTAGE_SUPERCAP > 4.0) {
+    if (data.VOLTAGE_SUPERCAP_AVG > 4.0) {
       data.POWER_STATE_LED = true;
       data.SYSTEM_POWER_STATE = 0;
     }
   }
   if(data.SYSTEM_POWER_STATE == 2) {
-    if (data.VOLTAGE_SUPERCAP < 2.6) {
+    if (data.VOLTAGE_SUPERCAP_AVG < 2.6) {
       superCap.disable5VBoost();
       data.SYSTEM_POWER_STATE = 3;
     }
-    if (data.VOLTAGE_SUPERCAP > 3.5) {
+    if (data.VOLTAGE_SUPERCAP_AVG > 3.5) {
       data.POWER_STATE_RB = true;
       RBModule.restart();
       data.RB_LAST = millis();
@@ -445,11 +446,10 @@ bool Avionics::runCharger() {
     }
   }
   if(data.SYSTEM_POWER_STATE == 3) {
-  if (data.VOLTAGE_SUPERCAP > 3.0) {
-    superCap.enable5VBoost();
-    data.SYSTEM_POWER_STATE = 2;
-  }
-
+    if (data.VOLTAGE_SUPERCAP_AVG > 3.0) {
+      superCap.enable5VBoost();
+      data.SYSTEM_POWER_STATE = 2;
+    }
   }
   return true;
 }
@@ -855,7 +855,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.TEMP_INT,                             -85,   65,      9,  lengthBits);
   lengthBits += compressVariable(data.JOULES_TOTAL,                          0,    1572863, 18, lengthBits);
   lengthBits += compressVariable(data.VOLTAGE_PRIMARY,                       0,    6,       9,  lengthBits);
-  lengthBits += compressVariable(data.VOLTAGE_SUPERCAP,                      0,    6,       9,  lengthBits);
+  lengthBits += compressVariable(data.VOLTAGE_SUPERCAP_AVG,                  0,    6,       9,  lengthBits);
   lengthBits += compressVariable(data.CURRENT_TOTAL_AVG,                     0,    4095,    12, lengthBits);
   lengthBits += compressVariable(data.CURRENT_TOTAL_MIN,                     0,    4095,    12, lengthBits);
   lengthBits += compressVariable(data.CURRENT_TOTAL_MAX,                     0,    4095,    12, lengthBits);
@@ -1026,8 +1026,8 @@ void Avionics::printState() {
   Serial.print(" VOLTAGE_PRIMARY:");
   Serial.print(data.VOLTAGE_PRIMARY);
   Serial.print(',');
-  Serial.print(" VOLTAGE_SUPERCAP:");
-  Serial.print(data.VOLTAGE_SUPERCAP);
+  Serial.print(" VOLTAGE_SUPERCAP_AVG:");
+  Serial.print(data.VOLTAGE_SUPERCAP_AVG);
   Serial.print(',');
   Serial.print(" CURRENT_TOTAL_AVG:");
   Serial.print(data.CURRENT_TOTAL_AVG);
@@ -1259,6 +1259,9 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" PRESS:");
   Serial.print(data.PRESS);
+  Serial.print(',');
+  Serial.print(" VOLTAGE_SUPERCAP:");
+  Serial.print(data.VOLTAGE_SUPERCAP);
   Serial.print(',');
   Serial.print(" CURRENT_TOTAL:");
   Serial.print(data.CURRENT_TOTAL);

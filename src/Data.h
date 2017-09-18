@@ -43,7 +43,7 @@ struct DataFrame {
   float      TEMP_INT                        =                                0;
   float      JOULES_TOTAL                    =                                0;
   float      VOLTAGE_PRIMARY                 =                                0;
-  float      VOLTAGE_SUPERCAP                =                                0;
+  float      VOLTAGE_SUPERCAP_AVG            =                                0;
   float      CURRENT_TOTAL_AVG               =                                0;
   float      CURRENT_TOTAL_MIN               =                                0;
   float      CURRENT_TOTAL_MAX               =                                0;
@@ -138,6 +138,7 @@ struct DataFrame {
   float      RAW_PRESSURE_3                  =                                0;
   float      RAW_PRESSURE_4                  =                                0;
   float      PRESS                           =                                0;
+  float      VOLTAGE_SUPERCAP                =                                0;
   float      CURRENT_TOTAL                   =                                0;
   float      CURRENT_RB                      =                                0;
   float      CURRENT_MOTOR_VALVE             =                                0;

@@ -387,14 +387,34 @@ bool Avionics::calcIncentives() {
  */
 bool Avionics::runCharger() {
   uint8_t resistance = 0x10;
+  uint8_t chargingLimit = 3;
   if (data.RESISTOR_MODE == 0){
-    if (data.TEMP_INT <= CHARGER_TEMP_THRESH_HIGH) resistance = 0x23;
-    if (data.TEMP_INT <= CHARGER_TEMP_THRESH_LOW) resistance = 0x7F;
+    if (data.TEMP_INT <= CHARGER_TEMP_THRESH_HIGH) {
+      resistance = 0x23;
+      chargingLimit = 2;
+    }
+    if (data.TEMP_INT <= CHARGER_TEMP_THRESH_LOW) {
+      resistance = 0x7F;
+      chargingLimit = 1;
+    }
   }
-  if (data.RESISTOR_MODE == 1) resistance = 0x7F;
-  if (data.RESISTOR_MODE == 2) resistance = 0x23;
-  if (data.RESISTOR_MODE == 3) resistance = 0x10;
-  if (data.RESISTOR_MODE == 4) resistance = 0x08;
+  if (data.RESISTOR_MODE == 1) {
+    resistance = 0x7F;
+    chargingLimit = 1;
+  }
+  if (data.RESISTOR_MODE == 2) {
+    resistance = 0x23;
+    chargingLimit = 2;
+  }
+  if (data.RESISTOR_MODE == 3) {
+    resistance = 0x10;
+    chargingLimit = 3;
+  }
+  if (data.RESISTOR_MODE == 4) {
+    resistance = 0x08;
+    chargingLimit = 4;
+  }
+  data.MAX_CURRENT_CHARGING_LIMIT = chargingLimit;
   superCap.runCharger(resistance);
 
   if(data.SYSTEM_POWER_STATE == 0) {
@@ -846,6 +866,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.BALLAST_NUM_ATTEMPTS,                  0,    63,      6,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_NUM_OVERCURRENTS,              0,    63,      6,  lengthBits);
   lengthBits += compressVariable(data.CUTDOWN_STATE,                         0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.MAX_CURRENT_CHARGING_LIMIT,            0,    3,       2,  lengthBits);
   lengthBits += compressVariable(data.SYSTEM_POWER_STATE,                    0,    3,       2,  lengthBits);
   lengthBits += compressVariable(data.TEMP_INT,                             -85,   65,      9,  lengthBits);
   lengthBits += compressVariable(data.JOULES_TOTAL,                          0,    1572863, 18, lengthBits);
@@ -1007,6 +1028,9 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" CUTDOWN_STATE:");
   Serial.print(data.CUTDOWN_STATE);
+  Serial.print(',');
+  Serial.print(" MAX_CURRENT_CHARGING_LIMIT:");
+  Serial.print(data.MAX_CURRENT_CHARGING_LIMIT);
   Serial.print(',');
   Serial.print(" SYSTEM_POWER_STATE:");
   Serial.print(data.SYSTEM_POWER_STATE);

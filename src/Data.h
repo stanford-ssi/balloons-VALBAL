@@ -37,6 +37,7 @@ struct DataFrame {
   uint32_t   BALLAST_NUM_ATTEMPTS            =                                0;
   uint32_t   BALLAST_NUM_OVERCURRENTS        =                                0;
   bool       CUTDOWN_STATE                   =                            false;
+  uint8_t    MAX_CURRENT_CHARGING_LIMIT      =                                0;
   uint8_t    SYSTEM_POWER_STATE              =                                0;
 
   float      TEMP_INT                        =                                0;

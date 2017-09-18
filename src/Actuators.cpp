@@ -86,14 +86,8 @@ void Actuators::clearBallastQueue() {
  * This function provides a non-hanging interface to check the timer queue.
  * Called every loop; updates and acts on the current state of the valve.
  */
-bool Actuators::checkValve(float current, uint32_t leakTimeout) {
+bool Actuators::checkValve(float current) {
   if (valveState == CLOSED) {
-    if (((millis() - valveLeakStartTime) >= leakTimeout) && (ballastState == CLOSED)) {
-      valveLeakStartTime = millis();
-      valveActionStartTime = millis();
-      valveState = CLOSING;
-      closeValve();
-    }
     if (valveQueue == 0) {
       uint32_t deltaTime = (millis() - valveCheckTime);
       valveCheckTime = millis();
@@ -123,7 +117,6 @@ bool Actuators::checkValve(float current, uint32_t leakTimeout) {
     }
   }
   if ((valveState == CLOSING) && (millis() - valveActionStartTime >= valveClosingTimeout)) {
-    valveLeakStartTime = millis();
     valveState = CLOSED;
     stopValve();
   }

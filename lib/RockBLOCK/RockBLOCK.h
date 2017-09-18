@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | April 2017
+  Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | atedjara@stanford.edu
 
@@ -24,15 +24,13 @@ public:
     EEPROMAddress(EEPROMAddressVal),
     isbd(Serial3, RB_SleepPinNum) {
   }
-  bool     init(bool shouldStartup, bool sleep);
+  bool     init(bool shouldStartup);
 /********************************  FUNCTIONS  *********************************/
-  void     restart(bool sleep);
+  void     restart();
   void     shutdown();
   bool     wake();
   bool     snooze();
-  int16_t  writeRead(char* buff, uint16_t len, bool sleep);
-  uint32_t getNumWakeFailures();
-  uint32_t getNumSleepFailures();
+  int16_t  writeRead(char* buff, uint16_t len);
 private:
 /*********************************  HELPERS  **********************************/
   void     write(char* buff, uint16_t len);
@@ -43,8 +41,6 @@ private:
   uint8_t    RB_GATE;
   uint16_t   RB_BAUD;
   uint8_t    EEPROMAddress;
-  uint32_t   failureWakeCount;
-  uint32_t   failureSleepCount;
   IridiumSBD isbd;
 };
 

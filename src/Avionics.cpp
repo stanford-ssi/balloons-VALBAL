@@ -23,21 +23,21 @@ void Avionics::init() {
   Serial.begin(CONSOLE_BAUD);
   PCB.init();
   actuator.init();
-  if(!setupSDCard())                                            alert("unable to initialize SD Card", true);
-  if(!readHistory())                                            alert("unable to initialize EEPROM", true);
-  if(!sensors.init())                                           alert("unable to initialize Sensors", true);
+  if(!setupSDCard())                        alert("unable to initialize SD Card", true);
+  if(!readHistory())                        alert("unable to initialize EEPROM", true);
+  if(!sensors.init())                       alert("unable to initialize Sensors", true);
 #ifdef HITL_ENABLED_FLAG
-  if(!HITL.init())                                              alert("unable to initialize Simulations", true);
+  if(!HITL.init())                          alert("unable to initialize Simulations", true);
 #endif
-  if(!filter.init())                                            alert("unable to initialize Filters", true);
-  if(!computer.init())                                          alert("unable to initialize Flight Controller", true);
-  if(!gpsModule.init(data.POWER_STATE_GPS))                     alert("unable to initialize GPS", true);
-  if(!superCap.init())                                          alert("unable to initialize superCap", true);
-  if(!setup5VLine())                                            alert("unable to initialize 5V line", true);
+  if(!filter.init())                        alert("unable to initialize Filters", true);
+  if(!computer.init())                      alert("unable to initialize Flight Controller", true);
+  if(!gpsModule.init(data.POWER_STATE_GPS)) alert("unable to initialize GPS", true);
+  if(!superCap.init())                      alert("unable to initialize superCap", true);
+  if(!setup5VLine())                        alert("unable to initialize 5V line", true);
 #ifndef RB_DISABLED_FLAG
-  if(!RBModule.init(data.POWER_STATE_RB, data.RB_SHOULD_SLEEP)) alert("unable to initialize RockBlock", true);
+  if(!RBModule.init(data.POWER_STATE_RB))   alert("unable to initialize RockBlock", true);
 #endif
-  if(!ValRF.init(data.POWER_STATE_PAYLOAD))                     alert("unable to initialize Payload", true);
+  if(!ValRF.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
   data.TIME = millis();
   data.SETUP_STATE = false;
 }
@@ -116,11 +116,8 @@ void Avionics::logState() {
  */
 void Avionics::sendComms() {
 #ifndef RB_DISABLED_FLAG
-  data.RB_WAKE_FAILS = RBModule.getNumWakeFailures();
-  data.RB_SLEEP_FAILS = RBModule.getNumSleepFailures();
   if(!data.VALVE_STATE && !data.POWER_STATE_RB && ((millis() - data.RB_LAST) > RB_RESTART_INTERVAL)) {
-    data.RB_SHOULD_SLEEP = false;
-    RBModule.restart(data.RB_SHOULD_SLEEP);
+    RBModule.restart();
   }
   if(data.DEBUG_STATE && ((millis() - data.RB_LAST) < RB_DEBUG_INTERVAL)) return;
   if(!data.DEBUG_STATE && ((millis() - data.RB_LAST) < data.RB_INTERVAL)) return;
@@ -442,7 +439,7 @@ bool Avionics::runCharger() {
     }
     if (data.VOLTAGE_SUPERCAP > 3.5) {
       data.POWER_STATE_RB = true;
-      RBModule.restart(data.RB_SHOULD_SLEEP);
+      RBModule.restart();
       data.RB_LAST = millis();
       data.SYSTEM_POWER_STATE = 1;
     }
@@ -541,7 +538,7 @@ bool Avionics::sendSATCOMS() {
   alert("sending Rockblock message", false);
   data.RB_SENT_COMMS++;
 #ifndef RB_DISABLED_FLAG
-  int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH, data.RB_SHOULD_SLEEP);
+  int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
   if(ret < 0) return false;
   clearVariables();
   if(ret > 0) parseCommand(ret);
@@ -622,10 +619,9 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 28) parseValveCommand(value * 1000);
   else if (index == 29) parseBallastCommand(value * 1000);
   else if (index == 30) parseRockBLOCKPowerCommand(value);
-  else if (index == 31) parseRockBLOCKModeCommand(value);
-  else if (index == 32) parseGPSPowerCommand(value);
-  else if (index == 33) parseResistorPowerCommand(value);
-  else if (index == 34) parsePayloadPowerCommand(value);
+  else if (index == 31) parseGPSPowerCommand(value);
+  else if (index == 32) parseResistorPowerCommand(value);
+  else if (index == 33) parsePayloadPowerCommand(value);
 }
 
 /*
@@ -694,24 +690,12 @@ void Avionics::parseBallastCommand(uint32_t command) {
 void Avionics::parseRockBLOCKPowerCommand(bool command) {
   if (command && !data.POWER_STATE_RB) {
     data.POWER_STATE_RB = true;
-    RBModule.restart(data.RB_SHOULD_SLEEP);
+    RBModule.restart();
   }
   else if (!command) {
     data.POWER_STATE_RB = false;
     RBModule.shutdown();
   }
-  data.RB_LAST = millis();
-}
-
-/*
- * Function: parseRockBLOCKModeCommand
- * -------------------
- * This function parses the mode RockBLOCK command.
- */
-void Avionics::parseRockBLOCKModeCommand(bool command) {
-  if(data.RB_SHOULD_SLEEP && !command) RBModule.wake();
-  if(!data.RB_SHOULD_SLEEP && command) RBModule.snooze();
-  data.RB_SHOULD_SLEEP = command;
   data.RB_LAST = millis();
 }
 
@@ -886,7 +870,6 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.TEMP_EXT,                             -100,  30,      8,  lengthBits);
   lengthBits += compressVariable(data.LOOP_TIME_MAX,                         0,    10239,   10, lengthBits);
   lengthBits += compressVariable(data.RB_SENT_COMMS,                         0,    8191,    13, lengthBits);
-  lengthBits += compressVariable(data.RB_SLEEP_FAILS,                        0,    8191,    13, lengthBits);
   lengthBits += compressVariable(data.RESISTOR_MODE,                         0,    4,       3,  lengthBits);
   lengthBits += compressVariable(data.MANUAL_MODE,                           0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.REPORT_MODE,                           0,    2,       2,  lengthBits);
@@ -917,7 +900,6 @@ int16_t Avionics::compressData() {
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval
     lengthBits += compressVariable(data.GPS_INTERVAL / 1000,                 0,    1023,    10, lengthBits); // GPS communication interval
-    lengthBits += compressVariable(data.RB_SHOULD_SLEEP,                     0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.PRESS_BASELINE,                      0,    131071,  17, lengthBits); // Pressure baseline
     lengthBits += compressVariable(data.INCENTIVE_THRESHOLD,                 0,    4,       3,  lengthBits);
     lengthBits += compressVariable(data.BALLAST_ARM_ALT,                    -2000, 40000,   16, lengthBits); // Ballast Arming Altitude
@@ -1089,12 +1071,6 @@ void Avionics::printState() {
   Serial.print(" RB_SENT_COMMS:");
   Serial.print(data.RB_SENT_COMMS);
   Serial.print(',');
-  Serial.print(" RB_WAKE_FAILS:");
-  Serial.print(data.RB_WAKE_FAILS);
-  Serial.print(',');
-  Serial.print(" RB_SLEEP_FAILS:");
-  Serial.print(data.RB_SLEEP_FAILS);
-  Serial.print(',');
   Serial.print(" RESISTOR_MODE:");
   Serial.print(data.RESISTOR_MODE);
   Serial.print(',');
@@ -1181,9 +1157,6 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" GPS_INTERVAL:");
   Serial.print(data.GPS_INTERVAL);
-  Serial.print(',');
-  Serial.print(" RB_SHOULD_SLEEP:");
-  Serial.print(data.RB_SHOULD_SLEEP);
   Serial.print(',');
   Serial.print(" PRESS_BASELINE:");
   Serial.print(data.PRESS_BASELINE);

@@ -87,7 +87,6 @@ private:
   void    parseValveCommand(uint32_t  command);
   void    parseBallastCommand(uint32_t  command);
   void    parseRockBLOCKPowerCommand(bool command);
-  void    parseRockBLOCKModeCommand(bool command);
   void    parseGPSPowerCommand(uint8_t command);
   void    parseResistorPowerCommand(uint8_t command);
   void    parsePayloadPowerCommand(bool command);

@@ -74,7 +74,6 @@ static const uint32_t  RB_BAUD                               =            19200;
 /***************************  Flight Parameters  ******************************/
 static const bool      MANUAL_MODE_DEFAULT                   =             true;
 static const uint8_t   REPORT_MODE_DEFAULT                   =                2;
-static const bool      RB_SHOULD_SLEEP_DEFAULT               =            false;
 static const uint32_t  QUEUE_APPEND_THRESHOLD                =             1000;
 
 static const float     CHARGER_TEMP_THRESH_HIGH              =              -55;

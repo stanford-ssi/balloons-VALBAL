@@ -56,7 +56,6 @@ void RockBLOCK::restart() {
 void RockBLOCK::shutdown() {
   digitalWrite(RB_GATE, HIGH);
   EEPROM.write(EEPROMAddress, false);
-  isbd.begin();
 }
 
 /*

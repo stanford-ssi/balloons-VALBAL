@@ -106,7 +106,7 @@ void Avionics::logState() {
   data.LOG_TIME = millis() - t0;
   data.LOOP_NUMBER2++;
   max = (data.LOG_TIME > max) ? data.LOG_TIME : max;
-  if(!debugState())   alert("unable to debug state", true);
+  if(!debugState()) alert("unable to debug state", true);
 }
 
 /*
@@ -201,7 +201,7 @@ bool Avionics::setup5VLine() {
     delay(LOOP_INTERVAL);
     Serial.print("SuperCap is currently at: ");
     Serial.print(sensors.getVoltageSuperCap());
-    Serial.println(" volts.");
+    Serial.println(" Volts.");
   }
   superCap.enable5VBoost();
   return true;

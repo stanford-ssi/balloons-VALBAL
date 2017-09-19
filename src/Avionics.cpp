@@ -213,26 +213,27 @@ bool Avionics::setup5VLine() {
  * This function updates the current data frame.
  */
 bool Avionics::readData() {
-  data.LOOP_TIME             = millis() - data.TIME;
-  data.TIME                  = millis();
-  data.VOLTAGE_PRIMARY       = sensors.getVoltagePrimary();
-  data.VOLTAGE_SUPERCAP      = sensors.getVoltageSuperCap();
-  data.CURRENT_TOTAL         = sensors.getCurrentTotal();
-  data.JOULES_TOTAL          = sensors.getJoules();
-  data.CURRENT_RB            = sensors.getCurrentSubsystem(RB_CURRENT);
-  data.CURRENT_MOTOR_VALVE   = (data.VALVE_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
-  data.CURRENT_MOTOR_BALLAST = (data.BALLAST_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
-  data.CURRENT_PAYLOAD       = sensors.getCurrentSubsystem(PAYLOAD_CURRENT);
-  data.TEMP_EXT              = sensors.getDerivedTemp(EXT_TEMP_SENSOR);
-  data.BLACK_BODY_TEMP       = sensors.getDerivedTemp(BLACK_BODY_TEMP_SENSOR);
-  data.RAW_TEMP_1            = sensors.getRawTemp(1);
-  data.RAW_TEMP_2            = sensors.getRawTemp(2);
-  data.RAW_TEMP_3            = sensors.getRawTemp(3);
-  data.RAW_TEMP_4            = sensors.getRawTemp(4);
-  data.RAW_PRESSURE_1        = sensors.getRawPressure(1);
-  data.RAW_PRESSURE_2        = sensors.getRawPressure(2);
-  data.RAW_PRESSURE_3        = sensors.getRawPressure(3);
-  data.RAW_PRESSURE_4        = sensors.getRawPressure(4);
+  data.LOOP_TIME                  = millis() - data.TIME;
+  data.TIME                       = millis();
+  data.VOLTAGE_PRIMARY            = sensors.getVoltagePrimary();
+  data.VOLTAGE_SUPERCAP           = sensors.getVoltageSuperCap();
+  data.CURRENT_TOTAL              = sensors.getCurrentTotal();
+  data.JOULES_TOTAL               = sensors.getJoules();
+  data.CURRENT_RB                 = sensors.getCurrentSubsystem(RB_CURRENT);
+  data.MAX_CURRENT_CHARGING_LIMIT = superCap.getChargingLimit();
+  data.CURRENT_MOTOR_VALVE        = (data.VALVE_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
+  data.CURRENT_MOTOR_BALLAST      = (data.BALLAST_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
+  data.CURRENT_PAYLOAD            = sensors.getCurrentSubsystem(PAYLOAD_CURRENT);
+  data.TEMP_EXT                   = sensors.getDerivedTemp(EXT_TEMP_SENSOR);
+  data.BLACK_BODY_TEMP            = sensors.getDerivedTemp(BLACK_BODY_TEMP_SENSOR);
+  data.RAW_TEMP_1                 = sensors.getRawTemp(1);
+  data.RAW_TEMP_2                 = sensors.getRawTemp(2);
+  data.RAW_TEMP_3                 = sensors.getRawTemp(3);
+  data.RAW_TEMP_4                 = sensors.getRawTemp(4);
+  data.RAW_PRESSURE_1             = sensors.getRawPressure(1);
+  data.RAW_PRESSURE_2             = sensors.getRawPressure(2);
+  data.RAW_PRESSURE_3             = sensors.getRawPressure(3);
+  data.RAW_PRESSURE_4             = sensors.getRawPressure(4);
   if (data.POWER_STATE_GPS && ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) && (!data.VALVE_STATE)) readGPS();
   if (data.POWER_STATE_PAYLOAD) readPayload();
   return true;
@@ -384,37 +385,7 @@ bool Avionics::calcIncentives() {
  * This function updates the ouput of the superCap charging circuit.
  */
 bool Avionics::runCharger() {
-  uint8_t resistance = 0x10;
-  uint8_t chargingLimit = 3;
-  if (data.RESISTOR_MODE == 0){
-    if (data.TEMP_INT <= CHARGER_TEMP_THRESH_HIGH) {
-      resistance = 0x23;
-      chargingLimit = 2;
-    }
-    if (data.TEMP_INT <= CHARGER_TEMP_THRESH_LOW) {
-      resistance = 0x7F;
-      chargingLimit = 1;
-    }
-  }
-  if (data.RESISTOR_MODE == 1) {
-    resistance = 0x7F;
-    chargingLimit = 1;
-  }
-  if (data.RESISTOR_MODE == 2) {
-    resistance = 0x23;
-    chargingLimit = 2;
-  }
-  if (data.RESISTOR_MODE == 3) {
-    resistance = 0x10;
-    chargingLimit = 3;
-  }
-  if (data.RESISTOR_MODE == 4) {
-    resistance = 0x08;
-    chargingLimit = 4;
-  }
-  data.MAX_CURRENT_CHARGING_LIMIT = chargingLimit;
-  superCap.runCharger(resistance);
-
+  superCap.runChargerPID(data.RESISTOR_MODE, data.TEMP_INT);
   if(data.SYSTEM_POWER_STATE == 0) {
     if (data.VOLTAGE_SUPERCAP_AVG < 3.5) {
       data.POWER_STATE_LED = false;

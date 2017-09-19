@@ -18,16 +18,18 @@
 class Charger {
 public:
 /**********************************  SETUP  ***********************************/
-  bool init();
+  bool    init();
 /********************************  FUNCTIONS  *********************************/
-  void enable5VBoost();
-  void disable5VBoost();
-  void runCharger(uint8_t hex);
+  void    enable5VBoost();
+  void    disable5VBoost();
+  void    runChargerPID(uint8_t resistorMode, float temp);
+  uint8_t getChargingLimit();
 private:
 /*********************************  HELPERS  **********************************/
 
 /*********************************  OBJECTS  **********************************/
   AD5246 resistor;
+  uint8_t chargingLimit = 0;
 };
 
 #endif

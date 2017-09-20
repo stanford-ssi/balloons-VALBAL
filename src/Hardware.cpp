@@ -64,5 +64,3 @@ void Hardware::EEPROMWritelong(uint8_t address, int32_t value) {
   EEPROM.write(address + 2, two);
   EEPROM.write(address + 3, one);
 }
-
-/*********************************  HELPERS  **********************************/

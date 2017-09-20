@@ -19,6 +19,7 @@ class Actuators {
 public:
 /**********************************  SETUP  ***********************************/
   void     init();
+
 /********************************  FUNCTIONS  *********************************/
   void     updateMechanicalConstants(uint16_t valveMotorSpeedOpenValue, uint16_t valveMotorSpeedCloseValue, uint16_t ballastMotorSpeedValue, uint32_t valveOpeningTimeoutValue, uint32_t valveClosingTimeoutValue);
 
@@ -49,7 +50,6 @@ private:
   void     dropBallast(bool direction);
 
 /*********************************  OBJECTS  **********************************/
-
   uint32_t valveQueue = 0;
   uint32_t valveQueueFake = 0;
   uint32_t ballastQueue = 0;

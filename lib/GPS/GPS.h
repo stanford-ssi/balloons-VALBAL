@@ -26,6 +26,7 @@ public:
     GPS_TIMEOUT_TIME(GPS_QuitTime) {
   }
   bool     init(bool shouldStartup);
+
 /********************************  FUNCTIONS  *********************************/
   bool     restart();
   void     hotstart();
@@ -37,11 +38,13 @@ public:
   float    getCourse();
   uint8_t  getSats();
   void     smartDelay(uint32_t ms);
+
 private:
 /*********************************  HELPERS  **********************************/
   bool     setGPSMode(uint8_t* MSG, uint8_t len, uint16_t GPS_LOCK_TIME);
   void     sendUBX(uint8_t* MSG, uint8_t len);
   bool     getUBX_ACK(uint8_t* MSG);
+
 /*********************************  OBJECTS  **********************************/
   uint8_t  GPS_ENABLE_PIN;
   uint16_t GPS_BAUD;

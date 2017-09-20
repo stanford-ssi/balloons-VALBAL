@@ -144,7 +144,6 @@ struct DataFrame {
   float      CURRENT_MOTOR_VALVE             =                                0;
   float      CURRENT_MOTOR_BALLAST           =                                0;
   float      CURRENT_PAYLOAD                 =                                0;
-  uint32_t   PAYLOAD_MESSAGE_SIZE            =                                0;
 
   uint32_t   GPS_LAST                        =                                0;
   uint32_t   RB_LAST                         =                                0;

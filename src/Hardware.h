@@ -20,16 +20,13 @@ class Hardware {
 public:
 /**********************************  SETUP  ***********************************/
   void            init();
+
 /********************************  FUNCTIONS  *********************************/
   void            runLED(bool on);
-
   static void     EEPROMWritelong(uint8_t address, int32_t value);
   static int32_t  EEPROMReadlong(uint8_t address);
 
 private:
-/*********************************  HELPERS  **********************************/
-
-/*********************************  OBJECTS  **********************************/
 };
 
 #endif

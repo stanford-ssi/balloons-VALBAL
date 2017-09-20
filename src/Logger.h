@@ -23,12 +23,15 @@ const int CACHE_SIZE = 24;
 
 class Logger {
 public:
-
+/**********************************  SETUP  ***********************************/
   bool initialize();
+
+/********************************  FUNCTIONS  *********************************/
   bool log(struct DataFrame *frame, bool sadness);
   bool setupLogfile();
 
 private:
+/*********************************  OBJECTS  **********************************/
   SdFat sd;
   File binFile;
 

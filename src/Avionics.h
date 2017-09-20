@@ -43,10 +43,11 @@ public:
     sensors(),
     gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIMEOUT, GPS_QUIT_TIMEOUT),
     RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK),
-    ValRF(PAYLOAD_GATE, PAYLOAD_GPIO_1, PAYLOAD_GPIO_2, PAYLOAD_DAC, EEPROM_PAYLOAD) {
+    payload(PAYLOAD_GATE, PAYLOAD_GPIO_1, PAYLOAD_GPIO_2, PAYLOAD_DAC, EEPROM_PAYLOAD) {
   }
   void    init();
   void    test();
+
 /********************************  FUNCTIONS  *********************************/
   void    updateState();
   void    evaluateState();
@@ -64,7 +65,6 @@ private:
 
   bool    readData();
   bool    readGPS();
-  bool    readPayload();
   bool    simulateData();
   bool    processData();
 
@@ -77,6 +77,7 @@ private:
   bool    runBallast();
   bool    runCutdown();
   bool    runLED();
+  bool    runPayload();
 
   bool    sendSATCOMS();
   void    parseCommand(int16_t len);
@@ -115,7 +116,7 @@ private:
   Controller computer;
   GPS gpsModule;
   RockBLOCK RBModule;
-  Payload ValRF;
+  Payload payload;
 };
 
 #endif

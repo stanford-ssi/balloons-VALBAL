@@ -29,6 +29,7 @@ public:
     bme4(BMP_CS_FOUR) {
   }
   bool  init();
+
 /********************************  FUNCTIONS  *********************************/
   float getVoltagePrimary();
   float getVoltageSuperCap();
@@ -38,6 +39,7 @@ public:
   float getDerivedTemp(uint8_t sensor);
   float getRawTemp(uint8_t sensor);
   float getRawPressure(uint8_t sensor);
+
 private:
 /*********************************  OBJECTS  **********************************/
   Adafruit_BMP280 bme1;

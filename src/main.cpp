@@ -22,6 +22,7 @@ Avionics VALBAL;
 int main(void) {
   VALBAL.init();
   // VALBAL.test();
+
 /***********************************  MAIN  ***********************************/
   while(true) {
     VALBAL.updateState();
@@ -33,6 +34,7 @@ int main(void) {
   }
   return 0;
 }
+
 /*********************************  CALLBACK  *********************************/
 bool ISBDCallback() {
   if(VALBAL.finishedSetup()) {

@@ -37,7 +37,7 @@ void Avionics::init() {
 #ifndef RB_DISABLED_FLAG
   if(!RBModule.init(data.POWER_STATE_RB))   alert("unable to initialize RockBlock", true);
 #endif
-  if(!ValRF.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
+  if(!payload.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
   data.TIME = millis();
   data.SETUP_STATE = false;
 }
@@ -92,6 +92,7 @@ void Avionics::actuateState() {
   if(!runBallast()) alert("unable to run ballast", true);
   if(!runCutdown()) alert("unable to run cutdown", true);
   if(!runLED())     alert("unable to run LED", true);
+  if(!runPayload()) alert("Unable to run payload", true);
 }
 
 uint32_t max = 0;
@@ -235,7 +236,6 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_3             = sensors.getRawPressure(3);
   data.RAW_PRESSURE_4             = sensors.getRawPressure(4);
   if (data.POWER_STATE_GPS && ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) && (!data.VALVE_STATE)) readGPS();
-  if (data.POWER_STATE_PAYLOAD) readPayload();
   return true;
 }
 
@@ -256,48 +256,27 @@ bool Avionics::readGPS() {
   return true;
 }
 
-/*
- * Function: readPayload
- * -------------------
- * This function reads data from the Payload.
- */
-bool Avionics::readPayload() {
-  data.PAYLOAD_MESSAGE_SIZE = ValRF.getMessage();
-  return true;
-}
-
 #ifdef HITL_ENABLED_FLAG
 bool Avionics::simulateData() {
   DataFrame simulation = HITL.readData();
-  data.LOOP_TIME                      = millis() - data.TIME;
-  data.TIME                           = millis();
-  data.RAW_PRESSURE_1                 = simulation.RAW_PRESSURE_1;
-  data.RAW_PRESSURE_2                 = simulation.RAW_PRESSURE_2;
-  data.RAW_PRESSURE_3                 = simulation.RAW_PRESSURE_3;
-  data.RAW_PRESSURE_4                 = simulation.RAW_PRESSURE_4;
-  data.BMP_1_ENABLE                   = simulation.BMP_1_ENABLE;
-  data.BMP_2_ENABLE                   = simulation.BMP_2_ENABLE;
-  data.BMP_3_ENABLE                   = simulation.BMP_3_ENABLE;
-  data.BMP_4_ENABLE                   = simulation.BMP_4_ENABLE;
-  // data.ALTITUDE                       = simulation.ALTITUDE;
-  // data.ASCENT_RATE                    = simulation.ASCENT_RATE;
-  data.PRESS_BASELINE                 = simulation.PRESS_BASELINE;
-  // data.INCENTIVE_THRESHOLD            = simulation.INCENTIVE_THRESHOLD;
-  // data.RE_ARM_CONSTANT                = simulation.RE_ARM_CONSTANT;
-  data.BALLAST_ARM_ALT                = simulation.BALLAST_ARM_ALT;
-  data.VALVE_SETPOINT                 = simulation.VALVE_SETPOINT;
-  data.VALVE_VENT_DURATION            = simulation.VALVE_VENT_DURATION;
-  // data.VALVE_ALT_LAST                 = simulation.VALVE_ALT_LAST;
-  data.VALVE_VELOCITY_CONSTANT        = simulation.VALVE_VELOCITY_CONSTANT;
-  // data.VALVE_ALTITUDE_DIFF_CONSTANT   = simulation.VALVE_ALTITUDE_DIFF_CONSTANT;
-  // data.VALVE_LAST_ACTION_CONSTANT     = simulation.VALVE_LAST_ACTION_CONSTANT;
-  data.BALLAST_SETPOINT               = simulation.BALLAST_SETPOINT;
-  data.BALLAST_DROP_DURATION          = simulation.BALLAST_DROP_DURATION;
-  // data.BALLAST_ALT_LAST               = simulation.BALLAST_ALT_LAST;
-  data.BALLAST_VELOCITY_CONSTANT      = simulation.BALLAST_VELOCITY_CONSTANT;
-  // data.BALLAST_ALTITUDE_DIFF_CONSTANT = simulation.BALLAST_ALTITUDE_DIFF_CONSTANT;
-  // data.BALLAST_LAST_ACTION_CONSTANT   = simulation.BALLAST_LAST_ACTION_CONSTANT;
-  // data.MANUAL_MODE                    = simulation.MANUAL_MODE;
+  data.LOOP_TIME                 = millis() - data.TIME;
+  data.TIME                      = millis();
+  data.RAW_PRESSURE_1            = simulation.RAW_PRESSURE_1;
+  data.RAW_PRESSURE_2            = simulation.RAW_PRESSURE_2;
+  data.RAW_PRESSURE_3            = simulation.RAW_PRESSURE_3;
+  data.RAW_PRESSURE_4            = simulation.RAW_PRESSURE_4;
+  data.BMP_1_ENABLE              = simulation.BMP_1_ENABLE;
+  data.BMP_2_ENABLE              = simulation.BMP_2_ENABLE;
+  data.BMP_3_ENABLE              = simulation.BMP_3_ENABLE;
+  data.BMP_4_ENABLE              = simulation.BMP_4_ENABLE;
+  data.PRESS_BASELINE            = simulation.PRESS_BASELINE;
+  data.BALLAST_ARM_ALT           = simulation.BALLAST_ARM_ALT;
+  data.VALVE_SETPOINT            = simulation.VALVE_SETPOINT;
+  data.VALVE_VENT_DURATION       = simulation.VALVE_VENT_DURATION;
+  data.VALVE_VELOCITY_CONSTANT   = simulation.VALVE_VELOCITY_CONSTANT;
+  data.BALLAST_SETPOINT          = simulation.BALLAST_SETPOINT;
+  data.BALLAST_DROP_DURATION     = simulation.BALLAST_DROP_DURATION;
+  data.BALLAST_VELOCITY_CONSTANT = simulation.BALLAST_VELOCITY_CONSTANT;
   return true;
 }
 #endif
@@ -501,6 +480,45 @@ bool Avionics::runLED() {
 }
 
 /*
+ * Function: runPayload
+ * -------------------
+ * This function interfaces with the payload.
+ */
+bool Avionics::runPayload() {
+  if (!data.POWER_STATE_PAYLOAD) return true;
+  payload.readyDataFrame();
+  payload.addVariable(data.TIME / 1000,                 0,    3000000, 20);
+  payload.addVariable(data.LAT_GPS,                    -90,   90,      21);
+  payload.addVariable(data.LONG_GPS,                   -180,  180,     22);
+  payload.addVariable(data.ALTITUDE_BAROMETER,         -2000, 40000,   16);
+  payload.addVariable(data.ALTITUDE_GPS,               -2000, 40000,   14);
+  payload.addVariable(data.ASCENT_RATE,                -10,   10,      11);
+  payload.addVariable(data.VALVE_INCENTIVE,            -50,   10,      12);
+  payload.addVariable(data.BALLAST_INCENTIVE,          -50,   10,      12);
+  payload.addVariable(data.VALVE_STATE,                 0,    1,        1);
+  payload.addVariable(data.BALLAST_STATE,               0,    1,        1);
+  payload.addVariable(data.VALVE_QUEUE / 1000,          0,    1023,    10);
+  payload.addVariable(data.BALLAST_QUEUE / 1000,        0,    1023,    10);
+  payload.addVariable(data.VALVE_TIME_TOTAL / 1000,     0,    16383,   13);
+  payload.addVariable(data.BALLAST_TIME_TOTAL / 1000,   0,    16383,   13);
+  payload.addVariable(data.VALVE_NUM_ACTIONS,           0,    63,       6);
+  payload.addVariable(data.BALLAST_NUM_ACTIONS,         0,    63,       6);
+  payload.addVariable(data.VALVE_NUM_ATTEMPTS,          0,    63,       6);
+  payload.addVariable(data.BALLAST_NUM_ATTEMPTS,        0,    63,       6);
+  payload.addVariable(data.BALLAST_NUM_OVERCURRENTS,    0,    63,       6);
+  payload.addVariable(data.CUTDOWN_STATE,               0,    1,        1);
+  payload.addVariable(data.MAX_CURRENT_CHARGING_LIMIT,  0,    3,        2);
+  payload.addVariable(data.SYSTEM_POWER_STATE,          0,    3,        2);
+  payload.addVariable(data.TEMP_INT,                   -85,   65,       9);
+  payload.addVariable(data.JOULES_TOTAL,                0,    1572863, 18);
+  payload.addVariable(data.VOLTAGE_PRIMARY,             0,    6,        9);
+  payload.addVariable(data.VOLTAGE_SUPERCAP_AVG,        0,    6,        9);
+  payload.setDataFrame();
+  payload.run();
+  return true;
+}
+
+/*
  * Function: sendSATCOMS
  * -------------------
  * This function sends the current data frame over the ROCKBLOCK IO.
@@ -544,6 +562,7 @@ void Avionics::parseCommand(int16_t len) {
     if (index == CUTDOWN_INDEX && (strlen(CUTDOWN_COMMAND) == strlen(commandStrings[i])) && strncmp(commandStrings[i], CUTDOWN_COMMAND, strlen(commandStrings[i])) == 0) {
       data.SHOULD_CUTDOWN = true;
     }
+    if (index == PAYLOAD_INDEX) payload.setConfig(commandStrings[i], strlen(commandStrings[i]));
     if (index < 0 || index > 80) return;
     char* charAfterNumbers;
     float commandValue = (float) strtod(commandStrings[i], &charAfterNumbers);
@@ -707,11 +726,11 @@ void Avionics::parseResistorPowerCommand(uint8_t command) {
 void Avionics::parsePayloadPowerCommand(bool command) {
   if (command && !data.POWER_STATE_PAYLOAD) {
     data.POWER_STATE_PAYLOAD = true;
-    ValRF.restart();
+    payload.restart();
   }
   else if (!command) {
     data.POWER_STATE_PAYLOAD = false;
-    ValRF.shutdown();
+    payload.shutdown();
   }
 }
 
@@ -893,10 +912,6 @@ int16_t Avionics::compressData() {
   }
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
-  for (size_t i = 0; i < data.PAYLOAD_MESSAGE_SIZE; i++) {
-    COMMS_BUFFER[lengthBytes + i] = ValRF.buf[i];
-  }
-  lengthBytes += data.PAYLOAD_MESSAGE_SIZE;
   data.SHOULD_REPORT = false;
   data.COMMS_LENGTH = lengthBytes;
   if(data.DEBUG_STATE) {
@@ -1248,9 +1263,6 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" CURRENT_PAYLOAD:");
   Serial.print(data.CURRENT_PAYLOAD);
-  Serial.print(',');
-  Serial.print(" PAYLOAD_MESSAGE_SIZE:");
-  Serial.print(data.PAYLOAD_MESSAGE_SIZE);
   Serial.print(',');
   Serial.print(" GPS_LAST:");
   Serial.print(data.GPS_LAST);

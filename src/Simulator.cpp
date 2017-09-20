@@ -82,6 +82,7 @@ DataFrame Simulator::readData() {
 uint32_t Simulator::getLoopTime() {
   return loopInterval;
 }
+
 /*********************************  HELPERS  **********************************/
 /*
  * Function: getLine

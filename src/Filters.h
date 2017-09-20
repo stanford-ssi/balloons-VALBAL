@@ -20,6 +20,7 @@ class Filters {
 public:
 /**********************************  SETUP  ***********************************/
   bool     init();
+
 /********************************  FUNCTIONS  *********************************/
   void     enableSensors(bool BMP1Enable, bool BMP2Enable, bool BMP3Enable, bool BMP4Enable);
   float    getTemp(float RAW_TEMP_1, float RAW_TEMP_2, float RAW_TEMP_3, float RAW_TEMP_4);
@@ -55,6 +56,7 @@ private:
   void     errorCheckAltitudes();
   double   calculateAltitude(float pressure);
   void     markFailure(uint8_t sensor);
+  
 /*********************************  OBJECTS  **********************************/
   bool     enabledSensors[4] = {true};
   uint32_t rejectedSensors[4] = {0};

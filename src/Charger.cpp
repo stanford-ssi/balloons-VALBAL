@@ -83,4 +83,3 @@ void Charger::runChargerPID(uint8_t resistorMode, float temp) {
 uint8_t Charger::getChargingLimit() {
   return chargingLimit;
 }
-/*********************************  HELPERS  **********************************/

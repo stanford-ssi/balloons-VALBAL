@@ -300,8 +300,8 @@ void Filters::clearCurrentValues() {
   currentPayloadCount = 0;
   for(size_t i = 0; i < 4; i ++) rejectedSensors[i] = 0;
 }
-/***************************  GET FUNCTIONS  **********************************/
 
+/***************************  GET FUNCTIONS  **********************************/
 /*
 * Function: getAltitude
 * -------------------

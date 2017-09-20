@@ -25,16 +25,19 @@ public:
     isbd(Serial3, RB_SleepPinNum) {
   }
   bool     init(bool shouldStartup);
+
 /********************************  FUNCTIONS  *********************************/
   void     restart();
   void     shutdown();
   bool     wake();
   bool     snooze();
   int16_t  writeRead(char* buff, uint16_t len);
+  
 private:
 /*********************************  HELPERS  **********************************/
   void     write(char* buff, uint16_t len);
   void     read(char* buff, uint16_t len);
+
 /*********************************  OBJECTS  **********************************/
   static const uint16_t BUFFER_SIZE = 200;
   uint8_t    rxBuffer[BUFFER_SIZE] = {0};

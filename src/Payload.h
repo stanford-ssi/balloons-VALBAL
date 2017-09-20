@@ -48,8 +48,8 @@ private:
   static const uint8_t DATA_BUFFER_SIZE = 100;
   char    SATCOMMS_BUFFER[SATCOMMS_BUFFER_SIZE];
   char    DATA_BUFFER[DATA_BUFFER_SIZE];
-  int16_t lengthBits = 0;
-  int16_t lengthBytes = 0;
+  int16_t lengthBits   = 0;
+  int16_t lengthBytes  = 0;
   bool    hasNewConfig = false;
 
   uint8_t payloadGate;

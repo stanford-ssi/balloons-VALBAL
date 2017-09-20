@@ -23,19 +23,19 @@ void Avionics::init() {
   Serial.begin(CONSOLE_BAUD);
   PCB.init();
   actuator.init();
-  if(!setupSDCard())                        alert("unable to initialize SD Card", true);
-  if(!readHistory())                        alert("unable to initialize EEPROM", true);
-  if(!sensors.init())                       alert("unable to initialize Sensors", true);
+  if(!setupSDCard())                          alert("unable to initialize SD Card", true);
+  if(!readHistory())                          alert("unable to initialize EEPROM", true);
+  if(!sensors.init())                         alert("unable to initialize Sensors", true);
 #ifdef HITL_ENABLED_FLAG
-  if(!HITL.init())                          alert("unable to initialize Simulations", true);
+  if(!HITL.init())                            alert("unable to initialize Simulations", true);
 #endif
-  if(!filter.init())                        alert("unable to initialize Filters", true);
-  if(!computer.init())                      alert("unable to initialize Flight Controller", true);
-  if(!gpsModule.init(data.POWER_STATE_GPS)) alert("unable to initialize GPS", true);
-  if(!superCap.init())                      alert("unable to initialize superCap", true);
-  if(!setup5VLine())                        alert("unable to initialize 5V line", true);
+  if(!filter.init())                          alert("unable to initialize Filters", true);
+  if(!computer.init())                        alert("unable to initialize Flight Controller", true);
+  if(!gpsModule.init(data.POWER_STATE_GPS))   alert("unable to initialize GPS", true);
+  if(!superCap.init())                        alert("unable to initialize superCap", true);
+  if(!setup5VLine())                          alert("unable to initialize 5V line", true);
 #ifndef RB_DISABLED_FLAG
-  if(!RBModule.init(data.POWER_STATE_RB))   alert("unable to initialize RockBlock", true);
+  if(!RBModule.init(data.POWER_STATE_RB))     alert("unable to initialize RockBlock", true);
 #endif
   if(!payload.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
   data.TIME = millis();
@@ -67,7 +67,7 @@ void Avionics::updateState() {
 #ifdef HITL_ENABLED_FLAG
   if(!simulateData()) alert("unable to simulate Data", true);
 #endif
-  if(!processData())    alert("unable to process Data", true);
+  if(!processData())  alert("unable to process Data", true);
 }
 
 /*

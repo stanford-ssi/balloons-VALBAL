@@ -10,6 +10,23 @@
 */
 
 #include "Payload.h"
+#include "RadioInterface.h"
+
+
+void send_message(vb_rf_message* msg) {
+  Serial2.write(RADIO_START_SEQUENCE, 4);
+  int len = sizeof(vb_rf_message);
+  for (int i = 0; i < sizeof(vb_rf_message); i++) {
+    if (((uint8_t*)msg)[i] != 0)  {
+      len = i + 1;
+    }
+  }
+  Serial2.write((uint8_t*)msg, len);
+  Serial2.write(RADIO_END_SEQUENCE, 4);
+}
+
+int previous_heartbeat = LOW;
+
 
 /**********************************  SETUP  ***********************************/
 /*
@@ -28,6 +45,8 @@ bool Payload::init(bool shouldStartup) {
     restart();
     success = true;
   }
+  pinMode(payloadGPIO1, INPUT);
+  pinMode(payloadGPIO2, INPUT);
   return success;
 }
 
@@ -121,6 +140,7 @@ bool Payload::setDataFrame(){
  */
 bool Payload::run(){
   bool payloadReady = digitalRead(payloadGPIO1);
+  payloadReady = true;
   if (payloadReady) {
     if (hasNewConfig) {
       sendConfig();
@@ -128,18 +148,46 @@ bool Payload::run(){
     }
     sendDataFrame();
     sendHeartBeat();
+  } else {
+    Serial.println("[PAYLOAD] Payload currently busy, not sending anything.");
   }
   return true;
 }
 
 /*********************************  HELPERS  **********************************/
+
+
+// Stack overflow ayy
+int char2int(char input) {
+  if(input >= '0' && input <= '9')
+    return input - '0';
+  if(input >= 'A' && input <= 'F')
+    return input - 'A' + 10;
+  if(input >= 'a' && input <= 'f')
+    return input - 'a' + 10;
+  return 0;
+}
+
 /*
  * Function: sendConfig
  * -------------------
  * This function sends the config over UART.
  */
 bool Payload::sendConfig() {
-  //send SATCOMMS_BUFFER over UART
+  Serial.println("[PAYLOAD] Sending updated config to radio board.");
+
+  const char* hex = "0200b1010000020a000000"; // actually SATCOMMS_BUFFER
+  vb_rf_message send_msg;
+
+  send_msg.type = SET_CONFIG;
+  int i = 0;
+  while(*hex && hex[1]) {
+    send_msg.data[i] = char2int(*hex)*16 + char2int(hex[1]);
+    hex += 2;
+    i++;
+  }
+  send_message(&send_msg);
+
   return true;
 }
 
@@ -149,7 +197,15 @@ bool Payload::sendConfig() {
  * This function sends the dataframe over UART.
  */
 bool Payload::sendDataFrame() {
-  //send DATA_BUFFER over UART
+  Serial.print("[PAYLOAD] Sending dataframe over, ");
+  Serial.print(lengthBytes);
+  Serial.println(" bytes.");
+  vb_rf_message send_msg;
+  send_msg.type = DATA_FRAME;
+  send_msg.data[0] = lengthBytes;
+  memcpy(send_msg.data + 1, DATA_BUFFER, lengthBytes);
+  send_message(&send_msg);
+
   return true;
 }
 
@@ -159,7 +215,17 @@ bool Payload::sendDataFrame() {
  * This function checks the status of the payload using a heartbeat.
  */
 bool Payload::sendHeartBeat() {
-  bool heartbeat = digitalRead(payloadGPIO2);
-  //send heartbeat over UART
+  int beat = digitalRead(payloadGPIO2);
+  if (previous_heartbeat != (int)digitalRead(GPIO2)) {
+    Serial.println("[PAYLOAD] SOMETHING IS ROTTEN, heartbeat did not get a correct reply.");
+  } else {
+    Serial.print("[PAYLOAD] Heartbeat OK: ");
+    Serial.println(previous_heartbeat, DEC);
+  }
+  vb_rf_message send_msg;
+  send_msg.type = HEARTBEAT;
+  previous_heartbeat = random(0, 2);
+  send_msg.data[0] = previous_heartbeat;
+  send_message(&send_msg);
   return true;
 }

@@ -203,7 +203,9 @@ bool Payload::sendDataFrame() {
   vb_rf_message send_msg;
   send_msg.type = DATA_FRAME;
   send_msg.data[0] = lengthBytes;
-  memcpy(send_msg.data + 1, DATA_BUFFER, lengthBytes);
+  *((float*)send_msg.data + 1) = theLatitude;
+  *((float*)send_msg.data + 5) = theLongitude;
+  memcpy(send_msg.data + 9, DATA_BUFFER, lengthBytes);
   send_message(&send_msg);
 
   return true;

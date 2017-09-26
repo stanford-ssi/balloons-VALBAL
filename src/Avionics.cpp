@@ -513,6 +513,8 @@ bool Avionics::runPayload() {
   payload.addVariable(data.JOULES_TOTAL,                0,    1572863, 18);
   payload.addVariable(data.VOLTAGE_PRIMARY,             0,    6,        9);
   payload.addVariable(data.VOLTAGE_SUPERCAP_AVG,        0,    6,        9);
+  payload.theLatitude = data.LAT_GPS;
+  payload.theLongitude = data.LONG_GPS;
   payload.setDataFrame();
   payload.run();
   return true;

@@ -38,6 +38,10 @@ public:
   bool    setDataFrame();
   bool    run();
 
+  bool    hasNewConfig = false;
+  float theLatitude = 0.0;
+  float theLongitude = 0.0;
+
 private:
   bool    sendConfig();
   bool    sendDataFrame();
@@ -50,7 +54,6 @@ private:
   char    DATA_BUFFER[DATA_BUFFER_SIZE];
   int16_t lengthBits   = 0;
   int16_t lengthBytes  = 0;
-  bool    hasNewConfig = false;
 
   uint8_t payloadGate;
   uint8_t payloadGPIO1;

@@ -176,7 +176,7 @@ int char2int(char input) {
 bool Payload::sendConfig() {
   Serial.println("[PAYLOAD] Sending updated config to radio board.");
 
-  const char* hex = "0200b1010000020a000000"; // actually SATCOMMS_BUFFER
+  const char* hex = SATCOMMS_BUFFER;
   vb_rf_message send_msg;
 
   send_msg.type = SET_CONFIG;

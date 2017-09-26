@@ -27,8 +27,8 @@ static const uint8_t   BMP_CS_ONE                            =               32;
 static const uint8_t   BMP_CS_TWO                            =               25;
 static const uint8_t   BMP_CS_THREE                          =               15;
 static const uint8_t   BMP_CS_FOUR                           =               22;
-static const uint8_t   VALVE_FORWARD                         =                6;
-static const uint8_t   VALVE_REVERSE                         =               20;
+static const uint8_t   VALVE_FORWARD                         =               20;
+static const uint8_t   VALVE_REVERSE                         =                6;
 static const uint8_t   BALLAST_FORWARD                       =               21;
 static const uint8_t   BALLAST_REVERSE                       =                5;
 static const uint8_t   GPS_GATE                              =               17;
@@ -50,7 +50,7 @@ static const uint8_t   EXT_TEMP_SENSOR                       =              A20;
 static const uint8_t   BLACK_BODY_TEMP_SENSOR                =              A15;
 
 /****************************  EDITABLE CONSTANTS  ****************************/
-static const char      MISSION_NUMBER[]                      =         "SSI-60";
+static const char      MISSION_NUMBER[]                      =         "SSI-59";
 
 static const uint8_t   CUTDOWN_INDEX                         =               99;
 static const uint16_t  CUTDOWN_DURATION                      =            10000;
@@ -106,10 +106,10 @@ static const float     BALLAST_ALTITUDE_DIFF_DEFAULT         =     1.0 / 1500.0;
 static const float     BALLAST_LAST_ACTION_DEFAULT           =     1.0 / 1500.0;
 
 static const uint16_t  VALVE_MOTOR_SPEED_OPEN_DEFAULT        =              255;
-static const uint16_t  VALVE_MOTOR_SPEED_CLOSE_DEFAULT       =              200;
+static const uint16_t  VALVE_MOTOR_SPEED_CLOSE_DEFAULT       =              255;
 static const uint16_t  BALLAST_MOTOR_SPEED_DEFAULT           =              255;
-static const uint32_t  VALVE_OPENING_DURATION_DEFAULT        =              750;
-static const uint32_t  VALVE_CLOSING_DURATION_DEFAULT        =             2500;
+static const uint32_t  VALVE_OPENING_DURATION_DEFAULT        =             2000;
+static const uint32_t  VALVE_CLOSING_DURATION_DEFAULT        =             3000;
 static const uint16_t  BALLAST_STALL_TIMEOUT                 =             3000;
 
 static const float     MAX_PRESURE                           =           107500;

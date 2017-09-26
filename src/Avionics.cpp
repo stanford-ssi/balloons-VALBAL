@@ -372,7 +372,7 @@ bool Avionics::runCharger() {
     }
   }
   if(data.SYSTEM_POWER_STATE == 1) {
-    if (data.VOLTAGE_SUPERCAP_AVG < 3.0) {
+    if (data.VOLTAGE_SUPERCAP_AVG < 2.3) {
       data.POWER_STATE_RB = false;
       RBModule.shutdown();
       data.RB_LAST = millis();
@@ -384,7 +384,7 @@ bool Avionics::runCharger() {
     }
   }
   if(data.SYSTEM_POWER_STATE == 2) {
-    if (data.VOLTAGE_SUPERCAP_AVG < 2.6) {
+    if (data.VOLTAGE_SUPERCAP_AVG < 2.25) {
       superCap.disable5VBoost();
       data.SYSTEM_POWER_STATE = 3;
     }

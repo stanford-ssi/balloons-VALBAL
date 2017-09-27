@@ -10,20 +10,8 @@
 */
 
 #include "Payload.h"
-#include "RadioInterface.h"
 
 
-void send_message(vb_rf_message* msg) {
-  Serial2.write(RADIO_START_SEQUENCE, 4);
-  int len = sizeof(vb_rf_message);
-  for (int i = 0; i < sizeof(vb_rf_message); i++) {
-    if (((uint8_t*)msg)[i] != 0)  {
-      len = i + 1;
-    }
-  }
-  Serial2.write((uint8_t*)msg, len);
-  Serial2.write(RADIO_END_SEQUENCE, 4);
-}
 
 int previous_heartbeat = LOW;
 
@@ -48,6 +36,22 @@ bool Payload::init(bool shouldStartup) {
   pinMode(payloadGPIO1, INPUT);
   pinMode(payloadGPIO2, INPUT);
   return success;
+}
+
+
+bool Payload::send_message(vb_rf_message* msg) {
+  bool payloadReady = digitalRead(payloadGPIO1);
+  if (!payloadReady) return false;
+  Serial2.write(RADIO_START_SEQUENCE, 4);
+  int len = sizeof(vb_rf_message);
+  for (int i = 0; i < sizeof(vb_rf_message); i++) {
+    if (((uint8_t*)msg)[i] != 0)  {
+      len = i + 1;
+    }
+  }
+  Serial2.write((uint8_t*)msg, len);
+  Serial2.write(RADIO_END_SEQUENCE, 4);
+  return true;
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -80,6 +84,8 @@ void Payload::shutdown() {
  * This function sets a config message from the avionics.
  */
 bool Payload::setConfig(const char * str, size_t len){
+  Serial.println("Got new config of size");
+  Serial.println(len);
   if (len >= SATCOMMS_BUFFER_SIZE) return false;
   for (uint16_t i = 0; i < SATCOMMS_BUFFER_SIZE; i++) SATCOMMS_BUFFER[i] = 0;
   for (uint16_t i = 0; i < len; i++) SATCOMMS_BUFFER[i] = str[i];
@@ -140,17 +146,13 @@ bool Payload::setDataFrame(){
  */
 bool Payload::run(){
   bool payloadReady = digitalRead(payloadGPIO1);
-  payloadReady = true;
-  if (payloadReady) {
-    if (hasNewConfig) {
-      sendConfig();
-      hasNewConfig = false;
-    }
-    sendDataFrame();
-    sendHeartBeat();
-  } else {
-    Serial.println("[PAYLOAD] Payload currently busy, not sending anything.");
+  //payloadReady = true;
+  if (hasNewConfig) {
+    Serial.println("sending new config");
+    sendConfig();
   }
+  sendDataFrame();
+  sendHeartBeat();
   return true;
 }
 
@@ -186,9 +188,10 @@ bool Payload::sendConfig() {
     hex += 2;
     i++;
   }
-  send_message(&send_msg);
-
-  return true;
+  if (send_message(&send_msg)) {
+    hasNewConfig = false;
+    return true;
+  } else return false;
 }
 
 /*
@@ -203,27 +206,39 @@ bool Payload::sendDataFrame() {
   vb_rf_message send_msg;
   send_msg.type = DATA_FRAME;
   send_msg.data[0] = lengthBytes;
-  *((float*)send_msg.data + 1) = theLatitude;
-  *((float*)send_msg.data + 5) = theLongitude;
+  memcpy(send_msg.data+1, &theLatitude, 4);
+  memcpy(send_msg.data+5, &theLongitude, 4);
+  /**((float*)send_msg.data + 1) = theLatitude;
+  *((float*)send_msg.data + 5) = theLongitude;*/
+  //Serial.println("set latitude to");
+  //Serial.print(*((float*)send_msg.data + 1));
   memcpy(send_msg.data + 9, DATA_BUFFER, lengthBytes);
   send_message(&send_msg);
 
   return true;
 }
 
+int heartBeatViolations = 0;
+
 /*
  * Function: sendHeartBeat
  * -------------------
- * This function checks the status of the payload using a heartbeat.
+ * This function checks the status of the payload using a heartbeat.x
  */
 bool Payload::sendHeartBeat() {
+  bool payloadReady = digitalRead(payloadGPIO1);
+  if (!payloadReady) { return true; }
+
   int beat = digitalRead(payloadGPIO2);
   if (previous_heartbeat != (int)digitalRead(GPIO2)) {
     Serial.println("[PAYLOAD] SOMETHING IS ROTTEN, heartbeat did not get a correct reply.");
+    heartBeatViolations++;
   } else {
-    Serial.print("[PAYLOAD] Heartbeat OK: ");
-    Serial.println(previous_heartbeat, DEC);
+    //Serial.print("[PAYLOAD] Heartbeat OK: ");
+    //Serial.println(previous_heartbeat, DEC);
   }
+  Serial.print(heartBeatViolations);
+  Serial.println(" heartbeat fuckups");
   vb_rf_message send_msg;
   send_msg.type = HEARTBEAT;
   previous_heartbeat = random(0, 2);

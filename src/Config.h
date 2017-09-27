@@ -55,7 +55,7 @@ static const char      MISSION_NUMBER[]                      =         "SSI-59";
 static const uint8_t   CUTDOWN_INDEX                         =               99;
 static const uint16_t  CUTDOWN_DURATION                      =            10000;
 
-static const uint16_t  PAYLOAD_INDEX                         =              420;
+static const uint16_t  PAYLOAD_INDEX                         =              137;
 
 static const uint16_t  GPS_LOCK_TIMEOUT                      =               30;
 static const uint16_t  GPS_QUIT_TIMEOUT                      =            10000;

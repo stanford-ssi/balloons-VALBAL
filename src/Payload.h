@@ -15,6 +15,7 @@
 
 #include "Arduino.h"
 #include <EEPROM.h>
+#include "RadioInterface.h"
 
 class Payload {
 public:
@@ -37,6 +38,7 @@ public:
   bool    addVariable(float var, float minimum, float maximum, int16_t resolution);
   bool    setDataFrame();
   bool    run();
+  bool    send_message(vb_rf_message* msg);
 
   bool    hasNewConfig = false;
   float theLatitude = 0.0;

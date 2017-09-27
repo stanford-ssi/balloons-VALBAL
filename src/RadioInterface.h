@@ -1,3 +1,6 @@
+#ifndef RADIOINTERFACE_H
+#define RADIOINTERFACE_H
+
 #include <Arduino.h>
 
 enum RadioCommandEnum {
@@ -30,10 +33,12 @@ typedef struct __attribute__((__packed__)) vb_rf_config {
 };
 
 /* Generated with a fair dice. */
-uint8_t RADIO_START_SEQUENCE[] = {204, 105, 119, 82};
-uint8_t RADIO_END_SEQUENCE[] = {162, 98, 128, 161};
+const uint8_t RADIO_START_SEQUENCE[] = {204, 105, 119, 82};
+const uint8_t RADIO_END_SEQUENCE[] = {162, 98, 128, 161};
 
 const int GPIO1 = 2;
 const int GPIO2 = 27; // Actually 27, but that's on the back
 
 const int VBRF_BAUD_RATE = 115200;
+
+#endif

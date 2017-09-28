@@ -33,11 +33,12 @@ void Hardware::init() {
  * This function turns the LED on or off.
  */
 void Hardware::runLED(bool on) {
-  if (on)
-    pinMode(LED_PIN, INPUT);
-  else {
+  if (on) {
     pinMode(LED_PIN, OUTPUT);
     digitalWrite(LED_PIN, LOW);
+  }
+  else {
+    pinMode(LED_PIN, INPUT);
   }
 }
 

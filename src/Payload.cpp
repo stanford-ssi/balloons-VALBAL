@@ -62,6 +62,7 @@ bool Payload::send_message(vb_rf_message* msg) {
  */
 void Payload::restart() {
   EEPROM.write(EEPROMAddress, false);
+  pinMode(payloadGate, OUTPUT);
   digitalWrite(payloadGate, LOW);
   delay(1000);
   EEPROM.write(EEPROMAddress, true);
@@ -74,7 +75,7 @@ void Payload::restart() {
  * This function shuts down the Payload.
  */
 void Payload::shutdown() {
-  digitalWrite(payloadGate, HIGH);
+  pinMode(payloadGate, INPUT);
   EEPROM.write(EEPROMAddress, false);
 }
 

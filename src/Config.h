@@ -108,8 +108,8 @@ static const float     BALLAST_LAST_ACTION_DEFAULT           =     1.0 / 1500.0;
 static const uint16_t  VALVE_MOTOR_SPEED_OPEN_DEFAULT        =              255;
 static const uint16_t  VALVE_MOTOR_SPEED_CLOSE_DEFAULT       =              255;
 static const uint16_t  BALLAST_MOTOR_SPEED_DEFAULT           =              255;
-static const uint32_t  VALVE_OPENING_DURATION_DEFAULT        =             2000;
-static const uint32_t  VALVE_CLOSING_DURATION_DEFAULT        =             3000;
+static const uint32_t  VALVE_OPENING_DURATION_DEFAULT        =             1250;
+static const uint32_t  VALVE_CLOSING_DURATION_DEFAULT        =             2500;
 static const uint16_t  BALLAST_STALL_TIMEOUT                 =             3000;
 
 static const float     MAX_PRESURE                           =           107500;

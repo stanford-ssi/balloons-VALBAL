@@ -40,6 +40,7 @@ void Avionics::init() {
   if(!payload.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
   data.TIME = millis();
   data.SETUP_STATE = false;
+  //test();
 }
 
 /*
@@ -49,8 +50,8 @@ void Avionics::init() {
  */
 void Avionics::test() {
   data.MANUAL_MODE = false;
-  data.SHOULD_CUTDOWN = true;
-  actuator.queueBallast(900000, true);
+  data.SHOULD_CUTDOWN = false;
+  actuator.queueBallast(20000, true);
   actuator.queueValve(30000, true);
 }
 
@@ -81,6 +82,8 @@ void Avionics::evaluateState() {
   if(!calcIncentives()) alert("unable to calculate incentives", true);
 }
 
+bool sent = false;
+
 /*
  * Function: actuateState
  * -------------------
@@ -93,6 +96,11 @@ void Avionics::actuateState() {
   if(!runCutdown()) alert("unable to run cutdown", true);
   if(!runLED())     alert("unable to run LED", true);
   if(!runPayload()) alert("Unable to run payload", true);
+  if (!sent && millis() > 30000) {
+    const char* msg = "0102a0050000";
+    payload.setConfig(msg, strlen(msg));
+    sent = true;
+  }
 }
 
 uint32_t max = 0;
@@ -103,7 +111,7 @@ uint32_t max = 0;
  */
 void Avionics::logState() {
   uint32_t t0 = millis();
-  if(!log.log(&data, actuator.valveState != actuator.OPENING)) alert("unable to log Data", true);
+  //if(!log.log(&data, actuator.valveState != actuator.OPENING)) alert("unable to log Data", true);
   data.LOG_TIME = millis() - t0;
   data.LOOP_NUMBER2++;
   max = (data.LOG_TIME > max) ? data.LOG_TIME : max;

@@ -23,7 +23,7 @@ void Avionics::init() {
   Serial.begin(CONSOLE_BAUD);
   PCB.init();
   actuator.init();
-  if(!setupSDCard())                          alert("unable to initialize SD Card", true);
+  //if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   if(!readHistory())                          alert("unable to initialize EEPROM", true);
   if(!sensors.init())                         alert("unable to initialize Sensors", true);
 #ifdef HITL_ENABLED_FLAG
@@ -82,8 +82,6 @@ void Avionics::evaluateState() {
   if(!calcIncentives()) alert("unable to calculate incentives", true);
 }
 
-bool sent = false;
-
 /*
  * Function: actuateState
  * -------------------
@@ -96,11 +94,6 @@ void Avionics::actuateState() {
   if(!runCutdown()) alert("unable to run cutdown", true);
   if(!runLED())     alert("unable to run LED", true);
   if(!runPayload()) alert("Unable to run payload", true);
-  if (!sent && millis() > 30000) {
-    const char* msg = "0102a0050000";
-    payload.setConfig(msg, strlen(msg));
-    sent = true;
-  }
 }
 
 uint32_t max = 0;

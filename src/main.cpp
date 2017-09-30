@@ -21,7 +21,7 @@
 Avionics VALBAL;
 int main(void) {
   VALBAL.init();
-  // VALBAL.test();
+  //VALBAL.test();
 
 /***********************************  MAIN  ***********************************/
   while(true) {

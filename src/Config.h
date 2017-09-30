@@ -78,8 +78,8 @@ static const bool      MANUAL_MODE_DEFAULT                   =             true;
 static const uint8_t   REPORT_MODE_DEFAULT                   =                2;
 static const uint32_t  QUEUE_APPEND_THRESHOLD                =             1000;
 
-static const float     CHARGER_TEMP_THRESH_HIGH              =              -55;
-static const float     CHARGER_TEMP_THRESH_LOW               =              -65;
+static const float     CHARGER_TEMP_THRESH_HIGH              =              -60;
+static const float     CHARGER_TEMP_THRESH_LOW               =              -70;
 static const float     SUPER_CAP_VOLTAGE_NOMINAL             =              5.0;
 
 static const float     PRESS_BASELINE_DEFAULT                =         101325.0;
@@ -99,7 +99,7 @@ static const float     VALVE_ALTITUDE_DIFF_DEFAULT           =     1.0 / 1500.0;
 static const float     VALVE_LAST_ACTION_DEFAULT             =     1.0 / 1500.0;
 
 static const float     BALLAST_SETPOINT_DEFAULT              =          13500.0;
-static const uint32_t  BALLAST_DROP_DURATION_DEFAULT         =            20000;
+static const uint32_t  BALLAST_DROP_DURATION_DEFAULT         =            15000;
 static const float     BALLAST_ALT_LAST_DEFAULT              =         -90000.0;
 static const float     BALLAST_VELOCITY_DEFAULT              =              1.0;
 static const float     BALLAST_ALTITUDE_DIFF_DEFAULT         =     1.0 / 1500.0;

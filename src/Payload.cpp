@@ -54,6 +54,9 @@ bool Payload::send_message(vb_rf_message* msg) {
   return true;
 }
 
+uint32_t lastStartupTime = 0;
+bool sent = false;
+
 /********************************  FUNCTIONS  *********************************/
 /*
  * Function: restart
@@ -67,6 +70,8 @@ void Payload::restart() {
   delay(1000);
   EEPROM.write(EEPROMAddress, true);
   Serial2.begin(115200);
+  lastStartupTime = millis();
+  sent = false;
 }
 
 /*
@@ -154,6 +159,14 @@ bool Payload::run(){
   }
   sendDataFrame();
   sendHeartBeat();
+  if (!sent && (millis()-lastStartupTime) > 20000) {
+    Serial.println("HEY");Serial.println("HEY");Serial.println("HEY");Serial.println("HEY");
+    Serial.println("Sending config");
+    Serial.println("HEY");Serial.println("HEY");Serial.println("HEY");Serial.println("HEY");
+    const char* msg = "0102a0050000";
+    setConfig(msg, strlen(msg));
+    sent = true;
+  }
   return true;
 }
 

@@ -1,7 +1,19 @@
 /*
+  Stanford Student Space Initiative
+  Balloons | VALBAL | September 2017
+  Davy Ragland | dragland@stanford.edu
+
+  File: SdFormatter.cpp
+  --------------------------
+  Implimentation of SdFormatter.h
+*/
+
+#include "SdFormatter.h"
+
+/*
  * This program comes from SdFat.
  * ------------------------------
- * 
+ *
  * This program will format an SD or SDHC card.
  * Warning all data will be deleted!
  *
@@ -15,7 +27,7 @@
  * and SDFormatter uses FAT12.
  */
 
-// Set USE_SDIO to zero for SPI card access. 
+// Set USE_SDIO to zero for SPI card access.
 #define USE_SDIO 0
 //
 // Change the value of chipSelect if your hardware does
@@ -23,7 +35,6 @@
 // Arduino Ethernet shield: pin 4
 // Sparkfun SD shield: pin 8
 // Adafruit SD shields and modules: pin 10
-const uint8_t chipSelect = 23;
 
 // Initialize at highest supported speed not over 50 MHz.
 // Reduce max speed if errors occur.
@@ -47,7 +58,7 @@ SdioCardEX card;
 #else  // USE_SDIO
 Sd2Card card;
 #endif  // USE_SDIO
- 
+
 uint32_t cardSizeBlocks;
 uint32_t cardCapacityMB;
 
@@ -173,10 +184,10 @@ void clearFatDir(uint32_t bgn, uint32_t count) {
   for (uint32_t i = 0; i < count; i++) {
     if (!card.writeBlock(bgn + i, cache.data)) {
        sdError("Clear FAT/DIR writeBlock failed");
-    }     
+    }
     if ((i & 0XFF) == 0) {
       cout << '.';
-    }    
+    }
   }
 #else  // USE_SDIO
   if (!card.writeStart(bgn, count)) {
@@ -459,11 +470,12 @@ void formatCard() {
 #endif  // DEBUG_PRINT
   cout << F("Format done\n");
 }
+
 //------------------------------------------------------------------------------
-void setup() {
+void SdFormatter::format() {
   char c;
   Serial.begin(9600);
-  // Wait for USB Serial 
+  // Wait for USB Serial
   while (!Serial) {
     SysCall::yield();
   }
@@ -523,7 +535,7 @@ void setup() {
   }
 #if USE_SDIO
   if (!card.begin()) {
-    sdError("card.begin failed");  
+    sdError("card.begin failed");
   }
 #else  // USE_SDIO
   if (!card.begin(chipSelect, SPI_SPEED)) {
@@ -533,7 +545,7 @@ void setup() {
            "Is chip select correct at the top of this program?\n");
     sdError("card.begin failed");
   }
-#endif  
+#endif
   cardSizeBlocks = card.cardSize();
   if (cardSizeBlocks == 0) {
     sdError("cardSize");
@@ -550,5 +562,3 @@ void setup() {
     formatCard();
   }
 }
-//------------------------------------------------------------------------------
-void loop() {}

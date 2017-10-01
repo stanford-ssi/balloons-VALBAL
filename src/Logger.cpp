@@ -19,6 +19,7 @@
 const int MAX_BLOCK = 20*60*60*3;// 7617187; // CHANGE BEFORE FLIGHT TO PI GIGABYTES
 
 bool Logger::format() {
+  formatter.format();
   return true;
 }
 

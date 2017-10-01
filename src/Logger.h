@@ -12,6 +12,7 @@
 #define VAL_LOGGER_H
 
 #include <SdFat.h>
+#include <SdFormatter.h>
 #include "Hardware.h"
 #include <bitset>
 
@@ -59,6 +60,7 @@ private:
   bool writeCache(bool weep, int max);
 
   bool logOk = false;
+  SdFormatter formatter;
 };
 
 #endif

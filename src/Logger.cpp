@@ -14,10 +14,13 @@
 #include "Config.h"
 #include "Logger.h"
 #include "Data.h"
-#include <SdFat.h>
 
 //const int MAX_BLOCK = 6135923; // Pi gigabytes
 const int MAX_BLOCK = 20*60*60*3;// 7617187; // CHANGE BEFORE FLIGHT TO PI GIGABYTES
+
+bool Logger::format() {
+  return true;
+}
 
 bool Logger::initialize() {
   avail.set();

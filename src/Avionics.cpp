@@ -155,8 +155,10 @@ bool Avionics::finishedSetup() {
  * This function sets up the SD card for logging.
  */
 bool Avionics::setupSDCard() {
+  #ifdef FORMAT_SD_CARD_FLAG
+    log.format();
+  #endif
   log.initialize();
-
   #ifdef RESET_EEPROM_FLAG
     PCB.EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, 0);
     PCB.EEPROMWritelong(EEPROM_LOG_FILE_NUM, 0);

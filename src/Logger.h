@@ -24,6 +24,7 @@ const int CACHE_SIZE = 24;
 class Logger {
 public:
 /**********************************  SETUP  ***********************************/
+  bool format();
   bool initialize();
 
 /********************************  FUNCTIONS  *********************************/

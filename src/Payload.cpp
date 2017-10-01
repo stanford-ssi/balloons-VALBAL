@@ -54,9 +54,6 @@ bool Payload::send_message(vb_rf_message* msg) {
   return true;
 }
 
-uint32_t lastStartupTime = 0;
-bool sent = false;
-
 /********************************  FUNCTIONS  *********************************/
 /*
  * Function: restart
@@ -231,8 +228,6 @@ bool Payload::sendDataFrame() {
 
   return true;
 }
-
-int heartBeatViolations = 0;
 
 /*
  * Function: sendHeartBeat

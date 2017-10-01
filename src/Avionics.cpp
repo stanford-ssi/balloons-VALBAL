@@ -23,7 +23,7 @@ void Avionics::init() {
   Serial.begin(CONSOLE_BAUD);
   PCB.init();
   actuator.init();
-  //if(!setupSDCard())                          alert("unable to initialize SD Card", true);
+  if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   if(!readHistory())                          alert("unable to initialize EEPROM", true);
   if(!sensors.init())                         alert("unable to initialize Sensors", true);
 #ifdef HITL_ENABLED_FLAG
@@ -40,7 +40,6 @@ void Avionics::init() {
   if(!payload.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
   data.TIME = millis();
   data.SETUP_STATE = false;
-  //test();
 }
 
 /*

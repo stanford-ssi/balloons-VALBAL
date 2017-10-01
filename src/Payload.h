@@ -52,10 +52,13 @@ private:
 /*********************************  OBJECTS  **********************************/
   static const uint8_t SATCOMMS_BUFFER_SIZE = 20;
   static const uint8_t DATA_BUFFER_SIZE = 100;
-  char    SATCOMMS_BUFFER[SATCOMMS_BUFFER_SIZE];
-  char    DATA_BUFFER[DATA_BUFFER_SIZE];
-  int16_t lengthBits   = 0;
-  int16_t lengthBytes  = 0;
+  char     SATCOMMS_BUFFER[SATCOMMS_BUFFER_SIZE];
+  char     DATA_BUFFER[DATA_BUFFER_SIZE];
+  int16_t  lengthBits   = 0;
+  int16_t  lengthBytes  = 0;
+  int      heartBeatViolations = 0;
+  uint32_t lastStartupTime = 0;
+  bool     sent = false;
 
   uint8_t payloadGate;
   uint8_t payloadGPIO1;

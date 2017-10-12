@@ -1,5 +1,5 @@
 # SSI VALBAL:
-### Low Cost, High Endurance, Altitude-Controlled Latex Balloon for Near-Space Research
+### SSI's World-Record Breaking Low Cost, High Endurance, Altitude-Controlled Latex Balloon for Near-Space Research
 
 ![alt text](VALBAL.jpg "VALBAL")
 

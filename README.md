@@ -1,7 +1,10 @@
 # SSI VALBAL:
 ### SSI's World-Record Breaking Low Cost, High Endurance, Altitude-Controlled Latex Balloon for Near-Space Research
 
-![alt text](VALBAL.jpg "VALBAL")
+![alt text](map.png "Flight path")
+
+
+![alt text](valbal.jpg "ValBal")
 
 # Flight States:
 The avionics uses an Event Driven Programming model in order to clearly transition between states of operation.

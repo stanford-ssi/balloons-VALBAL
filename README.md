@@ -6,21 +6,6 @@
 
 ![alt text](valbal.jpg "ValBal")
 
-# Flight States:
-The avionics uses an Event Driven Programming model in order to clearly transition between states of operation.
-
-#### States
-1. Pre-Launch  
- - 1a. Startup initialization
- - 1b. Debug Mode
-2. Launch
- - 2a. Flight Mode
- - 2b. Equilibration
-3. Termination
- - 3a. Descent
- - 3b. Hibernation
- - 3c. Recovery
-
 # Code Architecture:
 The avionics flight software operates on a read-eval loop in order to change states and respond to its environment.
 

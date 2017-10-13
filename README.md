@@ -4,52 +4,50 @@
 ![alt text](map.png "Flight path")
 
 
-![alt text](valbal.jpg "ValBal")
+![alt text](valbal.png "ValBal")
 
 # Code Architecture:
-The avionics flight software operates on a read-eval loop in order to change states and respond to its environment.
-
-The avionics flight software was written in compliance with NASA JPL's  Safety-Critical Code standards.
+The avionics flight software operates on a read-eval loop in order to change states and respond to its environment and is written in compliance with NASA JPL's Safety-Critical Code standards.
 
 #### Files
-`main.cpp` - Start point of flight controller.
+`main.cpp` - Start point of flight controller
 
-`config.h` - Mission specific configuration values.
+`config.h` - Mission specific configuration values
 
-`data.h` - Structure of current data frame.
+`data.h` - Structure of current data frame
 
 #### Classes
-`Avionics` - Implementation of flight logic.
+`Avionics` - Implementation of flight logic
 
-`Controller` - Interface to feedback control algorithm.
+`Controller` - Interface to feedback control algorithm
 
-`Sensors` - Interface to raw data from hardware.
+`Sensors` - Interface to raw data from hardware
 
-`Filters` - Interface to corrected data from filters.
+`Filters` - Interface to corrected data from filters
 
-`Actuators` - Interface to valve and ballast mechatronics.
+`Actuators` - Interface to valve and ballast mechatronics
 
-`Charger` - Interface to superCap charging circuit.
+`Charger` - Interface to superCap charging circuit
 
-`Hardware` - Interface to PCB hardware.
+`Hardware` - Interface to PCB hardware
 
-`Logger` - Interface to compressed SD card stream.
+`Logger` - Interface to compressed SD card stream
 
-`Payload` - Interface to external research payloads.
+`Payload` - Interface to external research payloads
 
-`Simulator` - Client side code for Hardware in the Loop simulations.
+`Simulator` - Client side code for Hardware in the Loop simulations
 
 #### Libraries
-`GPS` - Wrapper library for GPS with added features.
+`GPS` - Wrapper library for GPS with added features
 
-`RockBLOCK` - Wrapper library for RockBLOCK with added features.
+`RockBLOCK` - Wrapper library for RockBLOCK with added features
 
-`AD5246` - Library for i2c Resistor.
+`AD5246` - Library for i2c Resistor
 
 #### Utilities
-`Parser` - De-parser of compressed flight telemetry.
+`Parser` - De-parser of compressed flight telemetry
 
-`readsd` - De-parser of compressed SD card stream.
+`readsd` - De-parser of compressed SD card stream
 
 # Implementation Details:
 Here is the current status of the code:

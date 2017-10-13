@@ -67,27 +67,27 @@ The avionics flight software was written in compliance with NASA JPL's  Safety-C
 Here is the current status of the code:
 
 #### Flight Critical Systems
-1. MicroSD logging of current data frame to LOGGERXX.txt.
-2. Altitude readings from filtered and error checked BMP280s.
-3. Feedback control algorithm to equilibrate at altitude.
-4. Custom charging circuit feedback control.
-5. Valve mechanical actuation.
-6. Ballast mechanical actuation
-7. Integration of uBlox M8Q GPS.
-8. RockBlock data downlink.
-9. 1Hz LED in compliance with FAA.
-10. Payload interface for communicating with research payloads.
+1. Altitude readings from filtered and error checked BMP280s
+2. Feedback control algorithm for equilibration at altitude
+3. Custom charging circuit feedback control
+4. Valve mechanical actuation and de-jamming
+5. Ballast mechanical actuation and de-jamming
+6. MicroSD logging of current data frame
+7. Integration of uBlox M8Q GPS
+8. Satellite data downlink over RockBlock
+9. 1Hz LED in compliance with FAA
+10. Payload interface for communicating with research payloads
 
 #### Useful Flight Features
-1. Ascent rate calculations from filtered and error checked data.
-2. External temperature readings.
-3. Subsystem current readings.
-4. Subsystem shutdown if failure to restart.
-5. Low power mode for ARM Cortex M4.
-6. GPS successful set to flight mode.
-8. Compression of data frame into bitstream for comms.
-9. RockBlock command parsing for satcomms uplink.
-11. Manual control of flight Parameters.
-12. Debug mode disabled at altitude.
-13. Stable loop rate regulation.
-13. HITL simulations testing suite.
+1. Ascent rate calculations from Kalman filtered data
+2. External temperature readings
+3. Subsystem current readings
+4. Subsystem shutdown if reboot failure
+5. Low power mode for ARM Cortex M4 processor
+6. GPS set to flight mode
+7. Compression of data frame into bitstream for comms
+8. Satellite uplink command parsing over RockBlock
+9. Manual control of flight parameters over satellite uplink
+10. Stable loop rate regulation
+11. Extended debug mode
+12. HITL & modular simulations testing suite

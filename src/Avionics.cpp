@@ -95,7 +95,6 @@ void Avionics::actuateState() {
   if(!runPayload()) alert("Unable to run payload", true);
 }
 
-uint32_t max = 0;
 /*
  * Function: logState
  * -------------------
@@ -103,10 +102,9 @@ uint32_t max = 0;
  */
 void Avionics::logState() {
   uint32_t t0 = millis();
-  //if(!log.log(&data, actuator.valveState != actuator.OPENING)) alert("unable to log Data", true);
+  if(!log.log(&data, actuator.valveState != actuator.OPENING)) alert("unable to log Data", true);
   data.LOG_TIME = millis() - t0;
   data.LOOP_NUMBER2++;
-  max = (data.LOG_TIME > max) ? data.LOG_TIME : max;
   if(!debugState()) alert("unable to debug state", true);
 }
 

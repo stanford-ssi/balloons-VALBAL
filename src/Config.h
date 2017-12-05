@@ -123,6 +123,10 @@ static const uint16_t  MINIMUM_ALTITUDE_POINTS               =              600;
 static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =              600;
 static const uint16_t  VOLTAGE_BUFFER_SIZE                   =               20;
 
+
+static const uint8_t   CONTROLLER_INDEX_DEFAULT              =                1;
+static const uint8_t   LEGACY_CONTROLLER_INDEX               =                1;
+static const bool      LEGACY_CONTROLLER_STATE_DEFAULT       =             true;
 /*****************************  EEPROM ADDRESSES  *****************************/
 static const uint8_t   EEPROM_ROCKBLOCK                      =                0;
 static const uint8_t   EEPROM_GPS                            =                1;

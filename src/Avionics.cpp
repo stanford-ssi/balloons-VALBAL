@@ -349,11 +349,21 @@ bool Avionics::calcIncentives() {
   bool success = true;
   computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
-  data.RE_ARM_CONSTANT   = computer.updateControllerConstants(data.BALLAST_ARM_ALT, data.INCENTIVE_THRESHOLD);
-  data.VALVE_ALT_LAST    = computer.getAltitudeSinceLastVentCorrected(data.ALTITUDE_BAROMETER, data.VALVE_ALT_LAST);
-  data.BALLAST_ALT_LAST  = computer.getAltitudeSinceLastDropCorrected(data.ALTITUDE_BAROMETER, data.BALLAST_ALT_LAST);
-  data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE_BAROMETER, data.VALVE_ALT_LAST);
-  data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE_BAROMETER, data.BALLAST_ALT_LAST);
+  data.RE_ARM_CONSTANT_LEGACY   = computer.updateControllerConstants(LEGACY_CONTROLLER_INDEX, data.BALLAST_ARM_ALT, data.INCENTIVE_THRESHOLD);
+  data.VALVE_ALT_LAST_LEGACY    = computer.getAltitudeSinceLastVentCorrected(LEGACY_CONTROLLER_INDEX, data.ALTITUDE_BAROMETER, data.VALVE_ALT_LAST);
+  data.BALLAST_ALT_LAST_LEGACY  = computer.getAltitudeSinceLastDropCorrected(LEGACY_CONTROLLER_INDEX, data.ALTITUDE_BAROMETER, data.BALLAST_ALT_LAST);
+  data.VALVE_INCENTIVE_LEGACY   = computer.getValveIncentive(LEGACY_CONTROLLER_INDEX, data.ASCENT_RATE, data.ALTITUDE_BAROMETER, data.VALVE_ALT_LAST);
+  data.BALLAST_INCENTIVE_LEGACY = computer.getBallastIncentive(LEGACY_CONTROLLER_INDEX, data.ASCENT_RATE, data.ALTITUDE_BAROMETER, data.BALLAST_ALT_LAST);
+
+  if (data.CURRENT_CONTROLLER_INDEX == LEGACY_CONTROLLER_INDEX) {
+    data.RE_ARM_CONSTANT = data.RE_ARM_CONSTANT_LEGACY;
+    data.VALVE_ALT_LAST = data.VALVE_ALT_LAST_LEGACY;
+    data.BALLAST_ALT_LAST = data.BALLAST_ALT_LAST_LEGACY;
+    data.VALVE_INCENTIVE = data.VALVE_INCENTIVE_LEGACY;
+    data.BALLAST_INCENTIVE = data.BALLAST_INCENTIVE_LEGACY;
+  }
+
+
   if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) success =  false;
   return success;
 }
@@ -631,6 +641,9 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 31) parseGPSPowerCommand(value);
   else if (index == 32) parseResistorPowerCommand(value);
   else if (index == 33) parsePayloadPowerCommand(value);
+
+  // controller switching
+  else if (index == 34) data.CURRENT_CONTROLLER_INDEX = value;
 }
 
 /*

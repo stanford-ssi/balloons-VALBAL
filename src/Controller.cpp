@@ -30,10 +30,9 @@ bool Controller::init() {
  * This function updates the constants to tune the algorithm.
  */
 void Controller::updateValveConstants(float valveAltitudeSetpoint, float valveKpConstant, float valveKiConstant, float valveKdConstant) {
-  VALVE_SETPOINT               = valveAltitudeSetpoint;
-  VALVE_VELOCITY_CONSTANT      = valveKpConstant;
-  VALVE_ALTITUDE_DIFF_CONSTANT = valveKiConstant;
-  VALVE_LAST_ACTION_CONSTANT   = valveKdConstant;
+  // upadate all the valve constants for all the controllers
+  legacyController.updateValveConstants(valveAltitudeSetpoint, valveKpConstant,valveKiConstant, valveKdConstant);
+
 }
 
 /*
@@ -42,10 +41,9 @@ void Controller::updateValveConstants(float valveAltitudeSetpoint, float valveKp
  * This function updates the constants to tune the algorithm.
  */
 void Controller::updateBallastConstants(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKiConstant, float ballastKdConstant) {
-  BALLAST_SETPOINT               = ballastAltitudeSetpoint;
-  BALLAST_VELOCITY_CONSTANT      = ballastKpConstant;
-  BALLAST_ALTITUDE_DIFF_CONSTANT = ballastKiConstant;
-  BALLAST_LAST_ACTION_CONSTANT   = ballastKdConstant;
+  // update all the ballast constants for all the controllers
+  legacyController.updateBallastConstants(ballastAltitudeSetpoint, ballastKpConstant, ballastKiConstant, ballastKdConstant);
+
 }
 
 /*
@@ -53,10 +51,12 @@ void Controller::updateBallastConstants(float ballastAltitudeSetpoint, float bal
  * -------------------
  * This function updates the constants to edit the algorithm.
  */
-float Controller::updateControllerConstants(float BallastArmAlt, float incentiveThreshold) {
-  BALLAST_ARM_ALT = BallastArmAlt;
-  RE_ARM_CONSTANT = incentiveThreshold / (BALLAST_ALTITUDE_DIFF_CONSTANT + BALLAST_LAST_ACTION_CONSTANT);
-  return RE_ARM_CONSTANT;
+float Controller::updateControllerConstants(uint8_t controllerIndex, float BallastArmAlt, float incentiveThreshold) {
+  float result = 0.0;
+  if (controllerIndex == LEGACY_CONTROLLER_INDEX) {
+    result = legacyController.updateControllerConstants(BallastArmAlt, incentiveThreshold);
+  }
+  return result;
 }
 
 /*
@@ -64,8 +64,11 @@ float Controller::updateControllerConstants(float BallastArmAlt, float incentive
  * -------------------
  * This function returns a corrected altitude since last vent value.
  */
-float Controller::getAltitudeSinceLastVentCorrected(double altitude, double altitudeSinceLastVent) {
-  float altitudeSinceLastVentCorrected = min(altitudeSinceLastVent, altitude + RE_ARM_CONSTANT);
+float Controller::getAltitudeSinceLastVentCorrected(uint8_t controllerIndex, double altitude, double altitudeSinceLastVent) {
+  float altitudeSinceLastVentCorrected = altitudeSinceLastVent;
+  if (controllerIndex == LEGACY_CONTROLLER_INDEX) {
+    altitudeSinceLastVentCorrected = legacyController.getAltitudeSinceLastVentCorrected(altitude, altitudeSinceLastVent);
+  }
   return altitudeSinceLastVentCorrected;
 }
 
@@ -74,13 +77,11 @@ float Controller::getAltitudeSinceLastVentCorrected(double altitude, double alti
  * -------------------
  * This function returns a corrected altitude since last drop value.
  */
-float Controller::getAltitudeSinceLastDropCorrected(double altitude, double altitudeSinceLastDrop) {
+float Controller::getAltitudeSinceLastDropCorrected(uint8_t controllerIndex, double altitude, double altitudeSinceLastDrop) {
   float altitudeSinceLastDropCorrected = altitudeSinceLastDrop;
-  if (!firstBallastDropped && altitude >= BALLAST_ARM_ALT && altitudeSinceLastDrop == BALLAST_ALT_LAST_DEFAULT) {
-    altitudeSinceLastDropCorrected = BALLAST_ALT_LAST_FILLER;
-    firstBallastDropped = true;
+  if (controllerIndex == LEGACY_CONTROLLER_INDEX) {
+    altitudeSinceLastDropCorrected = legacyController.getAltitudeSinceLastDropCorrected(altitude, altitudeSinceLastDrop);
   }
-  if(firstBallastDropped) altitudeSinceLastDropCorrected = max(altitudeSinceLastDropCorrected, altitude - RE_ARM_CONSTANT);
   return altitudeSinceLastDropCorrected;
 }
 
@@ -90,11 +91,12 @@ float Controller::getAltitudeSinceLastDropCorrected(double altitude, double alti
  * This function calculates the incentive to actuate the valve based on a PID
  * feedback controller.
  */
-float Controller::getValveIncentive(double ascentRate, double altitude, double altitudeSinceLastVentCorrected) {
-  float proportionalTerm = VALVE_VELOCITY_CONSTANT      * ascentRate;
-  float integralTerm     = VALVE_ALTITUDE_DIFF_CONSTANT * (altitude - VALVE_SETPOINT);
-  float derivativeTerm   = VALVE_LAST_ACTION_CONSTANT   * (altitude - altitudeSinceLastVentCorrected);
-  return proportionalTerm + integralTerm + derivativeTerm;
+float Controller::getValveIncentive(uint8_t controllerIndex, double ascentRate, double altitude, double altitudeSinceLastVentCorrected) {
+  float result = 0.0;
+  if (controllerIndex == LEGACY_CONTROLLER_INDEX) {
+    result = legacyController.getValveIncentive(ascentRate, altitude, altitudeSinceLastVentCorrected);
+  }
+  return result;
 }
 
 /*
@@ -103,9 +105,10 @@ float Controller::getValveIncentive(double ascentRate, double altitude, double a
  * This function calculates the incentive to actuate the ballast based on a PID
  * feedback controller.
  */
-float Controller::getBallastIncentive(double ascentRate, double altitude, double altitudeSinceLastDropCorrected) {
-  float proportionalTerm = BALLAST_VELOCITY_CONSTANT * -1 * ascentRate;
-  float integralTerm     = BALLAST_ALTITUDE_DIFF_CONSTANT * (BALLAST_SETPOINT - altitude);
-  float derivativeTerm   = BALLAST_LAST_ACTION_CONSTANT   * (altitudeSinceLastDropCorrected - altitude);
-  return proportionalTerm + integralTerm + derivativeTerm;
+float Controller::getBallastIncentive(uint8_t controllerIndex, double ascentRate, double altitude, double altitudeSinceLastDropCorrected) {
+  float result = 0.0;
+  if (controllerIndex == LEGACY_CONTROLLER_INDEX) {
+    result = legacyController.getValveIncentive(ascentRate, altitude, altitudeSinceLastDropCorrected);
+  }
+  return result;
 }

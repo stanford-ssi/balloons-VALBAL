@@ -78,6 +78,17 @@ struct DataFrame {
   float      VALVE_ALT_LAST                  =           VALVE_ALT_LAST_DEFAULT;
   float      BALLAST_ALT_LAST                =         BALLAST_ALT_LAST_DEFAULT;
 
+// Added by me
+  uint8_t    CURRENT_CONTROLLER_INDEX        =         CONTROLLER_INDEX_DEFAULT;
+
+  float      INCENTIVE_NOISE_LEGACY          =          INCENTIVE_NOISE_DEFAULT;
+  float      RE_ARM_CONSTANT_LEGACY          =                   RE_ARM_DEFAULT;
+  float      VALVE_ALT_LAST_LEGACY           =           VALVE_ALT_LAST_DEFAULT;
+  float      BALLAST_ALT_LAST_LEGACY         =         BALLAST_ALT_LAST_DEFAULT;
+  float      VALVE_INCENTIVE_LEGACY          =                                0;
+  float      BALLAST_INCENTIVE_LEGACY        =                                0;
+// End of added by me
+
   bool       DEBUG_STATE                     =                             true;
   bool       FORCE_VALVE                     =                            false;
   bool       FORCE_BALLAST                   =                            false;

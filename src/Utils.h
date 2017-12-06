@@ -11,6 +11,7 @@
 
 #ifndef UTILS_H
 #define UTILS_H
+
 /*
  * class: Biquad
  * -------------------
@@ -27,10 +28,12 @@ public:
   Biquad(Coeffs coeffs): x{0,0,0},y{0,0,0},coeffs(coeffs){}
   float update(float input);
   void set_ss(float val);
+  void set_coeffs(Coeffs coeffs);
 private:
   float x[3];
   float y[3];
   Coeffs coeffs;
 };
+
 
 #endif

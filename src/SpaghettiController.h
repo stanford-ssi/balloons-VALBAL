@@ -10,17 +10,17 @@ class SpaghettiController
 {
 public:
   typedef struct {
-    float effort;     // Command effort from compensator
-    float v_T;        // Interval time between vent events
-    float b_T;        // Interval time between ballast events
-    int v_ctr;        // valve interval counter
-    int b_ctr;        // ballast interval counter
-    int action;       // action command
+    float effort;             // Command effort from compensator
+    float v_T;                // Interval time between vent events
+    float b_T;                // Interval time between ballast events
+    int v_ctr;                // valve interval counter
+    int b_ctr;                // ballast interval counter
+    int action;               // action command
   } State;
 
   typedef struct {
-    float h;          // altidude
-    float h_cmd;      // altidute comand
+    float h;                  // altidude
+    float h_cmd;              // altidute comand
   } Input;
 
   typedef struct {

@@ -10,6 +10,13 @@
 
 #include "Utils.h"
 
+/*********************** BIQUAD ************************/
+
+/*
+ * Function: update
+ * -------------------
+ * updates filter and returns a new output
+ */
 float Biquad::update(float input){
   /* Roll back values */
   x[2] = x[1];
@@ -23,9 +30,26 @@ float Biquad::update(float input){
   return y[0];
 }
 
+
+/*
+ * Function: set_ss
+ * -------------------
+ * resets fitler to a steady state value
+ */
 void Biquad::set_ss(float val){
   for(int i = 0; i < 3; i++){
     x[i] = val;
     y[i] = val;
   }
+}
+
+/*
+ * Function: set_coeffs
+ * -------------------
+ * changes the coeficents of the biquad and sets to steady state.
+ * Use with extreme caution
+ */
+void Biquad::set_coeffs(Coeffs coeffs){
+  this->coeffs = coeffs;
+  set_ss(y[0]);
 }

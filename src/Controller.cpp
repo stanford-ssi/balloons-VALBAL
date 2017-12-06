@@ -30,7 +30,7 @@ bool Controller::init() {
  * This function updates all the constants for all of the controllers and returns
  * all of the rearm constants.
  */
-ControllerRearmConstants Controller::updateConstants(ControllerConstants allConstants) {
+void Controller::updateConstants(ControllerConstants allConstants) {
   // LEGACY CONTROLLER
   ControllerLegacyConstants legacyConstants = {
     allConstants.valveAltitudeSetpoint,
@@ -44,8 +44,7 @@ ControllerRearmConstants Controller::updateConstants(ControllerConstants allCons
     allConstants.BallastArmAlt,
     allConstants.incentiveThreshold
   };
-  ALL_CONTROLLER_REARM_CONSTANTS.controllerLegacyRearmConstant = legacyController.updateConstants(legacyConstants);
-  return ALL_CONTROLLER_REARM_CONSTANTS;
+  legacyController.updateConstants(legacyConstants);
 }
 
 /*

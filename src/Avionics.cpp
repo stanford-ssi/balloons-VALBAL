@@ -369,12 +369,12 @@ bool Avionics::calcIncentives() {
     data.ASCENT_RATE
   };
 
-  ControllerRearmConstants allControllerRearmConstants = computer.updateConstants(allControllerConstants);
+  computer.updateConstants(allControllerConstants);
   computer.updateInputs(allControllerInputs);
   ControllerActions allControllerActions = computer.getActions();
   ControllerStates allControllerStates = computer.getStates();
 
-  data.RE_ARM_CONSTANT_LEGACY   = allControllerRearmConstants.controllerLegacyRearmConstant;
+  data.RE_ARM_CONSTANT_LEGACY   = allControllerStates.controllerLegacyState.reArmConstant;
   data.VALVE_ALT_LAST_LEGACY    = allControllerStates.controllerLegacyState.altitudeSinceLastVentCorrected;
   data.BALLAST_ALT_LAST_LEGACY  = allControllerStates.controllerLegacyState.altitudeSinceLastDropCorrected;
   // You can do something with the action here

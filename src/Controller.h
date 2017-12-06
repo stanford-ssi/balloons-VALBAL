@@ -44,10 +44,6 @@ typedef struct {
 
 // RETURN STRUCTS
 typedef struct {
-  float controllerLegacyRearmConstant;
-} ControllerRearmConstants;
-
-typedef struct {
   ControllerLegacyState controllerLegacyState;
 } ControllerStates;
 
@@ -61,7 +57,7 @@ public:
   bool  init();
 
 /********************************  FUNCTIONS  *********************************/
-  ControllerRearmConstants updateConstants(ControllerConstants allConstants);
+  void updateConstants(ControllerConstants allConstants);
   void updateInputs(ControllerInputs allInputs);
   ControllerActions getActions();
   ControllerStates getStates();
@@ -71,7 +67,6 @@ private:
   ControllerLegacy legacyController;
   ControllerStates ALL_CONTROLLER_STATES;
   ControllerActions ALL_CONTROLLER_ACTIONS;
-  ControllerRearmConstants ALL_CONTROLLER_REARM_CONSTANTS;
 
 };
 

@@ -45,6 +45,8 @@ typedef struct {
   float altitudeSinceLastDropCorrected;
   float altitude;
   float ascentRate;
+
+  float reArmConstant;
 } ControllerLegacyState;
 
 class ControllerLegacy {//: public ControllerPrototype {
@@ -52,7 +54,7 @@ public:
   virtual bool  init();
 
 /********************************  FUNCTIONS  *********************************/
-  virtual float updateConstants(ControllerLegacyConstants constants);
+  virtual void updateConstants(ControllerLegacyConstants constants);
   virtual void update(ControllerLegacyInputs inputs);
   virtual float getAction();
   virtual ControllerLegacyState getState();
@@ -68,22 +70,25 @@ private:
   virtual float getBallastIncentive(double ascentRate, double altitude, double altitudeSinceLastDropCorrected);
 
 /*********************************  OBJECTS  **********************************/
-  float RE_ARM_CONSTANT                =     0;
-  float BALLAST_ARM_ALT                =     0;
-  float VALVE_SETPOINT                 =     0;
-  float VALVE_VELOCITY_CONSTANT        =     0;
-  float VALVE_ALTITUDE_DIFF_CONSTANT   =     0;
-  float VALVE_LAST_ACTION_CONSTANT     =     0;
-  float BALLAST_SETPOINT               =     0;
-  float BALLAST_VELOCITY_CONSTANT      =     0;
-  float BALLAST_ALTITUDE_DIFF_CONSTANT =     0;
-  float BALLAST_LAST_ACTION_CONSTANT   =     0;
   bool  firstBallastDropped            = false;
+  ControllerLegacyConstants CONSTANTS  = {
+    0,// valveAltitudeSetpoint;
+    0,// valveKpConstant;
+    0,// valveKiConstant;
+    0,// valveKdConstant;
+    0,// ballastAltitudeSetpoint;
+    0,// ballastKpConstant;
+    0,// ballastKiConstant;
+    0,// ballastKdConstant;
+    0,// BallastArmAlt;
+    0// incentiveThreshold;
+  };
   ControllerLegacyState STATE          = {
     0, //valveIncentive
     0, //ballastIncentive
     0, //altitudeSinceLastVentCorrected
-    0 //altitudeSinceLastDropCorrected
+    0, //altitudeSinceLastDropCorrected
+    0
   };
 };
 

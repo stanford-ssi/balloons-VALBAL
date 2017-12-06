@@ -30,10 +30,10 @@ bool ControllerLegacy::init() {
  * This function updates the valve, ballast, and controller constants to tune the algorithm.
  * (All Controllers Should Implement This Function)
  */
-float ControllerLegacy::updateConstants(ControllerLegacyConstants constants) {
+void ControllerLegacy::updateConstants(ControllerLegacyConstants constants) {
   updateValveConstants(constants.valveAltitudeSetpoint, constants.valveKpConstant, constants.valveKiConstant, constants.valveKdConstant);
   updateBallastConstants(constants.ballastAltitudeSetpoint, constants.ballastKpConstant, constants.ballastKiConstant, constants.ballastKdConstant);
-  return updateControllerConstants(constants.BallastArmAlt, constants.incentiveThreshold);
+  STATE.reArmConstant = updateControllerConstants(constants.BallastArmAlt, constants.incentiveThreshold);
 }
 
 /*
@@ -76,10 +76,10 @@ ControllerLegacyState ControllerLegacy::getState() {
  * This function updates the constants to tune the algorithm.
  */
 void ControllerLegacy::updateValveConstants(float valveAltitudeSetpoint, float valveKpConstant, float valveKiConstant, float valveKdConstant) {
-  VALVE_SETPOINT               = valveAltitudeSetpoint;
-  VALVE_VELOCITY_CONSTANT      = valveKpConstant;
-  VALVE_ALTITUDE_DIFF_CONSTANT = valveKiConstant;
-  VALVE_LAST_ACTION_CONSTANT   = valveKdConstant;
+  CONSTANTS.valveAltitudeSetpoint    = valveAltitudeSetpoint;
+  CONSTANTS.valveKpConstant          = valveKpConstant;
+  CONSTANTS.valveKiConstant          = valveKiConstant;
+  CONSTANTS.valveKdConstant          = valveKdConstant;
 }
 
 /*
@@ -88,10 +88,10 @@ void ControllerLegacy::updateValveConstants(float valveAltitudeSetpoint, float v
  * This function updates the constants to tune the algorithm.
  */
 void ControllerLegacy::updateBallastConstants(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKiConstant, float ballastKdConstant) {
-  BALLAST_SETPOINT               = ballastAltitudeSetpoint;
-  BALLAST_VELOCITY_CONSTANT      = ballastKpConstant;
-  BALLAST_ALTITUDE_DIFF_CONSTANT = ballastKiConstant;
-  BALLAST_LAST_ACTION_CONSTANT   = ballastKdConstant;
+  CONSTANTS.valveAltitudeSetpoint   = ballastAltitudeSetpoint;
+  CONSTANTS.ballastKpConstant       = ballastKpConstant;
+  CONSTANTS.ballastKiConstant       = ballastKiConstant;
+  CONSTANTS.ballastKdConstant       = ballastKdConstant;
 }
 
 /*
@@ -100,9 +100,8 @@ void ControllerLegacy::updateBallastConstants(float ballastAltitudeSetpoint, flo
  * This function updates the constants to edit the algorithm.
  */
 float ControllerLegacy::updateControllerConstants(float BallastArmAlt, float incentiveThreshold) {
-  BALLAST_ARM_ALT = BallastArmAlt;
-  RE_ARM_CONSTANT = incentiveThreshold / (BALLAST_ALTITUDE_DIFF_CONSTANT + BALLAST_LAST_ACTION_CONSTANT);
-  return RE_ARM_CONSTANT;
+  CONSTANTS.BallastArmAlt = BallastArmAlt;
+  return incentiveThreshold / (CONSTANTS.ballastKiConstant + CONSTANTS.ballastKdConstant);
 }
 
 /*
@@ -111,7 +110,7 @@ float ControllerLegacy::updateControllerConstants(float BallastArmAlt, float inc
  * This function returns a corrected altitude since last vent value.
  */
 float ControllerLegacy::getAltitudeSinceLastVentCorrected(double altitude, double altitudeSinceLastVent) {
-  float altitudeSinceLastVentCorrected = min(altitudeSinceLastVent, altitude + RE_ARM_CONSTANT);
+  float altitudeSinceLastVentCorrected = min(altitudeSinceLastVent, altitude + STATE.reArmConstant);
   return altitudeSinceLastVentCorrected;
 }
 
@@ -122,11 +121,11 @@ float ControllerLegacy::getAltitudeSinceLastVentCorrected(double altitude, doubl
  */
 float ControllerLegacy::getAltitudeSinceLastDropCorrected(double altitude, double altitudeSinceLastDrop) {
   float altitudeSinceLastDropCorrected = altitudeSinceLastDrop;
-  if (!firstBallastDropped && altitude >= BALLAST_ARM_ALT && altitudeSinceLastDrop == BALLAST_ALT_LAST_DEFAULT) {
+  if (!firstBallastDropped && altitude >= CONSTANTS.BallastArmAlt && altitudeSinceLastDrop == BALLAST_ALT_LAST_DEFAULT) {
     altitudeSinceLastDropCorrected = BALLAST_ALT_LAST_FILLER;
     firstBallastDropped = true;
   }
-  if(firstBallastDropped) altitudeSinceLastDropCorrected = max(altitudeSinceLastDropCorrected, altitude - RE_ARM_CONSTANT);
+  if(firstBallastDropped) altitudeSinceLastDropCorrected = max(altitudeSinceLastDropCorrected, altitude - STATE.reArmConstant);
   return altitudeSinceLastDropCorrected;
 }
 
@@ -137,9 +136,9 @@ float ControllerLegacy::getAltitudeSinceLastDropCorrected(double altitude, doubl
  * feedback controller.
  */
 float ControllerLegacy::getValveIncentive(double ascentRate, double altitude, double altitudeSinceLastVentCorrected) {
-  float proportionalTerm = VALVE_VELOCITY_CONSTANT      * ascentRate;
-  float integralTerm     = VALVE_ALTITUDE_DIFF_CONSTANT * (altitude - VALVE_SETPOINT);
-  float derivativeTerm   = VALVE_LAST_ACTION_CONSTANT   * (altitude - altitudeSinceLastVentCorrected);
+  float proportionalTerm = CONSTANTS.valveKpConstant   * ascentRate;
+  float integralTerm     = CONSTANTS.valveKiConstant   * (altitude - CONSTANTS.valveAltitudeSetpoint);
+  float derivativeTerm   = CONSTANTS.valveKdConstant   * (altitude - altitudeSinceLastVentCorrected);
   return proportionalTerm + integralTerm + derivativeTerm;
 }
 
@@ -150,8 +149,8 @@ float ControllerLegacy::getValveIncentive(double ascentRate, double altitude, do
  * feedback controller.
  */
 float ControllerLegacy::getBallastIncentive(double ascentRate, double altitude, double altitudeSinceLastDropCorrected) {
-  float proportionalTerm = BALLAST_VELOCITY_CONSTANT * -1 * ascentRate;
-  float integralTerm     = BALLAST_ALTITUDE_DIFF_CONSTANT * (BALLAST_SETPOINT - altitude);
-  float derivativeTerm   = BALLAST_LAST_ACTION_CONSTANT   * (altitudeSinceLastDropCorrected - altitude);
+  float proportionalTerm = CONSTANTS.ballastKpConstant  * -1 * ascentRate;
+  float integralTerm     = CONSTANTS.ballastKiConstant  * (CONSTANTS.ballastAltitudeSetpoint - altitude);
+  float derivativeTerm   = CONSTANTS.ballastKdConstant  * (altitudeSinceLastDropCorrected - altitude);
   return proportionalTerm + integralTerm + derivativeTerm;
 }

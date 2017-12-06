@@ -23,7 +23,53 @@ bool ControllerLegacy::init() {
   return true;
 }
 
-/********************************  FUNCTIONS  *********************************/
+/***************************** PUBLIC FUNCTIONS  ******************************/
+/*
+ * Function: updateConstants
+ * -------------------
+ * This function updates the valve, ballast, and controller constants to tune the algorithm.
+ * (All Controllers Should Implement This Function)
+ */
+float ControllerLegacy::updateConstants(ControllerLegacyConstants constants) {
+  updateValveConstants(constants.valveAltitudeSetpoint, constants.valveKpConstant, constants.valveKiConstant, constants.valveKdConstant);
+  updateBallastConstants(constants.ballastAltitudeSetpoint, constants.ballastKpConstant, constants.ballastKiConstant, constants.ballastKdConstant);
+  return updateControllerConstants(constants.BallastArmAlt, constants.incentiveThreshold);
+}
+
+/*
+ * Function: update
+ * -------------------
+ * This function updates the inputs to the getValveIncentive and getBallastIncentive functions and
+ * stores them in the controller's state.
+ * (All Controllers Should Implement This Function)
+ */
+void ControllerLegacy::update(ControllerLegacyInputs inputs) {
+  STATE.altitudeSinceLastVentCorrected = getAltitudeSinceLastVentCorrected(inputs.altitude, inputs.altitudeSinceLastVent);
+  STATE.altitudeSinceLastDropCorrected = getAltitudeSinceLastDropCorrected(inputs.altitude, inputs.altitudeSinceLastDrop);
+  STATE.altitude = inputs.altitude;
+  STATE.ascentRate = inputs.ascentRate;
+  STATE.valveIncentive = getValveIncentive(STATE.ascentRate, STATE.altitude, STATE.altitudeSinceLastVentCorrected);
+  STATE.ballastIncentive = getBallastIncentive(STATE.ascentRate, STATE.altitude, STATE.altitudeSinceLastDropCorrected);
+}
+
+/*
+ * Function: getAction
+ * -------------------
+ * This function returns a negative number for valve and a positive number for ballast
+ * (All Controllers Should Implement This Function)
+ */
+float ControllerLegacy::getAction() {
+  if (STATE.valveIncentive > STATE.ballastIncentive) {
+    return -STATE.valveIncentive;
+  } else {
+    return STATE.ballastIncentive;
+  }
+}
+
+ControllerLegacyState ControllerLegacy::getState() {
+  return STATE;
+}
+/***************************** PRIVATE FUNCTIONS  *****************************/
 /*
  * Function: updateValveConstants
  * -------------------

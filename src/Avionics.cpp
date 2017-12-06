@@ -347,13 +347,40 @@ bool Avionics::calcDebug() {
  */
 bool Avionics::calcIncentives() {
   bool success = true;
-  computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
-  computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
-  data.RE_ARM_CONSTANT_LEGACY   = computer.updateControllerConstants(LEGACY_CONTROLLER_INDEX, data.BALLAST_ARM_ALT, data.INCENTIVE_THRESHOLD);
-  data.VALVE_ALT_LAST_LEGACY    = computer.getAltitudeSinceLastVentCorrected(LEGACY_CONTROLLER_INDEX, data.ALTITUDE_BAROMETER, data.VALVE_ALT_LAST);
-  data.BALLAST_ALT_LAST_LEGACY  = computer.getAltitudeSinceLastDropCorrected(LEGACY_CONTROLLER_INDEX, data.ALTITUDE_BAROMETER, data.BALLAST_ALT_LAST);
-  data.VALVE_INCENTIVE_LEGACY   = computer.getValveIncentive(LEGACY_CONTROLLER_INDEX, data.ASCENT_RATE, data.ALTITUDE_BAROMETER, data.VALVE_ALT_LAST);
-  data.BALLAST_INCENTIVE_LEGACY = computer.getBallastIncentive(LEGACY_CONTROLLER_INDEX, data.ASCENT_RATE, data.ALTITUDE_BAROMETER, data.BALLAST_ALT_LAST);
+
+  // Set Up Constants
+  ControllerConstants allControllerConstants {
+    data.VALVE_SETPOINT,
+    data.VALVE_VELOCITY_CONSTANT,
+    data.VALVE_ALTITUDE_DIFF_CONSTANT,
+    data.VALVE_LAST_ACTION_CONSTANT,
+    data.BALLAST_SETPOINT,
+    data.BALLAST_VELOCITY_CONSTANT,
+    data.BALLAST_ALTITUDE_DIFF_CONSTANT,
+    data.BALLAST_LAST_ACTION_CONSTANT,
+    data.BALLAST_ARM_ALT,
+    data.INCENTIVE_THRESHOLD
+  };
+
+  ControllerInputs allControllerInputs {
+    data.ALTITUDE_BAROMETER,
+    data.VALVE_ALT_LAST,
+    data.BALLAST_ALT_LAST,
+    data.ASCENT_RATE
+  };
+
+  ControllerRearmConstants allControllerRearmConstants = computer.updateConstants(allControllerConstants);
+  computer.updateInputs(allControllerInputs);
+  ControllerActions allControllerActions = computer.getActions();
+  ControllerStates allControllerStates = computer.getStates();
+
+  data.RE_ARM_CONSTANT_LEGACY   = allControllerRearmConstants.controllerLegacyRearmConstant;
+  data.VALVE_ALT_LAST_LEGACY    = allControllerStates.controllerLegacyState.altitudeSinceLastVentCorrected;
+  data.BALLAST_ALT_LAST_LEGACY  = allControllerStates.controllerLegacyState.altitudeSinceLastDropCorrected;
+  // You can do something with the action here
+  data.VALVE_INCENTIVE_LEGACY   = allControllerStates.controllerLegacyState.valveIncentive;
+  data.BALLAST_INCENTIVE_LEGACY = allControllerStates.controllerLegacyState.ballastIncentive;
+// Spaghetti
 
   if (data.CURRENT_CONTROLLER_INDEX == LEGACY_CONTROLLER_INDEX) {
     data.RE_ARM_CONSTANT = data.RE_ARM_CONSTANT_LEGACY;
@@ -1134,6 +1161,35 @@ void Avionics::printState() {
   Serial.print(" BALLAST_ALT_LAST:");
   Serial.print(data.BALLAST_ALT_LAST);
   Serial.print(',');
+  // START OF CONTROLLER SWITCHING ADDITION
+  Serial.print(" CURRENT_CONTROLLER_INDEX:");
+  Serial.print(data.CURRENT_CONTROLLER_INDEX);
+  Serial.print(',');
+  Serial.print(" INCENTIVE_NOISE_LEGACY:");
+  Serial.print(data.INCENTIVE_NOISE_LEGACY);
+  Serial.print(',');
+  Serial.print(" RE_ARM_CONSTANT_LEGACY:");
+  Serial.print(data.RE_ARM_CONSTANT_LEGACY);
+  Serial.print(',');
+  Serial.print(" VALVE_ALT_LAST_LEGACY:");
+  Serial.print(data.VALVE_ALT_LAST_LEGACY);
+  Serial.print(',');
+  Serial.print(" RE_ARM_CONSTANT_LEGACY:");
+  Serial.print(data.RE_ARM_CONSTANT_LEGACY);
+  Serial.print(',');
+  Serial.print(" VALVE_ALT_LAST_LEGACY:");
+  Serial.print(data.VALVE_ALT_LAST_LEGACY);
+  Serial.print(',');
+  Serial.print(" BALLAST_ALT_LAST_LEGACY:");
+  Serial.print(data.BALLAST_ALT_LAST_LEGACY);
+  Serial.print(',');
+  Serial.print(" VALVE_INCENTIVE_LEGACY:");
+  Serial.print(data.VALVE_INCENTIVE_LEGACY);
+  Serial.print(',');
+  Serial.print(" BALLAST_INCENTIVE_LEGACY:");
+  Serial.print(data.BALLAST_INCENTIVE_LEGACY);
+  Serial.print(',');
+ // END OF CONTROLLER SWITCHING ADDITION
   Serial.print(" DEBUG_STATE:");
   Serial.print(data.DEBUG_STATE);
   Serial.print(',');

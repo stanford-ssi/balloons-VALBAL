@@ -17,23 +17,61 @@
 #include "Config.h"
 #include "ControllerLegacy.h"
 
+// INPUT STRUCTS
+typedef struct {
+  // LEGACY CONTROLLER CONSTANTS
+  float valveAltitudeSetpoint;
+  float valveKpConstant;
+  float valveKiConstant;
+  float valveKdConstant;
+  float ballastAltitudeSetpoint;
+  float ballastKpConstant;
+  float ballastKiConstant;
+  float ballastKdConstant;
+  float BallastArmAlt;
+  float incentiveThreshold;
+
+} ControllerConstants;
+
+typedef struct {
+  // LEGACY CONTROLLER INPUTS
+  double altitude;
+  double altitudeSinceLastVent;
+  double altitudeSinceLastDrop;
+  double ascentRate;
+} ControllerInputs;
+
+
+// RETURN STRUCTS
+typedef struct {
+  float controllerLegacyRearmConstant;
+} ControllerRearmConstants;
+
+typedef struct {
+  ControllerLegacyState controllerLegacyState;
+} ControllerStates;
+
+typedef struct {
+  float controllerLegacyAction;
+} ControllerActions;
+
 class Controller {
 public:
 /**********************************  SETUP  ***********************************/
   bool  init();
 
 /********************************  FUNCTIONS  *********************************/
-  void  updateValveConstants(float valveAltitudeSetpoint, float valveKpConstant, float valveKiConstant, float valveKdConstant);
-  void  updateBallastConstants(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKiConstant, float ballastKdConstant);
-  float updateControllerConstants(uint8_t controllerIndex, float BallastArmAlt, float incentiveThreshold);
-  float getAltitudeSinceLastVentCorrected(uint8_t controllerIndex, double altitude, double altitudeSinceLastVent);
-  float getAltitudeSinceLastDropCorrected(uint8_t controllerIndex, double altitude, double altitudeSinceLastDrop);
-  float getValveIncentive(uint8_t controllerIndex, double ascentRate, double altitude, double altitudeSinceLastVentCorrected);
-  float getBallastIncentive(uint8_t controllerIndex, double ascentRate, double altitude, double altitudeSinceLastDropCorrected);
+  ControllerRearmConstants updateConstants(ControllerConstants allConstants);
+  void updateInputs(ControllerInputs allInputs);
+  ControllerActions getActions();
+  ControllerStates getStates();
 
 private:
 /*********************************  OBJECTS  **********************************/
   ControllerLegacy legacyController;
+  ControllerStates ALL_CONTROLLER_STATES;
+  ControllerActions ALL_CONTROLLER_ACTIONS;
+  ControllerRearmConstants ALL_CONTROLLER_REARM_CONSTANTS;
 
 };
 

@@ -448,7 +448,7 @@ bool Avionics::runCharger() {
  * -------------------
  * This function actuates the valve based on the commanded action
  */
-bool Avioincs::runValve(){
+bool Avionics::runValve(){
   actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
   if((data.ACTION < 0 && actuator.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
     data.VALVE_NUM_ATTEMPTS++;

@@ -80,6 +80,7 @@ struct DataFrame {
 
 // Added by me
   uint8_t    CURRENT_CONTROLLER_INDEX        =         CONTROLLER_INDEX_DEFAULT;
+  int32_t    ACTION                          =                                0;
 
   float      INCENTIVE_NOISE_LEGACY          =          INCENTIVE_NOISE_DEFAULT;
   float      RE_ARM_CONSTANT_LEGACY          =                   RE_ARM_DEFAULT;
@@ -87,6 +88,7 @@ struct DataFrame {
   float      BALLAST_ALT_LAST_LEGACY         =         BALLAST_ALT_LAST_DEFAULT;
   float      VALVE_INCENTIVE_LEGACY          =                                0;
   float      BALLAST_INCENTIVE_LEGACY        =                                0;
+  int32_t     ACTION_LEGACY                   =                               0;
 // End of added by me
 
   bool       DEBUG_STATE                     =                             true;

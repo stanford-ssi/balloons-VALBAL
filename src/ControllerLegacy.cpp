@@ -58,11 +58,20 @@ void ControllerLegacy::update(ControllerLegacyInputs inputs) {
  * This function returns a negative number for valve and a positive number for ballast
  * (All Controllers Should Implement This Function)
  */
-float ControllerLegacy::getAction() {
+int32_t ControllerLegacy::getAction() {
+  int32_t valveAction = 0;
+  if (STATE.valveIncentive >= (1 + CONSTANTS.incentiveThreshold)) {
+    valveAction = CONSTANTS.valveVentDuration;
+  }
+  int32_t ballastAction = 0;
+  if (STATE.ballastIncentive >= (1 + CONSTANTS.incentiveThreshold)) {
+    ballastAction = CONSTANTS.valveVentDuration;
+  }
+
   if (STATE.valveIncentive > STATE.ballastIncentive) {
-    return -STATE.valveIncentive;
+    return -valveAction;
   } else {
-    return STATE.ballastIncentive;
+    return ballastAction;
   }
 }
 

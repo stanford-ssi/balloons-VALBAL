@@ -28,6 +28,8 @@ typedef struct {
   float ballastKdConstant;
   float BallastArmAlt;
   float incentiveThreshold;
+
+  int32_t valveVentDuration;
 } ControllerLegacyConstants;
 
 typedef struct {
@@ -56,7 +58,7 @@ public:
 /********************************  FUNCTIONS  *********************************/
   virtual void updateConstants(ControllerLegacyConstants constants);
   virtual void update(ControllerLegacyInputs inputs);
-  virtual float getAction();
+  virtual int32_t getAction();
   virtual ControllerLegacyState getState();
 
 private:

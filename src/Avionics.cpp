@@ -377,9 +377,10 @@ bool Avionics::calcIncentives() {
   data.RE_ARM_CONSTANT_LEGACY   = allControllerStates.controllerLegacyState.reArmConstant;
   data.VALVE_ALT_LAST_LEGACY    = allControllerStates.controllerLegacyState.altitudeSinceLastVentCorrected;
   data.BALLAST_ALT_LAST_LEGACY  = allControllerStates.controllerLegacyState.altitudeSinceLastDropCorrected;
-  // You can do something with the action here
+
   data.VALVE_INCENTIVE_LEGACY   = allControllerStates.controllerLegacyState.valveIncentive;
   data.BALLAST_INCENTIVE_LEGACY = allControllerStates.controllerLegacyState.ballastIncentive;
+  data.ACTION_LEGACY            = allControllerActions.controllerLegacyAction;
 // Spaghetti
 
   if (data.CURRENT_CONTROLLER_INDEX == LEGACY_CONTROLLER_INDEX) {
@@ -388,6 +389,7 @@ bool Avionics::calcIncentives() {
     data.BALLAST_ALT_LAST = data.BALLAST_ALT_LAST_LEGACY;
     data.VALVE_INCENTIVE = data.VALVE_INCENTIVE_LEGACY;
     data.BALLAST_INCENTIVE = data.BALLAST_INCENTIVE_LEGACY;
+    data.ACTION            =  data.ACTION_LEGACY;
   }
 
 

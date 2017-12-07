@@ -30,7 +30,7 @@ typedef struct {
   float ballastKdConstant;
   float BallastArmAlt;
   float incentiveThreshold;
-
+  int32_t valveVentDuration;
 } ControllerConstants;
 
 typedef struct {
@@ -48,7 +48,7 @@ typedef struct {
 } ControllerStates;
 
 typedef struct {
-  float controllerLegacyAction;
+  int32_t controllerLegacyAction;
 } ControllerActions;
 
 class Controller {

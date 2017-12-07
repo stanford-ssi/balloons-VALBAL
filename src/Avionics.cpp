@@ -1021,8 +1021,6 @@ void Avionics::printState() {
   Serial.print(" CURRENT_PAYLOAD_MAX:");
   Serial.print(data.CURRENT_PAYLOAD_MAX);
   Serial.print(',');
-  Serial.print(" TEMP_EXT:");
-  Serial.print(',');
   Serial.print(" LOOP_TIME_MAX:");
   Serial.print(data.LOOP_TIME_MAX);
   Serial.print(',');

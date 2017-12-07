@@ -1,7 +1,8 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | August 2017
+  Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
+  Keegan Mehall | kmehall@stanford.edu
 
   File: Config.h
   --------------------------
@@ -17,20 +18,19 @@
 
 /****************************  COMPILE FLAGS  *********************************/
 // #define STORAGE_MODE_FLAG // uncomment for power off
-// #define RESET_EEPROM_FLAG // uncomment for EEPROM
+//#define RESET_EEPROM_FLAG // uncomment for EEPROM
 // #define HITL_ENABLED_FLAG // uncomment for HITL
 // #define RB_DISABLED_FLAG  // uncomment for HITL
 
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   REBOOT_ENABLE                         =               16;
 static const uint8_t   SD_CS                                 =               23;
-static const uint8_t   LED_PIN                               =               33;
 static const uint8_t   BMP_CS_ONE                            =               32;
 static const uint8_t   BMP_CS_TWO                            =               25;
 static const uint8_t   BMP_CS_THREE                          =               15;
 static const uint8_t   BMP_CS_FOUR                           =               22;
-static const uint8_t   VALVE_FORWARD                         =                6;
-static const uint8_t   VALVE_REVERSE                         =               20;
+static const uint8_t   VALVE_FORWARD                         =               20;
+static const uint8_t   VALVE_REVERSE                         =                6;
 static const uint8_t   BALLAST_FORWARD                       =               21;
 static const uint8_t   BALLAST_REVERSE                       =                5;
 static const uint8_t   HEATER_INTERNAL_STRONG                =                4;
@@ -46,15 +46,16 @@ static const uint8_t   TOTAL_CURRENT                         =                1;
 static const uint8_t   RB_CURRENT                            =                2;
 static const uint8_t   MOTORS_CURRENT                        =                3;
 static const uint8_t   PAYLOAD_CURRENT                       =                4;
-static const uint8_t   EXT_TEMP_SENSOR                       =              A15;
-static const uint8_t   BLACK_BODY_TEMP_SENSOR                =              A20;
+static const uint8_t   EXT_TEMP_SENSOR                       =               36;
+static const uint8_t   CUTDOWN_POWER                         =               33;
+static const uint8_t   CUTDOWN_SIGNAL                        =               31;
 
 
 /****************************  EDITABLE CONSTANTS  ****************************/
-static const char      MISSION_NUMBER[]                      =         "SSI-57";
+static const char      MISSION_NUMBER[]                      =         "SSI-63";
 
 static const uint8_t   CUTDOWN_INDEX                         =               99;
-static const uint16_t  CUTDOWN_DURATION                      =            10000;
+static const uint16_t  CUTDOWN_DURATION                      =             1000;
 
 static const uint16_t  GPS_LOCK_TIMEOUT                      =               30;
 static const uint16_t  GPS_QUIT_TIMEOUT                      =            10000;
@@ -87,7 +88,7 @@ static const float     BALLAST_ARM_ALT_DEFAULT               =          13250.0;
 static const float     BALLAST_ALT_LAST_FILLER               =          14000.0;
 static const uint32_t  BALLAST_REVERSE_INTERVAL_DEFAULT      =           600000;
 static const uint32_t  VALVE_LEAK_INTERVAL_DEFAULT           =           600000;
-static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              200;
+static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              140;
 
 static const float     VALVE_SETPOINT_DEFAULT                =          14500.0;
 static const uint32_t  VALVE_VENT_DURATION_DEFAULT           =            20000;
@@ -104,10 +105,10 @@ static const float     BALLAST_ALTITUDE_DIFF_DEFAULT         =     1.0 / 1500.0;
 static const float     BALLAST_LAST_ACTION_DEFAULT           =     1.0 / 1500.0;
 
 static const uint16_t  VALVE_MOTOR_SPEED_OPEN_DEFAULT        =              255;
-static const uint16_t  VALVE_MOTOR_SPEED_CLOSE_DEFAULT       =              200;
+static const uint16_t  VALVE_MOTOR_SPEED_CLOSE_DEFAULT       =              255;
 static const uint16_t  BALLAST_MOTOR_SPEED_DEFAULT           =              255;
-static const uint32_t  VALVE_OPENING_DURATION_DEFAULT        =              750;
-static const uint32_t  VALVE_CLOSING_DURATION_DEFAULT        =             2500;
+static const uint32_t  VALVE_OPENING_DURATION_DEFAULT        =             2000;
+static const uint32_t  VALVE_CLOSING_DURATION_DEFAULT        =             3000;
 static const uint16_t  BALLAST_STALL_TIMEOUT                 =             3000;
 
 static const float     MAX_PRESURE                           =           107500;

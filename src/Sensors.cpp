@@ -1,9 +1,10 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
   Jesus Cervantes | cerjesus@stanford.edu
+  Keegan Mehall | kmehall@stanford.edu
 
   File: Sensors.cpp
   --------------------------
@@ -23,8 +24,6 @@ bool Sensors::init() {
   pinMode(BATT_VOLTAGE,           INPUT);
   pinMode(BOOST_VOLTAGE,          INPUT);
   pinMode(USB_CURRENT,            INPUT);
-  pinMode(EXT_TEMP_SENSOR,        INPUT);
-  pinMode(BLACK_BODY_TEMP_SENSOR, INPUT);
   if (!bme1.begin()) {
     Serial.println("Could not initialize BMP280 sensor 1, check wiring!");
     sucess = false;

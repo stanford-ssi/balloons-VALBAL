@@ -1,7 +1,8 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | August 2017
+  Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
+  Keegan Mehall | kmehall@stanford.edu
 
   File: data.h
   --------------------------
@@ -53,7 +54,6 @@ struct DataFrame {
   float      CURRENT_MOTOR_BALLAST_MAX       =                                0;
   float      CURRENT_PAYLOAD_AVG             =                                0;
   float      CURRENT_PAYLOAD_MAX             =                                0;
-  float      TEMP_EXT                        =                                0;
   uint32_t   LOOP_TIME_MAX                   =                                0;
   uint32_t   RB_SENT_COMMS                   =                                0;
   uint32_t   RB_WAKE_FAILS                   =                                0;
@@ -93,7 +93,6 @@ struct DataFrame {
   uint32_t   BMP_3_REJECTIONS                =                                0;
   uint32_t   BMP_4_REJECTIONS                =                                0;
 
-  float      BLACK_BODY_TEMP                 =                                0;
   float      JOULES_HEATER                   =                                0;
 
 /*****************************  TERTIARY DATA  ********************************/

@@ -8,6 +8,7 @@
   Michal Adamkiewicz | mikadam@stanford.edu
   Jesus Cervantes | cerjesus@stanford.edu
   Matthew Tan | mratan@stanford.edu
+  Keegan Mehall | kmehall@stanford.edu
 
   File: main.cpp
   --------------------------

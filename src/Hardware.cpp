@@ -4,6 +4,7 @@
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Matthew Tan | mratan@stanford.edu
+  Keegan Mehall | kmehall@stanford.edu
 
   File: Hardware.cpp
   --------------------------
@@ -26,7 +27,7 @@ void Hardware::init() {
   #ifndef STORAGE_MODE_FLAG
     digitalWrite(REBOOT_ENABLE, HIGH);
   #endif
-  pinMode(LED_PIN, OUTPUT);
+  pinMode(CUTDOWN_POWER, OUTPUT);
   pinMode(VALVE_FORWARD, OUTPUT);
   pinMode(VALVE_REVERSE, OUTPUT);
   pinMode(BALLAST_FORWARD, OUTPUT);
@@ -34,7 +35,10 @@ void Hardware::init() {
   pinMode(HEATER_INTERNAL_STRONG, OUTPUT);
   pinMode(HEATER_INTERNAL_WEAK, OUTPUT);
   pinMode(PAYLOAD_GATE, OUTPUT);
-  digitalWrite(LED_PIN, LOW);
+  pinMode(CUTDOWN_POWER, OUTPUT);
+  digitalWrite(CUTDOWN_POWER, LOW);
+  pinMode(CUTDOWN_SIGNAL, OUTPUT);
+  digitalWrite(CUTDOWN_SIGNAL, LOW);
   analogWrite(HEATER_INTERNAL_STRONG, 0);
   analogWrite(HEATER_INTERNAL_WEAK, 0);
   digitalWrite(PAYLOAD_GATE, LOW);
@@ -58,7 +62,7 @@ void Hardware::initResolutions() {
  * This function turns the LED on or off.
  */
 void Hardware::runLED(bool on) {
-  digitalWrite(LED_PIN, on);
+  //digitalWrite(LED_PIN, on);
 }
 
 /*
@@ -257,7 +261,11 @@ bool Hardware::checkBallast(float current, uint32_t reverseTimeout, uint16_t sta
     }
   }
   if (ballastState == OPEN) {
-    if (current >= stallCurrent && ((currentLast < stallCurrent) || (millis() - ballastStallTime >= BALLAST_STALL_TIMEOUT))) {
+    if (
+      current >= stallCurrent &&
+      ((currentLast < stallCurrent) || (millis() - ballastStallTime >= BALLAST_STALL_TIMEOUT)) &&
+      millis() - ballastDirectionTime >= BALLAST_STALL_TIMEOUT
+    ){
       ballastDirection = !ballastDirection;
       ballastStallTime = millis();
       numBallastOverCurrents++;
@@ -324,15 +332,13 @@ void Hardware::clearBallastOverCurrents() {
  */
 void Hardware::cutDown() {
   turnOffHeaters();
-  clearValveQueue();
-  clearBallastQueue();
-  for(size_t i = 0; i < 3; i++){
-    openValve();
-    delay(CUTDOWN_DURATION);
-    closeValve();
-    delay(valveClosingTimeout);
-    stopValve();
-  }
+  Serial.println("cutdown");
+  digitalWrite(CUTDOWN_POWER, HIGH);
+  digitalWrite(CUTDOWN_SIGNAL, HIGH);
+  delay(CUTDOWN_DURATION);
+  digitalWrite(CUTDOWN_POWER, LOW);
+  digitalWrite(CUTDOWN_SIGNAL, LOW);
+  Serial.println("cutdown end");
 }
 
 /*

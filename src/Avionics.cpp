@@ -1,10 +1,11 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Aria Tedjarati | atedjarati@stanford.edu
   Joan Creus-Costa | jcreus@stanford.edu
+  Keegan Mehall | kmehall@stanford.edu
 
   File: Avionics.cpp
   --------------------------
@@ -47,6 +48,7 @@ void Avionics::init() {
  * This function tests the hardware.
  */
 void Avionics::test() {
+  Serial.println("test starting");
   data.MANUAL_MODE = false;
   // uint32_t startt = millis();
   // data.VALVE_LEAK_INTERVAL = 10000;
@@ -56,8 +58,8 @@ void Avionics::test() {
   //   data.VALVE_STATE = PCB.checkValve(data.CURRENT_MOTOR_VALVE, data.VALVE_LEAK_INTERVAL);
   // }
   data.SHOULD_CUTDOWN = true;
-  PCB.queueBallast(900000, true);
-  PCB.queueValve(30000, true);
+  //PCB.queueBallast(60000, true);
+  //PCB.queueValve(5000, true);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -100,7 +102,6 @@ void Avionics::actuateState() {
   if(!runLED())     alert("unable to run LED", true);
 }
 
-uint32_t max = 0;
 /*
  * Function: logState
  * -------------------
@@ -111,7 +112,6 @@ void Avionics::logState() {
   if(!log.log(&data, PCB.valveState != PCB.OPENING)) alert("unable to log Data", true);
   data.LOG_TIME = millis() - t0;
   data.LOOP_NUMBER2++;
-  max = (data.LOG_TIME > max) ? data.LOG_TIME : max;
   if(!debugState())   alert("unable to debug state", true);
 }
 
@@ -221,8 +221,6 @@ bool Avionics::readData() {
   data.CURRENT_MOTOR_VALVE   = (data.VALVE_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
   data.CURRENT_MOTOR_BALLAST = (data.BALLAST_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
   data.CURRENT_PAYLOAD       = sensors.getCurrentSubsystem(PAYLOAD_CURRENT);
-  data.TEMP_EXT              = sensors.getDerivedTemp(EXT_TEMP_SENSOR);
-  data.BLACK_BODY_TEMP       = sensors.getDerivedTemp(BLACK_BODY_TEMP_SENSOR);
   data.RAW_TEMP_1            = sensors.getRawTemp(1);
   data.RAW_TEMP_2            = sensors.getRawTemp(2);
   data.RAW_TEMP_3            = sensors.getRawTemp(3);
@@ -829,7 +827,6 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.CURRENT_MOTOR_BALLAST_MAX,             0,    1023,    8,  lengthBits);
   lengthBits += compressVariable(data.CURRENT_PAYLOAD_AVG,                   0,    1023,    8,  lengthBits);
   lengthBits += compressVariable(data.CURRENT_PAYLOAD_MAX,                   0,    1023,    8,  lengthBits);
-  lengthBits += compressVariable(data.TEMP_EXT,                             -100,  30,      8,  lengthBits);
   lengthBits += compressVariable(data.LOOP_TIME_MAX,                         0,    10239,   10, lengthBits);
   lengthBits += compressVariable(data.RB_SENT_COMMS,                         0,    8191,    13, lengthBits);
   lengthBits += compressVariable(data.RB_SLEEP_FAILS,                        0,    8191,    13, lengthBits);
@@ -860,7 +857,6 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(log2(data.BMP_2_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_2_logrejections
     lengthBits += compressVariable(log2(data.BMP_3_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_3_logrejections
     lengthBits += compressVariable(log2(data.BMP_4_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_4_logrejections
-    lengthBits += compressVariable(data.BLACK_BODY_TEMP,                    -100,  30,      8,  lengthBits);
     lengthBits += compressVariable(data.JOULES_HEATER,                       0,    819199,  13, lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
@@ -1026,7 +1022,6 @@ void Avionics::printState() {
   Serial.print(data.CURRENT_PAYLOAD_MAX);
   Serial.print(',');
   Serial.print(" TEMP_EXT:");
-  Serial.print(data.TEMP_EXT);
   Serial.print(',');
   Serial.print(" LOOP_TIME_MAX:");
   Serial.print(data.LOOP_TIME_MAX);
@@ -1127,8 +1122,6 @@ void Avionics::printState() {
   Serial.print(" BMP_4_REJECTIONS:");
   Serial.print(data.BMP_4_REJECTIONS);
   Serial.print(',');
-  Serial.print(" BLACK_BODY_TEMP:");
-  Serial.print(data.BLACK_BODY_TEMP);
   Serial.print(',');
   Serial.print(" JOULES_HEATER:");
   Serial.print(data.JOULES_HEATER);

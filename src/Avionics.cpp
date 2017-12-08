@@ -969,9 +969,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.BALLAST_INCENTIVE_LEGACY,          -50,   10,       12, lengthBits);
     lengthBits += compressVariable(data.SPAG_EFFORT,                       -0.002, 0.002, 12, lengthBits);
     lengthBits += compressVariable(data.SPAG_VENT_TIME_INTERVAL,           0,     1000,   8, lengthBits);
-    // SPAG_BALLAST_TIME_INTERVAL
-    // SPAG_VALVE_INTERVAL_COUNTER
-    // SPAG_BALLAST_INTERVAL_COUNTER
+    lengthBits += compressVariable(data.SPAG_BALLAST_TIME_INTERVAL,        0,     1000,   8, lengthBits);                  
 
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {

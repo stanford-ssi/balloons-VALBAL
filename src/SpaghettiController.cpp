@@ -2,9 +2,9 @@
 #include "SpaghettiController.h"
 
 
-SpaghettiController::SpaghettiController(Constants constants) :
-  constants(constants),
-  compensator(constants.coeffs)
+SpaghettiController::SpaghettiController() :
+  coeffs{0,0,0,0,0,0},
+  compensator(coeffs)
 {
   state.effort = 0;
   state.v_T = HUGE_VALF;
@@ -17,7 +17,7 @@ SpaghettiController::SpaghettiController(Constants constants) :
 bool SpaghettiController::update(Input input){
 
   /* get effort from compensator */
-  state.effort = compensator.update(input.h_cmd - input.h);
+  state.effort = compensator.update(constants.h_cmd - input.h);
   float rate = state.effort * constants.k;
 
   //TODO: Implement gain schedualing
@@ -57,7 +57,7 @@ void SpaghettiController::updateConstants(Constants constants){
   this->constants = constants;
 }
 
-int SpaghettiController::getAction(){
+int32_t SpaghettiController::getAction(){
   return state.action;
 }
 

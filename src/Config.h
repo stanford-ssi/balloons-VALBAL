@@ -123,9 +123,18 @@ static const uint16_t  MINIMUM_ALTITUDE_POINTS               =              600;
 static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =              600;
 static const uint16_t  VOLTAGE_BUFFER_SIZE                   =               20;
 
+static const float     SPAG_K_DEFAULT                        =          0.00001;
+static const float     SPAG_B_DLDT_DEFAULT                   =            0.001;
+static const float     SPAG_V_DLDT_DEFAULT                   =            0.001;
+static const float     SPAG_RATE_MIN_DEFAULT                 =          0.00001;
+static const float     SPAG_RATE_MAX_DEFAULT                 =            0.001;
+static const float     SPAG_B_TMIN_DEFAULT                   =                2;
+static const float     SPAG_V_TMIN_DEFAULT                   =                2;
+static const float     SPAG_H_CMD_DEFAULT                    =            14000;
 
 static const uint8_t   CONTROLLER_INDEX_DEFAULT              =                0;
 static const uint8_t   LEGACY_CONTROLLER_INDEX               =                0;
+static const uint8_t   SPAG_CONTROLLER_INDEX                 =                1;
 
 /*****************************  EEPROM ADDRESSES  *****************************/
 static const uint8_t   EEPROM_ROCKBLOCK                      =                0;

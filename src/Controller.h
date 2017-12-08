@@ -33,6 +33,15 @@ typedef struct {
   float incentiveThreshold;
   uint32_t valveVentDuration;
   uint32_t ballastDropDuration;
+
+  float k;                  // gain modifier
+  float b_dldt;             // balast dl/dt (kg/s)
+  float v_dldt;             // valve dl/dt (kg/s)
+  float rate_min;           // min dl/dt rate threshold (kg/s)
+  float rate_max;           // max dl/dt rate threshold (kg/s)
+  float b_tmin;               // minimum ballast event time
+  float v_tmin;
+  float h_cmd;
 } ControllerConstants;
 
 typedef struct {
@@ -50,11 +59,13 @@ typedef struct {
 
 // RETURN STRUCTS
 typedef struct {
-  ControllerLegacyState controllerLegacyState;
+  ControllerLegacyState     controllerLegacyState;
+  SpaghettiController::State  controllerSpagState;
 } ControllerStates;
 
 typedef struct {
   int32_t controllerLegacyAction;
+  int32_t controllerSpagAction;
 } ControllerActions;
 
 class Controller {
@@ -71,6 +82,7 @@ public:
 private:
 /*********************************  OBJECTS  **********************************/
   ControllerLegacy legacyController;
+  SpaghettiController spagController;
   ControllerStates ALL_CONTROLLER_STATES;
   ControllerActions ALL_CONTROLLER_ACTIONS;
 

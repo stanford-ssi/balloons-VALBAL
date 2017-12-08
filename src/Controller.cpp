@@ -47,6 +47,18 @@ void Controller::updateConstants(ControllerConstants allConstants) {
     allConstants.ballastDropDuration
   };
   legacyController.updateConstants(legacyConstants);
+
+  SpaghettiController::Constants spagConstants = {
+    allConstants.k,
+    allConstants.b_dldt,
+    allConstants.v_dldt,
+    allConstants.rate_min,
+    allConstants.rate_max,
+    allConstants.b_tmin,
+    allConstants.v_tmin
+  };
+  spagController.updateConstants(spagConstants);
+
 }
 
 /*
@@ -63,6 +75,11 @@ void Controller::updateInputs(ControllerInputs allInputs) {
     allInputs.ascentRate
   };
   legacyController.update(legacyInputs);
+
+  SpaghettiController::Input spagInput = {
+    allInputs.altitude
+  };
+  spagController.update(spagInput);
 }
 
 /*
@@ -74,6 +91,7 @@ void Controller::updateInputs(ControllerInputs allInputs) {
 ControllerActions Controller::getActions() {
   // LEGACY CONTROLLER
   ALL_CONTROLLER_ACTIONS.controllerLegacyAction = legacyController.getAction();
+  ALL_CONTROLLER_ACTIONS.controllerSpagAction   = spagController.getAction();
   return ALL_CONTROLLER_ACTIONS;
 }
 
@@ -86,5 +104,6 @@ ControllerActions Controller::getActions() {
 ControllerStates Controller::getStates() {
   // LEGACY CONTROLLER
   ALL_CONTROLLER_STATES.controllerLegacyState = legacyController.getState();
+  ALL_CONTROLLER_STATES.controllerSpagState   = spagController.getState();
   return ALL_CONTROLLER_STATES;
 }

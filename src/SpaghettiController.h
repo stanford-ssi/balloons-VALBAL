@@ -1,6 +1,7 @@
 #ifndef SPAGHETTICONTROLLER_H
 #define SPAGHETTICONTROLLER_H
 
+#include "Config.h"
 #include "Utils.h"
 #include <stdlib.h>
 
@@ -13,35 +14,35 @@ public:
     float effort;             // Command effort from compensator
     float v_T;                // Interval time between vent events
     float b_T;                // Interval time between ballast events
-    int v_ctr;                // valve interval counter
-    int b_ctr;                // ballast interval counter
-    int action;               // action command
+    uint32_t v_ctr;                // valve interval counter
+    uint32_t b_ctr;                // ballast interval counter
+    int32_t action;               // action command
   } State;
 
   typedef struct {
     float h;                  // altidude
-    float h_cmd;              // altidute comand
   } Input;
 
   typedef struct {
     float freq;               // control freqency
-    Biquad::Coeffs coeffs;    // Biquad coeffs
     float k;                  // gain modifier
     float b_dldt;             // balast dl/dt (kg/s)
     float v_dldt;             // valve dl/dt (kg/s)
     float rate_min;           // min dl/dt rate threshold (kg/s)
     float rate_max;           // max dl/dt rate threshold (kg/s)
-    int b_tmin;               // minimum ballast event time
-    int v_tmin;               // minimum valve event time
+    float b_tmin;               // minimum ballast event time
+    float v_tmin;               // minimum valve event time
+    float h_cmd;              // altidute comand
   } Constants;
 
-  SpaghettiController(Constants constants);
+  SpaghettiController();
   bool update(Input input);
   void updateConstants(Constants constants);
-  int getAction();
+  int32_t getAction();
   State getState();
   Constants getConstants();
 private:
+  Biquad::Coeffs coeffs;
   Constants constants;
   Biquad compensator;
   State state;

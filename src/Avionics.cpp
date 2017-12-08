@@ -675,6 +675,15 @@ void Avionics::updateConstant(uint8_t index, float value) {
 
   // controller switching
   else if (index == 34) data.CURRENT_CONTROLLER_INDEX = value;
+  else if (index == 35) data.SPAG_K = value;
+  else if (index == 36) data.SPAG_B_DLDT = value;
+  else if (index == 37) data.SPAG_V_DLDT = value;
+  else if (index == 38) data.SPAG_RATE_MIN = value;
+  else if (index == 39) data.SPAG_RATE_MAX = value;
+  else if (index == 40) data.SPAG_B_TMIN = value;
+  else if (index == 41) data.SPAG_V_TMIN = value;
+  else if (index == 42) data.SPAG_H_CMD = value;
+
 }
 
 /*
@@ -958,6 +967,12 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.BALLAST_ALT_LAST_LEGACY,           -2000, 50000,    11, lengthBits);
     lengthBits += compressVariable(data.VALVE_INCENTIVE_LEGACY,            -50,   10,       12, lengthBits);
     lengthBits += compressVariable(data.BALLAST_INCENTIVE_LEGACY,          -50,   10,       12, lengthBits);
+    lengthBits += compressVariable(data.SPAG_EFFORT,                       -0.002, 0.002, 12, lengthBits);
+    lengthBits += compressVariable(data.SPAG_VENT_TIME_INTERVAL,           0,     1000,   8, lengthBits);
+    // SPAG_BALLAST_TIME_INTERVAL
+    // SPAG_VALVE_INTERVAL_COUNTER
+    // SPAG_BALLAST_INTERVAL_COUNTER
+
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval

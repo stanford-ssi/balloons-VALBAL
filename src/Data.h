@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | September 2017
+  Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
 
   File: data.h
@@ -117,8 +117,6 @@ struct DataFrame {
   uint32_t   BMP_2_REJECTIONS                =                                0;
   uint32_t   BMP_3_REJECTIONS                =                                0;
   uint32_t   BMP_4_REJECTIONS                =                                0;
-
-  float      BLACK_BODY_TEMP                 =                                0;
 
 /*****************************  TERTIARY DATA  ********************************/
   uint32_t   RB_INTERVAL                     =              RB_INTERVAL_DEFAULT;

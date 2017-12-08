@@ -1,10 +1,13 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | September 2017
+  Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Aria Tedjarati | atedjarati@stanford.edu
   Joan Creus-Costa | jcreus@stanford.edu
+  John Dean | deanjl@stanford.edu
+  Ben Newman | blnewman@stanford.edu
+  Keegan Mehall | kmehall@stanford.edu
 
   File: Avionics.cpp
   --------------------------
@@ -48,8 +51,9 @@ void Avionics::init() {
  * This function tests the hardware.
  */
 void Avionics::test() {
+  alert("Initializing test...", true);
   data.MANUAL_MODE = false;
-  data.SHOULD_CUTDOWN = false;
+  data.SHOULD_CUTDOWN = true;
   actuator.queueBallast(20000, true);
   actuator.queueValve(30000, true);
 }
@@ -226,7 +230,6 @@ bool Avionics::readData() {
   data.CURRENT_MOTOR_BALLAST      = (data.BALLAST_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
   data.CURRENT_PAYLOAD            = sensors.getCurrentSubsystem(PAYLOAD_CURRENT);
   data.TEMP_EXT                   = sensors.getDerivedTemp(EXT_TEMP_SENSOR);
-  data.BLACK_BODY_TEMP            = sensors.getDerivedTemp(BLACK_BODY_TEMP_SENSOR);
   data.RAW_TEMP_1                 = sensors.getRawTemp(1);
   data.RAW_TEMP_2                 = sensors.getRawTemp(2);
   data.RAW_TEMP_3                 = sensors.getRawTemp(3);
@@ -957,6 +960,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(log2(data.BMP_2_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_2_logrejections
     lengthBits += compressVariable(log2(data.BMP_3_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_3_logrejections
     lengthBits += compressVariable(log2(data.BMP_4_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_4_logrejections
+<<<<<<< HEAD
     lengthBits += compressVariable(data.BLACK_BODY_TEMP,                    -100,  30,      8,  lengthBits);
     lengthBits += compressVariable(data.ACTION / 1000,                      -1023, 1023,    7,  lengthBits);
     lengthBits += compressVariable(data.ACTION_LEGACY / 1000,               -1023, 1023,    7,  lengthBits);
@@ -971,6 +975,8 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.SPAG_VENT_TIME_INTERVAL,           0,     1000,   8, lengthBits);
     lengthBits += compressVariable(data.SPAG_BALLAST_TIME_INTERVAL,        0,     1000,   8, lengthBits);                  
 
+=======
+>>>>>>> master
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval
@@ -1248,9 +1254,6 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" BMP_4_REJECTIONS:");
   Serial.print(data.BMP_4_REJECTIONS);
-  Serial.print(',');
-  Serial.print(" BLACK_BODY_TEMP:");
-  Serial.print(data.BLACK_BODY_TEMP);
   Serial.print(',');
   Serial.print(" RB_INTERVAL:");
   Serial.print(data.RB_INTERVAL);

@@ -4,8 +4,11 @@
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | atedjara@stanford.edu
   Joan Creus-Costa | jcreus@stanford.edu
+  John Dean | deanjl@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Michal Adamkiewicz | mikadam@stanford.edu
+  Ben Newman | blnewman@stanford.edu
+  Keegan Mehall | kmehall@stanford.edu
   Jesus Cervantes | cerjesus@stanford.edu
   Matthew Tan | mratan@stanford.edu
 
@@ -20,7 +23,7 @@
 Avionics VALBAL;
 int main(void) {
   VALBAL.init();
-  //VALBAL.test();
+  // VALBAL.test();
 
 /***********************************  MAIN  ***********************************/
   while(true) {

@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | September 2017
+  Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
 
   File: Config.h
@@ -23,7 +23,6 @@
 
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   SD_CS                                 =               23;
-static const uint8_t   LED_PIN                               =               30;
 static const uint8_t   BMP_CS_ONE                            =               32;
 static const uint8_t   BMP_CS_TWO                            =               25;
 static const uint8_t   BMP_CS_THREE                          =               15;
@@ -48,13 +47,14 @@ static const uint8_t   RB_CURRENT                            =                2;
 static const uint8_t   MOTORS_CURRENT                        =                3;
 static const uint8_t   PAYLOAD_CURRENT                       =                4;
 static const uint8_t   EXT_TEMP_SENSOR                       =              A20;
-static const uint8_t   BLACK_BODY_TEMP_SENSOR                =              A15;
+static const uint8_t   CUTDOWN_SIGNAL                        =              A15;
+static const uint8_t   CUTDOWN_POWER                         =               30;
 
 /****************************  EDITABLE CONSTANTS  ****************************/
-static const char      MISSION_NUMBER[]                      =         "SSI-59";
+static const char      MISSION_NUMBER[]                      =         "SSI-64";
 
 static const uint8_t   CUTDOWN_INDEX                         =               99;
-static const uint16_t  CUTDOWN_DURATION                      =            10000;
+static const uint16_t  CUTDOWN_DURATION                      =             1000;
 
 static const uint16_t  PAYLOAD_INDEX                         =              137;
 
@@ -90,7 +90,7 @@ static const float     RE_ARM_DEFAULT                        =                0;
 static const float     BALLAST_ARM_ALT_DEFAULT               =          13250.0;
 static const float     BALLAST_ALT_LAST_FILLER               =          14000.0;
 static const uint32_t  BALLAST_REVERSE_INTERVAL_DEFAULT      =           600000;
-static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              200;
+static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              140;
 
 static const float     VALVE_SETPOINT_DEFAULT                =          14500.0;
 static const uint32_t  VALVE_VENT_DURATION_DEFAULT           =            20000;
@@ -109,8 +109,8 @@ static const float     BALLAST_LAST_ACTION_DEFAULT           =     1.0 / 1500.0;
 static const uint16_t  VALVE_MOTOR_SPEED_OPEN_DEFAULT        =              255;
 static const uint16_t  VALVE_MOTOR_SPEED_CLOSE_DEFAULT       =              255;
 static const uint16_t  BALLAST_MOTOR_SPEED_DEFAULT           =              255;
-static const uint32_t  VALVE_OPENING_DURATION_DEFAULT        =             1250;
-static const uint32_t  VALVE_CLOSING_DURATION_DEFAULT        =             2500;
+static const uint32_t  VALVE_OPENING_DURATION_DEFAULT        =             2000;
+static const uint32_t  VALVE_CLOSING_DURATION_DEFAULT        =             3000;
 static const uint16_t  BALLAST_STALL_TIMEOUT                 =             3000;
 
 static const float     MAX_PRESURE                           =           107500;

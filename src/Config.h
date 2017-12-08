@@ -87,7 +87,6 @@ static const float     RE_ARM_DEFAULT                        =                0;
 static const float     BALLAST_ARM_ALT_DEFAULT               =          13250.0;
 static const float     BALLAST_ALT_LAST_FILLER               =          14000.0;
 static const uint32_t  BALLAST_REVERSE_INTERVAL_DEFAULT      =           600000;
-static const uint32_t  VALVE_LEAK_INTERVAL_DEFAULT           =           600000;
 static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              140;
 
 static const float     VALVE_SETPOINT_DEFAULT                =          14500.0;

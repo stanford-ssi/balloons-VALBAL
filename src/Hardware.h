@@ -1,9 +1,10 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Matthew Tan | mratan@stanford.edu
+  Keegan Mehall | kmehall@stanford.edu
 
   File: Hardware.h
   --------------------------
@@ -40,7 +41,7 @@ public:
   void     queueBallast(uint32_t  duration, bool real);
   void     clearValveQueue();
   void     clearBallastQueue();
-  bool     checkValve(float current, uint32_t leakTimeout);
+  bool     checkValve(float current);
   bool     checkBallast(float current, uint32_t reverseTimeout, uint16_t stallCurrent);
   uint32_t getValveQueue();
   uint32_t getBallastQueue();
@@ -78,7 +79,6 @@ private:
   uint32_t valveOpeningTimeout = 0;
   uint32_t valveClosingTimeout = 0;
 
-  uint32_t valveLeakStartTime = 0;
   uint32_t valveActionStartTime = 0;
   uint32_t ballastActionStartTime = 0;
   uint32_t valveCheckTime = 0;

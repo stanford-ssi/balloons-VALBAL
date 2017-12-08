@@ -1,6 +1,6 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | June 2017
+  Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Matthew Tan | mratan@stanford.edu
@@ -196,14 +196,8 @@ void Hardware::clearBallastQueue() {
  * This function provides a non-hanging interface to check the timer queue.
  * Called every loop; updates and acts on the current state of the valve.
  */
-bool Hardware::checkValve(float current, uint32_t leakTimeout) {
+bool Hardware::checkValve(float current) {
   if (valveState == CLOSED) {
-    if (((millis() - valveLeakStartTime) >= leakTimeout) && (ballastState == CLOSED)) {
-      valveLeakStartTime = millis();
-      valveActionStartTime = millis();
-      valveState = CLOSING;
-      closeValve();
-    }
     if (valveQueue == 0) {
       uint32_t deltaTime = (millis() - valveCheckTime);
       valveCheckTime = millis();
@@ -233,7 +227,6 @@ bool Hardware::checkValve(float current, uint32_t leakTimeout) {
     }
   }
   if ((valveState == CLOSING) && (millis() - valveActionStartTime >= valveClosingTimeout)) {
-    valveLeakStartTime = millis();
     valveState = CLOSED;
     stopValve();
   }

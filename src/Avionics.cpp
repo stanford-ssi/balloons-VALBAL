@@ -448,16 +448,16 @@ bool Avionics::runCharger() {
 /*
  * Function: runValve
  * -------------------
- * This function actuates the valve based on the calculated incentive.
+ * This function actuates the valve based on the commanded action
  */
-bool Avionics::runValve() {
+bool Avionics::runValve(){
   actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
-  if((data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && actuator.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
+  if((data.ACTION < 0 && actuator.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
     data.VALVE_NUM_ATTEMPTS++;
     bool shouldValve = (!data.MANUAL_MODE || data.FORCE_VALVE);
     if(shouldValve) data.VALVE_NUM_ACTIONS++;
     if(!data.FORCE_VALVE) data.VALVE_ALT_LAST = data.ALTITUDE_BAROMETER;
-    uint32_t valveTime = data.VALVE_VENT_DURATION;
+    uint32_t valveTime = -data.ACTION;
     if(data.FORCE_VALVE) valveTime = data.VALVE_FORCE_DURATION;
     if(shouldValve) data.VALVE_TIME_TOTAL += valveTime;
     PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
@@ -472,16 +472,16 @@ bool Avionics::runValve() {
 /*
  * Function: runBallast
  * -------------------
- * This function actuates the valve based on the calculated incentive.
+ * This function actuates the valve based on the commanded action
  */
 bool Avionics::runBallast() {
   actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
-  if((data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && actuator.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
+  if((data.ACTION > 0 && actuator.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
     data.BALLAST_NUM_ATTEMPTS++;
     bool shouldBallast = (!data.MANUAL_MODE || data.FORCE_BALLAST);
     if(shouldBallast) data.BALLAST_NUM_ACTIONS++;
     if(!data.FORCE_BALLAST) data.BALLAST_ALT_LAST = data.ALTITUDE_BAROMETER;
-    uint32_t ballastTime = data.BALLAST_DROP_DURATION;
+    uint32_t ballastTime = data.ACTION;
     if(data.FORCE_BALLAST) ballastTime = data.BALLAST_FORCE_DURATION;
     if(shouldBallast) data.BALLAST_TIME_TOTAL += ballastTime;
     PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);

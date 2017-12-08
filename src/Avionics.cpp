@@ -960,8 +960,6 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(log2(data.BMP_2_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_2_logrejections
     lengthBits += compressVariable(log2(data.BMP_3_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_3_logrejections
     lengthBits += compressVariable(log2(data.BMP_4_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_4_logrejections
-<<<<<<< HEAD
-    lengthBits += compressVariable(data.BLACK_BODY_TEMP,                    -100,  30,      8,  lengthBits);
     lengthBits += compressVariable(data.ACTION / 1000,                      -1023, 1023,    7,  lengthBits);
     lengthBits += compressVariable(data.ACTION_LEGACY / 1000,               -1023, 1023,    7,  lengthBits);
     lengthBits += compressVariable(data.CURRENT_CONTROLLER_INDEX,           0,    1,        1,  lengthBits);
@@ -973,10 +971,8 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.BALLAST_INCENTIVE_LEGACY,          -50,   10,       12, lengthBits);
     lengthBits += compressVariable(data.SPAG_EFFORT,                       -0.002, 0.002, 12, lengthBits);
     lengthBits += compressVariable(data.SPAG_VENT_TIME_INTERVAL,           0,     1000,   8, lengthBits);
-    lengthBits += compressVariable(data.SPAG_BALLAST_TIME_INTERVAL,        0,     1000,   8, lengthBits);                  
+    lengthBits += compressVariable(data.SPAG_BALLAST_TIME_INTERVAL,        0,     1000,   8, lengthBits);
 
-=======
->>>>>>> master
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval

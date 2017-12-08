@@ -359,7 +359,9 @@ bool Avionics::calcIncentives() {
     data.BALLAST_ALTITUDE_DIFF_CONSTANT,
     data.BALLAST_LAST_ACTION_CONSTANT,
     data.BALLAST_ARM_ALT,
-    data.INCENTIVE_THRESHOLD
+    data.INCENTIVE_THRESHOLD,
+    data.VALVE_VENT_DURATION,
+    data.BALLAST_DROP_DURATION
   };
 
   ControllerInputs allControllerInputs {
@@ -947,6 +949,15 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(log2(data.BMP_3_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_3_logrejections
     lengthBits += compressVariable(log2(data.BMP_4_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_4_logrejections
     lengthBits += compressVariable(data.BLACK_BODY_TEMP,                    -100,  30,      8,  lengthBits);
+    lengthBits += compressVariable(data.ACTION / 1000,                      -1023, 1023,    7,  lengthBits);
+    lengthBits += compressVariable(data.ACTION_LEGACY / 1000,               -1023, 1023,    7,  lengthBits);
+    lengthBits += compressVariable(data.CURRENT_CONTROLLER_INDEX,           0,    1,        1,  lengthBits);
+    lengthBits += compressVariable(data.INCENTIVE_NOISE_LEGACY,             0,    4,        8,  lengthBits);
+    lengthBits += compressVariable(data.RE_ARM_CONSTANT_LEGACY,             0,    4,        8,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_ALT_LAST_LEGACY,             -2000, 50000,    11, lengthBits);
+    lengthBits += compressVariable(data.BALLAST_ALT_LAST_LEGACY,           -2000, 50000,    11, lengthBits);
+    lengthBits += compressVariable(data.VALVE_INCENTIVE_LEGACY,            -50,   10,       12, lengthBits);
+    lengthBits += compressVariable(data.BALLAST_INCENTIVE_LEGACY,          -50,   10,       12, lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval

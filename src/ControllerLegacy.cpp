@@ -65,7 +65,7 @@ int32_t ControllerLegacy::getAction() {
   }
   int32_t ballastAction = 0;
   if (STATE.ballastIncentive >= (1 + CONSTANTS.incentiveThreshold)) {
-    ballastAction = CONSTANTS.valveVentDuration;
+    ballastAction = CONSTANTS.ballastDropDuration;
   }
 
   if (STATE.valveIncentive > STATE.ballastIncentive) {

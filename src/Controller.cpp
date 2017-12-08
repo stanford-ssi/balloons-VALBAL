@@ -42,7 +42,9 @@ void Controller::updateConstants(ControllerConstants allConstants) {
     allConstants.ballastKiConstant,
     allConstants.ballastKdConstant,
     allConstants.BallastArmAlt,
-    allConstants.incentiveThreshold
+    allConstants.incentiveThreshold,
+    allConstants.valveVentDuration,
+    allConstants.ballastDropDuration
   };
   legacyController.updateConstants(legacyConstants);
 }

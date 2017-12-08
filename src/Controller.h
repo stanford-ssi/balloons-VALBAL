@@ -30,7 +30,8 @@ typedef struct {
   float ballastKdConstant;
   float BallastArmAlt;
   float incentiveThreshold;
-  int32_t valveVentDuration;
+  uint32_t valveVentDuration;
+  uint32_t ballastDropDuration;
 } ControllerConstants;
 
 typedef struct {

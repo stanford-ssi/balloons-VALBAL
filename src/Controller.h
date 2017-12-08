@@ -16,6 +16,7 @@
 
 #include "Config.h"
 #include "ControllerLegacy.h"
+#include "SpaghettiController.h"
 
 // INPUT STRUCTS
 typedef struct {
@@ -40,6 +41,10 @@ typedef struct {
   double altitudeSinceLastVent;
   double altitudeSinceLastDrop;
   double ascentRate;
+
+  // SPAGHETTI INPUTS
+  float h;                  // altidude
+  float h_cmd;              // altidute comand
 } ControllerInputs;
 
 

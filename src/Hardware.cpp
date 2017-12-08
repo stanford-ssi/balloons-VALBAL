@@ -1,8 +1,9 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | September 2017
+  Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
+  Keegan Mehall | kmehall@stanford.edu
 
   File: Hardware.cpp
   --------------------------
@@ -18,8 +19,6 @@
  * This function initializes the PCB hardware.
  */
 void Hardware::init() {
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, HIGH);
   analogReference(INTERNAL);
   analogReadResolution(12);
   wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
@@ -33,13 +32,13 @@ void Hardware::init() {
  * This function turns the LED on or off.
  */
 void Hardware::runLED(bool on) {
-  if (on) {
-    pinMode(LED_PIN, OUTPUT);
-    digitalWrite(LED_PIN, LOW);
-  }
-  else {
-    pinMode(LED_PIN, INPUT);
-  }
+  // if (on) {
+  //   pinMode(LED_PIN, OUTPUT);
+  //   digitalWrite(LED_PIN, LOW);
+  // }
+  // else {
+  //   pinMode(LED_PIN, INPUT);
+  // }
 }
 
 /*

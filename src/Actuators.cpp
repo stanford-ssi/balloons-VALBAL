@@ -1,8 +1,9 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | September 2017
+  Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
+  Keegan Mehall | kmehall@stanford.edu
 
   File: Actuators.cpp
   --------------------------
@@ -18,10 +19,14 @@
  * This function initializes the PCB hardware.
  */
 void Actuators::init() {
-  pinMode(VALVE_FORWARD,   OUTPUT);
-  pinMode(VALVE_REVERSE,   OUTPUT);
-  pinMode(BALLAST_FORWARD, OUTPUT);
-  pinMode(BALLAST_REVERSE, OUTPUT);
+  pinMode(VALVE_FORWARD,    OUTPUT);
+  pinMode(VALVE_REVERSE,    OUTPUT);
+  pinMode(BALLAST_FORWARD,  OUTPUT);
+  pinMode(BALLAST_REVERSE,  OUTPUT);
+  pinMode(CUTDOWN_POWER,    OUTPUT);
+  pinMode(CUTDOWN_SIGNAL,   OUTPUT);
+  digitalWrite(CUTDOWN_POWER, HIGH);
+  digitalWrite(CUTDOWN_SIGNAL, LOW);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -144,7 +149,7 @@ bool Actuators::checkBallast(float current, uint32_t reverseTimeout, uint16_t st
     }
   }
   if (ballastState == OPEN) {
-    if (current >= stallCurrent && ((currentLast < stallCurrent) || (millis() - ballastStallTime >= BALLAST_STALL_TIMEOUT))) {
+    if (current >= stallCurrent && ((currentLast < stallCurrent) || (millis() - ballastStallTime >= BALLAST_STALL_TIMEOUT)) && (millis() - ballastDirectionTime >= BALLAST_STALL_TIMEOUT)) {
       ballastDirection = !ballastDirection;
       ballastStallTime = millis();
       numBallastOverCurrents++;
@@ -210,15 +215,17 @@ void Actuators::clearBallastOverCurrents() {
  * This function triggers the mechanical cutdown of the payload.
  */
 void Actuators::cutDown() {
+  Serial.println("starting cutdown...");
   clearValveQueue();
   clearBallastQueue();
   for(size_t i = 0; i < 3; i++){
-    openValve();
+    digitalWrite(CUTDOWN_POWER, LOW);
+    digitalWrite(CUTDOWN_SIGNAL, HIGH);
     delay(CUTDOWN_DURATION);
-    closeValve();
-    delay(valveClosingTimeout);
-    stopValve();
+    digitalWrite(CUTDOWN_POWER, HIGH);
+    digitalWrite(CUTDOWN_SIGNAL, LOW);
   }
+  Serial.println("cutdown completed.");
 }
 
 /*

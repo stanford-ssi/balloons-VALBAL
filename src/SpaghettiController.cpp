@@ -17,7 +17,11 @@ SpaghettiController::SpaghettiController() :
 bool SpaghettiController::update(Input input){
 
   /* get effort from compensator */
-  state.effort = compensator.update(constants.h_cmd - input.h);
+  if(state.comp_ctr >= comp_freq*constants.freq){
+    state.effort = compensator.update(constants.h_cmd - input.h);
+    state.comp_ctr = 0;
+  }
+
   float rate = state.effort * constants.k;
 
   //TODO: Implement gain schedualing

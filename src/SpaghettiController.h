@@ -16,6 +16,7 @@ public:
     float b_T;                // Interval time between ballast events
     uint32_t v_ctr;                // valve interval counter
     uint32_t b_ctr;                // ballast interval counter
+    uint32_t comp_ctr;
     int32_t action;               // action command
   } State;
 
@@ -46,6 +47,7 @@ private:
   Constants constants;
   Biquad compensator;
   State state;
+  uint32_t comp_freq = 1;
 };
 
 #endif

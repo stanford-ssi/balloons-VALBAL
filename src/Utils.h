@@ -21,8 +21,8 @@
 class Biquad {
 public:
   typedef struct {
-    float a[3];
-    float b[3];
+    double a[3];
+    double b[3];
   } Coeffs;
   Biquad(): x{0,0,0},y{0,0,0},coeffs{{0,0,0},{0,0,0}}{}
   Biquad(Coeffs coeffs): x{0,0,0},y{0,0,0},coeffs(coeffs){}

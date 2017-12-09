@@ -3,7 +3,7 @@
 
 
 SpaghettiController::SpaghettiController() :
-  coeffs{0,0,0,0,0,0},
+  coeffs{{1, -0.30000000000000004, -0.4}, {2.8291628469154848e-05, -1.4117522606108269e-05, -1.4131668420342846e-05}},
   compensator(coeffs)
 {
   state.effort = 0;
@@ -27,7 +27,7 @@ bool SpaghettiController::update(Input input){
   //TODO: Implement gain schedualing
 
   /* min/max thresholds*/
-  rate = abs(rate) < constants.rate_max ? rate : ((0<rate) - (rate < 0))*constants.rate_max;
+  rate = abs(rate) < constants.rate_max ? rate : ((0<rate) - (rate<0))*constants.rate_max;
   rate = abs(rate) > constants.rate_min ? rate : 0;
 
   /* calculate time intervals */
@@ -40,7 +40,7 @@ bool SpaghettiController::update(Input input){
 
   /* check timers and act if necessary */
   if(float(state.v_ctr)/constants.freq >= state.v_T){
-    state.action = constants.v_tmin;
+    state.action = -constants.v_tmin;
     state.v_ctr = 0;
   } else if(float(state.b_ctr)/constants.freq >= state.b_T){
     state.action = constants.b_tmin;
@@ -52,7 +52,7 @@ bool SpaghettiController::update(Input input){
   /* increment counters */
   state.v_ctr++;
   state.b_ctr++;
-
+  state.comp_ctr++;
   /* error checking is for the weak */
   return true;
 }

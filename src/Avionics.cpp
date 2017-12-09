@@ -365,6 +365,7 @@ bool Avionics::calcIncentives() {
   allControllerConstants.valveVentDuration       = data.VALVE_VENT_DURATION;
   allControllerConstants.ballastDropDuration     = data.BALLAST_DROP_DURATION;
   // SPAGHETTI CONTROLLER CONSTANTS
+  allControllerConstants.freq                    = data.SPAG_FREQ;
   allControllerConstants.k                       = data.SPAG_K;
   allControllerConstants.b_dldt                  = data.SPAG_B_DLDT;
   allControllerConstants.v_dldt                  = data.SPAG_V_DLDT;
@@ -393,7 +394,16 @@ bool Avionics::calcIncentives() {
   data.ACTION_LEGACY            = allControllerActions.controllerLegacyAction;
   data.VALVE_ALT_LAST_LEGACY    = allControllerStates.controllerLegacyState.altitudeSinceLastVentCorrected;
   data.BALLAST_ALT_LAST_LEGACY  = allControllerStates.controllerLegacyState.altitudeSinceLastDropCorrected;
-// Spaghetti
+
+  //Spaghetti
+  data.SPAG_EFFORT                     =     allControllerStates.controllerSpagState.effort;
+  data.SPAG_VENT_TIME_INTERVAL         =     allControllerStates.controllerSpagState.v_T;
+  data.SPAG_BALLAST_TIME_INTERVAL      =     allControllerStates.controllerSpagState.b_T;
+  data.SPAG_VALVE_INTERVAL_COUNTER     =     allControllerStates.controllerSpagState.v_ctr;
+  data.SPAG_BALLAST_INTERVAL_COUNTER   =     allControllerStates.controllerSpagState.b_ctr;
+  data.ACTION_SPAG                     =     allControllerActions.controllerSpagAction;
+  data.SPAG_VENT_TIME_TOTAL            =     data.ACTION_SPAG < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTION_SPAG : data.SPAG_VENT_TIME_TOTAL;
+  data.SPAG_BALLAST_TIME_TOTAL         =     data.ACTION_SPAG > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTION_SPAG : data.SPAG_BALLAST_TIME_TOTAL;
 
   if (data.CURRENT_CONTROLLER_INDEX == LEGACY_CONTROLLER_INDEX) {
     data.ACTION = data.ACTION_LEGACY;
@@ -862,6 +872,8 @@ void Avionics::clearVariables() {
   data.VALVE_NUM_ATTEMPTS = 0;
   data.BALLAST_NUM_ATTEMPTS = 0;
   data.LOOP_TIME_MAX = 0;
+  data.SPAG_BALLAST_TIME_TOTAL = 0;
+  data.SPAG_VENT_TIME_TOTAL = 0;
 }
 
 /*
@@ -967,9 +979,11 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.RE_ARM_CONSTANT_LEGACY,             0,    4,        8,  lengthBits);
     lengthBits += compressVariable(data.VALVE_ALT_LAST_LEGACY,             -2000, 50000,    11, lengthBits);
     lengthBits += compressVariable(data.BALLAST_ALT_LAST_LEGACY,           -2000, 50000,    11, lengthBits);
-    lengthBits += compressVariable(data.SPAG_EFFORT,                       -0.002, 0.002, 12, lengthBits);
-    lengthBits += compressVariable(data.SPAG_VENT_TIME_INTERVAL,           0,     1000,   8, lengthBits);
-    lengthBits += compressVariable(data.SPAG_BALLAST_TIME_INTERVAL,        0,     1000,   8, lengthBits);
+    lengthBits += compressVariable(data.SPAG_EFFORT*1000,                  -2, 2, 12, lengthBits);
+    lengthBits += compressVariable(data.SPAG_VENT_TIME_INTERVAL,           0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.SPAG_BALLAST_TIME_INTERVAL,        0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.SPAG_VENT_TIME_TOTAL/1000,         0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.SPAG_BALLAST_TIME_TOTAL/1000,      0,     600,   8, lengthBits);
 
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {

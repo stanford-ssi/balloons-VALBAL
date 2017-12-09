@@ -36,6 +36,7 @@ typedef struct {
   uint32_t valveVentDuration;
   uint32_t ballastDropDuration;
   // SPAGHETTI CONTROLLER CONSTANTS
+  float freq;
   float k;                  // gain modifier
   float b_dldt;             // balast dl/dt (kg/s)
   float v_dldt;             // valve dl/dt (kg/s)

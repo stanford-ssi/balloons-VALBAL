@@ -50,6 +50,7 @@ void Controller::updateConstants(ControllerConstants allConstants) {
   legacyController.updateConstants(legacyConstants);
 
   SpaghettiController::Constants spagConstants;
+  spagConstants.freq       = allConstants.freq;
   spagConstants.k          = allConstants.k;
   spagConstants.b_dldt     = allConstants.b_dldt;
   spagConstants.b_dldt     = allConstants.b_dldt;

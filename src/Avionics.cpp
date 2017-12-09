@@ -48,18 +48,11 @@ void Avionics::init() {
  * This function tests the hardware.
  */
 void Avionics::test() {
-  Serial.println("test starting");
+  alert("Initializing test...", true);
   data.MANUAL_MODE = false;
-  // uint32_t startt = millis();
-  // data.VALVE_LEAK_INTERVAL = 10000;
-  // while((millis() - startt) <= (1000 * 60 * 2)) {
-  //   data.CURRENT_MOTOR_VALVE = (data.VALVE_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
-  //   data.VALVE_QUEUE = PCB.getValveQueue();
-  //   data.VALVE_STATE = PCB.checkValve(data.CURRENT_MOTOR_VALVE, data.VALVE_LEAK_INTERVAL);
-  // }
   data.SHOULD_CUTDOWN = true;
-  //PCB.queueBallast(60000, true);
-  //PCB.queueValve(5000, true);
+  PCB.queueBallast(20000, true);
+  PCB.queueValve(30000, true);
 }
 
 /********************************  FUNCTIONS  *********************************/

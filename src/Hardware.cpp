@@ -325,13 +325,17 @@ void Hardware::clearBallastOverCurrents() {
  */
 void Hardware::cutDown() {
   turnOffHeaters();
-  Serial.println("cutdown");
-  digitalWrite(CUTDOWN_POWER, HIGH);
-  digitalWrite(CUTDOWN_SIGNAL, HIGH);
-  delay(CUTDOWN_DURATION);
-  digitalWrite(CUTDOWN_POWER, LOW);
-  digitalWrite(CUTDOWN_SIGNAL, LOW);
-  Serial.println("cutdown end");
+  Serial.println("starting cutdown...");
+  clearValveQueue();
+  clearBallastQueue();
+  for(size_t i = 0; i < 3; i++){
+    digitalWrite(CUTDOWN_POWER, HIGH);
+    digitalWrite(CUTDOWN_SIGNAL, HIGH);
+    delay(CUTDOWN_DURATION);
+    digitalWrite(CUTDOWN_POWER, LOW);
+    digitalWrite(CUTDOWN_SIGNAL, LOW);
+  }
+  Serial.println("cutdown completed.");
 }
 
 /*

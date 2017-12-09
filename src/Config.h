@@ -18,7 +18,7 @@
 
 /****************************  COMPILE FLAGS  *********************************/
 // #define STORAGE_MODE_FLAG // uncomment for power off
-//#define RESET_EEPROM_FLAG // uncomment for EEPROM
+// #define RESET_EEPROM_FLAG // uncomment for EEPROM
 // #define HITL_ENABLED_FLAG // uncomment for HITL
 // #define RB_DISABLED_FLAG  // uncomment for HITL
 
@@ -29,8 +29,8 @@ static const uint8_t   BMP_CS_ONE                            =               32;
 static const uint8_t   BMP_CS_TWO                            =               25;
 static const uint8_t   BMP_CS_THREE                          =               15;
 static const uint8_t   BMP_CS_FOUR                           =               22;
-static const uint8_t   VALVE_FORWARD                         =               20;
-static const uint8_t   VALVE_REVERSE                         =                6;
+static const uint8_t   VALVE_FORWARD                         =                6;
+static const uint8_t   VALVE_REVERSE                         =               20;
 static const uint8_t   BALLAST_FORWARD                       =               21;
 static const uint8_t   BALLAST_REVERSE                       =                5;
 static const uint8_t   HEATER_INTERNAL_STRONG                =                4;

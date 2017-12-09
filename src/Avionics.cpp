@@ -1036,6 +1036,28 @@ int16_t Avionics::compressData() {
  * This function prints the current avionics state.
  */
 void Avionics::printState() {
+  Serial.print("CURRENT_CONTROLLER_INDEX:");
+  Serial.print(data.CURRENT_CONTROLLER_INDEX);
+  Serial.print(',');
+  Serial.print("CURRENT_CONTROLLER_INDEX:");
+  Serial.print(data.CURRENT_CONTROLLER_INDEX);
+  Serial.print(',');
+  Serial.print("VALVE_INCENTIVE_LEGACY:");
+  Serial.print(data.VALVE_INCENTIVE_LEGACY);
+  Serial.print(',');
+  Serial.print("BALLAST_INCENTIVE_LEGACY:");
+  Serial.print(data.BALLAST_INCENTIVE_LEGACY);
+  Serial.print(',');
+  Serial.print("SPAG_EFFORT:");
+  Serial.print(data.SPAG_EFFORT*1000);
+  Serial.print(',');
+  Serial.print("SPAG_VENT_TIME_INTERVAL:");
+  Serial.print(data.SPAG_VENT_TIME_INTERVAL);
+  Serial.print(',');
+  Serial.print("SPAG_BALLAST_TIME_INTERVAL:");
+  Serial.print(data.SPAG_BALLAST_TIME_INTERVAL);
+  Serial.print('\n');
+
   Serial.println("CONTROLLER IS");
   Serial.println(data.CURRENT_CONTROLLER_INDEX);
   Serial.println();

@@ -62,7 +62,7 @@ void SpaghettiController::updateConstants(Constants constants){
 }
 
 int32_t SpaghettiController::getAction(){
-  return state.action;
+  return state.action * 1000;
 }
 
 SpaghettiController::State SpaghettiController::getState(){

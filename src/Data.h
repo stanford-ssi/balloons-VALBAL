@@ -95,6 +95,8 @@ struct DataFrame {
   uint32_t   SPAG_VALVE_INTERVAL_COUNTER     =                                0;
   uint32_t   SPAG_BALLAST_INTERVAL_COUNTER   =                                0;
   int32_t    ACTION_SPAG                     =                                0;
+  uint32_t   SPAG_VENT_TIME_TOTAL            =                                0;
+  uint32_t   SPAG_BALLAST_TIME_TOTAL         =                                0;
 
   float     SPAG_K                           =                   SPAG_K_DEFAULT;
   float     SPAG_B_DLDT                      =              SPAG_B_DLDT_DEFAULT;

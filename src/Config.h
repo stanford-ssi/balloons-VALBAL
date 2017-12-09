@@ -27,8 +27,8 @@ static const uint8_t   BMP_CS_ONE                            =               32;
 static const uint8_t   BMP_CS_TWO                            =               25;
 static const uint8_t   BMP_CS_THREE                          =               15;
 static const uint8_t   BMP_CS_FOUR                           =               22;
-static const uint8_t   VALVE_FORWARD                         =               20;
-static const uint8_t   VALVE_REVERSE                         =                6;
+static const uint8_t   VALVE_FORWARD                         =                6;
+static const uint8_t   VALVE_REVERSE                         =               20;
 static const uint8_t   BALLAST_FORWARD                       =               21;
 static const uint8_t   BALLAST_REVERSE                       =                5;
 static const uint8_t   GPS_GATE                              =               17;
@@ -51,10 +51,10 @@ static const uint8_t   CUTDOWN_SIGNAL                        =              A15;
 static const uint8_t   CUTDOWN_POWER                         =               30;
 
 /****************************  EDITABLE CONSTANTS  ****************************/
-static const char      MISSION_NUMBER[]                      =         "SSI-64";
+static const char      MISSION_NUMBER[]                      =         "SSI-63";
 
 static const uint8_t   CUTDOWN_INDEX                         =               99;
-static const uint16_t  CUTDOWN_DURATION                      =             1000;
+static const uint16_t  CUTDOWN_DURATION                      =            10000;
 
 static const uint16_t  PAYLOAD_INDEX                         =              137;
 

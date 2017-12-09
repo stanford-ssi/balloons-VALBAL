@@ -54,8 +54,8 @@ void Avionics::test() {
   alert("Initializing test...", true);
   data.MANUAL_MODE = false;
   data.SHOULD_CUTDOWN = true;
-  actuator.queueBallast(20000, true);
   actuator.queueValve(30000, true);
+  actuator.queueBallast(30000, true);
 }
 
 /********************************  FUNCTIONS  *********************************/

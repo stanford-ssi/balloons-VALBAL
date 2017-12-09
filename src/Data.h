@@ -23,8 +23,7 @@ struct DataFrame {
   float      ALTITUDE_BAROMETER              =                                0;
   float      ALTITUDE_GPS                    =                                0;
   float      ASCENT_RATE                     =                                0;
-  float      VALVE_INCENTIVE                 =                                0;
-  float      BALLAST_INCENTIVE               =                                0;
+  int32_t    ACTION                          =                                0;
   bool       VALVE_STATE                     =                            false;
   bool       BALLAST_STATE                   =                            false;
   uint32_t   VALVE_QUEUE                     =                                0;
@@ -74,27 +73,24 @@ struct DataFrame {
   float      HEADING_GPS                     =                                0;
 
   float      INCENTIVE_NOISE                 =          INCENTIVE_NOISE_DEFAULT;
-  float      RE_ARM_CONSTANT                 =                   RE_ARM_DEFAULT;
   float      VALVE_ALT_LAST                  =           VALVE_ALT_LAST_DEFAULT;
   float      BALLAST_ALT_LAST                =         BALLAST_ALT_LAST_DEFAULT;
 
   uint8_t    CURRENT_CONTROLLER_INDEX        =         CONTROLLER_INDEX_DEFAULT;
-  int32_t    ACTION                          =                                0;
 
-  float      INCENTIVE_NOISE_LEGACY          =          INCENTIVE_NOISE_DEFAULT;
-  float      RE_ARM_CONSTANT_LEGACY          =                   RE_ARM_DEFAULT;
-  float      VALVE_ALT_LAST_LEGACY           =           VALVE_ALT_LAST_DEFAULT;
-  float      BALLAST_ALT_LAST_LEGACY         =         BALLAST_ALT_LAST_DEFAULT;
+  int32_t    ACTION_LEGACY                   =                                0;
   float      VALVE_INCENTIVE_LEGACY          =                                0;
   float      BALLAST_INCENTIVE_LEGACY        =                                0;
-  int32_t    ACTION_LEGACY                   =                                0;
+  float      VALVE_ALT_LAST_LEGACY           =           VALVE_ALT_LAST_DEFAULT;
+  float      BALLAST_ALT_LAST_LEGACY         =         BALLAST_ALT_LAST_DEFAULT;
+  float      RE_ARM_CONSTANT_LEGACY          =                   RE_ARM_DEFAULT;
 
+  int32_t    ACTION_SPAG                     =                                0;
   float      SPAG_EFFORT                     =                                0;
   float      SPAG_VENT_TIME_INTERVAL         =                                0;
   float      SPAG_BALLAST_TIME_INTERVAL      =                                0;
   uint32_t   SPAG_VALVE_INTERVAL_COUNTER     =                                0;
   uint32_t   SPAG_BALLAST_INTERVAL_COUNTER   =                                0;
-  int32_t    ACTION_SPAG                     =                                0;
   uint32_t   SPAG_VENT_TIME_TOTAL            =                                0;
   uint32_t   SPAG_BALLAST_TIME_TOTAL         =                                0;
 

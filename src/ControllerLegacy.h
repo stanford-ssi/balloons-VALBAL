@@ -1,9 +1,11 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | May 2017
+  Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | atedjara@stanford.edu
   Joan Creus-Costa | jcreus@stanford.edu
+  John Dean | deanjl@stanford.edu
+  Ben Newman | blnewman@stanford.edu
   Claire Huang | chuang20@stanford.edu
 
   File: ControllerLegacy.h

@@ -1,9 +1,11 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | May 2017
+  Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | atedjara@stanford.edu
   Joan Creus-Costa | jcreus@stanford.edu
+  John Dean | deanjl@stanford.edu
+  Ben Newman | blnewman@stanford.edu
   Claire Huang | chuang20@stanford.edu
 
   File: Controller.h
@@ -33,7 +35,7 @@ typedef struct {
   float incentiveThreshold;
   uint32_t valveVentDuration;
   uint32_t ballastDropDuration;
-
+  // SPAGHETTI CONTROLLER CONSTANTS
   float k;                  // gain modifier
   float b_dldt;             // balast dl/dt (kg/s)
   float v_dldt;             // valve dl/dt (kg/s)
@@ -45,15 +47,10 @@ typedef struct {
 } ControllerConstants;
 
 typedef struct {
-  // LEGACY CONTROLLER INPUTS
   double altitude;
   double altitudeSinceLastVent;
   double altitudeSinceLastDrop;
   double ascentRate;
-
-  // SPAGHETTI INPUTS
-  float h;                  // altidude
-  float h_cmd;              // altidute comand
 } ControllerInputs;
 
 

@@ -62,8 +62,8 @@ DataFrame Simulator::readData() {
   simulated.BALLAST_VELOCITY_CONSTANT      = values[21];
   simulated.BALLAST_ALTITUDE_DIFF_CONSTANT = values[22];
   simulated.BALLAST_LAST_ACTION_CONSTANT   = values[23];
-  simulated.VALVE_INCENTIVE                = values[24];
-  simulated.BALLAST_INCENTIVE              = values[25];
+  // simulated.VALVE_INCENTIVE                = values[24];
+  // simulated.BALLAST_INCENTIVE              = values[25];
   simulated.VALVE_NUM_ACTIONS              = values[26];
   simulated.BALLAST_NUM_ACTIONS            = values[27];
   loopInterval                             = values[28];

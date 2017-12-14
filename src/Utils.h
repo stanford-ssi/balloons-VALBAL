@@ -24,16 +24,34 @@ public:
     double a[3];
     double b[3];
   } Coeffs;
-  Biquad(): x{0,0,0},y{0,0,0},coeffs{{0,0,0},{0,0,0}}{}
-  Biquad(Coeffs coeffs): x{0,0,0},y{0,0,0},coeffs(coeffs){}
+  Biquad(): x{0.0,0.0,0.0},y{0.0,0.0,0.0} ,coeffs{{0.0,0.0,0.0},{0.0,0.0,0.0}}{}
+  Biquad(Coeffs coeffs): x{0.0,0.0,0.0},y{0.0,0.0,0.0},coeffs(coeffs){}
   float update(float input);
-  void set_ss(float val);
-  void set_coeffs(Coeffs coeffs);
+  void setSS(float val);
+  void setCoeffs(Coeffs coeffs);
+  double getSSGain();
+  void shiftBias(float offset);
 private:
-  float x[3];
-  float y[3];
+  double x[3];
+  double y[3];
   Coeffs coeffs;
 };
 
+class DBiquad {
+public:
+  typedef struct {
+    double a[3];
+    double b[4];
+  } Coeffs;
+  DBiquad(): x{0},y{0} ,coeffs{{0},{0}} {}
+  DBiquad(Coeffs coeffs): x{0},y{0},coeffs(coeffs){}
+  float update(float input);
+  void setSS(float val);
+  void setCoeffs(Coeffs coeffs);
+private:
+  double x[4];
+  double y[3];
+  Coeffs coeffs;
+};
 
 #endif

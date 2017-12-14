@@ -170,6 +170,16 @@ struct DataFrame {
   uint32_t   SPAG_VENT_TIME_TOTAL            =                                0;
   uint32_t   SPAG_BALLAST_TIME_TOTAL         =                                0;
 
+  int32_t    ACTION_SPAG2                     =                               0;
+  float      SPAG2_EFFORT                     =                               0;
+  float      SPAG2_VENT_TIME_INTERVAL         =                               0;
+  float      SPAG2_BALLAST_TIME_INTERVAL      =                               0;
+  uint32_t   SPAG2_VENT_TIME_TOTAL            =                               0;
+  uint32_t   SPAG2_BALLAST_TIME_TOTAL         =                               0;
+  float      SPAG2_ASCENT_RATE                =                               0;
+
+
+
   float     SPAG_FREQ                        =               1000/LOOP_INTERVAL;
   float     SPAG_K                           =                   SPAG_K_DEFAULT;
   float     SPAG_B_DLDT                      =              SPAG_B_DLDT_DEFAULT;
@@ -178,7 +188,10 @@ struct DataFrame {
   float     SPAG_RATE_MAX                    =            SPAG_RATE_MAX_DEFAULT;
   float     SPAG_B_TMIN                      =              SPAG_B_TMIN_DEFAULT;
   float     SPAG_V_TMIN                      =              SPAG_V_TMIN_DEFAULT;
-    float SPAG_H_CMD = SPAG_H_CMD_DEFAULT;
+  float     SPAG_H_CMD                       =               SPAG_H_CMD_DEFAULT;
+  float     SPAG_ASCENT_RATE_THRESH          =  SPAG_ASCENT_RATE_THRESH_DEFAULT;
+  float     SPAG_V_SS_ERROR_THRESH           =  SPAG_V_SS_ERROR_THRESH_DEFAULT ;
+  float     SPAG_B_SS_ERROR_THRESH           =  SPAG_B_SS_ERROR_THRESH_DEFAULT ;
 
 } __attribute__((packed));
 

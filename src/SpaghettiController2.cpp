@@ -1,14 +1,13 @@
 
 #include "SpaghettiController2.h"
-#include <iostream>
 
-SpaghettiController::SpaghettiController() :
+
+SpaghettiController2::SpaghettiController2() :
   constants{0},
   /* do NOT fuck with these coefficents or you will crash valbal */
 
   /* first order lead compendator */
   compensator({{1, -0.30000000000000000, -0.4}, {2.8291628469154848e-05, -1.4117522606108269e-05, -1.4131668420342846e-05}}),
-
   h_filter({{1.1545084971874737, -1.9021130325903071, 0.84549150281252627}, {0.024471741852423234, 0.048943483704846469, 0.024471741852423234}}),
   v_filter({{1.0003141592601912, -1.9999999013039569, 0.99968584073980871}, {4.93480216e-07,   4.93480216e-07,  -4.93480216e-07,  -4.93480216e-07}})
 {
@@ -21,7 +20,7 @@ SpaghettiController::SpaghettiController() :
   ss_gain = compensator.getSSGain();
 }
 
-bool SpaghettiController::update(Input input){
+bool SpaghettiController2::update(Input input){
   /* filter input to prevent alaising */
   float h_filt = h_filter.update(input.h);
 
@@ -40,14 +39,14 @@ bool SpaghettiController::update(Input input){
   if(abs(rate) < constants.rate_max) rate = ((0<rate) - (rate<0))*constants.rate_max;
   /* trying to balast */
   else if(rate > 0){
-    float thresh = constants.ss_error_thresh_b * ss_gain * constants.k;
+    float thresh = constants.b_ss_error_thresh * ss_gain * constants.k;
     if(rate < thresh) rate = 0;
     else rate = rate - thresh;
     if(state.ascent_rate > constants.ascent_rate_thresh) rate = 0;
   }
   /* trying to vent */
   else if(rate < 0) {
-    float thresh = -constants.ss_error_thresh_v * ss_gain * constants.k;
+    float thresh = -constants.v_ss_error_thresh * ss_gain * constants.k;
     if(rate > thresh) rate = 0;
     else rate = rate - thresh;
     if(state.ascent_rate < -constants.ascent_rate_thresh) rate = 0;
@@ -80,17 +79,17 @@ bool SpaghettiController::update(Input input){
   return true;
 }
 
-void SpaghettiController::updateConstants(Constants constants){
+void SpaghettiController2::updateConstants(Constants constants){
   if(this->constants.h_cmd != constants.h_cmd){
     compensator.shiftBias(constants.h_cmd - this->constants.h_cmd);
   }
   this->constants = constants;
 }
 
-int SpaghettiController::getAction(){
+int SpaghettiController2::getAction(){
   return state.action * 1000;
 }
 
-SpaghettiController::State SpaghettiController::getState(){
+SpaghettiController2::State SpaghettiController2::getState(){
   return state;
 }

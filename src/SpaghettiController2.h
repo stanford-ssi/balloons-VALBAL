@@ -3,7 +3,7 @@
 
 //#include "Config.h"
 #include "Utils.h"
-//#include <stdlib.h>
+#include <stdlib.h>
 
 #define HUGE_VALF 2000000000.0
 
@@ -29,18 +29,17 @@ public:
     float freq;               // control freqency
     float k;                  // gain modifier
     float b_dldt;             // balast dl/dt (kg/s)
-    float v_dldt;             // valve dl/dt (kg/s)
-    float rate_min;           // min dl/dt rate threshold (kg/s)
-    float rate_max;           // max dl/dt rate threshold (kg/s)
+    float v_dldt;             // valve dl/dt (kg/s))
     float b_tmin;               // minimum ballast event time
     float v_tmin;               // minimum valve event time
     float h_cmd;              // altidute comand
-    float ss_error_thresh_v;
-    float ss_error_thresh_b;
-    float ascent_rate_thresh
+    float v_ss_error_thresh;
+    float b_ss_error_thresh;
+    float ascent_rate_thresh;
+    float rate_max;
   } Constants;
 
-  SpaghettiController();
+  SpaghettiController2();
   bool update(Input input);
   void updateConstants(Constants constants);
   int getAction();

@@ -29,8 +29,8 @@ static const uint8_t   BMP_CS_ONE                            =               32;
 static const uint8_t   BMP_CS_TWO                            =               25;
 static const uint8_t   BMP_CS_THREE                          =               15;
 static const uint8_t   BMP_CS_FOUR                           =               22;
-static const uint8_t   VALVE_FORWARD                         =               20;
-static const uint8_t   VALVE_REVERSE                         =                ;
+static const uint8_t   VALVE_FORWARD                         =                6;
+static const uint8_t   VALVE_REVERSE                         =               20;
 static const uint8_t   BALLAST_FORWARD                       =               21;
 static const uint8_t   BALLAST_REVERSE                       =                5;
 static const uint8_t   HEATER_INTERNAL_STRONG                =                4;
@@ -120,14 +120,18 @@ static const uint16_t  MINIMUM_ALTITUDE_POINTS               =              600;
 static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =              600;
 
 
-static const float     SPAG_K_DEFAULT                        =          0.00001;
-static const float     SPAG_B_DLDT_DEFAULT                   =            0.001;
-static const float     SPAG_V_DLDT_DEFAULT                   =            0.001;
+static const float     SPAG_K_DEFAULT                        =              0.5;
+static const float     SPAG_B_DLDT_DEFAULT                   =           0.0006;
+static const float     SPAG_V_DLDT_DEFAULT                   =            0.010;
 static const float     SPAG_RATE_MIN_DEFAULT                 =          0.00001;
-static const float     SPAG_RATE_MAX_DEFAULT                 =            0.001;
-static const float     SPAG_B_TMIN_DEFAULT                   =                2;
-static const float     SPAG_V_TMIN_DEFAULT                   =                2;
+static const float     SPAG_RATE_MAX_DEFAULT                 =           0.0006;
+static const float     SPAG_B_TMIN_DEFAULT                   =                5;
+static const float     SPAG_V_TMIN_DEFAULT                   =                3;
 static const float     SPAG_H_CMD_DEFAULT                    =            14000;
+static const float     SPAG_ASCENT_RATE_THRESH_DEFAULT       =              0.4;
+static const float     SPAG_V_SS_ERROR_THRESH_DEFAULT        =             1000;
+static const float     SPAG_B_SS_ERROR_THRESH_DEFAULT        =             1000;
+
 
 
 /*****************************  EEPROM ADDRESSES  *****************************/

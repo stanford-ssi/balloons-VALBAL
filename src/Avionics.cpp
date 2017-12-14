@@ -365,17 +365,17 @@ bool Avionics::calcIncentives() {
   if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) success =  false;
 
   // "using SpaghettiController;" jkjk
-  SpaghettiController::Constants allControllerConstants;
-  allControllerConstants.freq                    = data.SPAG_FREQ;
-  allControllerConstants.k                       = data.SPAG_K;
-  allControllerConstants.b_dldt                  = data.SPAG_B_DLDT;
-  allControllerConstants.v_dldt                  = data.SPAG_V_DLDT;
-  allControllerConstants.rate_min                = data.SPAG_RATE_MIN;
-  allControllerConstants.rate_max                = data.SPAG_RATE_MAX;
-  allControllerConstants.b_tmin                  = data.SPAG_B_TMIN;
-  allControllerConstants.v_tmin                  = data.SPAG_V_TMIN;
-  allControllerConstants.h_cmd                   = data.SPAG_H_CMD;
-  spagController.updateConstants(allControllerConstants);
+  SpaghettiController::Constants spaghetti1Constants;
+  spaghetti1Constants.freq                    = data.SPAG_FREQ;
+  spaghetti1Constants.k                       = data.SPAG_K;
+  spaghetti1Constants.b_dldt                  = data.SPAG_B_DLDT;
+  spaghetti1Constants.v_dldt                  = data.SPAG_V_DLDT;
+  spaghetti1Constants.rate_min                = data.SPAG_RATE_MIN;
+  spaghetti1Constants.rate_max                = data.SPAG_RATE_MAX;
+  spaghetti1Constants.b_tmin                  = data.SPAG_B_TMIN;
+  spaghetti1Constants.v_tmin                  = data.SPAG_V_TMIN;
+  spaghetti1Constants.h_cmd                   = data.SPAG_H_CMD;
+  spagController.updateConstants(spaghetti1Constants);
 
   SpaghettiController::Input input;
   input.h = data.ALTITUDE_BAROMETER;
@@ -388,12 +388,41 @@ bool Avionics::calcIncentives() {
   data.SPAG_EFFORT                     =     allControllerStates.effort;
   data.SPAG_VENT_TIME_INTERVAL         =     allControllerStates.v_T;
   data.SPAG_BALLAST_TIME_INTERVAL      =     allControllerStates.b_T;
-  data.SPAG_VALVE_INTERVAL_COUNTER     =     allControllerStates.v_ctr;
-  data.SPAG_BALLAST_INTERVAL_COUNTER   =     allControllerStates.b_ctr;
   data.ACTION_SPAG                     =     data.ACTIONS[0];
   data.SPAG_VENT_TIME_TOTAL            =     data.ACTION_SPAG < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTION_SPAG : data.SPAG_VENT_TIME_TOTAL;
   data.SPAG_BALLAST_TIME_TOTAL         =     data.ACTION_SPAG > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTION_SPAG : data.SPAG_BALLAST_TIME_TOTAL;
 
+  /* SPAGHETTI 2: CONTROLIOLI BOOGALOO */
+
+  SpaghettiController2::Constants spaghetti2Constants;
+  spaghetti2Constants.freq                    = data.SPAG_FREQ;
+  spaghetti2Constants.k                       = data.SPAG_K;
+  spaghetti2Constants.b_dldt                  = data.SPAG_B_DLDT;
+  spaghetti2Constants.v_dldt                  = data.SPAG_V_DLDT;
+  spaghetti2Constants.b_tmin                  = data.SPAG_B_TMIN;
+  spaghetti2Constants.v_tmin                  = data.SPAG_V_TMIN;
+  spaghetti2Constants.h_cmd                   = data.SPAG_H_CMD;
+  spaghetti2Constants.ascent_rate_thresh      = data.SPAG_ASCENT_RATE_THRESH;
+  spaghetti2Constants.v_ss_error_thresh       = data.SPAG_V_SS_ERROR_THRESH;
+  spaghetti2Constants.b_ss_error_thresh       = data.SPAG_B_SS_ERROR_THRESH;
+  spaghetti2Constants.rate_max                = data.SPAG_RATE_MAX;
+  spag2Controller.updateConstants(spaghetti2Constants);
+
+  SpaghettiController2::Input input2;
+  input.h = data.ALTITUDE_BAROMETER;
+  spag2Controller.update(input2);
+
+  SpaghettiController2::State spaghetti2State = spag2Controller.getState();
+
+  data.ACTIONS[1] = spag2Controller.getAction();
+
+  data.SPAG2_EFFORT                     =     spaghetti2State.effort;
+  data.SPAG2_VENT_TIME_INTERVAL         =     spaghetti2State.v_T;
+  data.SPAG2_BALLAST_TIME_INTERVAL      =     spaghetti2State.b_T;
+  data.ACTION_SPAG2                     =     data.ACTIONS[1];
+  data.SPAG2_VENT_TIME_TOTAL            =     data.ACTION_SPAG < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTION_SPAG : data.SPAG_VENT_TIME_TOTAL;
+  data.SPAG2_BALLAST_TIME_TOTAL         =     data.ACTION_SPAG > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTION_SPAG : data.SPAG_BALLAST_TIME_TOTAL;
+  data.SPAG2_ASCENT_RATE                =     spaghetti2State.ascent_rate;
   return success;
 }
 
@@ -611,6 +640,9 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 56) data.SPAG_B_TMIN = value;
   else if (index == 57) data.SPAG_V_TMIN = value;
   else if (index == 58) data.SPAG_H_CMD = value;
+  else if (index == 59) data.SPAG_ASCENT_RATE_THRESH = value;
+  else if (index == 60) data.SPAG_V_SS_ERROR_THRESH = value;
+  else if (index == 61) data.SPAG_B_SS_ERROR_THRESH = value;
 }
 
 /*
@@ -914,9 +946,17 @@ int16_t Avionics::compressData() {
 
     lengthBits += compressVariable(data.SPAG_EFFORT*1000,                  -2, 2, 12, lengthBits);
     lengthBits += compressVariable(log2(data.SPAG_VENT_TIME_INTERVAL+1),     0,     10,   8, lengthBits);
-    lengthBits += compressVariable(log2(data.SPAG_BALLAST_TIME_INTERVAL),    0,     10,   8, lengthBits);
+    lengthBits += compressVariable(log2(data.SPAG_BALLAST_TIME_INTERVAL+1),    0,     10,   8, lengthBits);
     lengthBits += compressVariable(data.SPAG_VENT_TIME_TOTAL/1000,           0,     600,   8, lengthBits);
     lengthBits += compressVariable(data.SPAG_BALLAST_TIME_TOTAL/1000,        0, 600, 8, lengthBits);
+
+    lengthBits += compressVariable(data.SPAG2_EFFORT*1000,                  -2, 2, 12, lengthBits);
+    lengthBits += compressVariable(log2(data.SPAG2_VENT_TIME_INTERVAL+1),     0,     10,   8, lengthBits);
+    lengthBits += compressVariable(log2(data.SPAG2_BALLAST_TIME_INTERVAL+1),    0,     10,   8, lengthBits);
+    lengthBits += compressVariable(data.SPAG2_VENT_TIME_TOTAL/1000,           0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.SPAG2_BALLAST_TIME_TOTAL/1000,        0, 600, 8, lengthBits);
+    lengthBits += compressVariable(data.SPAG2_ASCENT_RATE,                    -5,  5,  10, lengthBits);
+
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.TEMP_SETPOINT,                      -70,   40,      6,  lengthBits); // Payload temperature setpoint

@@ -389,8 +389,8 @@ bool Avionics::calcIncentives() {
   data.SPAG_VENT_TIME_INTERVAL         =     allControllerStates.v_T;
   data.SPAG_BALLAST_TIME_INTERVAL      =     allControllerStates.b_T;
   data.ACTION_SPAG                     =     data.ACTIONS[0];
-  data.SPAG_VENT_TIME_TOTAL            =     data.ACTION_SPAG < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTION_SPAG : data.SPAG_VENT_TIME_TOTAL;
-  data.SPAG_BALLAST_TIME_TOTAL         =     data.ACTION_SPAG > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTION_SPAG : data.SPAG_BALLAST_TIME_TOTAL;
+  //data.SPAG_VENT_TIME_TOTAL            =     data.ACTION_SPAG < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTION_SPAG : data.SPAG_VENT_TIME_TOTAL;
+  //data.SPAG_BALLAST_TIME_TOTAL         =     data.ACTION_SPAG > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTION_SPAG : data.SPAG_BALLAST_TIME_TOTAL;
 
   /* SPAGHETTI 2: CONTROLIOLI BOOGALOO */
 
@@ -420,8 +420,8 @@ bool Avionics::calcIncentives() {
   data.SPAG2_VENT_TIME_INTERVAL         =     spaghetti2State.v_T;
   data.SPAG2_BALLAST_TIME_INTERVAL      =     spaghetti2State.b_T;
   data.ACTION_SPAG2                     =     data.ACTIONS[1];
-  data.SPAG2_VENT_TIME_TOTAL            =     data.ACTION_SPAG < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTION_SPAG : data.SPAG_VENT_TIME_TOTAL;
-  data.SPAG2_BALLAST_TIME_TOTAL         =     data.ACTION_SPAG > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTION_SPAG : data.SPAG_BALLAST_TIME_TOTAL;
+  data.SPAG2_VENT_TIME_TOTAL            =     data.ACTION_SPAG < 0 ? data.SPAG2_VENT_TIME_TOTAL - data.ACTION_SPAG2 : data.SPAG2_VENT_TIME_TOTAL;
+  data.SPAG2_BALLAST_TIME_TOTAL         =     data.ACTION_SPAG > 0 ? data.SPAG2_BALLAST_TIME_TOTAL + data.ACTION_SPAG2 : data.SPAG2_BALLAST_TIME_TOTAL;
   data.SPAG2_ASCENT_RATE                =     spaghetti2State.ascent_rate;
   return success;
 }
@@ -839,8 +839,8 @@ void Avionics::clearVariables() {
   data.VALVE_NUM_ATTEMPTS = 0;
   data.BALLAST_NUM_ATTEMPTS = 0;
   data.LOOP_TIME_MAX = 0;
-  data.SPAG_BALLAST_TIME_TOTAL = 0;
-  data.SPAG_VENT_TIME_TOTAL = 0;
+  data.SPAG2_BALLAST_TIME_TOTAL = 0;
+  data.SPAG2_VENT_TIME_TOTAL = 0;
 }
 
 /*
@@ -947,8 +947,8 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.SPAG_EFFORT*1000,                  -2, 2, 12, lengthBits);
     lengthBits += compressVariable(log2(data.SPAG_VENT_TIME_INTERVAL+1),     0,     10,   8, lengthBits);
     lengthBits += compressVariable(log2(data.SPAG_BALLAST_TIME_INTERVAL+1),    0,     10,   8, lengthBits);
-    lengthBits += compressVariable(data.SPAG_VENT_TIME_TOTAL/1000,           0,     600,   8, lengthBits);
-    lengthBits += compressVariable(data.SPAG_BALLAST_TIME_TOTAL/1000,        0, 600, 8, lengthBits);
+    //lengthBits += compressVariable(data.SPAG_VENT_TIME_TOTAL/1000,           0,     600,   8, lengthBits);
+    //lengthBits += compressVariable(data.SPAG_BALLAST_TIME_TOTAL/1000,        0, 600, 8, lengthBits);
 
     lengthBits += compressVariable(data.SPAG2_EFFORT*1000,                  -2, 2, 12, lengthBits);
     lengthBits += compressVariable(log2(data.SPAG2_VENT_TIME_INTERVAL+1),     0,     10,   8, lengthBits);
@@ -1008,14 +1008,12 @@ int16_t Avionics::compressData() {
   return lengthBytes;
 }
 
-int doot = 0;
 /*
  * Function: printState
  * -------------------
  * This function prints the current avionics state.
  */
 void Avionics::printState() {
-  if (doot++ % 10 != 0) return;
   Serial.print("TIME:");
   Serial.print(data.TIME);
   Serial.print(',');

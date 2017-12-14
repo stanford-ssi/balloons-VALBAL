@@ -165,10 +165,6 @@ struct DataFrame {
   float      SPAG_EFFORT                     =                                0;
   float      SPAG_VENT_TIME_INTERVAL         =                                0;
   float      SPAG_BALLAST_TIME_INTERVAL      =                                0;
-  uint32_t   SPAG_VALVE_INTERVAL_COUNTER     =                                0;
-  uint32_t   SPAG_BALLAST_INTERVAL_COUNTER   =                                0;
-  uint32_t   SPAG_VENT_TIME_TOTAL            =                                0;
-  uint32_t   SPAG_BALLAST_TIME_TOTAL         =                                0;
 
   int32_t    ACTION_SPAG2                     =                               0;
   float      SPAG2_EFFORT                     =                               0;

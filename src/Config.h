@@ -20,7 +20,7 @@
 // #define STORAGE_MODE_FLAG // uncomment for power off
 // #define RESET_EEPROM_FLAG // uncomment for EEPROM
 // #define HITL_ENABLED_FLAG // uncomment for HITL
-#define RB_DISABLED_FLAG  // uncomment for HITL
+// #define RB_DISABLED_FLAG  // uncomment for HITL
 
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   REBOOT_ENABLE                         =               16;
@@ -52,7 +52,7 @@ static const uint8_t   CUTDOWN_SIGNAL                        =               31;
 
 
 /****************************  EDITABLE CONSTANTS  ****************************/
-static const char      MISSION_NUMBER[]                      =         "SSI-63";
+static const char      MISSION_NUMBER[]                      =         "SSI-64";
 
 static const uint8_t   CUTDOWN_INDEX                         =               99;
 static const uint16_t  CUTDOWN_DURATION                      =             1000;

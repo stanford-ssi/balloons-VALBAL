@@ -1008,12 +1008,14 @@ int16_t Avionics::compressData() {
   return lengthBytes;
 }
 
+int doot = 0;
 /*
  * Function: printState
  * -------------------
  * This function prints the current avionics state.
  */
 void Avionics::printState() {
+  if (doot++ % 10 != 0) return;
   Serial.print("TIME:");
   Serial.print(data.TIME);
   Serial.print(',');

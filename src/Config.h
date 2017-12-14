@@ -20,7 +20,7 @@
 // #define STORAGE_MODE_FLAG // uncomment for power off
 // #define RESET_EEPROM_FLAG // uncomment for EEPROM
 // #define HITL_ENABLED_FLAG // uncomment for HITL
- #define RB_DISABLED_FLAG  // uncomment for HITL
+// #define RB_DISABLED_FLAG  // uncomment for HITL
 
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   REBOOT_ENABLE                         =               16;
@@ -155,7 +155,5 @@ static const uint8_t   EEPROM_BALLAST_LAST_ACTION_CONSTANT   =               40;
 
 static const uint8_t   EEPROM_LOG_BLOCK_CUR                  =              112;
 static const uint8_t   EEPROM_LOG_FILE_NUM                   =              116;
-
-static const char* FORBIDDEN_SWEAR_WORDS[] = {"OHP", "PAIGE", "IS","GULLIBLE"};
 
 #endif

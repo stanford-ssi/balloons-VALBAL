@@ -350,21 +350,13 @@ bool Avionics::calcDebug() {
  */
 bool Avionics::calcIncentives() {
   bool success = true;
-  // Set Up Constants
-  ControllerConstants allControllerConstants;
-  allControllerConstants.valveAltitudeSetpoint   = data.VALVE_SETPOINT;
-  allControllerConstants.valveKpConstant         = data.VALVE_VELOCITY_CONSTANT;
-  allControllerConstants.valveKiConstant         = data.VALVE_ALTITUDE_DIFF_CONSTANT;
-  allControllerConstants.valveKdConstant         = data.VALVE_LAST_ACTION_CONSTANT;
-  allControllerConstants.ballastAltitudeSetpoint = data.BALLAST_SETPOINT;
-  allControllerConstants.ballastKpConstant       = data.BALLAST_VELOCITY_CONSTANT;
-  allControllerConstants.ballastKiConstant       = data.BALLAST_ALTITUDE_DIFF_CONSTANT;
-  allControllerConstants.ballastKdConstant       = data.BALLAST_LAST_ACTION_CONSTANT;
-  allControllerConstants.BallastArmAlt           = data.BALLAST_ARM_ALT;
-  allControllerConstants.incentiveThreshold      = data.INCENTIVE_THRESHOLD;
-  allControllerConstants.valveVentDuration       = data.VALVE_VENT_DURATION;
-  allControllerConstants.ballastDropDuration     = data.BALLAST_DROP_DURATION;
-  // SPAGHETTI CONTROLLER CONSTANTS
+  computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
+  computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
+  data.RE_ARM_CONSTANT   = computer.updateControllerConstants(data.BALLAST_ARM_ALT, data.INCENTIVE_THRESHOLD);
+  if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) success =  false;
+
+  // "using SpaghettiController;" jkjk
+  SpaghettiController::Constants allControllerConstants;
   allControllerConstants.freq                    = data.SPAG_FREQ;
   allControllerConstants.k                       = data.SPAG_K;
   allControllerConstants.b_dldt                  = data.SPAG_B_DLDT;
@@ -374,47 +366,28 @@ bool Avionics::calcIncentives() {
   allControllerConstants.b_tmin                  = data.SPAG_B_TMIN;
   allControllerConstants.v_tmin                  = data.SPAG_V_TMIN;
   allControllerConstants.h_cmd                   = data.SPAG_H_CMD;
+  spagController.updateConstants(allControllerConstants);
 
-  //GENERAL CONTROLLER INPUTS
-  ControllerInputs allControllerInputs;
-  allControllerInputs.altitude                   = data.ALTITUDE_BAROMETER;
-  allControllerInputs.altitudeSinceLastVent      = data.VALVE_ALT_LAST;
-  allControllerInputs.altitudeSinceLastDrop      = data.BALLAST_ALT_LAST;
-  allControllerInputs.ascentRate                 = data.ASCENT_RATE;
+  SpaghettiController::Input input;
+  input.h = data.ALTITUDE_BAROMETER;
+  spagController.update(input);
 
-  computer.updateConstants(allControllerConstants);
-  computer.updateInputs(allControllerInputs);
-  ControllerActions allControllerActions = computer.getActions();
-  ControllerStates allControllerStates   = computer.getStates();
+  SpaghettiController::State allControllerStates = spagController.getState();
 
-  data.RE_ARM_CONSTANT_LEGACY   = allControllerStates.controllerLegacyState.reArmConstant;
-  data.VALVE_INCENTIVE_LEGACY   = allControllerStates.controllerLegacyState.valveIncentive;
-  data.BALLAST_INCENTIVE_LEGACY = allControllerStates.controllerLegacyState.ballastIncentive;
+  data.ACTIONS[0] = spagController.getAction();
 
-  data.ACTION_LEGACY            = allControllerActions.controllerLegacyAction;
-  data.VALVE_ALT_LAST_LEGACY    = allControllerStates.controllerLegacyState.altitudeSinceLastVentCorrected;
-  data.BALLAST_ALT_LAST_LEGACY  = allControllerStates.controllerLegacyState.altitudeSinceLastDropCorrected;
-
-  //Spaghetti
-  data.SPAG_EFFORT                     =     allControllerStates.controllerSpagState.effort;
-  data.SPAG_VENT_TIME_INTERVAL         =     allControllerStates.controllerSpagState.v_T;
-  data.SPAG_BALLAST_TIME_INTERVAL      =     allControllerStates.controllerSpagState.b_T;
-  data.SPAG_VALVE_INTERVAL_COUNTER     =     allControllerStates.controllerSpagState.v_ctr;
-  data.SPAG_BALLAST_INTERVAL_COUNTER   =     allControllerStates.controllerSpagState.b_ctr;
-  data.ACTION_SPAG                     =     allControllerActions.controllerSpagAction;
+  data.SPAG_EFFORT                     =     allControllerStates.effort;
+  data.SPAG_VENT_TIME_INTERVAL         =     allControllerStates.v_T;
+  data.SPAG_BALLAST_TIME_INTERVAL      =     allControllerStates.b_T;
+  data.SPAG_VALVE_INTERVAL_COUNTER     =     allControllerStates.v_ctr;
+  data.SPAG_BALLAST_INTERVAL_COUNTER   =     allControllerStates.b_ctr;
+  data.ACTION_SPAG                     =     data.ACTIONS[0];
   data.SPAG_VENT_TIME_TOTAL            =     data.ACTION_SPAG < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTION_SPAG : data.SPAG_VENT_TIME_TOTAL;
   data.SPAG_BALLAST_TIME_TOTAL         =     data.ACTION_SPAG > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTION_SPAG : data.SPAG_BALLAST_TIME_TOTAL;
 
-  if (data.CURRENT_CONTROLLER_INDEX == LEGACY_CONTROLLER_INDEX) {
-    data.ACTION = data.ACTION_LEGACY;
-    data.VALVE_ALT_LAST = data.VALVE_ALT_LAST_LEGACY;
-    data.BALLAST_ALT_LAST = data.BALLAST_ALT_LAST_LEGACY;
-  }
-  if (data.CURRENT_CONTROLLER_INDEX == SPAG_CONTROLLER_INDEX) {
-    data.ACTION = data.ACTION_SPAG;
-  }
   return success;
 }
+
 
 /*
  * Function: runCharger
@@ -467,14 +440,22 @@ bool Avionics::runCharger() {
  * -------------------
  * This function actuates the valve based on the commanded action
  */
-bool Avionics::runValve(){
+bool Avionics::runValve() {
   actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
-  if((data.ACTION < 0 && actuator.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
+  bool shouldAct = data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE);
+  uint32_t valveTime = data.VALVE_VENT_DURATION;
+  if (data.CONTROLLER != 0) {
+    int numControllers = sizeof(data.ACTIONS)/sizeof(data.ACTIONS[0]);
+    if (data.CONTROLLER <= numControllers && data.CONTROLLER > 0) {
+      shouldAct = data.ACTIONS[data.CONTROLLER - 1] < 0;
+      if (shouldAct) valveTime = -data.ACTIONS[data.CONTROLLER - 1];
+    }
+  }
+  if((shouldAct && actuator.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
     data.VALVE_NUM_ATTEMPTS++;
     bool shouldValve = (!data.MANUAL_MODE || data.FORCE_VALVE);
     if(shouldValve) data.VALVE_NUM_ACTIONS++;
     if(!data.FORCE_VALVE) data.VALVE_ALT_LAST = data.ALTITUDE_BAROMETER;
-    uint32_t valveTime = -data.ACTION;
     if(data.FORCE_VALVE) valveTime = data.VALVE_FORCE_DURATION;
     if(shouldValve) data.VALVE_TIME_TOTAL += valveTime;
     PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
@@ -493,12 +474,20 @@ bool Avionics::runValve(){
  */
 bool Avionics::runBallast() {
   actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
-  if((data.ACTION > 0 && actuator.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
+  bool shouldAct = data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE);
+  uint32_t ballastTime = data.BALLAST_DROP_DURATION;
+  if (data.CONTROLLER != 0) {
+    int numControllers = sizeof(data.ACTIONS)/sizeof(data.ACTIONS[0]);
+    if (data.CONTROLLER <= numControllers && data.CONTROLLER > 0) {
+      shouldAct = data.ACTIONS[data.CONTROLLER - 1] > 0;
+      if (shouldAct) ballastTime = data.ACTIONS[data.CONTROLLER - 1];
+    }
+  }
+  if((shouldAct && actuator.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
     data.BALLAST_NUM_ATTEMPTS++;
     bool shouldBallast = (!data.MANUAL_MODE || data.FORCE_BALLAST);
     if(shouldBallast) data.BALLAST_NUM_ACTIONS++;
     if(!data.FORCE_BALLAST) data.BALLAST_ALT_LAST = data.ALTITUDE_BAROMETER;
-    uint32_t ballastTime = data.ACTION;
     if(data.FORCE_BALLAST) ballastTime = data.BALLAST_FORCE_DURATION;
     if(shouldBallast) data.BALLAST_TIME_TOTAL += ballastTime;
     PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
@@ -686,20 +675,19 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 29) parseBallastCommand(value * 1000);
   else if (index == 30) parseRockBLOCKPowerCommand(value);
   else if (index == 31) parseGPSPowerCommand(value);
-  else if (index == 32) parseResistorPowerCommand(value);
+  else if (index == 32) parseRockBLOCKModeCommand(value);
   else if (index == 33) parsePayloadPowerCommand(value);
 
   // controller switching
-  else if (index == 34) data.CURRENT_CONTROLLER_INDEX = value;
-  else if (index == 35) data.SPAG_K = value;
-  else if (index == 36) data.SPAG_B_DLDT = value;
-  else if (index == 37) data.SPAG_V_DLDT = value;
-  else if (index == 38) data.SPAG_RATE_MIN = value;
-  else if (index == 39) data.SPAG_RATE_MAX = value;
-  else if (index == 40) data.SPAG_B_TMIN = value;
-  else if (index == 41) data.SPAG_V_TMIN = value;
-  else if (index == 42) data.SPAG_H_CMD = value;
-
+  else if (index == 50) data.CONTROLLER = value;
+  else if (index == 51) data.SPAG_K = value;
+  else if (index == 52) data.SPAG_B_DLDT = value;
+  else if (index == 53) data.SPAG_V_DLDT = value;
+  else if (index == 54) data.SPAG_RATE_MIN = value;
+  else if (index == 55) data.SPAG_RATE_MAX = value;
+  else if (index == 56) data.SPAG_B_TMIN = value;
+  else if (index == 57) data.SPAG_V_TMIN = value;
+  else if (index == 58) data.SPAG_H_CMD = value;
 }
 
 /*

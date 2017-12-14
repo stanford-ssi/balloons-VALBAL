@@ -29,6 +29,8 @@
 #include <GPS.h>
 #include <RockBLOCK.h>
 
+#include "SpaghettiController.h"
+
 // regualar min and max is not compatible with vector in std
 #define _min(a,b) ((a)<(b)?(a):(b))
 #define _max(a,b) ((a)>(b)?(a):(b))
@@ -91,6 +93,7 @@ private:
   void    parseGPSPowerCommand(uint8_t command);
   void    parseResistorPowerCommand(uint8_t command);
   void    parsePayloadPowerCommand(bool command);
+  void    parseRockBLOCKModeCommand(bool command);
 
   bool    debugState();
   void    setupLog();
@@ -117,6 +120,9 @@ private:
   GPS gpsModule;
   RockBLOCK RBModule;
   Payload payload;
+
+
+  SpaghettiController spagController;
 };
 
 #endif

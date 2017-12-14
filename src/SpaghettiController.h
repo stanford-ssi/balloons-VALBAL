@@ -5,8 +5,6 @@
 #include "Utils.h"
 #include <stdlib.h>
 
-#define HUGE_VALF 2000000000.0
-
 class SpaghettiController
 {
 public:

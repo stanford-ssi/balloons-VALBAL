@@ -27,40 +27,38 @@ bool Controller::init() {
 
 /********************************  FUNCTIONS  *********************************/
 /*
- * Function: updateConstants
+ * Function: updateValveConstants
  * -------------------
- * This function updates all the constants for all of the controllers and returns
- * all of the rearm constants.
+ * This function updates the constants to tune the algorithm.
  */
-void Controller::updateConstants(ControllerConstants allConstants) {
-  // LEGACY CONTROLLER
-  ControllerLegacyConstants legacyConstants;
-  legacyConstants.valveAltitudeSetpoint   = allConstants.valveAltitudeSetpoint;
-  legacyConstants.valveKpConstant         = allConstants.valveKpConstant;
-  legacyConstants.valveKiConstant         = allConstants.valveKiConstant;
-  legacyConstants.valveKdConstant         = allConstants.valveKdConstant;
-  legacyConstants.ballastAltitudeSetpoint = allConstants.ballastAltitudeSetpoint;
-  legacyConstants.ballastKpConstant       = allConstants.ballastKpConstant;
-  legacyConstants.ballastKiConstant       = allConstants.ballastKiConstant;
-  legacyConstants.ballastKdConstant       = allConstants.ballastKdConstant;
-  legacyConstants.BallastArmAlt           = allConstants.BallastArmAlt;
-  legacyConstants.incentiveThreshold      = allConstants.incentiveThreshold;
-  legacyConstants.valveVentDuration       = allConstants.valveVentDuration;
-  legacyConstants.ballastDropDuration     = allConstants.ballastDropDuration;
-  legacyController.updateConstants(legacyConstants);
+void Controller::updateValveConstants(float valveAltitudeSetpoint, float valveKpConstant, float valveKiConstant, float valveKdConstant) {
+  VALVE_SETPOINT               = valveAltitudeSetpoint;
+  VALVE_VELOCITY_CONSTANT      = valveKpConstant;
+  VALVE_ALTITUDE_DIFF_CONSTANT = valveKiConstant;
+  VALVE_LAST_ACTION_CONSTANT   = valveKdConstant;
+}
 
-  SpaghettiController::Constants spagConstants;
-  spagConstants.freq       = allConstants.freq;
-  spagConstants.k          = allConstants.k;
-  spagConstants.b_dldt     = allConstants.b_dldt;
-  spagConstants.b_dldt     = allConstants.b_dldt;
-  spagConstants.rate_min   = allConstants.rate_min;
-  spagConstants.rate_max   = allConstants.rate_max;
-  spagConstants.b_tmin     = allConstants.b_tmin;
-  spagConstants.v_tmin     = allConstants.v_tmin;
-  spagConstants.h_cmd      = allConstants.h_cmd;
-  spagController.updateConstants(spagConstants);
+/*
+ * Function: updateBallastConstants
+ * -------------------
+ * This function updates the constants to tune the algorithm.
+ */
+void Controller::updateBallastConstants(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKiConstant, float ballastKdConstant) {
+  BALLAST_SETPOINT               = ballastAltitudeSetpoint;
+  BALLAST_VELOCITY_CONSTANT      = ballastKpConstant;
+  BALLAST_ALTITUDE_DIFF_CONSTANT = ballastKiConstant;
+  BALLAST_LAST_ACTION_CONSTANT   = ballastKdConstant;
+}
 
+/*
+ * Function: updateControllerConstants
+ * -------------------
+ * This function updates the constants to edit the algorithm.
+ */
+float Controller::updateControllerConstants(float BallastArmAlt, float incentiveThreshold) {
+  BALLAST_ARM_ALT = BallastArmAlt;
+  RE_ARM_CONSTANT = incentiveThreshold / (BALLAST_ALTITUDE_DIFF_CONSTANT + BALLAST_LAST_ACTION_CONSTANT);
+  return RE_ARM_CONSTANT;
 }
 
 /*
@@ -89,9 +87,9 @@ void Controller::updateInputs(ControllerInputs allInputs) {
  * and returns the action struct
  */
 ControllerActions Controller::getActions() {
-  ALL_CONTROLLER_ACTIONS.controllerLegacyAction = legacyController.getAction();
-  ALL_CONTROLLER_ACTIONS.controllerSpagAction   = spagController.getAction();
-  return ALL_CONTROLLER_ACTIONS;
+  controller_actions.controllerLegacyAction = legacyController.getAction();
+  controller_actions.controllerSpagAction   = spagController.getAction();
+  return controller_actions;
 }
 
 /*
@@ -101,7 +99,7 @@ ControllerActions Controller::getActions() {
  * and returns the state struct
  */
 ControllerStates Controller::getStates() {
-  ALL_CONTROLLER_STATES.controllerLegacyState = legacyController.getState();
-  ALL_CONTROLLER_STATES.controllerSpagState   = spagController.getState();
-  return ALL_CONTROLLER_STATES;
+  controller_states.controllerLegacyState = legacyController.getState();
+  controller_states.controllerSpagState   = spagController.getState();
+  return controller_states;
 }

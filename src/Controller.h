@@ -68,21 +68,35 @@ typedef struct {
 
 class Controller {
 public:
+  ControllerActions controller_actions;
+  ControllerStates controller_states;
+
 /**********************************  SETUP  ***********************************/
   bool  init();
 
 /********************************  FUNCTIONS  *********************************/
-  void updateConstants(ControllerConstants allConstants);
-  void updateInputs(ControllerInputs allInputs);
+  void  updateValveConstants(float valveAltitudeSetpoint, float valveKpConstant, float valveKiConstant, float valveKdConstant);
+  void  updateBallastConstants(float ballastAltitudeSetpoint, float ballastKpConstant, float ballastKiConstant, float ballastKdConstant);
+  float updateControllerConstants(float BallastArmAlt, float incentiveThreshold);  void updateInputs(ControllerInputs allInputs);
   ControllerActions getActions();
   ControllerStates getStates();
 
 private:
 /*********************************  OBJECTS  **********************************/
-  ControllerLegacy legacyController;
-  SpaghettiController spagController;
-  ControllerStates ALL_CONTROLLER_STATES;
-  ControllerActions ALL_CONTROLLER_ACTIONS;
+float RE_ARM_CONSTANT                =     0;
+float BALLAST_ARM_ALT                =     0;
+float VALVE_SETPOINT                 =     0;
+float VALVE_VELOCITY_CONSTANT        =     0;
+float VALVE_ALTITUDE_DIFF_CONSTANT   =     0;
+float VALVE_LAST_ACTION_CONSTANT     =     0;
+float BALLAST_SETPOINT               =     0;
+float BALLAST_VELOCITY_CONSTANT      =     0;
+float BALLAST_ALTITUDE_DIFF_CONSTANT =     0;
+float BALLAST_LAST_ACTION_CONSTANT   =     0;
+bool  firstBallastDropped            = false;
+
+ControllerLegacy legacyController;
+SpaghettiController spagController;
 
 };
 

@@ -20,7 +20,7 @@
 // #define STORAGE_MODE_FLAG // uncomment for power off
 // #define RESET_EEPROM_FLAG // uncomment for EEPROM
 // #define HITL_ENABLED_FLAG // uncomment for HITL
-// #define RB_DISABLED_FLAG  // uncomment for HITL
+#define RB_DISABLED_FLAG  // uncomment for HITL
 
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   REBOOT_ENABLE                         =               16;
@@ -29,8 +29,8 @@ static const uint8_t   BMP_CS_ONE                            =               32;
 static const uint8_t   BMP_CS_TWO                            =               25;
 static const uint8_t   BMP_CS_THREE                          =               15;
 static const uint8_t   BMP_CS_FOUR                           =               22;
-static const uint8_t   VALVE_FORWARD                         =                6;
-static const uint8_t   VALVE_REVERSE                         =               20;
+static const uint8_t   VALVE_FORWARD                         =               20;
+static const uint8_t   VALVE_REVERSE                         =                ;
 static const uint8_t   BALLAST_FORWARD                       =               21;
 static const uint8_t   BALLAST_REVERSE                       =                5;
 static const uint8_t   HEATER_INTERNAL_STRONG                =                4;
@@ -118,6 +118,17 @@ static const uint16_t  ALTITUDE_STANDARD_DEV                 =                2;
 static const uint16_t  ALTITUDE_BUFFER_SIZE                  =             1000;
 static const uint16_t  MINIMUM_ALTITUDE_POINTS               =              600;
 static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =              600;
+
+
+static const float     SPAG_K_DEFAULT                        =          0.00001;
+static const float     SPAG_B_DLDT_DEFAULT                   =            0.001;
+static const float     SPAG_V_DLDT_DEFAULT                   =            0.001;
+static const float     SPAG_RATE_MIN_DEFAULT                 =          0.00001;
+static const float     SPAG_RATE_MAX_DEFAULT                 =            0.001;
+static const float     SPAG_B_TMIN_DEFAULT                   =                2;
+static const float     SPAG_V_TMIN_DEFAULT                   =                2;
+static const float     SPAG_H_CMD_DEFAULT                    =            14000;
+
 
 /*****************************  EEPROM ADDRESSES  *****************************/
 static const uint8_t   EEPROM_ROCKBLOCK                      =                0;

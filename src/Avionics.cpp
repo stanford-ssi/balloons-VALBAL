@@ -363,8 +363,40 @@ bool Avionics::calcIncentives() {
   data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE_BAROMETER, data.VALVE_ALT_LAST);
   data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE_BAROMETER, data.BALLAST_ALT_LAST);
   if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) success =  false;
+
+  // "using SpaghettiController;" jkjk
+  SpaghettiController::Constants allControllerConstants;
+  allControllerConstants.freq                    = data.SPAG_FREQ;
+  allControllerConstants.k                       = data.SPAG_K;
+  allControllerConstants.b_dldt                  = data.SPAG_B_DLDT;
+  allControllerConstants.v_dldt                  = data.SPAG_V_DLDT;
+  allControllerConstants.rate_min                = data.SPAG_RATE_MIN;
+  allControllerConstants.rate_max                = data.SPAG_RATE_MAX;
+  allControllerConstants.b_tmin                  = data.SPAG_B_TMIN;
+  allControllerConstants.v_tmin                  = data.SPAG_V_TMIN;
+  allControllerConstants.h_cmd                   = data.SPAG_H_CMD;
+  spagController.updateConstants(allControllerConstants);
+
+  SpaghettiController::Input input;
+  input.h = data.ALTITUDE_BAROMETER;
+  spagController.update(input);
+
+  SpaghettiController::State allControllerStates = spagController.getState();
+
+  data.ACTIONS[0] = spagController.getAction();
+
+  data.SPAG_EFFORT                     =     allControllerStates.effort;
+  data.SPAG_VENT_TIME_INTERVAL         =     allControllerStates.v_T;
+  data.SPAG_BALLAST_TIME_INTERVAL      =     allControllerStates.b_T;
+  data.SPAG_VALVE_INTERVAL_COUNTER     =     allControllerStates.v_ctr;
+  data.SPAG_BALLAST_INTERVAL_COUNTER   =     allControllerStates.b_ctr;
+  data.ACTION_SPAG                     =     data.ACTIONS[0];
+  data.SPAG_VENT_TIME_TOTAL            =     data.ACTION_SPAG < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTION_SPAG : data.SPAG_VENT_TIME_TOTAL;
+  data.SPAG_BALLAST_TIME_TOTAL         =     data.ACTION_SPAG > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTION_SPAG : data.SPAG_BALLAST_TIME_TOTAL;
+
   return success;
 }
+
 
 /*
  * Function: runHeaters
@@ -388,12 +420,20 @@ bool Avionics::runHeaters() {
  */
 bool Avionics::runValve() {
   PCB.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
-  if((data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
+  bool shouldAct = data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE);
+  uint32_t valveTime = data.VALVE_VENT_DURATION;
+  if (data.CONTROLLER != 0) {
+    int numControllers = sizeof(data.ACTIONS)/sizeof(data.ACTIONS[0]);
+    if (data.CONTROLLER <= numControllers && data.CONTROLLER > 0) {
+      shouldAct = data.ACTIONS[data.CONTROLLER - 1] < 0;
+      if (shouldAct) valveTime = -data.ACTIONS[data.CONTROLLER - 1];
+    }
+  }
+  if((shouldAct && PCB.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
     data.VALVE_NUM_ATTEMPTS++;
     bool shouldValve = (!data.MANUAL_MODE || data.FORCE_VALVE);
     if(shouldValve) data.VALVE_NUM_ACTIONS++;
     if(!data.FORCE_VALVE) data.VALVE_ALT_LAST = data.ALTITUDE_BAROMETER;
-    uint32_t valveTime = data.VALVE_VENT_DURATION;
     if(data.FORCE_VALVE) valveTime = data.VALVE_FORCE_DURATION;
     if(shouldValve) data.VALVE_TIME_TOTAL += valveTime;
     PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
@@ -412,12 +452,20 @@ bool Avionics::runValve() {
  */
 bool Avionics::runBallast() {
   PCB.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
-  if((data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE) && PCB.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
+  bool shouldAct = data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE);
+  uint32_t ballastTime = data.BALLAST_DROP_DURATION;
+  if (data.CONTROLLER != 0) {
+    int numControllers = sizeof(data.ACTIONS)/sizeof(data.ACTIONS[0]);
+    if (data.CONTROLLER <= numControllers && data.CONTROLLER > 0) {
+      shouldAct = data.ACTIONS[data.CONTROLLER - 1] > 0;
+      if (shouldAct) ballastTime = data.ACTIONS[data.CONTROLLER - 1];
+    }
+  }
+  if((shouldAct && PCB.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
     data.BALLAST_NUM_ATTEMPTS++;
     bool shouldBallast = (!data.MANUAL_MODE || data.FORCE_BALLAST);
     if(shouldBallast) data.BALLAST_NUM_ACTIONS++;
     if(!data.FORCE_BALLAST) data.BALLAST_ALT_LAST = data.ALTITUDE_BAROMETER;
-    uint32_t ballastTime = data.BALLAST_DROP_DURATION;
     if(data.FORCE_BALLAST) ballastTime = data.BALLAST_FORCE_DURATION;
     if(shouldBallast) data.BALLAST_TIME_TOTAL += ballastTime;
     PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
@@ -552,6 +600,17 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 34) parseHeaterModeCommand(value);
   else if (index == 35) parsePayloadPowerCommand(value);
   else if (index == 36) data.TEMP_SETPOINT = value;
+
+  // controller switching
+  else if (index == 50) data.CONTROLLER = value;
+  else if (index == 51) data.SPAG_K = value;
+  else if (index == 52) data.SPAG_B_DLDT = value;
+  else if (index == 53) data.SPAG_V_DLDT = value;
+  else if (index == 54) data.SPAG_RATE_MIN = value;
+  else if (index == 55) data.SPAG_RATE_MAX = value;
+  else if (index == 56) data.SPAG_B_TMIN = value;
+  else if (index == 57) data.SPAG_V_TMIN = value;
+  else if (index == 58) data.SPAG_H_CMD = value;
 }
 
 /*
@@ -748,6 +807,8 @@ void Avionics::clearVariables() {
   data.VALVE_NUM_ATTEMPTS = 0;
   data.BALLAST_NUM_ATTEMPTS = 0;
   data.LOOP_TIME_MAX = 0;
+  data.SPAG_BALLAST_TIME_TOTAL = 0;
+  data.SPAG_VENT_TIME_TOTAL = 0;
 }
 
 /*
@@ -850,6 +911,12 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(log2(data.BMP_3_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_3_logrejections
     lengthBits += compressVariable(log2(data.BMP_4_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_4_logrejections
     lengthBits += compressVariable(data.JOULES_HEATER,                       0,    819199,  13, lengthBits);
+
+    lengthBits += compressVariable(data.SPAG_EFFORT*1000,                  -2, 2, 12, lengthBits);
+    lengthBits += compressVariable(log2(data.SPAG_VENT_TIME_INTERVAL+1),     0,     10,   8, lengthBits);
+    lengthBits += compressVariable(log2(data.SPAG_BALLAST_TIME_INTERVAL),    0,     10,   8, lengthBits);
+    lengthBits += compressVariable(data.SPAG_VENT_TIME_TOTAL/1000,           0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.SPAG_BALLAST_TIME_TOTAL/1000,        0, 600, 8, lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.TEMP_SETPOINT,                      -70,   40,      6,  lengthBits); // Payload temperature setpoint

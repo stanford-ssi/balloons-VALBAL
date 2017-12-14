@@ -156,6 +156,30 @@ struct DataFrame {
   uint32_t   DATAFILE_LAST                   =                                0;
   uint16_t   COMMS_LENGTH                    =                                0;
   uint32_t   LOOP_NUMBER2                    =                                0;
+
+  int32_t ACTIONS[3] = {0};
+  uint32_t CONTROLLER = 0;
+
+
+  int32_t    ACTION_SPAG                     =                                0;
+  float      SPAG_EFFORT                     =                                0;
+  float      SPAG_VENT_TIME_INTERVAL         =                                0;
+  float      SPAG_BALLAST_TIME_INTERVAL      =                                0;
+  uint32_t   SPAG_VALVE_INTERVAL_COUNTER     =                                0;
+  uint32_t   SPAG_BALLAST_INTERVAL_COUNTER   =                                0;
+  uint32_t   SPAG_VENT_TIME_TOTAL            =                                0;
+  uint32_t   SPAG_BALLAST_TIME_TOTAL         =                                0;
+
+  float     SPAG_FREQ                        =               1000/LOOP_INTERVAL;
+  float     SPAG_K                           =                   SPAG_K_DEFAULT;
+  float     SPAG_B_DLDT                      =              SPAG_B_DLDT_DEFAULT;
+  float     SPAG_V_DLDT                      =              SPAG_V_DLDT_DEFAULT;
+  float     SPAG_RATE_MIN                    =            SPAG_RATE_MIN_DEFAULT;
+  float     SPAG_RATE_MAX                    =            SPAG_RATE_MAX_DEFAULT;
+  float     SPAG_B_TMIN                      =              SPAG_B_TMIN_DEFAULT;
+  float     SPAG_V_TMIN                      =              SPAG_V_TMIN_DEFAULT;
+    float SPAG_H_CMD = SPAG_H_CMD_DEFAULT;
+
 } __attribute__((packed));
 
 #endif

@@ -44,6 +44,7 @@ bool Sensors::init() {
   Serial.println(bme2.readPressure());
   Serial.println(bme3.readPressure());
   Serial.println(bme4.readPressure());
+  Serial.println("defs gucci");
   wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
   wire.setDefaultTimeout(5000);
   int8_t ack = 0;
@@ -51,6 +52,7 @@ bool Sensors::init() {
   ack |= LTC2991_register_write(LTC2991_I2C_ADDRESS, LTC2991_CONTROL_V1234_REG, 0x00);
   ack |= LTC2991_register_write(LTC2991_I2C_ADDRESS, LTC2991_CONTROL_V5678_REG, 0x00);
   ack |= LTC2991_register_write(LTC2991_I2C_ADDRESS, LTC2991_CONTROL_PWM_Tinternal_REG, LTC2991_REPEAT_MODE);
+  Serial.println("we gucci");
   return sucess;
 }
 

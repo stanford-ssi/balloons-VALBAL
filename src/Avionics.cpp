@@ -388,9 +388,8 @@ bool Avionics::calcIncentives() {
   data.SPAG_EFFORT                     =     allControllerStates.effort;
   data.SPAG_VENT_TIME_INTERVAL         =     allControllerStates.v_T;
   data.SPAG_BALLAST_TIME_INTERVAL      =     allControllerStates.b_T;
-  data.ACTION_SPAG                     =     data.ACTIONS[0];
-  //data.SPAG_VENT_TIME_TOTAL            =     data.ACTION_SPAG < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTION_SPAG : data.SPAG_VENT_TIME_TOTAL;
-  //data.SPAG_BALLAST_TIME_TOTAL         =     data.ACTION_SPAG > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTION_SPAG : data.SPAG_BALLAST_TIME_TOTAL;
+  data.SPAG_VENT_TIME_TOTAL            =     data.ACTIONS[0] < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTIONS[0] : data.SPAG_VENT_TIME_TOTAL;
+  data.SPAG_BALLAST_TIME_TOTAL         =     data.ACTIONS[0] > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTIONS[0] : data.SPAG_BALLAST_TIME_TOTAL;
 
   /* SPAGHETTI 2: CONTROLIOLI BOOGALOO */
 
@@ -419,9 +418,8 @@ bool Avionics::calcIncentives() {
   data.SPAG2_EFFORT                     =     spaghetti2State.effort;
   data.SPAG2_VENT_TIME_INTERVAL         =     spaghetti2State.v_T;
   data.SPAG2_BALLAST_TIME_INTERVAL      =     spaghetti2State.b_T;
-  data.ACTION_SPAG2                     =     data.ACTIONS[1];
-  data.SPAG2_VENT_TIME_TOTAL            =     data.ACTION_SPAG < 0 ? data.SPAG2_VENT_TIME_TOTAL - data.ACTION_SPAG2 : data.SPAG2_VENT_TIME_TOTAL;
-  data.SPAG2_BALLAST_TIME_TOTAL         =     data.ACTION_SPAG > 0 ? data.SPAG2_BALLAST_TIME_TOTAL + data.ACTION_SPAG2 : data.SPAG2_BALLAST_TIME_TOTAL;
+  data.SPAG2_VENT_TIME_TOTAL            =     data.ACTIONS[1] < 0 ? data.SPAG2_VENT_TIME_TOTAL - data.ACTIONS[1] : data.SPAG2_VENT_TIME_TOTAL;
+  data.SPAG2_BALLAST_TIME_TOTAL         =     data.ACTIONS[1] > 0 ? data.SPAG2_BALLAST_TIME_TOTAL + data.ACTIONS[1] : data.SPAG2_BALLAST_TIME_TOTAL;
   data.SPAG2_ASCENT_RATE                =     spaghetti2State.ascent_rate;
   return success;
 }
@@ -452,7 +450,7 @@ bool Avionics::runValve() {
   bool shouldAct = data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE);
   uint32_t valveTime = data.VALVE_VENT_DURATION;
   if (data.CONTROLLER != 0) {
-    int numControllers = sizeof(data.ACTIONS)/sizeof(data.ACTIONS[0]);
+    uint32_t numControllers = sizeof(data.ACTIONS)/sizeof(data.ACTIONS[0]);
     if (data.CONTROLLER <= numControllers && data.CONTROLLER > 0) {
       shouldAct = data.ACTIONS[data.CONTROLLER - 1] < 0;
       if (shouldAct) valveTime = -data.ACTIONS[data.CONTROLLER - 1];
@@ -484,7 +482,7 @@ bool Avionics::runBallast() {
   bool shouldAct = data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE);
   uint32_t ballastTime = data.BALLAST_DROP_DURATION;
   if (data.CONTROLLER != 0) {
-    int numControllers = sizeof(data.ACTIONS)/sizeof(data.ACTIONS[0]);
+    uint32_t numControllers = sizeof(data.ACTIONS)/sizeof(data.ACTIONS[0]);
     if (data.CONTROLLER <= numControllers && data.CONTROLLER > 0) {
       shouldAct = data.ACTIONS[data.CONTROLLER - 1] > 0;
       if (shouldAct) ballastTime = data.ACTIONS[data.CONTROLLER - 1];
@@ -947,8 +945,8 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.SPAG_EFFORT*1000,                  -2, 2, 12, lengthBits);
     lengthBits += compressVariable(log2(data.SPAG_VENT_TIME_INTERVAL+1),     0,     10,   8, lengthBits);
     lengthBits += compressVariable(log2(data.SPAG_BALLAST_TIME_INTERVAL+1),    0,     10,   8, lengthBits);
-    //lengthBits += compressVariable(data.SPAG_VENT_TIME_TOTAL/1000,           0,     600,   8, lengthBits);
-    //lengthBits += compressVariable(data.SPAG_BALLAST_TIME_TOTAL/1000,        0, 600, 8, lengthBits);
+    lengthBits += compressVariable(data.SPAG_VENT_TIME_TOTAL/1000,           0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.SPAG_BALLAST_TIME_TOTAL/1000,        0, 600, 8, lengthBits);
 
     lengthBits += compressVariable(data.SPAG2_EFFORT*1000,                  -2, 2, 12, lengthBits);
     lengthBits += compressVariable(log2(data.SPAG2_VENT_TIME_INTERVAL+1),     0,     10,   8, lengthBits);
@@ -982,6 +980,22 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.BALLAST_VELOCITY_CONSTANT,           0,    5,       8,  lengthBits); // Ballast Speed Constant
     lengthBits += compressVariable(1.0 / data.BALLAST_ALTITUDE_DIFF_CONSTANT,0,    4095,    8,  lengthBits); // Ballast Altitude Difference Constant
     lengthBits += compressVariable(1.0 / data.BALLAST_LAST_ACTION_CONSTANT,  0,    4095,    8,  lengthBits); // Ballast last action constant
+
+    // spaghetti readback
+    lengthBits += compressVariable(data.CONTROLLER,       0,    3,    2,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_K,       0,    2,    6,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_B_DLDT*1000,       0,    10,    7,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_V_DLDT*1000,       0,    40,    9,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_RATE_MIN*1000,       0,    0.2,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_RATE_MAX*1000,       0,    2,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_B_TMIN,       0,    31,    5,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_V_TMIN,       0,    31,    5,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_RATE_MAX,       0,    40,    9,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_H_CMD,       -2000,    40000,    11,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_ASCENT_RATE_THRESH,       0,    5,    6,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_V_SS_ERROR_THRESH,       0,    5,    6,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_B_SS_ERROR_THRESH,       0,    5,    6,  lengthBits);
+
   }
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
@@ -1014,6 +1028,10 @@ int16_t Avionics::compressData() {
  * This function prints the current avionics state.
  */
 void Avionics::printState() {
+  Serial.println();
+  Serial.print("Oh hi, we're using controller <");
+  Serial.print(data.CONTROLLER);
+  Serial.println(">.");
   Serial.print("TIME:");
   Serial.print(data.TIME);
   Serial.print(',');

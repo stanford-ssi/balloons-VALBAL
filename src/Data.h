@@ -157,24 +157,22 @@ struct DataFrame {
   uint16_t   COMMS_LENGTH                    =                                0;
   uint32_t   LOOP_NUMBER2                    =                                0;
 
-  int32_t ACTIONS[3] = {0};
+  int32_t ACTIONS[2] = {0};
   uint32_t CONTROLLER = 0;
 
 
-  int32_t    ACTION_SPAG                     =                                0;
   float      SPAG_EFFORT                     =                                0;
   float      SPAG_VENT_TIME_INTERVAL         =                                0;
   float      SPAG_BALLAST_TIME_INTERVAL      =                                0;
+  float SPAG_VENT_TIME_TOTAL = 0;
+  float SPAG_BALLAST_TIME_TOTAL = 0;
 
-  int32_t    ACTION_SPAG2                     =                               0;
   float      SPAG2_EFFORT                     =                               0;
   float      SPAG2_VENT_TIME_INTERVAL         =                               0;
   float      SPAG2_BALLAST_TIME_INTERVAL      =                               0;
   uint32_t   SPAG2_VENT_TIME_TOTAL            =                               0;
   uint32_t   SPAG2_BALLAST_TIME_TOTAL         =                               0;
   float      SPAG2_ASCENT_RATE                =                               0;
-
-
 
   float     SPAG_FREQ                        =               1000/LOOP_INTERVAL;
   float     SPAG_K                           =                   SPAG_K_DEFAULT;
@@ -190,5 +188,9 @@ struct DataFrame {
   float     SPAG_B_SS_ERROR_THRESH           =  SPAG_B_SS_ERROR_THRESH_DEFAULT ;
 
 } __attribute__((packed));
+
+#include <assert.h>
+
+static_assert(sizeof(DataFrame) < 512, "ohp dataframe too big");
 
 #endif

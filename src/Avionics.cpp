@@ -839,6 +839,8 @@ void Avionics::clearVariables() {
   data.LOOP_TIME_MAX = 0;
   data.SPAG2_BALLAST_TIME_TOTAL = 0;
   data.SPAG2_VENT_TIME_TOTAL = 0;
+  data.SPAG_BALLAST_TIME_TOTAL = 0;
+  data.SPAG_VENT_TIME_TOTAL = 0;
 }
 
 /*
@@ -990,11 +992,10 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.SPAG_RATE_MAX*1000,       0,    2,    8,  lengthBits);
     lengthBits += compressVariable(data.SPAG_B_TMIN,       0,    31,    5,  lengthBits);
     lengthBits += compressVariable(data.SPAG_V_TMIN,       0,    31,    5,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_RATE_MAX,       0,    40,    9,  lengthBits);
     lengthBits += compressVariable(data.SPAG_H_CMD,       -2000,    40000,    11,  lengthBits);
     lengthBits += compressVariable(data.SPAG_ASCENT_RATE_THRESH,       0,    5,    6,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_V_SS_ERROR_THRESH,       0,    5,    6,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_B_SS_ERROR_THRESH,       0,    5,    6,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_V_SS_ERROR_THRESH,       0,    5000,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_B_SS_ERROR_THRESH,       0,    5000,    8,  lengthBits);
 
   }
   lengthBits += 8 - (lengthBits % 8);

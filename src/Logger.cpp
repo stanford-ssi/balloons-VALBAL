@@ -152,7 +152,7 @@ bool Logger::log(struct DataFrame* frame, bool sadness) {
     writeCache(true, 2);
   }
 
-  memcpy(cache[to_insert], frame, sizeof(DataFrame));
+  memcpy(cache[to_insert], frame, sizeof(DataFrame)); // XXX CHANGE TO MIN OF THAT AND 512
   avail[to_insert] = 0;
   to_insert = next(to_insert);
 

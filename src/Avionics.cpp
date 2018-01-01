@@ -198,6 +198,11 @@ bool Avionics::readHistory() {
 float minOverpressure = 100000.;
 float maxOverpressure = -100000.;
 
+double OPx = 0;
+double OPs = 0;
+double OPt = 0;
+int OPn = 0;
+
 /*
  * Function: readData
  * -------------------
@@ -228,6 +233,18 @@ bool Avionics::readData() {
   data.OVERPRESSURE          = sensors.getOverpressure();
   if (data.OVERPRESSURE > maxOverpressure) maxOverpressure = data.OVERPRESSURE;
   if (data.OVERPRESSURE < minOverpressure) minOverpressure = data.OVERPRESSURE;
+  if (millis() > OPt) {
+    OPn = 0;
+    OPs = 0;
+    OPx = 0;
+    OPt = millis() + 60*1000;
+  }
+  OPn++;
+  double d1 = data.OVERPRESSURE - OPx;
+  OPx = OPx + d1/((double)OPn);
+  double d2 = data.OVERPRESSURE - OPx;
+  OPs = OPs + d1*d2;
+
   if (data.POWER_STATE_GPS && ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) && (!data.VALVE_STATE)) readGPS();
   if (data.POWER_STATE_PAYLOAD) readPayload();
   return true;
@@ -1047,12 +1064,28 @@ void Avionics::printState() {
   Serial.println("Hellooooooooo! My name is Val Bal and I'm here to do SCIENCE.");
   Serial.print("I just checked the overpressure sensor and it read ");
   Serial.print(data.OVERPRESSURE);
-  Serial.println(" Pa");
+  Serial.println(" Pa.");
   Serial.print("But not long ago I saw overpressure go as low as ");
   Serial.print(minOverpressure);
   Serial.print(" Pa and as high as ");
   Serial.print(maxOverpressure);
   Serial.println("Pa.");
+
+  if (OPn > 1) {
+    Serial.print("If joank's math is correct (which it probably isn't) over the last minute the mean was ");
+
+    Serial.print(OPx);
+    Serial.print(" Pa and the standard deviation was ");
+    Serial.print(OPs/((double)(OPn - 1)));
+    Serial.println(" Pa.");
+  } else {
+    for (int k=0; k<40; k++) Serial.println();
+    Serial.println("RESETTING MEAN/VARIANCE COMPUTATION!! ! !  !   !     !        !");
+    Serial.println("RESETTING MEAN/VARIANCE COMPUTATION!! ! !  !   !     !        !");
+    Serial.println("RESETTING MEAN/VARIANCE COMPUTATION!! ! !  !   !     !        !");
+    for (int k=0; k<40; k++) Serial.println();
+  }
+
   Serial.println();
   Serial.println();
   Serial.print("I'm currently using controller <");

@@ -68,7 +68,7 @@ struct DataFrame {
   bool       POWER_STATE_RB                  =                             true;
   bool       POWER_STATE_GPS                 =                             true;
   bool       POWER_STATE_HEATER              =                             true;
-  bool       POWER_STATE_PAYLOAD             =                            false;
+  bool       POWER_STATE_PAYLOAD             =                             true;
   bool       HEATER_STRONG_ENABLE            =                            false;
   bool       HEATER_WEEK_ENABLE              =                             true;
   uint8_t    NUM_SATS_GPS                    =                                0;

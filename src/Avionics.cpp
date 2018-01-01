@@ -50,9 +50,9 @@ void Avionics::init() {
 void Avionics::test() {
   alert("Initializing test...", true);
   data.MANUAL_MODE = false;
-  data.SHOULD_CUTDOWN = true;
-  PCB.queueBallast(20000, true);
-  PCB.queueValve(30000, true);
+  //data.SHOULD_CUTDOWN = true;
+  PCB.queueBallast(10000, true);
+  PCB.queueValve(10000, true);
 }
 
 /********************************  FUNCTIONS  *********************************/

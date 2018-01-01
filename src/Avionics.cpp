@@ -195,6 +195,9 @@ bool Avionics::readHistory() {
   return true;
 }
 
+float minOverpressure = 100000.;
+float maxOverpressure = -100000.;
+
 /*
  * Function: readData
  * -------------------
@@ -222,6 +225,9 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_2        = sensors.getRawPressure(2);
   data.RAW_PRESSURE_3        = sensors.getRawPressure(3);
   data.RAW_PRESSURE_4        = sensors.getRawPressure(4);
+  data.OVERPRESSURE          = sensors.getOverpressure();
+  if (data.OVERPRESSURE > maxOverpressure) maxOverpressure = data.OVERPRESSURE;
+  if (data.OVERPRESSURE < minOverpressure) minOverpressure = data.OVERPRESSURE;
   if (data.POWER_STATE_GPS && ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) && (!data.VALVE_STATE)) readGPS();
   if (data.POWER_STATE_PAYLOAD) readPayload();
   return true;
@@ -839,6 +845,8 @@ void Avionics::clearVariables() {
   data.LOOP_TIME_MAX = 0;
   data.SPAG2_BALLAST_TIME_TOTAL = 0;
   data.SPAG2_VENT_TIME_TOTAL = 0;
+  maxOverpressure = -100000;
+  minOverpressure = 100000;
 }
 
 /*
@@ -996,6 +1004,11 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.SPAG_V_SS_ERROR_THRESH,       0,    5,    6,  lengthBits);
     lengthBits += compressVariable(data.SPAG_B_SS_ERROR_THRESH,       0,    5,    6,  lengthBits);
 
+
+    lengthBits += compressVariable(data.OVERPRESSURE,    -1940,  700,    12,  lengthBits);
+    lengthBits += compressVariable(minOverpressure,    -1940,  700,    12,  lengthBits);
+    lengthBits += compressVariable(maxOverpressure,    -1940,  700,    12,  lengthBits);
+
   }
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
@@ -1029,7 +1042,19 @@ int16_t Avionics::compressData() {
  */
 void Avionics::printState() {
   Serial.println();
-  Serial.print("Oh hi, we're using controller <");
+  Serial.println();
+  Serial.println("Hellooooooooo! My name is Val Bal and I'm here to do SCIENCE.");
+  Serial.print("I just checked the overpressure sensor and it read ");
+  Serial.print(data.OVERPRESSURE);
+  Serial.println(" Pa");
+  Serial.print("But not long ago I saw overpressure go as low as ");
+  Serial.print(minOverpressure);
+  Serial.print(" Pa and as high as ");
+  Serial.print(maxOverpressure);
+  Serial.println("Pa.");
+  Serial.println();
+  Serial.println();
+  Serial.print("I'm currently using controller <");
   Serial.print(data.CONTROLLER);
   Serial.println(">.");
   Serial.print("TIME:");

@@ -77,6 +77,12 @@ float Sensors::getVoltage5V() {
   return voltage5V;
 }
 
+// gets overpressure
+float Sensors::getOverpressure() {
+  float voltageOP = analogRead(PRESSURE_SENSOR_OR_SOMETHING) * 1.2 / ((double)pow(2, 12));
+  return 700-800*voltageOP;
+}
+
 /*
  * Function: getCurrentUSB
  * -------------------

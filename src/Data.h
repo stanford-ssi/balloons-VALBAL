@@ -187,6 +187,8 @@ struct DataFrame {
   float     SPAG_V_SS_ERROR_THRESH           =  SPAG_V_SS_ERROR_THRESH_DEFAULT ;
   float     SPAG_B_SS_ERROR_THRESH           =  SPAG_B_SS_ERROR_THRESH_DEFAULT ;
 
+  float     OVERPRESSURE                     =                                0;
+
 } __attribute__((packed));
 
 #include <assert.h>

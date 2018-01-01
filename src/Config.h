@@ -51,6 +51,9 @@ static const uint8_t   CUTDOWN_POWER                         =               33;
 static const uint8_t   CUTDOWN_SIGNAL                        =               31;
 
 
+static const uint8_t   PRESSURE_SENSOR_OR_SOMETHING          =               26;
+
+
 /****************************  EDITABLE CONSTANTS  ****************************/
 static const char      MISSION_NUMBER[]                      =         "SSI-64";
 

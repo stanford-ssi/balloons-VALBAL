@@ -40,6 +40,7 @@ public:
   float    getDerivedTemp(uint8_t sensor);
   float    getRawTemp(uint8_t sensor);
   float    getRawPressure(uint8_t sensor);
+  float    getOverpressure();
 private:
 /*********************************  OBJECTS  **********************************/
   Adafruit_BMP280 bme1;

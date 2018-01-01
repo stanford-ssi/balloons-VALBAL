@@ -1076,8 +1076,10 @@ void Avionics::printState() {
 
     Serial.print(OPx);
     Serial.print(" Pa and the standard deviation was ");
-    Serial.print(OPs/((double)(OPn - 1)));
-    Serial.println(" Pa.");
+    Serial.print(sqrt(OPs/((double)(OPn - 1))));
+    Serial.print(" Pa. <#");
+    Serial.print(OPn);
+    Serial.println(">.");
   } else {
     for (int k=0; k<40; k++) Serial.println();
     Serial.println("RESETTING MEAN/VARIANCE COMPUTATION!! ! !  !   !     !        !");

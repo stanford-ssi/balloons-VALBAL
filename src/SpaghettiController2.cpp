@@ -9,7 +9,8 @@ SpaghettiController2::SpaghettiController2() :
   /* first order lead compendator */
   compensator({{1, -0.30000000000000000, -0.4}, {2.8291628469154848e-05, -1.4117522606108269e-05, -1.4131668420342846e-05}}),
   h_filter({{1.1545084971874737, -1.9021130325903071, 0.84549150281252627}, {0.024471741852423234, 0.048943483704846469, 0.024471741852423234}}),
-  v_filter({{1.0003141592601912, -1.9999999013039569, 0.99968584073980871}, {4.93480216e-07,   4.93480216e-07,  -4.93480216e-07,  -4.93480216e-07}})
+  v_filter({{1.0003141592601912, -1.9999999013039569, 0.99968584073980871}, {4.93480216e-07,   4.93480216e-07,  -4.93480216e-07,  -4.93480216e-07}}),
+  action_filter({{1, -0.99994, 0.0}, {0.5, 0.5, -0.0}})
 {
   state.effort = 0;
   state.v_T = HUGE_VALF;
@@ -17,6 +18,8 @@ SpaghettiController2::SpaghettiController2() :
   state.v_ctr = 0;
   state.b_ctr = 0;
   state.action = 0;
+  state.ascent_rate = 0;
+  state.fused_ascent_rate = 0;
   ss_gain = compensator.getSSGain();
 }
 
@@ -24,8 +27,10 @@ bool SpaghettiController2::update(Input input){
   /* filter input to prevent alaising */
   float h_filt = h_filter.update(input.h);
 
-  /* biquad for veloctiy */
+  /* biquad for veloctiy with fused action effect estimation*/
   state.ascent_rate = v_filter.update(input.h);
+  float action_effect = float(state.action)/1000*constants.kfuse;
+  state.fused_ascent_rate = state.ascent_rate + action_filter.update(state.action > 0 ? action_effect*constants.b_dldt : action_effect*constants.v_dldt);
 
   /* get effort from compensator */
   if(state.comp_ctr >= comp_freq*constants.freq){
@@ -42,14 +47,14 @@ bool SpaghettiController2::update(Input input){
     float thresh = constants.b_ss_error_thresh * ss_gain * constants.k;
     if(rate < thresh) rate = 0;
     else rate = rate - thresh;
-    if(state.ascent_rate > constants.ascent_rate_thresh) rate = 0;
+    if(state.fused_ascent_rate > constants.ascent_rate_thresh) rate = 0;
   }
   /* trying to vent */
   else if(rate < 0) {
     float thresh = -constants.v_ss_error_thresh * ss_gain * constants.k;
     if(rate > thresh) rate = 0;
     else rate = rate - thresh;
-    if(state.ascent_rate < -constants.ascent_rate_thresh) rate = 0;
+    if(state.fused_ascent_rate < -constants.ascent_rate_thresh) rate = 0;
   }
 
   /* calculate time intervals */

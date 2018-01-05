@@ -134,6 +134,7 @@ static const float     SPAG_H_CMD_DEFAULT                    =            14000;
 static const float     SPAG_ASCENT_RATE_THRESH_DEFAULT       =              0.4;
 static const float     SPAG_V_SS_ERROR_THRESH_DEFAULT        =             1000;
 static const float     SPAG_B_SS_ERROR_THRESH_DEFAULT        =             1000;
+static const float     SPAG_KFUSE_DEFAULT                    =                7;
 
 
 

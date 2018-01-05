@@ -18,7 +18,8 @@ public:
     unsigned int b_ctr;                // ballast interval counter
     unsigned int comp_ctr;
     int action;               // action command
-    float ascent_rate;
+    float ascent_rate;        // filtered ascent rate
+    float fused_ascent_rate;
   } State;
 
   typedef struct {
@@ -37,6 +38,7 @@ public:
     float b_ss_error_thresh;
     float ascent_rate_thresh;
     float rate_max;
+    float kfuse;
   } Constants;
 
   SpaghettiController2();
@@ -50,9 +52,11 @@ private:
   Biquad compensator;
   Biquad h_filter;
   DBiquad v_filter;
+  Biquad action_filter;
   State state;
   double ss_gain;
   unsigned int comp_freq = 1;
+  float spag1_tribute;  // if you allocate this memory, spaghetti will stop working
 };
 
 #endif

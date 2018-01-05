@@ -428,6 +428,7 @@ bool Avionics::calcIncentives() {
   spaghetti2Constants.v_ss_error_thresh       = data.SPAG_V_SS_ERROR_THRESH;
   spaghetti2Constants.b_ss_error_thresh       = data.SPAG_B_SS_ERROR_THRESH;
   spaghetti2Constants.rate_max                = data.SPAG_RATE_MAX;
+  spaghetti2Constants.kfuse                   = data.SPAG_KFUSE;
   spag2Controller.updateConstants(spaghetti2Constants);
 
   SpaghettiController2::Input input2;

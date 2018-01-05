@@ -379,11 +379,31 @@ bool Avionics::calcIncentives() {
   data.SPAG_EFFORT                     =     allControllerStates.effort;
   data.SPAG_VENT_TIME_INTERVAL         =     allControllerStates.v_T;
   data.SPAG_BALLAST_TIME_INTERVAL      =     allControllerStates.b_T;
-  data.SPAG_VALVE_INTERVAL_COUNTER     =     allControllerStates.v_ctr;
-  data.SPAG_BALLAST_INTERVAL_COUNTER   =     allControllerStates.b_ctr;
-  data.ACTION_SPAG                     =     data.ACTIONS[0];
-  data.SPAG_VENT_TIME_TOTAL            =     data.ACTION_SPAG < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTION_SPAG : data.SPAG_VENT_TIME_TOTAL;
-  data.SPAG_BALLAST_TIME_TOTAL         =     data.ACTION_SPAG > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTION_SPAG : data.SPAG_BALLAST_TIME_TOTAL;
+  data.SPAG_VENT_TIME_TOTAL            =     data.ACTIONS[0] < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTIONS[0] : data.SPAG_VENT_TIME_TOTAL;
+  data.SPAG_BALLAST_TIME_TOTAL         =     data.ACTIONS[0] > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTIONS[0] : data.SPAG_BALLAST_TIME_TOTAL;
+
+  /* SPAGHETTI 2: CONTROLIOLI BOOGALOO */
+
+  SpaghettiController2::Constants spaghetti2Constants;
+  spaghetti2Constants.freq                    = data.SPAG_FREQ;
+  spaghetti2Constants.k                       = data.SPAG_K;
+  spaghetti2Constants.b_dldt                  = data.SPAG_B_DLDT;
+  spaghetti2Constants.v_dldt                  = data.SPAG_V_DLDT;
+  spaghetti2Constants.b_tmin                  = data.SPAG_B_TMIN;
+  spaghetti2Constants.v_tmin                  = data.SPAG_V_TMIN;
+  spaghetti2Constants.h_cmd                   = data.SPAG_H_CMD;
+  spaghetti2Constants.ascent_rate_thresh      = data.SPAG_ASCENT_RATE_THRESH;
+  spaghetti2Constants.v_ss_error_thresh       = data.SPAG_V_SS_ERROR_THRESH;
+  spaghetti2Constants.b_ss_error_thresh       = data.SPAG_B_SS_ERROR_THRESH;
+  spaghetti2Constants.rate_max                = data.SPAG_RATE_MAX;
+  spaghetti2Constants.kfuse                   = data.SPAG_KFUSE;
+  spag2Controller.updateConstants(spaghetti2Constants);
+
+  SpaghettiController2::Input input2;
+  input.h = data.ALTITUDE_BAROMETER;
+  spag2Controller.update(input2);
+
+  SpaghettiController2::State spaghetti2State = spag2Controller.getState();
 
   return success;
 }

@@ -131,6 +131,11 @@ static const float     SPAG_RATE_MAX_DEFAULT                 =            0.001;
 static const float     SPAG_B_TMIN_DEFAULT                   =                2;
 static const float     SPAG_V_TMIN_DEFAULT                   =                2;
 static const float     SPAG_H_CMD_DEFAULT                    =            14000;
+static const float     SPAG_ASCENT_RATE_THRESH_DEFAULT       =              0.4;
+static const float     SPAG_V_SS_ERROR_THRESH_DEFAULT        =             1000;
+static const float     SPAG_B_SS_ERROR_THRESH_DEFAULT        =             1000;
+static const float     SPAG_KFUSE_DEFAULT                    =                7;
+
 
 static const uint8_t   CONTROLLER_INDEX_DEFAULT              =                0;
 static const uint8_t   LEGACY_CONTROLLER_INDEX               =                0;

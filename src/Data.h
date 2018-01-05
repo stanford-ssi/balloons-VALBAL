@@ -181,7 +181,17 @@ struct DataFrame {
   float     SPAG_B_TMIN                      =              SPAG_B_TMIN_DEFAULT;
   float     SPAG_V_TMIN                      =              SPAG_V_TMIN_DEFAULT;
   float     SPAG_H_CMD                       =               SPAG_H_CMD_DEFAULT;
+  float     SPAG_ASCENT_RATE_THRESH          =  SPAG_ASCENT_RATE_THRESH_DEFAULT;
+  float     SPAG_V_SS_ERROR_THRESH           =  SPAG_V_SS_ERROR_THRESH_DEFAULT ;
+  float     SPAG_B_SS_ERROR_THRESH           =  SPAG_B_SS_ERROR_THRESH_DEFAULT ;
+  float     SPAG_KFUSE                       =               SPAG_KFUSE_DEFAULT;
+
+  float     OVERPRESSURE                     =                                0;
 
 } __attribute__((packed));
+
+#include <assert.h>
+
+//static_assert(sizeof(DataFrame) < 512, "ohp dataframe too big");
 
 #endif

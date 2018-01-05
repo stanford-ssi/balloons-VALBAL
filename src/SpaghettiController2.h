@@ -5,8 +5,6 @@
 #include "Utils.h"
 //#include <stdlib.h>
 
-#define HUGE_VALF 2000000000.0
-
 class SpaghettiController2
 {
 public:
@@ -18,7 +16,8 @@ public:
     unsigned int b_ctr;                // ballast interval counter
     unsigned int comp_ctr;
     int action;               // action command
-    float ascent_rate;
+    float ascent_rate;        // filtered ascent rate
+    float fused_ascent_rate;
   } State;
 
   typedef struct {
@@ -35,9 +34,11 @@ public:
     float b_tmin;               // minimum ballast event time
     float v_tmin;               // minimum valve event time
     float h_cmd;              // altidute comand
-    float ss_error_thresh_v;
-    float ss_error_thresh_b;
-    float ascent_rate_thresh
+    float v_ss_error_thresh;
+    float b_ss_error_thresh;
+    float ascent_rate_thresh;
+    float rate_max;
+    float kfuse;
   } Constants;
 
   SpaghettiController();
@@ -51,9 +52,11 @@ private:
   Biquad compensator;
   Biquad h_filter;
   DBiquad v_filter;
+  Biquad action_filter;
   State state;
   double ss_gain;
   unsigned int comp_freq = 1;
+  float spag1_tribute;  // if you allocate this memory, spaghetti will stop working
 };
 
 #endif

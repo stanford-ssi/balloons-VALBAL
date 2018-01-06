@@ -1,6 +1,6 @@
 CC=g++
-CFLAGS=-I ../src/ -std=c++17
-_SRCF = Utils SpaghettiController
+CFLAGS=-I ../src/ ../ -std=c++17 
+_SRCF = Utils SpaghettiController2
 SRCF = $(addprefix ../src/, $(addsuffix .cpp, $(_SRCF)))
 
 

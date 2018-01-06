@@ -39,6 +39,7 @@ public:
     float ascent_rate_thresh;
     float rate_max;
     float kfuse;
+    float kfuse_v;
   } Constants;
 
   SpaghettiController2();

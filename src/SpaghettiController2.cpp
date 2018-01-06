@@ -1,4 +1,3 @@
-
 #include "SpaghettiController2.h"
 
 
@@ -29,8 +28,8 @@ bool SpaghettiController2::update(Input input){
 
   /* biquad for veloctiy with fused action effect estimation*/
   state.ascent_rate = v_filter.update(input.h);
-  float action_effect = float(state.action)/1000*constants.kfuse;
-  state.fused_ascent_rate = state.ascent_rate + action_filter.update(state.action > 0 ? action_effect*constants.b_dldt : action_effect*constants.v_dldt);
+  float action_effect = float(state.action)*constants.kfuse;
+  state.fused_ascent_rate = state.ascent_rate + action_filter.update(state.action > 0 ? action_effect*constants.b_dldt : action_effect*constants.v_dldt*constants.kfuse_v);
 
   /* get effort from compensator */
   if(state.comp_ctr >= comp_freq*constants.freq){
@@ -38,10 +37,10 @@ bool SpaghettiController2::update(Input input){
     state.comp_ctr = 0;
   }
   float rate = state.effort * constants.k;
-
-
   /* min/max thresholds*/
-  if(abs(rate) < constants.rate_max) rate = ((0<rate) - (rate<0))*constants.rate_max;
+  if(abs(rate) > constants.rate_max) {
+    rate = ((0<rate) - (rate<0))*constants.rate_max;
+  }
   /* trying to balast */
   else if(rate > 0){
     float thresh = constants.b_ss_error_thresh * ss_gain * constants.k;

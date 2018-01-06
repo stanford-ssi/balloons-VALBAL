@@ -6,3 +6,5 @@
 src/Cutdown.h
 .DS_Store
 lib/readme.txt
+sim/**/*.bin
+sim/**/*.h5

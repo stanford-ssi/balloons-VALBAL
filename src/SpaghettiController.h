@@ -36,15 +36,14 @@ public:
 
   SpaghettiController();
   bool update(Input input);
-  void updateConstants(Constants constants);
+  void updateConstants(SpaghettiController::Constants constants);
   int32_t getAction();
-  State getState();
-  Constants getConstants();
+  SpaghettiController::State getState();
 private:
   Biquad::Coeffs coeffs;
   Constants constants;
   Biquad compensator;
-  State state;
+  SpaghettiController::State state;
   uint32_t comp_freq = 1;
 };
 

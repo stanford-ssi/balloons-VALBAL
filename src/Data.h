@@ -185,6 +185,7 @@ struct DataFrame {
   float     SPAG_V_SS_ERROR_THRESH           =  SPAG_V_SS_ERROR_THRESH_DEFAULT ;
   float     SPAG_B_SS_ERROR_THRESH           =  SPAG_B_SS_ERROR_THRESH_DEFAULT ;
   float     SPAG_KFUSE                       =               SPAG_KFUSE_DEFAULT;
+  float     SPAG_KFUSE_V                     =             SPAG_KFUSE_V_DEFAULT;
 
   float     OVERPRESSURE                     =                                0;
 

@@ -1,8 +1,8 @@
-
 #include "SpaghettiController2.h"
+#include "SpaghettiController.h"
 #include <iostream>
 
-SpaghettiController::SpaghettiController() :
+SpaghettiController2::SpaghettiController2() :
   constants{0},
   /* do NOT fuck with these coefficents or you will crash valbal */
 
@@ -24,14 +24,14 @@ SpaghettiController::SpaghettiController() :
   ss_gain = compensator.getSSGain();
 }
 
-bool SpaghettiController::update(Input input){
+bool SpaghettiController2::update(Input input){
   /* filter input to prevent alaising */
   float h_filt = h_filter.update(input.h);
 
   /* biquad for veloctiy with fused action effect estimation*/
   state.ascent_rate = v_filter.update(input.h);
-  float action_effect = float(state.action)/1000*constants.kfuse;
-  state.fused_ascent_rate = state.ascent_rate + action_filter.update(state.action > 0 ? action_effect*constants.b_dldt : action_effect*constants.v_dldt);
+  float action_effect = float(state.action)*constants.kfuse;
+  state.fused_ascent_rate = state.ascent_rate + action_filter.update(state.action > 0 ? action_effect*constants.b_dldt : action_effect*constants.v_dldt*constants.kfuse_v);
 
   /* get effort from compensator */
   if(state.comp_ctr >= comp_freq*constants.freq){
@@ -39,20 +39,20 @@ bool SpaghettiController::update(Input input){
     state.comp_ctr = 0;
   }
   float rate = state.effort * constants.k;
-
-
   /* min/max thresholds*/
-  if(abs(rate) < constants.rate_max) rate = ((0<rate) - (rate<0))*constants.rate_max;
+  if(abs(rate) > constants.rate_max) {
+    rate = ((0<rate) - (rate<0))*constants.rate_max;
+  }
   /* trying to balast */
   else if(rate > 0){
-    float thresh = constants.ss_error_thresh_b * ss_gain * constants.k;
+    float thresh = constants.b_ss_error_thresh * ss_gain * constants.k;
     if(rate < thresh) rate = 0;
     else rate = rate - thresh;
     if(state.fused_ascent_rate > constants.ascent_rate_thresh) rate = 0;
   }
   /* trying to vent */
   else if(rate < 0) {
-    float thresh = -constants.ss_error_thresh_v * ss_gain * constants.k;
+    float thresh = -constants.v_ss_error_thresh * ss_gain * constants.k;
     if(rate > thresh) rate = 0;
     else rate = rate - thresh;
     if(state.fused_ascent_rate < -constants.ascent_rate_thresh) rate = 0;
@@ -85,17 +85,17 @@ bool SpaghettiController::update(Input input){
   return true;
 }
 
-void SpaghettiController::updateConstants(Constants constants){
+void SpaghettiController2::updateConstants(SpaghettiController2::Constants constants){
   if(this->constants.h_cmd != constants.h_cmd){
     compensator.shiftBias(constants.h_cmd - this->constants.h_cmd);
   }
   this->constants = constants;
 }
 
-int SpaghettiController::getAction(){
+int SpaghettiController2::getAction(){
   return state.action * 1000;
 }
 
-SpaghettiController::State SpaghettiController::getState(){
+SpaghettiController2::State SpaghettiController2::getState(){
   return state;
 }

@@ -30,6 +30,7 @@
 #include <RockBLOCK.h>
 
 #include "SpaghettiController.h"
+#include "SpaghettiController2.h"
 
 // regualar min and max is not compatible with vector in std
 #define _min(a,b) ((a)<(b)?(a):(b))
@@ -121,8 +122,8 @@ private:
   RockBLOCK RBModule;
   Payload payload;
 
-
   SpaghettiController spagController;
+  SpaghettiController2 spag2Controller;
 };
 
 #endif

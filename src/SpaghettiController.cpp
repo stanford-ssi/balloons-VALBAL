@@ -57,7 +57,7 @@ bool SpaghettiController::update(Input input){
   return true;
 }
 
-void SpaghettiController::updateConstants(Constants constants){
+void SpaghettiController::updateConstants(SpaghettiController::Constants constants){
   this->constants = constants;
 }
 

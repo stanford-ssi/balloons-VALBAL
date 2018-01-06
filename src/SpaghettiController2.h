@@ -1,6 +1,7 @@
 #ifndef SPAGHETTICONTROLLER2_H
 #define SPAGHETTICONTROLLER2_H
 
+#include "SpaghettiController.h"
 //#include "Config.h"
 #include "Utils.h"
 //#include <stdlib.h>
@@ -37,15 +38,15 @@ public:
     float v_ss_error_thresh;
     float b_ss_error_thresh;
     float ascent_rate_thresh;
-    float rate_max;
     float kfuse;
+    float kfuse_v;
   } Constants;
 
-  SpaghettiController();
+  SpaghettiController2();
   bool update(Input input);
-  void updateConstants(Constants constants);
+  void updateConstants(SpaghettiController2::Constants constants);
   int getAction();
-  State getState();
+  SpaghettiController2::State getState();
   Constants getConstants();
 private:
   Constants constants;

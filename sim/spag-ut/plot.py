@@ -28,7 +28,7 @@ for i in np.nonzero(D('act') < 0)[0]:
 
 
 ax2 = ax1.twinx()
-ax2.plot(t[1000:],D('ef')[1000:])
+ax2.plot(t[50000:],D('ef')[50000:])
 
 ax3 = ax1.twinx()
 ax3.plot(t[100000:],D('fuse')[100000:],'red')

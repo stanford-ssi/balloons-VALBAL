@@ -18,7 +18,7 @@ int main ()
 	SpaghettiController2::Constants constants = getDefaultConstants();
 	SpaghettiController2 spag;
 	spag.updateConstants(constants);
-	int dur = 10*60*60*FREQ;
+	int dur = 20*60*60*FREQ;
 	fstream f ("data.bin", std::fstream::in | std::fstream::binary);
 	fstream o ("output.bin", std::fstream::out | std::fstream::binary);
 	miniframe data;
@@ -69,7 +69,7 @@ SpaghettiController2::Constants getDefaultConstants(){
 	constants.b_tmin = 5;
 	constants.v_tmin = 3;
 	constants.h_cmd = 13000;
-	constants.ascent_rate_thresh = 100000;
+	constants.ascent_rate_thresh = 0.4;
 	constants.kfuse = 7;
 	constants.kfuse_v = 0.5;
 	return constants;	

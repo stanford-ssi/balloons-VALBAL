@@ -80,7 +80,12 @@ float Sensors::getVoltage5V() {
 // gets overpressure
 float Sensors::getOverpressure() {
   float voltageOP = analogRead(PRESSURE_SENSOR_OR_SOMETHING) * 1.2 / ((double)pow(2, 12));
-  return 700-800*voltageOP;
+  float pressure = 700-800*voltageOP; // I'm assuming that this translated from voltage to pressure (in Pascals)
+
+   // dif pressure sensor was calibrated in cm water, so it must be converted to PASCALS (1 cm water ~ 98.0665 Pa)
+   // PSC = Pressure Sensor Calibration
+  float pressureCalibrated = (pressure * PSC_SLOPE + PSC_INTERCEPT) * CM_WATER_TO_PA;
+  return pressureCalibrated;
 }
 
 /*

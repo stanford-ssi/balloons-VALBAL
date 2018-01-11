@@ -137,6 +137,9 @@ static const float     SPAG_B_SS_ERROR_THRESH_DEFAULT        =             1000;
 static const float     SPAG_KFUSE_DEFAULT                    =                7;
 static const float     SPAG_KFUSE_V_DEFAULT                  =              0.5;
 
+static const float     PSC_SLOPE                             =            0.011;
+static const float     PSC_INTERCEPT                         =          -0.2419;
+static const float     CM_WATER_TO_PA                        =          98.0665;
 
 static const uint8_t   CONTROLLER_INDEX_DEFAULT              =                0;
 static const uint8_t   LEGACY_CONTROLLER_INDEX               =                0;

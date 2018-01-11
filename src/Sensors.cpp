@@ -64,17 +64,7 @@ bool Sensors::init() {
 float Sensors::getVoltagePrimary() {
   voltagePrimary = analogRead(BATT_VOLTAGE) * 1.2 * 5.99 / (double)pow(2, 12);
   return voltagePrimary;
-}
-
-/*
- * Function: getVoltageSuperCap
- * -------------------
- * This function gets the Super Cap voltage.
- */
-float Sensors::getVoltageSuperCap() {
-  voltageSuperCap = analogRead(SUPER_CAP_VOLTAGE) * 1.2 * 5.99 / (double)pow(2, 12);
-  return voltageSuperCap;
-}
+}// I'm assuming that this translated from voltage to pressure (in Pascals)
 
 /*
  * Function: getCurrentTotal

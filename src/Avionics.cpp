@@ -104,7 +104,6 @@ void Avionics::logState() {
   uint32_t t0 = millis();
   if(!log.log(&data, PCB.valveState != PCB.OPENING)) alert("unable to log Data", true);
   data.LOG_TIME = millis() - t0;
-  data.LOOP_NUMBER2++;
   if(!debugState())   alert("unable to debug state", true);
 }
 

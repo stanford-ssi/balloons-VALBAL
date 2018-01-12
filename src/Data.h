@@ -157,10 +157,9 @@ struct DataFrame {
   uint32_t   RB_LAST                         =                                0;
   uint32_t   DATAFILE_LAST                   =                                0;
   uint16_t   COMMS_LENGTH                    =                                0;
-  uint32_t   LOOP_NUMBER2                    =                                0;
 
-  int32_t ACTIONS[3] = {0};
-  uint32_t CONTROLLER = 0;
+  int32_t ACTIONS[2] = {0};
+  uint8_t CONTROLLER = 0;
 
 
   int32_t    ACTION_SPAG                     =                                0;
@@ -193,6 +192,6 @@ struct DataFrame {
 
 #include <assert.h>
 
-//static_assert(sizeof(DataFrame) < 512, "ohp dataframe too big");
+static_assert(sizeof(DataFrame) < 512, "ohp dataframe too big");
 
 #endif

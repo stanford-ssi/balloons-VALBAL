@@ -232,12 +232,7 @@ bool Avionics::readData() {
   data.OVERPRESSURE          = sensors.getOverpressure();
   if (data.OVERPRESSURE > maxOverpressure) maxOverpressure = data.OVERPRESSURE;
   if (data.OVERPRESSURE < minOverpressure) minOverpressure = data.OVERPRESSURE;
-  if (millis() > OPt) {
-    OPn = 0;
-    OPs = 0;
-    OPx = 0;
-    OPt = millis() + 60*1000;
-  }
+
   OPn++;
   double d1 = data.OVERPRESSURE - OPx;
   OPx = OPx + d1/((double)OPn);
@@ -869,6 +864,9 @@ void Avionics::clearVariables() {
   minOverpressure = 100000;
   data.SPAG_BALLAST_TIME_TOTAL = 0;
   data.SPAG_VENT_TIME_TOTAL = 0;
+  OPn = 0;
+  OPs = 0;
+  OPx = 0;
 }
 
 /*
@@ -902,6 +900,17 @@ int16_t Avionics::compressVariable(float var, float minimum, float maximum, int1
  * The total bitstream cannot exceed 400 bytes.
  */
 int16_t Avionics::compressData() {
+
+  double variance;
+  if (OPn > 1) {
+    variance = OPs/((double)(OPn - 1));
+    if (variance > 0) {
+      variance = sqrt(variance);
+    }
+  } else {
+    variance = 0;
+  }
+
   int16_t lengthBits  = 0;
   int16_t lengthBytes = 0;
   for(uint16_t i = 0; i < COMMS_BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
@@ -985,6 +994,12 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.SPAG2_BALLAST_TIME_TOTAL/1000,        0, 600, 8, lengthBits);
     lengthBits += compressVariable(data.SPAG2_ASCENT_RATE,                    -5,  5,  10, lengthBits);
 
+    lengthBits += compressVariable(data.OVERPRESSURE,    -1940,  700,    12,  lengthBits);
+    lengthBits += compressVariable(minOverpressure,    -1940,  700,    12,  lengthBits);
+    lengthBits += compressVariable(maxOverpressure,    -1940,  700,    12,  lengthBits);
+    lengthBits += compressVariable(variance,   0,  511,    9,  lengthBits);
+    lengthBits += compressVariable(OPx,    -500,  700,    11,  lengthBits);
+
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.TEMP_SETPOINT,                      -70,   40,      6,  lengthBits); // Payload temperature setpoint
@@ -1028,9 +1043,6 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.SPAG_KFUSE_V,         0,       1,     4, lengthBits);
 
 
-    lengthBits += compressVariable(data.OVERPRESSURE,    -1940,  700,    12,  lengthBits);
-    lengthBits += compressVariable(minOverpressure,    -1940,  700,    12,  lengthBits);
-    lengthBits += compressVariable(maxOverpressure,    -1940,  700,    12,  lengthBits);
 
   }
   lengthBits += 8 - (lengthBits % 8);

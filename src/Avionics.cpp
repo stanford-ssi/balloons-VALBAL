@@ -328,7 +328,7 @@ bool Avionics::processData() {
   data.CURRENT_TOTAL_MAX          = filter.getMaxCurrentSystem();
   data.CURRENT_RB_AVG             = filter.getAvgCurrentRB(data.CURRENT_RB);
   data.CURRENT_RB_MAX             = filter.getMaxCurrentRB();
-  data.CURRENT_MOTOR_VALVE_AVG    = filter.getAvgCurrentMotorValve(data.CURRENT_MOTOR_VALVE, (data.VALVE_STATE));
+  data.CURRENT_MOTOR_VALVE_AVG    = filter.getAvgCurrentMotorValve(data.CURRENT_MOTOR_VALVE, (PCB.valveState == PCB.OPENING || PCB.valveState == PCB.CLOSING));
   data.CURRENT_MOTOR_VALVE_MAX    = filter.getMaxCurrentMotorValve();
   data.CURRENT_MOTOR_BALLAST_AVG  = filter.getAvgCurrentMotorBallast(data.CURRENT_MOTOR_BALLAST, (data.BALLAST_STATE));
   data.CURRENT_MOTOR_BALLAST_MAX  = filter.getMaxCurrentMotorBallast();

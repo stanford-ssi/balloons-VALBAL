@@ -52,10 +52,6 @@ void Avionics::init() {
  */
 void Avionics::test() {
   alert("Initializing test...", true);
-  data.MANUAL_MODE = false;
-  data.SHOULD_CUTDOWN = true;
-  actuator.queueBallast(20000, true);
-  actuator.queueValve(30000, true);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -1021,6 +1017,26 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.BALLAST_VELOCITY_CONSTANT,           0,    5,       8,  lengthBits); // Ballast Speed Constant
     lengthBits += compressVariable(1.0 / data.BALLAST_ALTITUDE_DIFF_CONSTANT,0,    4095,    8,  lengthBits); // Ballast Altitude Difference Constant
     lengthBits += compressVariable(1.0 / data.BALLAST_LAST_ACTION_CONSTANT,  0,    4095,    8,  lengthBits); // Ballast last action constant
+
+    // spaghetti readback
+    lengthBits += compressVariable(data.CONTROLLER,       0,    3,    2,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_K,       0,    2,    6,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_B_DLDT*1000,       0,    10,    7,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_V_DLDT*1000,       0,    40,    9,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_RATE_MIN*1000,       0,    0.2,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_RATE_MAX*1000,       0,    2,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_B_TMIN,       0,    31,    5,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_V_TMIN,       0,    31,    5,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_H_CMD,       -2000,    40000,    11,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_ASCENT_RATE_THRESH,       0,    5,    6,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_V_SS_ERROR_THRESH,       0,    5000,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_B_SS_ERROR_THRESH,       0,    5000,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_KFUSE,         0,      16,     4, lengthBits);
+    lengthBits += compressVariable(data.SPAG_KFUSE_V,         0,       1,     4, lengthBits);
+
+
+    lengthBits += compressVariable(data.OVERPRESSURE,    -1940,  700,    12,  lengthBits);
+
   }
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
@@ -1423,6 +1439,9 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" COMMS_LENGTH:");
   Serial.print(data.COMMS_LENGTH);
+  Serial.print(",");
+  Serial.print(" SPAG_EFFORT:");
+  Serial.print(data.SPAG_EFFORT, 8);
   Serial.print("\n\r");
   Serial.print("\n\r");
 }

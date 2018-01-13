@@ -49,7 +49,7 @@ void Avionics::init() {
  */
 void Avionics::test() {
   alert("Initializing test...", true);
-  data.MANUAL_MODE = false;
+  //data.MANUAL_MODE = false;
   //data.SHOULD_CUTDOWN = true;
   PCB.queueBallast(10000, true);
   PCB.queueValve(10000, true);
@@ -1024,6 +1024,8 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.SPAG_ASCENT_RATE_THRESH,       0,    5,    6,  lengthBits);
     lengthBits += compressVariable(data.SPAG_V_SS_ERROR_THRESH,       0,    5000,    8,  lengthBits);
     lengthBits += compressVariable(data.SPAG_B_SS_ERROR_THRESH,       0,    5000,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_KFUSE,         0,      16,     4, lengthBits);
+    lengthBits += compressVariable(data.SPAG_KFUSE_V,         0,       1,     4, lengthBits);
 
 
     lengthBits += compressVariable(data.OVERPRESSURE,    -1940,  700,    12,  lengthBits);
@@ -1453,6 +1455,9 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" COMMS_LENGTH:");
   Serial.print(data.COMMS_LENGTH);
+  Serial.print(",");
+  Serial.print(" SPAG_EFFORT:");
+  Serial.print(data.SPAG_EFFORT, 8);
   Serial.print("\n\r");
   Serial.print("\n\r");
 }

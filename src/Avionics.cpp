@@ -51,11 +51,11 @@ void Avionics::init() {
  * This function tests the hardware.
  */
 void Avionics::test() {
-  alert("Initializing test...", true);
+  Serial.println("test starting");
   data.MANUAL_MODE = false;
   data.SHOULD_CUTDOWN = true;
-  actuator.queueValve(30000, true);
-  actuator.queueBallast(30000, true);
+  //PCB.queueBallast(60000, true);
+  //PCB.queueValve(5000, true);
 }
 
 /********************************  FUNCTIONS  *********************************/

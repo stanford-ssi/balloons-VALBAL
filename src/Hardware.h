@@ -23,6 +23,7 @@ public:
 
 /********************************  FUNCTIONS  *********************************/
   void            runLED(bool on);
+  void            cutDown();
   static void     EEPROMWritelong(uint8_t address, int32_t value);
   static int32_t  EEPROMReadlong(uint8_t address);
 

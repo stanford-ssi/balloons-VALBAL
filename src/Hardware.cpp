@@ -42,6 +42,23 @@ void Hardware::runLED(bool on) {
 }
 
 /*
+ * Function: cutDown
+ * -------------------
+ * This function triggers the mechanical cutdown of the payload.
+ */
+void Hardware::cutDown() {
+  Serial.println("starting cutdown...");
+  for(size_t i = 0; i < 3; i++){
+    digitalWrite(CUTDOWN_POWER, HIGH);
+    digitalWrite(CUTDOWN_SIGNAL, HIGH);
+    delay(CUTDOWN_DURATION);
+    digitalWrite(CUTDOWN_POWER, LOW);
+    digitalWrite(CUTDOWN_SIGNAL, LOW);
+  }
+  Serial.println("cutdown completed.");
+}
+
+/*
  * Function: EEPROMReadlong
  * -------------------
  * This function reads an int32_t from the given address.

@@ -67,6 +67,16 @@ float Sensors::getVoltagePrimary() {
 }// I'm assuming that this translated from voltage to pressure (in Pascals)
 
 /*
+ * Function: getVoltageSuperCap
+ * -------------------
+ * This function gets the Super Cap voltage.
+ */
+float Sensors::getVoltageSuperCap() {
+  voltageSuperCap = analogRead(SUPER_CAP_VOLTAGE) * 1.2 * 5.99 / (double)pow(2, 12);
+  return voltageSuperCap;
+}
+
+/*
  * Function: getCurrentTotal
  * -------------------
  * This function gets the total current draw.

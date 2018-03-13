@@ -691,8 +691,7 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 29) parseBallastCommand(value * 1000);
   else if (index == 30) parseRockBLOCKPowerCommand(value);
   else if (index == 31) parseGPSPowerCommand(value);
-  else if (index == 32) parseRockBLOCKModeCommand(value);
-  else if (index == 33) parsePayloadPowerCommand(value);
+  else if (index == 32) parsePayloadPowerCommand(value);
 
   // controller switching
   else if (index == 50) data.CONTROLLER = value;

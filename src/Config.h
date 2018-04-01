@@ -50,6 +50,8 @@ static const uint8_t   EXT_TEMP_SENSOR                       =               36;
 static const uint8_t   CUTDOWN_POWER                         =               33;
 static const uint8_t   CUTDOWN_SIGNAL                        =               31;
 
+static const uint8_t   CURRENT_SENSOR_CS                     =                1;
+
 /****************************  EDITABLE CONSTANTS  ****************************/
 static const char      MISSION_NUMBER[]                      =         "SSI-63";
 
@@ -165,5 +167,18 @@ static const uint8_t   EEPROM_BALLAST_LAST_ACTION_CONSTANT   =               40;
 
 static const uint8_t   EEPROM_LOG_BLOCK_CUR                  =              112;
 static const uint8_t   EEPROM_LOG_FILE_NUM                   =              116;
+
+/*****************************  CURRENT SENSOR CONSTANTS  **********************/
+static const uint32_t  CURRENT_SENSOR_CLOCK_SPEED            =         16000000; // 16 MHz
+static const float     CURRENT_SENSOR_VREF                   =              3.3;
+static const uint16_t  CURRENT_SENSOR_MAX_BIP                =            0x7FF;
+static const bool      USING_CHANNEL_DIFF_0_1                =            false;
+static const bool      USING_CHANNEL_DIFF_2_3                =            false;
+static const bool      USING_CHANNEL_DIFF_4_5                =            false;
+static const bool      USING_CHANNEL_DIFF_6_7                =            false;
+static const bool      USING_CHANNEL_DIFF_8_9                =            false;
+static const bool      USING_CHANNEL_DIFF_10_11              =            false;
+static const bool      USING_CHANNEL_DIFF_12_13              =            false;
+static const bool      USING_CHANNEL_DIFF_14_15              =            false;
 
 #endif

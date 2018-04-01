@@ -42,13 +42,7 @@ void Output::init() {
  * This function turns the LED on or off.
  */
 void Output::runLED(bool on) {
-  // if (on) {
-  //   pinMode(LED_PIN, OUTPUT);
-  //   digitalWrite(LED_PIN, LOW);
-  // }
-  // else {
-  //   pinMode(LED_PIN, INPUT);
-  // }
+  digitalWrite(LED_PIN, HIGH);
 }
 
 /*

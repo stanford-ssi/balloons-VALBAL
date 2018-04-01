@@ -7,7 +7,7 @@
 
   File: Hardware.cpp
   --------------------------
-  Implimentation of Hardware.h
+  Implementation of Hardware.h
 */
 
 #include "Hardware.h"
@@ -78,7 +78,8 @@ void Hardware::updateValveState(bool shouldBeOpen,
   }
 
   //if valve is openning or closing and it has already finished
-  if((valveState == OPENING || valveState == CLOSING) && currTime > valveActionEndTime){
+  if((valveState == OPENING || valveState == CLOSING) &&
+      currTime > valveActionEndTime){
     output.stopValve();
     if(valveState == OPENING){
       valveState = OPEN;

@@ -10,7 +10,7 @@
   Implimentation of ValbalOutput.h
 */
 
-#include "ValbalOutput.h"
+#include "Output.h"
 
 /**********************************  SETUP  ***********************************/
 /*
@@ -19,10 +19,20 @@
  * This function initializes the PCB hardware.
  */
 void Output::init() {
+  //from old hardware class
   analogReference(INTERNAL);
   analogReadResolution(12);
   wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
   wire.setDefaultTimeout(5000);
+
+  //from old avionics
+  pinMode(VALVE_OPEN,    OUTPUT);
+  pinMode(VALVE_CLOSE,    OUTPUT);
+  pinMode(BALLAST_FORWARD,  OUTPUT);
+  pinMode(BALLAST_REVERSE,  OUTPUT);
+  pinMode(CUTDOWN,          OUTPUT);
+
+  digitalWrite(CUTDOWN, LOW);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -68,4 +78,44 @@ void Output::EEPROMWritelong(uint8_t address, int32_t value) {
   EEPROM.write(address + 1, three);
   EEPROM.write(address + 2, two);
   EEPROM.write(address + 3, one);
+}
+
+void Output::openValve(uint16_t speed){
+  analogWrite(VALVE_CLOSE, LOW);
+  analogWrite(VALVE_OPEN,  speed);
+}
+
+void closeValve(uint16_t speed){
+  analogWrite(VALVE_CLOSE, speed);
+  analogWrite(VALVE_OPEN,  LOW);
+}
+
+void stopValve(){
+  analogWrite(VALVE_CLOSE, LOW);
+  analogWrite(VALVE_OPEN,  LOW);
+}
+
+//ballast:
+void runBallast(bool direction, uint16_t speed){
+  if(direction){
+    analogWrite(BALLAST_FORWARD, speed);
+    analogWrite(BALLAST_REVERSE, LOW);
+  }else{
+    analogWrite(BALLAST_FORWARD, LOW);
+    analogWrite(BALLAST_REVERSE, speed);
+  }
+}
+
+void stopBallast(){
+  analogWrite(BALLAST_FORWARD, LOW);
+  analogWrite(BALLAST_REVERSE, LOW);
+};
+
+//cutdown:
+void cutdown(){
+  analogWrite(CUTDOWN, HIGH);
+};
+
+void stopCutdown(){
+  analogWrite(CUTDOWN, LOW);
 }

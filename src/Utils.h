@@ -1,7 +1,8 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | September 2017
+  Balloons | VALBAL | March 2018
   John Dean | deanjl@stanford.edu
+  Keegan Mehall | kmehall@stanford.edu
 
   File: Utils.h
   --------------------------
@@ -53,5 +54,8 @@ private:
   double y[3];
   Coeffs coeffs;
 };
+
+enum ValveBallastState {VALVE, BALLAST, NONE};
+
 
 #endif

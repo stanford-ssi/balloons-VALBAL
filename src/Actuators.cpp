@@ -19,14 +19,12 @@
  * This function initializes the PCB hardware.
  */
 void Actuators::init() {
-  pinMode(VALVE_FORWARD,    OUTPUT);
-  pinMode(VALVE_REVERSE,    OUTPUT);
+  pinMode(VALVE_OPEN,    OUTPUT);
+  pinMode(VALVE_CLOSE,    OUTPUT);
   pinMode(BALLAST_FORWARD,  OUTPUT);
   pinMode(BALLAST_REVERSE,  OUTPUT);
-  pinMode(CUTDOWN_POWER,    OUTPUT);
-  pinMode(CUTDOWN_SIGNAL,   OUTPUT);
-  digitalWrite(CUTDOWN_POWER, HIGH);
-  digitalWrite(CUTDOWN_SIGNAL, LOW);
+  pinMode(CUTDOWN,    OUTPUT);
+  digitalWrite(CUTDOWN, LOW);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -218,10 +216,9 @@ void Actuators::cutDown() {
   Serial.println("starting cutdown...");
   clearValveQueue();
   clearBallastQueue();
-  digitalWrite(CUTDOWN_POWER, LOW);
-  digitalWrite(CUTDOWN_SIGNAL, HIGH);
+  digitalWrite(CUTDOWN, HIGH);
   delay(CUTDOWN_DURATION);
-  digitalWrite(CUTDOWN_SIGNAL, LOW);
+  digitalWrite(CUTDOWN, HIGH);
   Serial.println("cutdown completed.");
 }
 
@@ -231,8 +228,8 @@ void Actuators::cutDown() {
  * This function stops the valve.
  */
 void Actuators::stopValve() {
-  analogWrite(VALVE_FORWARD, LOW);
-  analogWrite(VALVE_REVERSE, LOW);
+  analogWrite(VALVE_OPEN, LOW);
+  analogWrite(VALVE_CLOSE, LOW);
 }
 
 /*********************************  HELPERS  **********************************/
@@ -242,8 +239,8 @@ void Actuators::stopValve() {
  * This function starts opening the valve.
  */
 void Actuators::openValve() {
-  analogWrite(VALVE_FORWARD, LOW);
-  analogWrite(VALVE_REVERSE, valveMotorSpeedOpen);
+  analogWrite(VALVE_OPEN, LOW);
+  analogWrite(VALVE_CLOSE, valveMotorSpeedOpen);
 }
 
 /*
@@ -252,8 +249,8 @@ void Actuators::openValve() {
  * This function starts closing the valve.
  */
 void Actuators::closeValve() {
-  analogWrite(VALVE_FORWARD, valveMotorSpeedClose);
-  analogWrite(VALVE_REVERSE, LOW);
+  analogWrite(VALVE_OPEN, valveMotorSpeedClose);
+  analogWrite(VALVE_CLOSE, LOW);
 }
 
 /*

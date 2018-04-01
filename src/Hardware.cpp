@@ -1,9 +1,9 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | December 2017
+  Balloons | VALBAL | March 2018
+  Keegan Mehall | kmehall@stanford.edu
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
-  Keegan Mehall | kmehall@stanford.edu
 
   File: Hardware.cpp
   --------------------------
@@ -11,78 +11,128 @@
 */
 
 #include "Hardware.h"
+#include "Utils.h"
+#include "Output.h"
 
-/**********************************  SETUP  ***********************************/
-/*
- * Function: init
- * -------------------
- * This function initializes the PCB hardware.
- */
-void Hardware::init() {
-  analogReference(INTERNAL);
-  analogReadResolution(12);
-  wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
-  wire.setDefaultTimeout(5000);
+void Hardware::init(){
+  cutdownState = false;
+  valveState = CLOSED;
+  ballastState = false;
+  ballastDirection = false;
+  LEDOn = false;
+  output.init();
 }
 
-/********************************  FUNCTIONS  *********************************/
-/*
- * Function: runLED
- * -------------------
- * This function turns the LED on or off.
- */
-void Hardware::runLED(bool on) {
-  // if (on) {
-  //   pinMode(LED_PIN, OUTPUT);
-  //   digitalWrite(LED_PIN, LOW);
-  // }
-  // else {
-  //   pinMode(LED_PIN, INPUT);
-  // }
-}
+void Hardware::runValveBallast(ValveBallastState state,
+                               Hardware::MechanicalConstants mechConsts,
+                               float ballastCurrent){
+  bool valve = (state == VALVE);
+  bool ballast = (state == BALLAST);
+  updateValveState(valve, mechConsts);
+  updateBallastState(ballast, ballastCurrent, mechConsts);
+};
 
-/*
- * Function: cutDown
- * -------------------
- * This function triggers the mechanical cutdown of the payload.
- */
-void Hardware::cutDown() {
-  Serial.println("starting cutdown...");
-  for(size_t i = 0; i < 3; i++){
-    digitalWrite(CUTDOWN_POWER, HIGH);
-    digitalWrite(CUTDOWN_SIGNAL, HIGH);
-    delay(CUTDOWN_DURATION);
-    digitalWrite(CUTDOWN_POWER, LOW);
-    digitalWrite(CUTDOWN_SIGNAL, LOW);
+void Hardware::runCutdown(bool start){
+  uint32_t currTime = millis();
+  if(start){
+    cutdownActionEndTime = currTime + CUTDOWN_DURATION;
+    output.cutdown();
+  }else if(currTime > cutdownActionEndTime){
+    output.stopCutdown();
   }
-  Serial.println("cutdown completed.");
 }
 
-/*
- * Function: EEPROMReadlong
- * -------------------
- * This function reads an int32_t from the given address.
- */
-int32_t Hardware::EEPROMReadlong(uint8_t address) {
-  int32_t four = EEPROM.read(address);
-  int32_t three = EEPROM.read(address + 1);
-  int32_t two = EEPROM.read(address + 2);
-  int32_t one = EEPROM.read(address + 3);
-  return ((four << 0) & 0xFF) + ((three << 8) & 0xFFFF) + ((two << 16) & 0xFFFFFF) + ((one << 24) & 0xFFFFFFFF);
+/*void Hardware::updateMechanicalConstants(uint16_t valveMotorSpeedOpenValue,
+                                         uint16_t valveMotorSpeedCloseValue,
+                                         uint16_t ballastMotorSpeedValue,
+                                         uint32_t valveOpeningTimeoutValue,
+                                         uint32_t valveClosingTimeoutValue,
+                                         float    ballastStallCurrentValue){
+  valveMotorSpeedOpen = valveMotorSpeedOpenValue;
+  valveMotorSpeedClose = valveMotorSpeedCloseValue;
+  ballastMotorSpeed = ballastMotorSpeedValue;
+  valveOpeningTimeout = valveOpeningTimeoutValue;
+  valveClosingTimeout = valveClosingTimeoutValue;
+  ballastStallCurrent = ballastStallCurrentValue;
+}*/
+
+void Hardware::updateValveState(bool shouldBeOpen,
+                                Hardware::MechanicalConstants mechConsts){
+  /*  Note: in the way this code is currently written, if the valve is openning
+    and commanded to be closed it will still close the full duration even
+    though the valve may not be fully open (and the same for closing) */
+  uint32_t currTime = millis();
+
+  //if valve is closed or closing and it is supposed to be open:
+  if(shouldBeOpen && (valveState == CLOSING || valveState == CLOSED)){
+    valveState = OPENING;
+    valveActionEndTime = currTime + mechConsts.valveOpeningTimeout;
+    output.openValve(mechConsts.valveSpeedOpen);
+  }
+
+  //if valve is open or opening and it is supposed to be closed
+  if(!shouldBeOpen && (valveState == OPENING || valveState == OPEN)){
+    valveState = CLOSING;
+    valveActionEndTime = currTime + mechConsts.valveClosingTimeout;
+    output.closeValve(mechConsts.valveSpeedClose);
+  }
+
+  //if valve is openning or closing and it has already finished
+  if((valveState == OPENING || valveState == CLOSING) && currTime > valveActionEndTime){
+    output.stopValve();
+    if(valveState == OPENING){
+      valveState = OPEN;
+    }else{
+      valveState = CLOSED;
+    }
+  }
 }
 
-/*
- * Function: EEPROMWritelong
- * -------------------
- * This function writes an int32_t to the given address.
- */
-void Hardware::EEPROMWritelong(uint8_t address, int32_t value) {
-  uint8_t four = (value & 0xFF);
-  uint8_t three = ((value >> 8) & 0xFF);
-  uint8_t two = ((value >> 16) & 0xFF);
-  uint8_t one = ((value >> 24) & 0xFF);
-  EEPROM.write(address, four);
-  EEPROM.write(address + 1, three);
-  EEPROM.write(address + 2, two);
-  EEPROM.write(address + 3, one);
+void Hardware::reverseBallastDirection(Hardware::MechanicalConstants mechConsts){
+  ballastDirectionTime = 0;
+  ballastCheckTime = millis();
+  ballastDirection = !ballastDirection;
+  output.runBallast(ballastDirection, mechConsts.ballastSpeed);
+}
+
+void Hardware::updateBallastState(bool shouldBeRunning,
+                                  float current,
+                                  Hardware::MechanicalConstants mechConsts){
+  uint32_t currTime = millis();
+  //if it isn't running and it should be:
+  if(shouldBeRunning && !ballastState){
+    ballastCheckTime = currTime;
+    output.runBallast(ballastDirection, mechConsts.ballastSpeed);
+  }
+
+  //if it shouldn't be running but is:
+  if(!shouldBeRunning && ballastState){
+    ballastDirectionTime += currTime - ballastCheckTime;
+    output.stopBallast();
+  }
+
+  //if it has been running in one direction for too long
+  if(ballastState &&
+    ballastDirectionTime + currTime - ballastCheckTime
+      > mechConsts.ballastReverseInterval){
+    reverseBallastDirection(mechConsts);
+  }
+
+  //If it isn't stalled
+  if(current < mechConsts.ballastStallCurrent){
+    ballastStallTime = currTime;
+  }
+
+  //if the last time it wasn't stalled was longer ago than the timeout:
+  if(currTime - ballastStallTime > BALLAST_STALL_TIMEOUT){
+    ballastStallTime = currTime;
+    reverseBallastDirection(mechConsts);
+  }
+
+  currentLast = current;
+}
+
+void Hardware::runLED(bool powerState){
+  bool shouldBeOn = (powerState && (uint32_t(millis() / 1000.0) % 2 == 1));
+  if(shouldBeOn != LEDOn) output.runLED(shouldBeOn);
 }

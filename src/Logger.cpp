@@ -35,8 +35,11 @@ bool Logger::setupLogfile() {
   binFile.close();
   delay(2000); // REMOVE BEFORE FLIGHT
 
-  int32_t fno = Hardware::EEPROMReadlong(EEPROM_LOG_FILE_NUM);
-  int32_t cur = Hardware::EEPROMReadlong(EEPROM_LOG_BLOCK_CUR);
+  //int32_t fno = Hardware::EEPROMReadlong(EEPROM_LOG_FILE_NUM);
+  //int32_t cur = Hardware::EEPROMReadlong(EEPROM_LOG_BLOCK_CUR);
+
+
+  /*
   Serial.println("EEPROM fno is ");
   Serial.println(fno);
   Serial.println("EEPROM cur is ");
@@ -56,6 +59,7 @@ bool Logger::setupLogfile() {
     fileName[4] = '0';
     fileName[5] = '1';
   }
+  */
 
   if (!findFilename()) {
     Serial.println("[ERROR] ran out of filenames wtf");
@@ -77,8 +81,8 @@ bool Logger::setupLogfile() {
 
   curBlock = bgnBlock;
 
-  Hardware::EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, curBlock);
-  Hardware::EEPROMWritelong(EEPROM_LOG_FILE_NUM, fileNum);
+  //Hardware::EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, curBlock);
+  //Hardware::EEPROMWritelong(EEPROM_LOG_FILE_NUM, fileNum);
 
   uint8_t* builtin_cache = (uint8_t*)sd.vol()->cacheClear();
   if (builtin_cache == 0) {
@@ -119,8 +123,8 @@ bool Logger::writeCache(bool justDoIt, int max) {
       curBlock++;
 
       if (curBlock % 1000 == 0) {
-        Hardware::EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, curBlock-bgnBlock);
-        Hardware::EEPROMWritelong(EEPROM_LOG_FILE_NUM, fileNum);
+        //Hardware::EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, curBlock-bgnBlock);
+        //Hardware::EEPROMWritelong(EEPROM_LOG_FILE_NUM, fileNum);
       }
 
       avail[to_write] = true;

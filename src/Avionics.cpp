@@ -157,8 +157,8 @@ bool Avionics::setupSDCard() {
   #endif
   log.initialize();
   #ifdef RESET_EEPROM_FLAG
-    PCB.EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, 0);
-    PCB.EEPROMWritelong(EEPROM_LOG_FILE_NUM, 0);
+    //PCB.EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, 0);
+    //PCB.EEPROMWritelong(EEPROM_LOG_FILE_NUM, 0);
   #endif
 
   return log.setupLogfile();
@@ -176,8 +176,8 @@ bool Avionics::readHistory() {
     EEPROM.write(EEPROM_ROCKBLOCK, true);
     EEPROM.write(EEPROM_GPS, true);
     EEPROM.write(EEPROM_PAYLOAD, true);
-    PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
-    PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
+    //PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
+    //PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
 #endif
 #ifndef RESET_EEPROM_FLAG
   if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.POWER_STATE_RB = false;
@@ -399,7 +399,7 @@ bool Avionics::calcIncentives() {
   input.h = data.ALTITUDE_BAROMETER;
   spag2Controller.update(input2);
 
-  SpaghettiController2::State spaghetti2State = spag2Controller.getState();
+  //SpaghettiController2::State spaghetti2State = spag2Controller.getState();
 
   return success;
 }
@@ -474,7 +474,7 @@ bool Avionics::runValve() {
     if(!data.FORCE_VALVE) data.VALVE_ALT_LAST = data.ALTITUDE_BAROMETER;
     if(data.FORCE_VALVE) valveTime = data.VALVE_FORCE_DURATION;
     if(shouldValve) data.VALVE_TIME_TOTAL += valveTime;
-    PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
+    //PCB.EEPROMWritelong(EEPROM_VALVE_ALT_LAST, data.VALVE_ALT_LAST);
     actuator.queueValve(valveTime, shouldValve);
     data.FORCE_VALVE = false;
   }
@@ -506,7 +506,7 @@ bool Avionics::runBallast() {
     if(!data.FORCE_BALLAST) data.BALLAST_ALT_LAST = data.ALTITUDE_BAROMETER;
     if(data.FORCE_BALLAST) ballastTime = data.BALLAST_FORCE_DURATION;
     if(shouldBallast) data.BALLAST_TIME_TOTAL += ballastTime;
-    PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
+    //PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
     actuator.queueBallast(ballastTime, shouldBallast);
     data.FORCE_BALLAST = false;
   }

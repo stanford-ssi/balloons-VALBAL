@@ -51,13 +51,10 @@ void Avionics::init() {
  */
 void Avionics::test() {
   alert("Initializing test...", true);
-<<<<<<< HEAD
-=======
   data.MANUAL_MODE = false;
   data.SHOULD_CUTDOWN = true;
   //actuator.queueValve(30000, true);
   //actuator.queueBallast(30000, true);
->>>>>>> Change avionics to use new Hardware class instead of old avionics class
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -464,12 +461,8 @@ bool Avionics::runCharger() {
  * -------------------
  * This function actuates the valve based on the commanded action
  */
-<<<<<<< HEAD
-bool Avionics::runValve() {
-=======
  /*
-bool Avionics::runValve(){
->>>>>>> Change avionics to use new Hardware class instead of old avionics class
+bool Avionics::runValve() {
   actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
   bool shouldAct = data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE);
   uint32_t valveTime = data.VALVE_VENT_DURATION;

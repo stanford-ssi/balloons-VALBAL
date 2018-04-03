@@ -23,7 +23,6 @@
 #include "Filters.h"
 #include "Charger.h"
 #include "Hardware.h"
-#include "Actuators.h"
 #include "Controller.h"
 #include "Payload.h"
 #include <GPS.h>
@@ -42,7 +41,6 @@ public:
   Avionics() :
     superCap(),
     PCB(),
-    actuator(),
     sensors(),
     gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIMEOUT, GPS_QUIT_TIMEOUT),
     RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK),
@@ -76,8 +74,9 @@ private:
   bool    calcIncentives();
 
   bool    runCharger();
-  bool    runValve();
-  bool    runBallast();
+  /*bool    runValve();
+  bool    runBallast();*/
+  bool    runValveBallast();
   bool    runCutdown();
   bool    runLED();
   bool    runPayload();
@@ -113,7 +112,6 @@ private:
   Logger log;
   Charger superCap;
   Hardware PCB;
-  Actuators actuator;
   Sensors sensors;
   //Simulator HITL;
   Filters filter;

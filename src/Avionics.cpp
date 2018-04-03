@@ -25,7 +25,6 @@
 void Avionics::init() {
   Serial.begin(CONSOLE_BAUD);
   PCB.init();
-  actuator.init();
   if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   if(!readHistory())                          alert("unable to initialize EEPROM", true);
   if(!sensors.init())                         alert("unable to initialize Sensors", true);
@@ -52,6 +51,13 @@ void Avionics::init() {
  */
 void Avionics::test() {
   alert("Initializing test...", true);
+<<<<<<< HEAD
+=======
+  data.MANUAL_MODE = false;
+  data.SHOULD_CUTDOWN = true;
+  //actuator.queueValve(30000, true);
+  //actuator.queueBallast(30000, true);
+>>>>>>> Change avionics to use new Hardware class instead of old avionics class
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -88,8 +94,9 @@ void Avionics::evaluateState() {
  */
 void Avionics::actuateState() {
   if(!runCharger()) alert("unable to run charger", true);
-  if(!runValve())   alert("unable to run valve", true);
-  if(!runBallast()) alert("unable to run ballast", true);
+  /*if(!runValve())   alert("unable to run valve", true);
+  if(!runBallast()) alert("unable to run ballast", true);*/
+  if(!runValveBallast()) alert("unable to run valve/ballast", true);
   if(!runCutdown()) alert("unable to run cutdown", true);
   if(!runLED())     alert("unable to run LED", true);
   if(!runPayload()) alert("Unable to run payload", true);
@@ -102,7 +109,8 @@ void Avionics::actuateState() {
  */
 void Avionics::logState() {
   uint32_t t0 = millis();
-  if(!log.log(&data, actuator.valveState != actuator.OPENING)) alert("unable to log Data", true);
+  //if(!log.log(&data, actuator.valveState != actuator.OPENING)) alert("unable to log Data", true);
+  /*FIX THIS ^ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
   data.LOG_TIME = millis() - t0;
   if(!debugState())   alert("unable to debug state", true);
 }
@@ -183,9 +191,9 @@ bool Avionics::readHistory() {
   if(!EEPROM.read(EEPROM_ROCKBLOCK)) data.POWER_STATE_RB = false;
   if(!EEPROM.read(EEPROM_GPS)) data.POWER_STATE_GPS = false;
   if(!EEPROM.read(EEPROM_PAYLOAD)) data.POWER_STATE_PAYLOAD = false;
-  double valveAltLast = PCB.EEPROMReadlong(EEPROM_VALVE_ALT_LAST);
+  double valveAltLast = /*PCB.EEPROMReadlong(EEPROM_VALVE_ALT_LAST);*/0;
   if (valveAltLast != 0) data.VALVE_ALT_LAST = valveAltLast;
-  double ballastAltLast = PCB.EEPROMReadlong(EEPROM_BALLAST_ALT_LAST);
+  double ballastAltLast = /*PCB.EEPROMReadlong(EEPROM_BALLAST_ALT_LAST);*/0;
   if (ballastAltLast != 0) data.BALLAST_ALT_LAST = ballastAltLast;
 #endif
   return true;
@@ -456,7 +464,12 @@ bool Avionics::runCharger() {
  * -------------------
  * This function actuates the valve based on the commanded action
  */
+<<<<<<< HEAD
 bool Avionics::runValve() {
+=======
+ /*
+bool Avionics::runValve(){
+>>>>>>> Change avionics to use new Hardware class instead of old avionics class
   actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
   bool shouldAct = data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE);
   uint32_t valveTime = data.VALVE_VENT_DURATION;
@@ -481,13 +494,14 @@ bool Avionics::runValve() {
   data.VALVE_QUEUE = actuator.getValveQueue();
   data.VALVE_STATE = actuator.checkValve(data.CURRENT_MOTOR_VALVE);
   return true;
-}
+}*/
 
 /*
  * Function: runBallast
  * -------------------
  * This function actuates the valve based on the commanded action
  */
+ /*
 bool Avionics::runBallast() {
   actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
   bool shouldAct = data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE);
@@ -514,6 +528,21 @@ bool Avionics::runBallast() {
   data.BALLAST_NUM_OVERCURRENTS = actuator.getNumBallastOverCurrents();
   data.BALLAST_STATE = actuator.checkBallast(data.CURRENT_MOTOR_BALLAST, data.BALLAST_REVERSE_INTERVAL, data.BALLAST_STALL_CURRENT);
   return true;
+}*/
+
+bool Avionics::runValveBallast(){
+  ValveBallastState state = data.VALVE_BALLAST_STATE;
+  Hardware::MechanicalConstants mechConsts = {
+    data.VALVE_MOTOR_SPEED_OPEN,
+    data.VALVE_MOTOR_SPEED_CLOSE,
+    data.VALVE_OPENING_DURATION,
+    data.VALVE_CLOSING_DURATION,
+    data.BALLAST_MOTOR_SPEED,
+    data.BALLAST_STALL_CURRENT,
+    data.BALLAST_REVERSE_INTERVAL
+  };
+  PCB.runValveBallast(state, mechConsts, data.CURRENT_MOTOR_VALVE);
+  return true;
 }
 
 /*
@@ -523,10 +552,12 @@ bool Avionics::runBallast() {
  */
 bool Avionics::runCutdown() {
   if(data.SHOULD_CUTDOWN) {
-    actuator.cutDown();
+    PCB.runCutdown(true);
     data.SHOULD_CUTDOWN = false;
     data.CUTDOWN_STATE = true;
     alert("completed cutdown", false);
+  }else{
+    PCB.runCutdown(false);
   }
   return true;
 }
@@ -716,8 +747,9 @@ void Avionics::updateConstant(uint8_t index, float value) {
  * This function parses the manual mode command.
  */
 void Avionics::parseManualCommand(bool command) {
-  actuator.clearValveQueue();
+  /*actuator.clearValveQueue();
   actuator.clearBallastQueue();
+  THIS SHOULD PROBABLY BE REPLACED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
   data.MANUAL_MODE = command;
 }
 
@@ -748,11 +780,9 @@ void Avionics::parseSensorsCommand(uint8_t command) {
  * This function parses a forced valve command.
  */
 void Avionics::parseValveCommand(uint32_t command) {
-  if(command == 0) actuator.clearValveQueue();
-  else {
-    data.FORCE_VALVE = true;
-    data.VALVE_FORCE_DURATION = command;
-  }
+  /*
+    This should call something in the controller handler once that is written
+  */
 }
 
 /*
@@ -761,11 +791,9 @@ void Avionics::parseValveCommand(uint32_t command) {
  * This function parses a forced ballast command.
  */
 void Avionics::parseBallastCommand(uint32_t command) {
-  if(command == 0) actuator.clearBallastQueue();
-  else {
-    data.FORCE_BALLAST = true;
-    data.BALLAST_FORCE_DURATION = command;
-  }
+  /*
+    This should call something in the controller handler once that is written
+  */
 }
 
 /*
@@ -874,7 +902,8 @@ void Avionics::alert(const char* debug, bool fatal) {
  */
 void Avionics::clearVariables() {
   filter.clearCurrentValues();
-  actuator.clearBallastOverCurrents();
+  //actuator.clearBallastOverCurrents();
+  /*CHECK IF THIS LINE NEEDS TO BE REPLACED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
   data.VALVE_NUM_ACTIONS = 0;
   data.BALLAST_NUM_ACTIONS = 0;
   data.VALVE_NUM_ATTEMPTS = 0;

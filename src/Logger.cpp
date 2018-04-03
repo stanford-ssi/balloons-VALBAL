@@ -123,8 +123,8 @@ bool Logger::writeCache(bool justDoIt, int max) {
       curBlock++;
 
       if (curBlock % 1000 == 0) {
-        //Hardware::EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, curBlock-bgnBlock);
-        //Hardware::EEPROMWritelong(EEPROM_LOG_FILE_NUM, fileNum);
+    //    Hardware::EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, curBlock-bgnBlock);
+    //    Hardware::EEPROMWritelong(EEPROM_LOG_FILE_NUM, fileNum);
       }
 
       avail[to_write] = true;

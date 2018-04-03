@@ -12,6 +12,7 @@
 #define data_H
 
 #include "Config.h"
+#include "Utils.h"
 
 /**************************  CURRENT DATA FRAME  ******************************/
 struct DataFrame {
@@ -64,6 +65,7 @@ struct DataFrame {
   bool       MANUAL_MODE                     =              MANUAL_MODE_DEFAULT;
   uint8_t    REPORT_MODE                     =              REPORT_MODE_DEFAULT;
   bool       SHOULD_REPORT                   =                            false;
+  ValveBallastState VALVE_BALLAST_STATE      =                             NONE;
 
 /*****************************  SECONDARY DATA  *******************************/
   bool       POWER_STATE_LED                 =                             true;

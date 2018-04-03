@@ -57,5 +57,4 @@ private:
 
 enum ValveBallastState {VALVE, BALLAST, NONE};
 
-
 #endif

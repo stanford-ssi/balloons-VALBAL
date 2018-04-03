@@ -1,7 +1,8 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | December 2017
+  Balloons | VALBAL | March 2018
   Davy Ragland | dragland@stanford.edu
+  Keegan Mehall | kmehall@stanford.edu
 
   File: Config.h
   --------------------------
@@ -48,6 +49,7 @@ static const uint8_t   MOTORS_CURRENT                        =                3;
 static const uint8_t   PAYLOAD_CURRENT                       =                4;
 static const uint8_t   EXT_TEMP_SENSOR                       =              A20;
 static const uint8_t   CUTDOWN                               =              A15;//Renamed from CUTDOWN_SIGNAL
+static const uint8_t   LED_PIN                               =              255;//THIS ISN'T RIGHT
 
 /****************************  EDITABLE CONSTANTS  ****************************/
 static const char      MISSION_NUMBER[]                      =         "SSI-63";

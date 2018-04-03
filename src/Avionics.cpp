@@ -26,6 +26,14 @@ void Avionics::init() {
   Serial.begin(CONSOLE_BAUD);
   PCB.init();
   actuator.init();
+  delay(5000);
+  Serial.println("setting led");
+  pinMode(36, OUTPUT);
+  digitalWrite(36, HIGH);
+  delay(1000);
+  Serial.println("setting high fdskajokf kjafd asjklfjdakls f");
+  pinMode(57, OUTPUT);
+  digitalWrite(57, HIGH);
   // if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   // if(!readHistory())                          alert("unable to initialize EEPROM", true);
   //if(!sensors.init())                         alert("unable to initialize Sensors", true);
@@ -43,7 +51,7 @@ void Avionics::init() {
 #ifndef RB_DISABLED_FLAG
   //if(!RBModule.init(data.POWER_STATE_RB))     alert("unable to initialize RockBlock", true);
 #endif
-  if(!payload.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
+  //if(!payload.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
   data.TIME = millis();
   data.SETUP_STATE = false;
 }
@@ -71,7 +79,7 @@ void Avionics::updateState() {
 //   if(!simulateData()) alert("unable to simulate Data", true);
 // #endif
 //   if(!processData())  alert("unable to process Data", true);
-  currentSensor.read_voltage(DIFF_14_15);
+  currentSensor.read_voltage(DIFF_12_13);
   delay(LOOP_INTERVAL);
 }
 

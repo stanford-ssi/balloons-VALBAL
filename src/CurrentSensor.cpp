@@ -5,6 +5,7 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
   // setup chip select
   chip_select = chip_select_pin;
   pinMode(chip_select_pin, OUTPUT);
+  digitalWrite(chip_select_pin, HIGH);
   SPI.begin();
 
   // configure the sensor how we want to
@@ -56,12 +57,13 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
 
 uint16_t CurrentSensor::read_write_data(uint16_t data) {
   SPI.beginTransaction(current_sensor_settings);
-  digitalWrite(chip_select, HIGH);
+  //digitalWrite(chip_select, HIGH);
   digitalWrite(chip_select, LOW); // falling edge triggers data i/o
-  uint16_t received = SPI.transfer(data);
+  uint16_t received = SPI.transfer16(data);
   digitalWrite(chip_select, HIGH);
-  digitalWrite(chip_select, LOW);
+  //digitalWrite(chip_select, LOW);
   SPI.endTransaction();
+  Serial.print("Got ");
   Serial.println(received);
   return received;
 }
@@ -117,9 +119,15 @@ float CurrentSensor::read_voltage(current_sensor_channel_t channel) {
   //if (result_channel != channel) return -2.22222; // there was a mistake, but we won't tell youuuuu
 
   int16_t data = raw_data & 0xfff; // lower 12 bits in 2's complement representing voltage
+  Serial.print("ultra raw: ");
+  Serial.println(raw_data);
+  Serial.print("raw: ");
+  Serial.println(data);
   // convert raw_data to full 16 bit signed int
   data = (data * (1 << 4))/(1<<4); // move the signed bits over 4 places (to the MSB of the 16-bit int) and
                                   // then perfrom an arithmetic right shift by dividing by the same amount
+                                  Serial.print("voltage: ");
+                                  Serial.println((CURRENT_SENSOR_VREF / 2) * ( (float) data / CURRENT_SENSOR_MAX_BIP), 6);
   return (CURRENT_SENSOR_VREF / 2) * ( (float) data / CURRENT_SENSOR_MAX_BIP);
 
 

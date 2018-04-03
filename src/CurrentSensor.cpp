@@ -7,17 +7,23 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
   pinMode(chip_select_pin, OUTPUT);
   digitalWrite(chip_select_pin, HIGH);
   SPI.begin();
+  delay(1);
 
+  // reset config to defaults
+  read_write_data(2<<5); // from https://github.com/emard/max1112x-test/blob/master/max1112x-test.ino
   // configure the sensor how we want to
-
   current_sensor_config_reg_t config_reg;
   config_reg.SETUP = CURRENT_SENSOR_CONFIG;
-  config_reg.REFSEL = 1; // external differential
+  config_reg.REFSEL = 0; // external differential
+  config_reg.AVGON = 0;
+  config_reg.NAVG = 0;
+  config_reg.NSCAN = 0;
   config_reg.SPM = 0; // keep the sensor powered on all the time for now QUESTION
   config_reg.ECHO = 1;
   config_reg.EMPTY = 0;
+  Serial.print("Config register: ");
   Serial.println(*(uint16_t *)&config_reg);
-  Serial.println(set_config_reg(config_reg));
+  set_config_reg(config_reg);
 
   // we have a few options, either we can scan all the channels, we can
   // preset the ones we want, or we can specifiy which one to scan at a
@@ -31,7 +37,10 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
     mode_reg.RESET = 0;
     mode_reg.PM = 0; // we can change this as we need to conserve battery (see table )
     mode_reg.CHAN_ID = 1; // so we can see the channel we're getting back from the output
+    //Serial.println(*(uint16_t *)&mode_reg);
+    Serial.print("Mode reg: ");
     Serial.println(*(uint16_t *)&mode_reg);
+    delay(10);
     Serial.println(set_mode_control(mode_reg));
   }
 
@@ -48,8 +57,16 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
   bipolar_reg.AIN_10_11 = USING_CHANNEL_DIFF_10_11;
   bipolar_reg.AIN_12_13 = USING_CHANNEL_DIFF_12_13;
   bipolar_reg.AIN_14_15 = USING_CHANNEL_DIFF_14_15;
+  Serial.print("Bipolar register: ");
   Serial.println(*(uint16_t *)&bipolar_reg);
   set_bipolar_reg(bipolar_reg);
+
+  current_sensor_diff_reg_t range_reg;
+  range_reg.SETUP = CURRENT_SENSOR_RANGE;
+  range_reg.AIN_12_13 = 1;
+  Serial.print("Range register: ");
+  Serial.println(*(uint16_t *)&range_reg);
+  set_range_reg(range_reg);
 
 
   return true;
@@ -100,7 +117,9 @@ uint16_t CurrentSensor::read_data(current_sensor_channel_t channel) {
   mode_reg.RESET = 0;
   mode_reg.PM = 0;
   mode_reg.CHAN_ID = 1;
+  Serial.println(*(uint16_t *)&mode_reg);
   set_mode_control(mode_reg); // first write is to select the channel
+  delay(1);
   uint16_t result = set_mode_control(mode_reg); // next write is to get the output
   //Serial.println(result);
   return result;

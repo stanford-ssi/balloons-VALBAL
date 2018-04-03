@@ -17,6 +17,12 @@
   --------------------------
   Flight code for main VALBAL avionics.
 */
+extern "C"{
+  int _getpid(){ return -1;}
+  int _kill(int pid, int sig){ return -1; }
+  int _write(){return -1;}
+}
+
 
 #include "Avionics.h"
 
@@ -27,10 +33,10 @@ int main(void) {
 /***********************************  MAIN  ***********************************/
   while(true) {
     VALBAL.updateState();
-    VALBAL.evaluateState();
-    VALBAL.actuateState();
-    VALBAL.logState();
-    VALBAL.sendComms();
+    // VALBAL.evaluateState();
+    // VALBAL.actuateState();
+    // VALBAL.logState();
+    // VALBAL.sendComms();
     VALBAL.sleep();
   }
   return 0;
@@ -40,9 +46,9 @@ int main(void) {
 bool ISBDCallback() {
   if(VALBAL.finishedSetup()) {
     VALBAL.updateState();
-    VALBAL.evaluateState();
-    VALBAL.actuateState();
-    VALBAL.logState();
+    // VALBAL.evaluateState();
+    // VALBAL.actuateState();
+    // VALBAL.logState();
     VALBAL.sleep();
   }
   return true;

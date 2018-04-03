@@ -19,6 +19,7 @@
 #include "Cutdown.h"
 #include "Data.h"
 #include "Sensors.h"
+#include "CurrentSensor.h"
 //#include "Simulator.h"
 #include "Filters.h"
 #include "Charger.h"
@@ -115,6 +116,7 @@ private:
   Hardware PCB;
   Actuators actuator;
   Sensors sensors;
+  CurrentSensor currentSensor;
   //Simulator HITL;
   Filters filter;
   Controller computer;

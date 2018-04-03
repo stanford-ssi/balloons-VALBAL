@@ -23,6 +23,7 @@
 
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   SD_CS                                 =               23;
+static const uint8_t   CURRENT_MONITOR_CS                    =               40;
 static const uint8_t   BMP_CS_ONE                            =               32;
 static const uint8_t   BMP_CS_TWO                            =               25;
 static const uint8_t   BMP_CS_THREE                          =               15;
@@ -176,9 +177,10 @@ static const bool      USING_CHANNEL_DIFF_0_1                =            false;
 static const bool      USING_CHANNEL_DIFF_2_3                =            false;
 static const bool      USING_CHANNEL_DIFF_4_5                =            false;
 static const bool      USING_CHANNEL_DIFF_6_7                =            false;
-static const bool      USING_CHANNEL_DIFF_8_9                =            false;
-static const bool      USING_CHANNEL_DIFF_10_11              =            false;
-static const bool      USING_CHANNEL_DIFF_12_13              =            false;
-static const bool      USING_CHANNEL_DIFF_14_15              =            false;
+static const bool      USING_CHANNEL_DIFF_8_9                =            true;
+static const bool      USING_CHANNEL_DIFF_10_11              =            true;
+static const bool      USING_CHANNEL_DIFF_12_13              =            true;
+static const bool      USING_CHANNEL_DIFF_14_15              =            true;
+
 
 #endif

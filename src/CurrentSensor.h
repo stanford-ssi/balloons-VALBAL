@@ -39,13 +39,21 @@ When using internal Clock (need CNVST?) are we doing this?
 
 // bit field - Table 2
 typedef struct {
-  uint16_t REG_CNTL: 1;
-  uint16_t SCAN    : 4;
-  uint16_t CHSEL   : 4;
-  uint16_t RESET   : 2;
-  uint16_t PM      : 2;
-  uint16_t CHAN_ID : 1;
+  uint16_t EMPTY   : 1; // this isn't used
   uint16_t SWCNV   : 1;
+  uint16_t CHAN_ID : 1;
+  uint16_t PM      : 2;
+  uint16_t RESET   : 2;
+  uint16_t CHSEL   : 4;
+  uint16_t SCAN    : 4;
+  uint16_t REG_CNTL: 1;
+  // uint16_t REG_CNTL: 1;
+  // uint16_t SCAN    : 4;
+  // uint16_t CHSEL   : 4;
+  // uint16_t RESET   : 2;
+  // uint16_t PM      : 2;
+  // uint16_t CHAN_ID : 1;
+  // uint16_t SWCNV   : 1;
 } current_sensor_mode_control_t;
 
 // Table 3
@@ -94,13 +102,21 @@ enum {
 
 // bit field - Table 6
 typedef struct {
-  uint16_t SETUP       : 5;
-  uint16_t REFSEL      : 1;
-  uint16_t AVGON       : 1; // Internal Clock Mode ONLY
-  uint16_t NAVG        : 2; // Internal Clock Mode ONLY
-  uint16_t NSCAN       : 2; // Repeat Mode ONLY
-  uint16_t SPM         : 2;
+  uint16_t EMPTY       : 2; // this isn't used
   uint16_t ECHO        : 1;
+  uint16_t SPM         : 2;
+  uint16_t NSCAN       : 2; // Repeat Mode ONLY
+  uint16_t NAVG        : 2; // Internal Clock Mode ONLY
+  uint16_t AVGON       : 1; // Internal Clock Mode ONLY
+  uint16_t REFSEL      : 1;
+  uint16_t SETUP       : 5;
+  // uint16_t SETUP       : 5;
+  // uint16_t REFSEL      : 1;
+  // uint16_t AVGON       : 1; // Internal Clock Mode ONLY
+  // uint16_t NAVG        : 2; // Internal Clock Mode ONLY
+  // uint16_t NSCAN       : 2; // Repeat Mode ONLY
+  // uint16_t SPM         : 2;
+  // uint16_t ECHO        : 1;
 } current_sensor_config_reg_t;
 
 
@@ -112,36 +128,37 @@ typedef struct {
 
 // bitfield - table 7, 10, 11
 typedef struct {
-  uint16_t SETUP: 5;
-  uint16_t AIN_0_1:    1;
-  uint16_t AIN_2_3:    1;
-  uint16_t AIN_4_5:    1;
-  uint16_t AIN_6_7:    1;
-  uint16_t AIN_8_9:    1;
-  uint16_t AIN_10_11:  1;
-  uint16_t AIN_12_13:  1;
-  uint16_t AIN_14_15:  1;
+  uint16_t EMPTY:      1; // this isn't used
   uint16_t PDIF_COM:   1; // only valid for UNIPOLAR REGISTER
+  uint16_t AIN_14_15:  1;
+  uint16_t AIN_12_13:  1;
+  uint16_t AIN_10_11:  1;
+  uint16_t AIN_8_9:    1;
+  uint16_t AIN_6_7:    1;
+  uint16_t AIN_4_5:    1;
+  uint16_t AIN_2_3:    1;
+  uint16_t AIN_0_1:    1;
+  uint16_t SETUP: 5;
 } current_sensor_diff_reg_t;
 
 
 /* CUSTOM REGISTERS - table 12, 13 */
 typedef struct {
-  uint16_t SETUP: 5;
-  uint16_t CHSCAN_15_7:  1;
-  uint16_t CHSCAN_14_6:  1;
-  uint16_t CHSCAN_13_5:  1;
-  uint16_t CHSCAN_12_4:  1;
-  uint16_t CHSCAN_11_3:  1;
-  uint16_t CHSCAN_10_2:  1;
-  uint16_t CHSCAN_9_1:   1;
   uint16_t CHSCAN_8_0:   1;
+  uint16_t CHSCAN_9_1:   1;
+  uint16_t CHSCAN_10_2:  1;
+  uint16_t CHSCAN_11_3:  1;
+  uint16_t CHSCAN_12_4:  1;
+  uint16_t CHSCAN_13_5:  1;
+  uint16_t CHSCAN_14_6:  1;
+  uint16_t CHSCAN_15_7:  1;
+  uint16_t SETUP: 5;
 } current_sensor_custom_reg_t;
 
 /* SampleSet Register */
 typedef struct {
-  uint16_t SETUP: 5;
   uint16_t SEQLEN: 8;
+  uint16_t SETUP: 5;
 } current_sensor_sampleset_reg_t;
 
 typedef enum {

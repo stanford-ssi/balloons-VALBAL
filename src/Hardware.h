@@ -14,7 +14,7 @@
 
 #include "Config.h"
 #include <EEPROM.h>
-#include <LTC2991.h>
+#include <i2c_t3.h>
 
 class Hardware {
 public:

@@ -30,8 +30,8 @@ bool AD5246::init() {
  * This function sets the resistor to the specified hex value.
  */
 bool AD5246::setResistance(uint8_t hex) {
-  wire.beginTransmission(ADDRESS);
-  wire.write(byte(hex));
-  wire.endTransmission();
+  Wire.beginTransmission(ADDRESS);
+  Wire.write(byte(hex));
+  Wire.endTransmission();
   return true;
 }

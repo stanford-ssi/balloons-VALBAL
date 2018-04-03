@@ -5,9 +5,9 @@
   Claire Huang | chuang20@stanford.edu
   Keegan Mehall | kmehall@stanford.edu
 
-  File: ValbalOutput.h
+  File: Output.cpp
   --------------------------
-  Implimentation of ValbalOutput.h
+  Implimentation of Output.h
 */
 
 #include "Output.h"
@@ -79,18 +79,18 @@ void Output::openValve(uint16_t speed){
   analogWrite(VALVE_OPEN,  speed);
 }
 
-void closeValve(uint16_t speed){
+void Output::closeValve(uint16_t speed){
   analogWrite(VALVE_CLOSE, speed);
   analogWrite(VALVE_OPEN,  LOW);
 }
 
-void stopValve(){
+void Output::stopValve(){
   analogWrite(VALVE_CLOSE, LOW);
   analogWrite(VALVE_OPEN,  LOW);
 }
 
 //ballast:
-void runBallast(bool direction, uint16_t speed){
+void Output::runBallast(bool direction, uint16_t speed){
   if(direction){
     analogWrite(BALLAST_FORWARD, speed);
     analogWrite(BALLAST_REVERSE, LOW);
@@ -100,16 +100,16 @@ void runBallast(bool direction, uint16_t speed){
   }
 }
 
-void stopBallast(){
+void Output::stopBallast(){
   analogWrite(BALLAST_FORWARD, LOW);
   analogWrite(BALLAST_REVERSE, LOW);
 };
 
 //cutdown:
-void cutdown(){
+void Output::cutdown(){
   analogWrite(CUTDOWN, HIGH);
 };
 
-void stopCutdown(){
+void Output::stopCutdown(){
   analogWrite(CUTDOWN, LOW);
 }

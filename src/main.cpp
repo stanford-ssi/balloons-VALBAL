@@ -30,11 +30,12 @@ extern "C"{
 Avionics VALBAL;
 int main(void) {
   VALBAL.init();
+  VALBAL.test();
 /***********************************  MAIN  ***********************************/
   while(true) {
     VALBAL.updateState();
-    // VALBAL.evaluateState();
-    // VALBAL.actuateState();
+    VALBAL.evaluateState();
+    VALBAL.actuateState();
     // VALBAL.logState();
     // VALBAL.sendComms();
     VALBAL.sleep();

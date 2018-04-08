@@ -19,7 +19,7 @@
 //#define STORAGE_MODE_FLAG // uncomment for power off
 #define RESET_EEPROM_FLAG // uncomment for EEPROM reset
 // #define HITL_ENABLED_FLAG // uncomment for HITL
-// #define RB_DISABLED_FLAG  // uncomment to disable rockblock
+#define RB_DISABLED_FLAG  // uncomment to disable rockblock
 
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   SD_CS                                 =               23;
@@ -28,10 +28,10 @@ static const uint8_t   BMP_CS_ONE                            =               32;
 static const uint8_t   BMP_CS_TWO                            =               25;
 static const uint8_t   BMP_CS_THREE                          =               15;
 static const uint8_t   BMP_CS_FOUR                           =               22;
-static const uint8_t   VALVE_FORWARD                         =               20;
-static const uint8_t   VALVE_REVERSE                         =                6;
-static const uint8_t   BALLAST_FORWARD                       =               21;
-static const uint8_t   BALLAST_REVERSE                       =                5;
+static const uint8_t   VALVE_FORWARD                         =               16;
+static const uint8_t   VALVE_REVERSE                         =                4;
+static const uint8_t   BALLAST_FORWARD                       =               42;
+static const uint8_t   BALLAST_REVERSE                       =                3;
 static const uint8_t   GPS_GATE                              =               17;
 static const uint8_t   RB_GATE                               =               28;
 static const uint8_t   RB_SLEEP                              =               14;
@@ -41,8 +41,8 @@ static const uint8_t   PAYLOAD_GPIO_2                        =               27;
 static const uint8_t   PAYLOAD_DAC                           =              A14;
 static const uint8_t   BATT_VOLTAGE                          =              A11;
 static const uint8_t   SUPER_CAP_VOLTAGE                     =              A10;
-static const uint8_t   SUPER_CAP_ENABLE                      =               16;
-static const uint8_t   FIVE_VOLT_ENABLE                      =                4;
+static const uint8_t   SUPER_CAP_ENABLE                      =               50;
+static const uint8_t   FIVE_VOLT_ENABLE                      =               56;
 static const uint8_t   TOTAL_CURRENT                         =                1;
 static const uint8_t   RB_CURRENT                            =                2;
 static const uint8_t   MOTORS_CURRENT                        =                3;
@@ -92,7 +92,7 @@ static const float     INCENTIVE_THRESHOLD_DEFAULT           =             0.75;
 static const float     RE_ARM_DEFAULT                        =                0;
 static const float     BALLAST_ARM_ALT_DEFAULT               =          13250.0;
 static const float     BALLAST_ALT_LAST_FILLER               =          14000.0;
-static const uint32_t  BALLAST_REVERSE_INTERVAL_DEFAULT      =           600000;
+static const uint32_t  BALLAST_REVERSE_INTERVAL_DEFAULT      =             5000;
 static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              140;
 
 static const float     VALVE_SETPOINT_DEFAULT                =          14500.0;

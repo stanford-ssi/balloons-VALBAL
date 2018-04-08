@@ -61,6 +61,9 @@ void Actuators::queueValve(uint32_t  duration, bool real) {
  * for the mechanical ballast mechanism.
  */
 void Actuators::queueBallast(uint32_t  duration, bool real) {
+  Serial.print("Just queued");
+  Serial.print(duration);
+  Serial.println("ms of ballast");
   if(real) ballastQueue += duration;
   else ballastQueueFake += duration;
 }
@@ -81,6 +84,7 @@ void Actuators::clearValveQueue() {
  * This clears any queued ballast times.
  */
 void Actuators::clearBallastQueue() {
+  Serial.println("Just cleared ballast queue");
   ballastQueue = 0;
   ballastQueueFake = 0;
 }
@@ -92,6 +96,9 @@ void Actuators::clearBallastQueue() {
  * Called every loop; updates and acts on the current state of the valve.
  */
 bool Actuators::checkValve(float current) {
+  Serial.print("Called checkValve with ");
+  Serial.print(valveQueue);
+  Serial.println(" in valveQueue");
   if (valveState == CLOSED) {
     if (valveQueue == 0) {
       uint32_t deltaTime = (millis() - valveCheckTime);
@@ -135,6 +142,10 @@ bool Actuators::checkValve(float current) {
  * Called every loop; updates and acts on the current state of the ballast.
  */
 bool Actuators::checkBallast(float current, uint32_t reverseTimeout, uint16_t stallCurrent) {
+  // Serial.print("Called checkBallast with ");
+  // Serial.print(ballastQueue);
+  // Serial.print(" in ballastQueue and direction ");
+  Serial.println(ballastDirection);
   if (ballastState == CLOSED) {
     if (ballastQueue == 0) {
       uint32_t deltaTime = (millis() - ballastCheckTime);
@@ -231,8 +242,9 @@ void Actuators::cutDown() {
  * This function stops the valve.
  */
 void Actuators::stopValve() {
-  analogWrite(VALVE_FORWARD, LOW);
-  analogWrite(VALVE_REVERSE, LOW);
+  Serial.println("--- STOPPING VALVE ---");
+  analogWrite(VALVE_FORWARD, HIGH);
+  analogWrite(VALVE_REVERSE, HIGH);
 }
 
 /*********************************  HELPERS  **********************************/
@@ -242,6 +254,7 @@ void Actuators::stopValve() {
  * This function starts opening the valve.
  */
 void Actuators::openValve() {
+  Serial.println("--- OPEN VALVE ---");
   analogWrite(VALVE_FORWARD, LOW);
   analogWrite(VALVE_REVERSE, valveMotorSpeedOpen);
 }
@@ -252,6 +265,7 @@ void Actuators::openValve() {
  * This function starts closing the valve.
  */
 void Actuators::closeValve() {
+  Serial.println("--- CLOSE VALVE ---");
   analogWrite(VALVE_FORWARD, valveMotorSpeedClose);
   analogWrite(VALVE_REVERSE, LOW);
 }

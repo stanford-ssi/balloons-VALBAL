@@ -129,6 +129,7 @@ uint16_t CurrentSensor::read_data(current_sensor_channel_t channel) {
 }
 
 float CurrentSensor::read_voltage(current_sensor_channel_t channel) {
+  return 0; // shut up current sensor
   // read the raw data over SPI
   uint16_t raw_data = read_data(channel);
 

@@ -31,7 +31,7 @@ void Avionics::init() {
   pinMode(36, OUTPUT);
   digitalWrite(36, HIGH);
   delay(1000);
-  Serial.println("setting high fdskajokf kjafd asjklfjdakls f");
+  Serial.println("setting payload high");
   pinMode(57, OUTPUT);
   digitalWrite(57, HIGH);
   // if(!setupSDCard())                          alert("unable to initialize SD Card", true);
@@ -40,17 +40,21 @@ void Avionics::init() {
   delay(5000);
   Serial.println("Serial has been init");
   if(!currentSensor.init(CURRENT_MONITOR_CS)) alert("unable to initialize Current Sensor", true);
-#ifdef HITL_ENABLED_FLAG
-  if(!HITL.init())                            alert("unable to initialize Simulations", true);
-#endif
+// #ifdef HITL_ENABLED_FLAG
+//   if(!HITL.init())                            alert("unable to initialize Simulations", true);
+// #endif
   if(!filter.init())                          alert("unable to initialize Filters", true);
   if(!computer.init())                        alert("unable to initialize Flight Controller", true);
   //if(!gpsModule.init(data.POWER_STATE_GPS))   alert("unable to initialize GPS", true);
   //if(!superCap.init())                        alert("unable to initialize superCap", true);
   //if(!setup5VLine())                          alert("unable to initialize 5V line", true);
-#ifndef RB_DISABLED_FLAG
-  //if(!RBModule.init(data.POWER_STATE_RB))     alert("unable to initialize RockBlock", true);
-#endif
+  pinMode(49, OUTPUT);
+  digitalWrite(49, HIGH);
+  pinMode(56, OUTPUT);
+  digitalWrite(56, HIGH);
+// #ifndef RB_DISABLED_FLAG
+//   //if(!RBModule.init(data.POWER_STATE_RB))     alert("unable to initialize RockBlock", true);
+// #endif
   //if(!payload.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
   data.TIME = millis();
   data.SETUP_STATE = false;
@@ -63,6 +67,7 @@ void Avionics::init() {
  */
 void Avionics::test() {
   alert("Initializing test...", true);
+  actuator.queueValve(24000, true);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -105,7 +110,7 @@ void Avionics::actuateState() {
   if(!runBallast()) alert("unable to run ballast", true);
   if(!runCutdown()) alert("unable to run cutdown", true);
   if(!runLED())     alert("unable to run LED", true);
-  if(!runPayload()) alert("Unable to run payload", true);
+  //if(!runPayload()) alert("Unable to run payload", true);
 }
 
 /*

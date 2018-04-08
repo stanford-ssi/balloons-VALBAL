@@ -21,7 +21,7 @@ bool Charger::init() {
   pinMode(SUPER_CAP_ENABLE, OUTPUT);
   pinMode(FIVE_VOLT_ENABLE, OUTPUT);
   digitalWrite(SUPER_CAP_ENABLE, LOW);
-  digitalWrite(FIVE_VOLT_ENABLE, LOW);
+  //digitalWrite(FIVE_VOLT_ENABLE, LOW);
   if (resistor.init()){
     chargingLimit = 3;
     digitalWrite(SUPER_CAP_ENABLE, HIGH);
@@ -46,7 +46,7 @@ void Charger::enable5VBoost() {
  * This function disables the 5 Volt line.
  */
 void Charger::disable5VBoost() {
-  digitalWrite(FIVE_VOLT_ENABLE, LOW);
+  //digitalWrite(FIVE_VOLT_ENABLE, LOW);
 }
 
 /*

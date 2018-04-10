@@ -104,8 +104,7 @@ void Avionics::actuateState() {
  */
 void Avionics::logState() {
   uint32_t t0 = millis();
-  //if(!log.log(&data, actuator.valveState != actuator.OPENING)) alert("unable to log Data", true);
-  /*FIX THIS ^ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+  if(!log.log(&data, sizeof(DataFrame))) alert("unable to log Data", true);
   data.LOG_TIME = millis() - t0;
   if(!debugState())   alert("unable to debug state", true);
 }

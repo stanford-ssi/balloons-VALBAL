@@ -137,3 +137,7 @@ void Hardware::runLED(bool powerState){
   bool shouldBeOn = (powerState && (uint32_t(millis() / 1000.0) % 2 == 1));
   if(shouldBeOn != LEDOn) output.runLED(shouldBeOn);
 }
+
+void Hardware::clearBallastOverCurrents(){
+  numBallastOverCurrents = 0;
+}

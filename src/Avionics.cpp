@@ -825,8 +825,7 @@ void Avionics::alert(const char* debug, bool fatal) {
  */
 void Avionics::clearVariables() {
   filter.clearCurrentValues();
-  //actuator.clearBallastOverCurrents();
-  /*CHECK IF THIS LINE NEEDS TO BE REPLACED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+  PCB.clearBallastOverCurrents();
   data.VALVE_NUM_ACTIONS = 0;
   data.BALLAST_NUM_ACTIONS = 0;
   data.VALVE_NUM_ATTEMPTS = 0;

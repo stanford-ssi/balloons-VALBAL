@@ -34,6 +34,7 @@ public:
                        Hardware::MechanicalConstants mechConsts,
                        float ballastCurrent);
   void runCutdown(bool start);
+  void clearBallastOverCurrents();
 
 /********************************  FUNCTIONS  *********************************/
   void            runLED(bool on);

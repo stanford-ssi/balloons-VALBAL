@@ -108,7 +108,7 @@ void Output::stopBallast(){
 //cutdown:
 void Output::cutdown(){
   analogWrite(CUTDOWN, HIGH);
-};
+}
 
 void Output::stopCutdown(){
   analogWrite(CUTDOWN, LOW);

@@ -671,7 +671,8 @@ void Avionics::updateConstant(uint8_t index, float value) {
 void Avionics::parseManualCommand(bool command) {
   /*actuator.clearValveQueue();
   actuator.clearBallastQueue();
-  THIS SHOULD PROBABLY BE REPLACED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+  THIS SHOULD PROBABLY BE REPLACED***********************************
+  Replace this with something in the new controller handler class*/
   data.MANUAL_MODE = command;
 }
 

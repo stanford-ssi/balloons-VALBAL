@@ -91,8 +91,6 @@ void Avionics::evaluateState() {
  */
 void Avionics::actuateState() {
   if(!runCharger()) alert("unable to run charger", true);
-  /*if(!runValve())   alert("unable to run valve", true);
-  if(!runBallast()) alert("unable to run ballast", true);*/
   if(!runValveBallast()) alert("unable to run valve/ballast", true);
   if(!runCutdown()) alert("unable to run cutdown", true);
   if(!runLED())     alert("unable to run LED", true);

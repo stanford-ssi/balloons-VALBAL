@@ -229,9 +229,10 @@ void Actuators::cutDown() {
   Serial.println("starting cutdown...");
   clearValveQueue();
   clearBallastQueue();
-  digitalWrite(CUTDOWN_POWER, LOW);
+  digitalWrite(CUTDOWN_POWER, HIGH);
   digitalWrite(CUTDOWN_SIGNAL, HIGH);
   delay(CUTDOWN_DURATION);
+  digitalWrite(CUTDOWN_POWER, LOW);
   digitalWrite(CUTDOWN_SIGNAL, LOW);
   Serial.println("cutdown completed.");
 }

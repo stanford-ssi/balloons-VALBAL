@@ -215,6 +215,8 @@ private:
   uint16_t read_write_data(uint16_t data);
   uint8_t chip_select;
   SPISettings current_sensor_settings;
+  current_sensor_config_reg_t config_manual_reg;
+  current_sensor_config_reg_t config_repeat_reg;
 
 
 };

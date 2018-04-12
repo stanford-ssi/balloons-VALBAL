@@ -13,6 +13,11 @@
 #define UTILS_H
 
 /*
+Jank precompiler defined abs
+*/
+#define jankabs(x) ((x>0)-(x<0))*x
+
+/*
  * class: Biquad
  * -------------------
  * Implementation of a biquad IIR filter.

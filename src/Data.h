@@ -12,6 +12,7 @@
 #define data_H
 
 #include "Config.h"
+#include "LasagnaController.h"
 
 /**************************  CURRENT DATA FRAME  ******************************/
 struct DataFrame {
@@ -185,13 +186,14 @@ struct DataFrame {
   float     SPAG_B_SS_ERROR_THRESH           =  SPAG_B_SS_ERROR_THRESH_DEFAULT ;
   float     SPAG_KFUSE                       =               SPAG_KFUSE_DEFAULT;
   float     SPAG_KFUSE_V                     =             SPAG_KFUSE_V_DEFAULT;
-
+  LasagnaController::Constants LAS_CONSTANTS;
+  LasagnaController::State LAS_STATE;
   float     OVERPRESSURE                     =                                0;
 
 } __attribute__((packed));
 
 #include <assert.h>
 
-static_assert(sizeof(DataFrame) < 512, "ohp dataframe too big");
+static_assert(sizeof(DataFrame) < 600, "ohp dataframe too big");
 
 #endif

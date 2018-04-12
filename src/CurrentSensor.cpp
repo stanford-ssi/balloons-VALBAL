@@ -22,20 +22,20 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
   config_manual_reg.SPM = 0; // keep the sensor powered on all the time for now QUESTION
   config_manual_reg.ECHO = 1;
   config_manual_reg.EMPTY = 0;
-  Serial.print("Config register: ");
-  Serial.println(*(uint16_t *)&config_manual_reg);
+  // Serial.print("Config register: ");
+  // Serial.println(*(uint16_t *)&config_manual_reg);
   set_config_reg(config_manual_reg);
 
 
   // set up the sensor's configuration for repeat mode.
-  config_repeat_reg.SETUP = CURRENT_SENSOR_CONFIG;
-  config_repeat_reg.REFSEL = 0; // external differential
-  config_repeat_reg.AVGON = 1;
-  config_repeat_reg.NAVG = 3; // average 32 conversions
-  config_repeat_reg.NSCAN = 3; // return 16 results in repeat mode
-  config_repeat_reg.SPM = 0; // keep the sensor powered on all the time for now
-  config_repeat_reg.ECHO = 1;
-  config_repeat_reg.EMPTY = 0;
+  // config_repeat_reg.SETUP = CURRENT_SENSOR_CONFIG;
+  // config_repeat_reg.REFSEL = 0; // external differential
+  // config_repeat_reg.AVGON = 1;
+  // config_repeat_reg.NAVG = 3; // average 32 conversions
+  // config_repeat_reg.NSCAN = 3; // return 16 results in repeat mode
+  // config_repeat_reg.SPM = 0; // keep the sensor powered on all the time for now
+  // config_repeat_reg.ECHO = 1;
+  // config_repeat_reg.EMPTY = 0;
   // Serial.print("Config register: ");
   // Serial.println(*(uint16_t *)&config_repeat_reg);
   // set_config_reg(config_repeat_reg);
@@ -48,17 +48,19 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
   for (int channel = 8; channel < 16; channel++) {
     // initialize all the channels (this can change to just initializing the ones we want) QUESTION
     mode_reg.REG_CNTL = 0;
-    //mode_reg.SCAN = ADC_SCAN_MANUAL;
-    mode_reg.SCAN = ADC_SCAN_REPEAT;
+    mode_reg.SCAN = ADC_SCAN_MANUAL;
+    //mode_reg.SCAN = ADC_SCAN_REPEAT;
     mode_reg.CHSEL = channel;
     mode_reg.RESET = 0;
     mode_reg.PM = 0; // we can change this as we need to conserve battery (see table )
     mode_reg.CHAN_ID = 1; // so we can see the channel we're getting back from the output
     //Serial.println(*(uint16_t *)&mode_reg);
-    Serial.print("Mode reg: ");
-    Serial.println(*(uint16_t *)&mode_reg);
+    // Serial.print("Mode reg: ");
+    // Serial.println(*(uint16_t *)&mode_reg);
     delay(10);
-    Serial.println(set_mode_control(mode_reg));
+    // Serial.println(
+      set_mode_control(mode_reg);
+    // );
   }
 
   // current_sensor_diff_reg_t range_reg;
@@ -74,15 +76,15 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
   bipolar_reg.AIN_10_11 = USING_CHANNEL_DIFF_10_11;
   bipolar_reg.AIN_12_13 = USING_CHANNEL_DIFF_12_13;
   bipolar_reg.AIN_14_15 = USING_CHANNEL_DIFF_14_15;
-  Serial.print("Bipolar register: ");
-  Serial.println(*(uint16_t *)&bipolar_reg);
+  // Serial.print("Bipolar register: ");
+  // Serial.println(*(uint16_t *)&bipolar_reg);
   set_bipolar_reg(bipolar_reg);
 
   current_sensor_diff_reg_t range_reg;
   range_reg.SETUP = CURRENT_SENSOR_RANGE;
   range_reg.AIN_12_13 = 1;
-  Serial.print("Range register: ");
-  Serial.println(*(uint16_t *)&range_reg);
+  // Serial.print("Range register: ");
+  // Serial.println(*(uint16_t *)&range_reg);
   set_range_reg(range_reg);
 
 
@@ -97,8 +99,8 @@ uint16_t CurrentSensor::read_write_data(uint16_t data) {
   digitalWrite(chip_select, HIGH);
   //digitalWrite(chip_select, LOW);
   SPI.endTransaction();
-  Serial.print("Got ");
-  Serial.println(received);
+  // Serial.print("Got ");
+  // Serial.println(received);
   return received;
 }
 
@@ -135,7 +137,7 @@ uint16_t CurrentSensor::read_data(current_sensor_channel_t channel) {
   mode_reg.RESET = 0;
   mode_reg.PM = 0;
   mode_reg.CHAN_ID = 1;
-  Serial.println(*(uint16_t *)&mode_reg);
+  // Serial.println(*(uint16_t *)&mode_reg);
   set_mode_control(mode_reg); // first write is to select the channel
   delay(1);
   uint16_t result = set_mode_control(mode_reg); // next write is to get the output
@@ -147,31 +149,36 @@ uint16_t CurrentSensor::read_data(current_sensor_channel_t channel) {
 }
 
 float CurrentSensor::read_voltage(current_sensor_channel_t channel) {
-  return 0; // shut up current sensor
+  //return 0; // shut up current sensor
   // read the raw data over SPI
   uint16_t raw_data = read_data(channel);
 
   // make sure the channel was correct
   uint16_t result_channel = (raw_data & (0xf << 12)) >> 12;
   //Serial.println(raw_data);
-  //if (result_channel != channel) return -2.22222; // there was a mistake, but we won't tell youuuuu
 
   int16_t data = raw_data & 0xfff; // lower 12 bits in 2's complement representing voltage
-  Serial.print("ultra raw: ");
-  Serial.println(raw_data);
-  Serial.print("raw: ");
-  Serial.println(data);
+  // Serial.print("ultra raw: ");
+  // Serial.println(raw_data);
+  // Serial.print("raw: ");
+  // Serial.println(data);
   // convert raw_data to full 16 bit signed int
   data = (data * (1 << 4))/(1<<4); // move the signed bits over 4 places (to the MSB of the 16-bit int) and
                                   // then perfrom an arithmetic right shift by dividing by the same amount
-                                  Serial.print("voltage: ");
-                                  Serial.println((CURRENT_SENSOR_VREF / 2) * ( (float) data / CURRENT_SENSOR_MAX_BIP), 6);
+                                  // Serial.print("voltage: ");
+                                  // Serial.println((CURRENT_SENSOR_VREF / 2) * ( (float) data / CURRENT_SENSOR_MAX_BIP), 6);
   return (CURRENT_SENSOR_VREF / 2) * ( (float) data / CURRENT_SENSOR_MAX_BIP);
 
 
 }
 
-
+float CurrentSensor::average_voltage_readings(current_sensor_channel_t channel, uint16_t num_samples) {
+  float current_value = 0;
+  for (int i = 0; i < num_samples; i++) {
+    current_value += read_voltage(channel);
+  }
+  return current_value / num_samples;
+}
 // uint16_t CurrentSensor::repeat_sample_channel(current_sensor_channel_t channel) {
 //   // configure for repeat scan mode
 //   // set_config_reg(config_repeat_reg);

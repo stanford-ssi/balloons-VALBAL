@@ -96,9 +96,9 @@ void Actuators::clearBallastQueue() {
  * Called every loop; updates and acts on the current state of the valve.
  */
 bool Actuators::checkValve(float current) {
-  Serial.print("Called checkValve with ");
-  Serial.print(valveQueue);
-  Serial.println(" in valveQueue");
+  // Serial.print("Called checkValve with ");
+  // Serial.print(valveQueue);
+  // Serial.println(" in valveQueue");
   if (valveState == CLOSED) {
     if (valveQueue == 0) {
       uint32_t deltaTime = (millis() - valveCheckTime);
@@ -145,7 +145,7 @@ bool Actuators::checkBallast(float current, uint32_t reverseTimeout, uint16_t st
   // Serial.print("Called checkBallast with ");
   // Serial.print(ballastQueue);
   // Serial.print(" in ballastQueue and direction ");
-  Serial.println(ballastDirection);
+  //Serial.println(ballastDirection);
   if (ballastState == CLOSED) {
     if (ballastQueue == 0) {
       uint32_t deltaTime = (millis() - ballastCheckTime);

@@ -69,7 +69,8 @@ void Avionics::test() {
   alert("Initializing test...", true);
 
   //actuator.queueValve(6000, true);
-  actuator.cutDown();
+  //actuator.cutDown();
+
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -86,7 +87,9 @@ void Avionics::updateState() {
 //   if(!simulateData()) alert("unable to simulate Data", true);
 // #endif
 //   if(!processData())  alert("unable to process Data", true);
-  currentSensor.read_voltage(DIFF_12_13);
+  //currentSensor.read_voltage(DIFF_12_13);
+  //Serial.print("avg voltage: ");
+  Serial.println(currentSensor.average_voltage_readings(DIFF_12_13, 256), 6);
   delay(LOOP_INTERVAL);
 }
 

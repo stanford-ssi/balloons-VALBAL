@@ -211,6 +211,7 @@ public:
 
   uint16_t read_data(current_sensor_channel_t channel);
   float read_voltage(current_sensor_channel_t channel);
+  float average_voltage_readings(current_sensor_channel_t channel, uint16_t num_samples);
 private:
   uint16_t read_write_data(uint16_t data);
   uint8_t chip_select;

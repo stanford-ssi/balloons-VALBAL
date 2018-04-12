@@ -46,12 +46,12 @@ void Avionics::init() {
   if(!filter.init())                          alert("unable to initialize Filters", true);
   if(!computer.init())                        alert("unable to initialize Flight Controller", true);
   //if(!gpsModule.init(data.POWER_STATE_GPS))   alert("unable to initialize GPS", true);
-  //if(!superCap.init())                        alert("unable to initialize superCap", true);
-  //if(!setup5VLine())                          alert("unable to initialize 5V line", true);
-  pinMode(49, OUTPUT);
-  digitalWrite(49, HIGH);
-  pinMode(56, OUTPUT);
-  digitalWrite(56, HIGH);
+  if(!superCap.init())                        alert("unable to initialize superCap", true);
+  if(!setup5VLine())                          alert("unable to initialize 5V line", true);
+  // pinMode(49, OUTPUT);
+  // digitalWrite(49, HIGH);
+  // pinMode(56, OUTPUT);
+  // digitalWrite(56, HIGH);
 // #ifndef RB_DISABLED_FLAG
 //   //if(!RBModule.init(data.POWER_STATE_RB))     alert("unable to initialize RockBlock", true);
 // #endif
@@ -67,7 +67,9 @@ void Avionics::init() {
  */
 void Avionics::test() {
   alert("Initializing test...", true);
-  actuator.queueValve(24000, true);
+
+  //actuator.queueValve(6000, true);
+  actuator.cutDown();
 }
 
 /********************************  FUNCTIONS  *********************************/

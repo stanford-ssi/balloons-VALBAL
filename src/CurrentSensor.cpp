@@ -11,19 +11,35 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
 
   // reset config to defaults
   read_write_data(2<<5); // from https://github.com/emard/max1112x-test/blob/master/max1112x-test.ino
-  // configure the sensor how we want to
-  current_sensor_config_reg_t config_reg;
-  config_reg.SETUP = CURRENT_SENSOR_CONFIG;
-  config_reg.REFSEL = 0; // external differential
-  config_reg.AVGON = 0;
-  config_reg.NAVG = 0;
-  config_reg.NSCAN = 0;
-  config_reg.SPM = 0; // keep the sensor powered on all the time for now QUESTION
-  config_reg.ECHO = 1;
-  config_reg.EMPTY = 0;
+
+  // configure the sensor how we want to for manual mode
+  //current_sensor_config_reg_t config_reg;
+  config_manual_reg.SETUP = CURRENT_SENSOR_CONFIG;
+  config_manual_reg.REFSEL = 0; // external differential
+  config_manual_reg.AVGON = 0;
+  config_manual_reg.NAVG = 0;
+  config_manual_reg.NSCAN = 0;
+  config_manual_reg.SPM = 0; // keep the sensor powered on all the time for now QUESTION
+  config_manual_reg.ECHO = 1;
+  config_manual_reg.EMPTY = 0;
   Serial.print("Config register: ");
-  Serial.println(*(uint16_t *)&config_reg);
-  set_config_reg(config_reg);
+  Serial.println(*(uint16_t *)&config_manual_reg);
+  set_config_reg(config_manual_reg);
+
+
+  // set up the sensor's configuration for repeat mode.
+  config_repeat_reg.SETUP = CURRENT_SENSOR_CONFIG;
+  config_repeat_reg.REFSEL = 0; // external differential
+  config_repeat_reg.AVGON = 1;
+  config_repeat_reg.NAVG = 3; // average 32 conversions
+  config_repeat_reg.NSCAN = 3; // return 16 results in repeat mode
+  config_repeat_reg.SPM = 0; // keep the sensor powered on all the time for now
+  config_repeat_reg.ECHO = 1;
+  config_repeat_reg.EMPTY = 0;
+  // Serial.print("Config register: ");
+  // Serial.println(*(uint16_t *)&config_repeat_reg);
+  // set_config_reg(config_repeat_reg);
+
 
   // we have a few options, either we can scan all the channels, we can
   // preset the ones we want, or we can specifiy which one to scan at a
@@ -32,7 +48,8 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
   for (int channel = 8; channel < 16; channel++) {
     // initialize all the channels (this can change to just initializing the ones we want) QUESTION
     mode_reg.REG_CNTL = 0;
-    mode_reg.SCAN = ADC_SCAN_MANUAL;
+    //mode_reg.SCAN = ADC_SCAN_MANUAL;
+    mode_reg.SCAN = ADC_SCAN_REPEAT;
     mode_reg.CHSEL = channel;
     mode_reg.RESET = 0;
     mode_reg.PM = 0; // we can change this as we need to conserve battery (see table )
@@ -113,6 +130,7 @@ uint16_t CurrentSensor::read_data(current_sensor_channel_t channel) {
   current_sensor_mode_control_t mode_reg;
   mode_reg.REG_CNTL = 0;
   mode_reg.SCAN = ADC_SCAN_MANUAL;
+  //mode_reg.SCAN = ADC_SCAN_REPEAT;
   mode_reg.CHSEL = channel;
   mode_reg.RESET = 0;
   mode_reg.PM = 0;
@@ -152,3 +170,11 @@ float CurrentSensor::read_voltage(current_sensor_channel_t channel) {
 
 
 }
+
+
+// uint16_t CurrentSensor::repeat_sample_channel(current_sensor_channel_t channel) {
+//   // configure for repeat scan mode
+//   // set_config_reg(config_repeat_reg);
+//
+//
+// }

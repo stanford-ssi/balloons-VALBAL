@@ -700,6 +700,18 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 41) data.SPAG_V_TMIN = value;
   else if (index == 42) data.SPAG_H_CMD = value;
 
+  else if (index == 43)   data.LAS_CONSTANTS.freq            = value;
+  else if (index == 44)   data.LAS_CONSTANTS.k_v             = value;
+  else if (index == 45)   data.LAS_CONSTANTS.k_h             = value;
+  else if (index == 46)   data.LAS_CONSTANTS.b_dldt          = value;
+  else if (index == 47)   data.LAS_CONSTANTS.v_dldt          = value;
+  else if (index == 48)   data.LAS_CONSTANTS.b_tmin          = value;
+  else if (index == 49)   data.LAS_CONSTANTS.v_tmin          = value;
+  else if (index == 50)   data.LAS_CONSTANTS.h_cmd           = value;
+  else if (index == 51)   data.LAS_CONSTANTS.kfuse           = value;
+  else if (index == 52)   data.LAS_CONSTANTS.kfuse_val       = value;
+  else if (index == 53)   data.LAS_CONSTANTS.ss_error_thresh = value;
+
 }
 
 /*
@@ -984,7 +996,11 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.SPAG_BALLAST_TIME_INTERVAL,        0,     600,   8, lengthBits);
     lengthBits += compressVariable(data.SPAG_VENT_TIME_TOTAL/1000,         0,     600,   8, lengthBits);
     lengthBits += compressVariable(data.SPAG_BALLAST_TIME_TOTAL/1000,      0,     600,   8, lengthBits);
-
+    lengthBits += compressVariable(data.LAS_STATE.ascent_rate,           -10,     -10,   11, lengthBits);
+    lengthBits += compressVariable(data.LAS_STATE.fused_ascent_rate,     -10,     -10,   11, lengthBits);
+    lengthBits += compressVariable(data.LAS_STATE.effort,                  0,       1,   8, lengthBits);
+    lengthBits += compressVariable(data.LAS_STATE.effort_sum,              0,       1,   8, lengthBits);
+    lengthBits += compressVariable(data.LAS_STATE.v_cmd,                 -10,      10,   8, lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval
@@ -1008,6 +1024,16 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.BALLAST_VELOCITY_CONSTANT,           0,    5,       8,  lengthBits); // Ballast Speed Constant
     lengthBits += compressVariable(1.0 / data.BALLAST_ALTITUDE_DIFF_CONSTANT,0,    4095,    8,  lengthBits); // Ballast Altitude Difference Constant
     lengthBits += compressVariable(1.0 / data.BALLAST_LAST_ACTION_CONSTANT,  0,    4095,    8,  lengthBits); // Ballast last action constant
+    lengthBits += compressVariable(data.LAS_CONSTANTS.k_v,                   0,      .01,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.k_h,                   0,      .01,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.b_dldt,                0,       .1,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.v_dldt,                0,       .1,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.b_tmin,                0,       20,   4,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.v_tmin,                0,       20,   4,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.h_cmd,                 0,    20000,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.kfuse,                 0,        30,  6,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.kfuse_val,             0,        1,   4,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.ss_error_thresh,       0,     3000,   8,  lengthBits);
   }
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
@@ -1132,7 +1158,7 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" VOLTAGE_PRIMARY:");
   Serial.print(data.VOLTAGE_PRIMARY);
-  Serial.print(',');
+  Serial.print( ',');
   Serial.print(" VOLTAGE_SUPERCAP_AVG:");
   Serial.print(data.VOLTAGE_SUPERCAP_AVG);
   Serial.print(',');

@@ -14,6 +14,7 @@
 #include <Arduino.h>
 #include <stdint.h>
 #include <string.h>
+#include "LasagnaController.h"
 
 /****************************  COMPILE FLAGS  *********************************/
 // #define RESET_EEPROM_FLAG // uncomment for EEPROM

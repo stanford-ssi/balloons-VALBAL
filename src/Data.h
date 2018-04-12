@@ -12,6 +12,7 @@
 #define data_H
 
 #include "Config.h"
+#include "LasagnaController.h"
 
 /**************************  CURRENT DATA FRAME  ******************************/
 struct DataFrame {
@@ -103,6 +104,9 @@ struct DataFrame {
   float     SPAG_B_TMIN                      =              SPAG_B_TMIN_DEFAULT;
   float     SPAG_V_TMIN                      =              SPAG_V_TMIN_DEFAULT;
   float     SPAG_H_CMD                       =               SPAG_H_CMD_DEFAULT;
+
+  LasagnaController::Constants LAS_CONSTANTS;
+  LasagnaController::State LAS_STATE;
 
   bool       DEBUG_STATE                     =                             true;
   bool       FORCE_VALVE                     =                            false;

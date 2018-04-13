@@ -80,7 +80,7 @@ static const uint32_t  RB_BAUD                               =            19200;
 
 static const uint32_t CURRENT_NUM_SAMPLES                    =              256;
 /***************************  Flight Parameters  ******************************/
-static const bool      MANUAL_MODE_DEFAULT                   =             true;
+static const bool      MANUAL_MODE_DEFAULT                   =             false;
 static const uint8_t   REPORT_MODE_DEFAULT                   =                2;
 static const uint32_t  QUEUE_APPEND_THRESHOLD                =             1000;
 

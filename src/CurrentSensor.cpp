@@ -139,7 +139,7 @@ uint16_t CurrentSensor::read_data(current_sensor_channel_t channel) {
   mode_reg.CHAN_ID = 1;
   // Serial.println(*(uint16_t *)&mode_reg);
   set_mode_control(mode_reg); // first write is to select the channel
-  delay(1);
+  //delay(1);
   uint16_t result = set_mode_control(mode_reg); // next write is to get the output
   //Serial.println(result);
   return result;
@@ -172,9 +172,9 @@ float CurrentSensor::read_voltage(current_sensor_channel_t channel) {
 
 }
 
-float CurrentSensor::average_voltage_readings(current_sensor_channel_t channel, uint16_t num_samples) {
+float CurrentSensor::average_voltage_readings(current_sensor_channel_t channel, uint32_t num_samples) {
   float current_value = 0;
-  for (int i = 0; i < num_samples; i++) {
+  for (uint32_t i = 0; i < num_samples; i++) {
     current_value += read_voltage(channel);
   }
   return current_value / num_samples;

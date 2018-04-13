@@ -49,8 +49,8 @@ static const uint8_t   RB_CURRENT                            =                2;
 static const uint8_t   MOTORS_CURRENT                        =                3;
 static const uint8_t   PAYLOAD_CURRENT                       =                4;
 static const uint8_t   EXT_TEMP_SENSOR                       =               36;
-static const uint8_t   CUTDOWN_POWER                         =               33;
-static const uint8_t   CUTDOWN_SIGNAL                        =               31;
+static const uint8_t   CUTDOWN_POWER                         =               27;
+static const uint8_t   CUTDOWN_SIGNAL                        =               28;
 
 static const uint8_t   CURRENT_SENSOR_CS                     =                1;
 
@@ -78,6 +78,7 @@ static const uint32_t  CONSOLE_BAUD                          =           115200;
 static const uint32_t  GPS_BAUD                              =             9600;
 static const uint32_t  RB_BAUD                               =            19200;
 
+static const uint32_t CURRENT_NUM_SAMPLES                    =              256;
 /***************************  Flight Parameters  ******************************/
 static const bool      MANUAL_MODE_DEFAULT                   =             true;
 static const uint8_t   REPORT_MODE_DEFAULT                   =                2;
@@ -93,7 +94,7 @@ static const float     INCENTIVE_THRESHOLD_DEFAULT           =             0.75;
 static const float     RE_ARM_DEFAULT                        =                0;
 static const float     BALLAST_ARM_ALT_DEFAULT               =          13250.0;
 static const float     BALLAST_ALT_LAST_FILLER               =          14000.0;
-static const uint32_t  BALLAST_REVERSE_INTERVAL_DEFAULT      =             5000;
+static const uint32_t  BALLAST_REVERSE_INTERVAL_DEFAULT      =            70000;
 static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              120;
 
 static const float     VALVE_SETPOINT_DEFAULT                =          14500.0;

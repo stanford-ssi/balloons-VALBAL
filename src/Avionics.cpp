@@ -68,7 +68,8 @@ void Avionics::init() {
 void Avionics::test() {
   alert("Initializing test...", true);
 
-  //actuator.queueValve(6000, true);
+  //actuator.queueBallast(60000, true);
+  //actuator.queueValve(5000, true);
   //actuator.cutDown();
 
 }
@@ -89,7 +90,10 @@ void Avionics::updateState() {
 //   if(!processData())  alert("unable to process Data", true);
   //currentSensor.read_voltage(DIFF_12_13);
   //Serial.print("avg voltage: ");
-  Serial.println(currentSensor.average_voltage_readings(DIFF_12_13, 256), 6);
+  uint32_t t0 = micros();
+  Serial.println(currentSensor.average_voltage_readings(DIFF_12_13, CURRENT_NUM_SAMPLES), 6);
+  uint32_t dt = micros() - t0;
+  Serial.println(dt);
   delay(LOOP_INTERVAL);
 }
 

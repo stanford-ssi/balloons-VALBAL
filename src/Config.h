@@ -33,7 +33,7 @@ static const uint8_t   VALVE_FORWARD                         =               16;
 static const uint8_t   VALVE_REVERSE                         =                4;
 static const uint8_t   BALLAST_FORWARD                       =               42;
 static const uint8_t   BALLAST_REVERSE                       =                3;
-static const uint8_t   GPS_GATE                              =               17;
+static const uint8_t   GPS_GATE                              =               26;
 static const uint8_t   RB_GATE                               =               46;
 static const uint8_t   RB_SLEEP                              =               14;
 static const uint8_t   PAYLOAD_GATE                          =               57;
@@ -62,10 +62,10 @@ static const uint16_t  CUTDOWN_DURATION                      =            10000;
 
 static const uint16_t  PAYLOAD_INDEX                         =              137;
 
-static const uint16_t  GPS_LOCK_TIMEOUT                      =               30;
+static const uint16_t  GPS_LOCK_TIMEOUT                      =              500;
 static const uint16_t  GPS_QUIT_TIMEOUT                      =            10000;
 
-static const uint32_t  GPS_INTERVAL_DEFAULT                  =            12000;
+static const uint32_t  GPS_INTERVAL_DEFAULT                  =            15000;
 static const uint32_t  RB_INTERVAL_DEFAULT                   =           120000;
 static const uint32_t  RB_RESTART_INTERVAL                   =          1800000;
 static const uint32_t  RB_DEBUG_INTERVAL                     =            60000;

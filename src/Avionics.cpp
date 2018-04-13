@@ -27,13 +27,12 @@ void Avionics::init() {
   PCB.init();
   actuator.init();
   delay(5000);
-  Serial.println("setting led");
-  pinMode(36, OUTPUT);
-  digitalWrite(36, HIGH);
   delay(1000);
   Serial.println("setting payload high");
-  pinMode(57, OUTPUT);
-  digitalWrite(57, HIGH);
+  pinMode(PAYLOAD_GATE, OUTPUT);
+  digitalWrite(PAYLOAD_GATE, HIGH);
+  pinMode(GPS_GATE, OUTPUT);
+  digitalWrite(GPS_GATE, HIGH);
   // if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   // if(!readHistory())                          alert("unable to initialize EEPROM", true);
   if(!sensors.init())                         alert("unable to initialize Sensors", true);
@@ -44,8 +43,8 @@ void Avionics::init() {
 //   if(!HITL.init())                            alert("unable to initialize Simulations", true);
 // #endif
   if(!filter.init())                          alert("unable to initialize Filters", true);
-  if(!computer.init())                        alert("unable to initialize Flight Controller", true);
-  //if(!gpsModule.init(data.POWER_STATE_GPS))   alert("unable to initialize GPS", true);
+  if(!computer.init())                        alert("unable to initialize Flight Controller", true) ;
+  if(!gpsModule.init(data.POWER_STATE_GPS))   alert("unable to initialize GPS", true);
   if(!superCap.init())                        alert("unable to initialize superCap", true);
   if(!setup5VLine())                          alert("unable to initialize 5V line", true);
   // pinMode(49, OUTPUT);
@@ -68,9 +67,9 @@ void Avionics::init() {
 void Avionics::test() {
   alert("Initializing test...", true);
 
-  //actuator.queueBallast(60000, true);
+  actuator.queueBallast(5000, true);
   //actuator.queueValve(12000, true);
-  actuator.cutDown();
+  //actuator.cutDown();
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -86,12 +85,12 @@ void Avionics::updateState() {
 // #ifdef HITL_ENABLED_FLAG
 //   if(!simulateData()) alert("unable to simulate Data", true);
 // #endif
-//   if(!processData())  alert("unable to process Data", true);
+  if(!processData())  alert("unable to process Data", true);
   //currentSensor.read_voltage(DIFF_12_13);
   //Serial.print("avg voltage: ");
-  uint32_t t0 = micros();
+  //uint32_t t0 = micros();
   //Serial.println(currentSensor.average_voltage_readings(DIFF_12_13, CURRENT_NUM_SAMPLES), 6);
-  uint32_t dt = micros() - t0;
+  //uint32_t dt = micros() - t0;
   //Serial.println(dt);
   delay(LOOP_INTERVAL);
 }
@@ -269,6 +268,7 @@ bool Avionics::readData() {
  * This function reads data from the GPS module.
  */
 bool Avionics::readGPS() {
+  Serial.println("READ GPS CALLED");
   gpsModule.smartDelay(GPS_LOCK_TIMEOUT);
   data.LAT_GPS          = gpsModule.getLatitude();
   data.LONG_GPS         = gpsModule.getLongitude();
@@ -1145,7 +1145,7 @@ void Avionics::printState() {
   Serial.print(data.SPAG_BALLAST_TIME_INTERVAL);
   Serial.print('\n');
 
-  Serial.println("CONTROLLER IS");
+  Serial.print("CONTROLLER IS");
   Serial.println(data.CURRENT_CONTROLLER_INDEX);
   Serial.println();
   Serial.print("TIME:");

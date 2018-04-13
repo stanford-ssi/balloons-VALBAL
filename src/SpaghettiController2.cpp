@@ -1,5 +1,4 @@
 #include "SpaghettiController2.h"
-#include "SpaghettiController.h"
 #include <iostream>
 
 SpaghettiController2::SpaghettiController2() :

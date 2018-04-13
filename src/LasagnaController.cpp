@@ -26,7 +26,7 @@ bool LasagnaController::update(Input input){
     state.comp_ctr = 0;
   }
 
-  // TODO: FIX ABS
+
   float deadband_effort = 0;
   float thresh = constants.k_v*constants.k_h*constants.ss_error_thresh;
   //float thresh = 0;

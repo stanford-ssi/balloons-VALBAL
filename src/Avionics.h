@@ -32,6 +32,9 @@
 
 #include "SpaghettiController.h"
 #include "SpaghettiController2.h"
+#include "Utils.h"
+
+#define JANKSHITL
 
 // regualar min and max is not compatible with vector in std
 #define _min(a,b) ((a)<(b)?(a):(b))
@@ -41,13 +44,17 @@ class Avionics {
 public:
 /**********************************  SETUP  ***********************************/
   Avionics() :
+    #ifdef JANKSHITL
+    stepsim({{1, -1.999969998200029, 0.999970000449996},{0, 1.124988749873439e-9, 1.124977500042189e-9}}),
+    #endif
     superCap(),
     PCB(),
     actuator(),
     sensors(),
     gpsModule(GPS_GATE, GPS_BAUD, EEPROM_GPS, GPS_LOCK_TIMEOUT, GPS_QUIT_TIMEOUT),
     RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK),
-    payload(PAYLOAD_GATE, PAYLOAD_GPIO_1, PAYLOAD_GPIO_2, PAYLOAD_DAC, EEPROM_PAYLOAD) {
+    payload(PAYLOAD_GATE, PAYLOAD_GPIO_1, PAYLOAD_GPIO_2, PAYLOAD_DAC, EEPROM_PAYLOAD)
+    {
   }
   void    init();
   void    test();
@@ -126,6 +133,10 @@ private:
 
   SpaghettiController spagController;
   SpaghettiController2 spag2Controller;
+
+  #ifdef JANKSHITL
+  Biquad stepsim;
+  #endif
 };
 
 #endif

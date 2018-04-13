@@ -1,10 +1,11 @@
 #ifndef SPAGHETTICONTROLLER2_H
 #define SPAGHETTICONTROLLER2_H
 
-#include "SpaghettiController.h"
 //#include "Config.h"
 #include "Utils.h"
-//#include <stdlib.h>
+#include <stdlib.h>
+
+#define HUGE_VALF 2000000000.0
 
 class SpaghettiController2
 {

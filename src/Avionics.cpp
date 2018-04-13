@@ -23,6 +23,9 @@
  * This function initializes the avionics flight controller.
  */
 void Avionics::init() {
+  #ifdef JANKSHITL
+  stepsim.setSS(101000);
+  #endif
   Serial.begin(CONSOLE_BAUD);
   PCB.init();
   actuator.init();
@@ -57,6 +60,7 @@ void Avionics::init() {
   //if(!payload.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
   data.TIME = millis();
   data.SETUP_STATE = false;
+
 }
 
 /*
@@ -254,10 +258,18 @@ bool Avionics::readData() {
   data.RAW_TEMP_2                 = sensors.getRawTemp(2);
   data.RAW_TEMP_3                 = sensors.getRawTemp(3);
   data.RAW_TEMP_4                 = sensors.getRawTemp(4);
+  #ifdef JANKSHITL
+  float p = stepsim.update(61900);
+  data.RAW_PRESSURE_1             = p;
+  data.RAW_PRESSURE_2             = p;
+  data.RAW_PRESSURE_3             = p;
+  data.RAW_PRESSURE_4             = p;
+  #else
   data.RAW_PRESSURE_1             = sensors.getRawPressure(1);
   data.RAW_PRESSURE_2             = sensors.getRawPressure(2);
   data.RAW_PRESSURE_3             = sensors.getRawPressure(3);
   data.RAW_PRESSURE_4             = sensors.getRawPressure(4);
+  #endif
   if (data.POWER_STATE_GPS && ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) && (!data.VALVE_STATE)) readGPS();
   return true;
 }

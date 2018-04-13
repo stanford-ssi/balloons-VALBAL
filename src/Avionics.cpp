@@ -36,7 +36,7 @@ void Avionics::init() {
   digitalWrite(57, HIGH);
   // if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   // if(!readHistory())                          alert("unable to initialize EEPROM", true);
-  //if(!sensors.init())                         alert("unable to initialize Sensors", true);
+  if(!sensors.init())                         alert("unable to initialize Sensors", true);
   delay(5000);
   Serial.println("Serial has been init");
   if(!currentSensor.init(CURRENT_MONITOR_CS)) alert("unable to initialize Current Sensor", true);
@@ -80,9 +80,9 @@ void Avionics::test() {
  * This function handles basic flight data collection.
  */
 void Avionics::updateState() {
-// #ifndef HITL_ENABLED_FLAG
-//   if(!readData())     alert("unable to read Data", true);
-// #endif
+  #ifndef HITL_ENABLED_FLAG
+    if(!readData())     alert("unable to read Data", true);
+  #endif
 // #ifdef HITL_ENABLED_FLAG
 //   if(!simulateData()) alert("unable to simulate Data", true);
 // #endif
@@ -128,7 +128,7 @@ void Avionics::actuateState() {
  */
 void Avionics::logState() {
   uint32_t t0 = millis();
-  if(!log.log(&data, actuator.valveState != actuator.OPENING)) alert("unable to log Data", true);
+  //if(!log.log(&data, actuator.valveState != actuator.OPENING)) alert("unable to log Data", true);
   data.LOG_TIME = millis() - t0;
   if(!debugState())   alert("unable to debug state", true);
 }

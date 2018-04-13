@@ -25,10 +25,10 @@
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   SD_CS                                 =               23;
 static const uint8_t   CURRENT_MONITOR_CS                    =               40;
-static const uint8_t   BMP_CS_ONE                            =               32;
-static const uint8_t   BMP_CS_TWO                            =               25;
-static const uint8_t   BMP_CS_THREE                          =               15;
-static const uint8_t   BMP_CS_FOUR                           =               22;
+static const uint8_t   BMP_CS_ONE                            =               55;
+static const uint8_t   BMP_CS_TWO                            =               53;
+static const uint8_t   BMP_CS_THREE                          =               51;
+static const uint8_t   BMP_CS_FOUR                           =               54;
 static const uint8_t   VALVE_FORWARD                         =               16;
 static const uint8_t   VALVE_REVERSE                         =                4;
 static const uint8_t   BALLAST_FORWARD                       =               42;

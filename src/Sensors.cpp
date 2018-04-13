@@ -24,7 +24,10 @@ bool Sensors::init() {
   pinMode(SUPER_CAP_VOLTAGE,      INPUT);
   pinMode(EXT_TEMP_SENSOR,        INPUT);
   if (!bme1.begin()) {
-    Serial.println("Could not initialize BMP280 sensor 1, check wiring!");
+    Serial.println("Could not initialize BMP280 sensor 1 in first test, check wiring!");
+  }
+  if (!bme1.begin()) {
+    Serial.println("Could not initialize BMP280 sensor 1 again, check wiring!");
     sucess = false;
   }
   if (!bme2.begin()) {
@@ -43,7 +46,6 @@ bool Sensors::init() {
   Serial.println(bme2.readPressure());
   Serial.println(bme3.readPressure());
   Serial.println(bme4.readPressure());
-  Serial.println("defs gucci");
   Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
   Wire.setDefaultTimeout(5000);
   int8_t ack = 0;
@@ -51,7 +53,6 @@ bool Sensors::init() {
   ack |= LTC2991_register_write(LTC2991_I2C_ADDRESS, LTC2991_CONTROL_V1234_REG, 0x00);
   ack |= LTC2991_register_write(LTC2991_I2C_ADDRESS, LTC2991_CONTROL_V5678_REG, 0x00);
   ack |= LTC2991_register_write(LTC2991_I2C_ADDRESS, LTC2991_CONTROL_PWM_Tinternal_REG, LTC2991_REPEAT_MODE);
-  Serial.println("we gucci");
   return sucess;
 }
 

@@ -93,7 +93,7 @@ void Avionics::updateState() {
   //currentSensor.read_voltage(DIFF_12_13);
   //Serial.print("avg voltage: ");
   //uint32_t t0 = micros();
-  //Serial.println(currentSensor.average_voltage_readings(DIFF_12_13, CURRENT_NUM_SAMPLES), 6);
+  Serial.println(currentSensor.average_voltage_readings(DIFF_12_13, CURRENT_NUM_SAMPLES), 6);
   //uint32_t dt = micros() - t0;
   //Serial.println(dt);
   delay(LOOP_INTERVAL);
@@ -560,7 +560,7 @@ bool Avionics::runBallast() {
  * This function cuts down the payload if necessary.
  */
 bool Avionics::runCutdown() {
-  Serial.println("Avionics.runCutdown called");
+  //Serial.println("Avionics.runCutdown called");
   if(data.SHOULD_CUTDOWN) {
     Serial.println("data.SHOULD_CUTDOWN was true");
     actuator.cutDown();
@@ -1133,7 +1133,7 @@ int16_t Avionics::compressData() {
  * Function: printState
  * -------------------
  * This function prints the current avionics state.
- */ 
+ */
 void Avionics::printState() {
   Serial.print("CURRENT_CONTROLLER_INDEX:");
   Serial.print(data.CURRENT_CONTROLLER_INDEX);

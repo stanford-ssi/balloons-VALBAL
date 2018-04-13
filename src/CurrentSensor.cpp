@@ -10,8 +10,14 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
   delay(1);
 
   // reset config to defaults
-  read_write_data(2<<5); // from https://github.com/emard/max1112x-test/blob/master/max1112x-test.ino
-
+  //read_write_data(2<<5); // from https://github.com/emard/max1112x-test/blob/master/max1112x-test.ino
+  /*uint16_t config = (1<<15) | (1 << 10) | (1 << 2);
+  Serial.println("writing");
+  Serial.println(config);
+  Serial.println(read_write_data(config));
+  Serial.println(read_write_data(config));
+  Serial.println(read_write_data(config));
+  Serial.println("ok");*/
   // configure the sensor how we want to for manual mode
   //current_sensor_config_reg_t config_reg;
   config_manual_reg.SETUP = CURRENT_SENSOR_CONFIG;
@@ -24,7 +30,10 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
   config_manual_reg.EMPTY = 0;
   // Serial.print("Config register: ");
   // Serial.println(*(uint16_t *)&config_manual_reg);
-  set_config_reg(config_manual_reg);
+  Serial.println("this time around");
+  Serial.println(set_config_reg(config_manual_reg));
+  Serial.println(set_config_reg(config_manual_reg));
+  Serial.println(set_config_reg(config_manual_reg));
 
 
   // set up the sensor's configuration for repeat mode.
@@ -55,8 +64,8 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
     mode_reg.PM = 0; // we can change this as we need to conserve battery (see table )
     mode_reg.CHAN_ID = 1; // so we can see the channel we're getting back from the output
     //Serial.println(*(uint16_t *)&mode_reg);
-    // Serial.print("Mode reg: ");
-    // Serial.println(*(uint16_t *)&mode_reg);
+     Serial.print("Mode reg: ");
+     Serial.println(*(uint16_t *)&mode_reg);
     delay(10);
     // Serial.println(
       set_mode_control(mode_reg);
@@ -76,15 +85,15 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
   bipolar_reg.AIN_10_11 = USING_CHANNEL_DIFF_10_11;
   bipolar_reg.AIN_12_13 = USING_CHANNEL_DIFF_12_13;
   bipolar_reg.AIN_14_15 = USING_CHANNEL_DIFF_14_15;
-  // Serial.print("Bipolar register: ");
-  // Serial.println(*(uint16_t *)&bipolar_reg);
+   Serial.print("Bipolar register: ");
+   Serial.println(*(uint16_t *)&bipolar_reg);
   set_bipolar_reg(bipolar_reg);
 
   current_sensor_diff_reg_t range_reg;
   range_reg.SETUP = CURRENT_SENSOR_RANGE;
-  range_reg.AIN_12_13 = 1;
-  // Serial.print("Range register: ");
-  // Serial.println(*(uint16_t *)&range_reg);
+  range_reg.AIN_12_13 = 0;
+   Serial.print("Range register: ");
+   Serial.println(*(uint16_t *)&range_reg);
   set_range_reg(range_reg);
 
 
@@ -160,14 +169,21 @@ float CurrentSensor::read_voltage(current_sensor_channel_t channel) {
   int16_t data = raw_data & 0xfff; // lower 12 bits in 2's complement representing voltage
   // Serial.print("ultra raw: ");
   // Serial.println(raw_data);
-  // Serial.print("raw: ");
-  // Serial.println(data);
+  int16_t result = 0;
+  if (data >= 0 && data <= 0x7FF) {
+    result = data;
+  } else {
+    result = -(4096-data);
+  }
+  /*Serial.print("raw: ");
+  Serial.println(data);
   // convert raw_data to full 16 bit signed int
   data = (data * (1 << 4))/(1<<4); // move the signed bits over 4 places (to the MSB of the 16-bit int) and
                                   // then perfrom an arithmetic right shift by dividing by the same amount
                                   // Serial.print("voltage: ");
                                   // Serial.println((CURRENT_SENSOR_VREF / 2) * ( (float) data / CURRENT_SENSOR_MAX_BIP), 6);
-  return (CURRENT_SENSOR_VREF / 2) * ( (float) data / CURRENT_SENSOR_MAX_BIP);
+                                  */
+  return (1.2 / 2) * ( (float) result / CURRENT_SENSOR_MAX_BIP);
 
 
 }
@@ -177,7 +193,10 @@ float CurrentSensor::average_voltage_readings(current_sensor_channel_t channel, 
   for (uint32_t i = 0; i < num_samples; i++) {
     current_value += read_voltage(channel);
   }
-  return current_value / num_samples;
+  float avg = current_value / num_samples * 16129.03;
+  Serial.print("Current: ");
+  Serial.println(avg);
+  return avg;
 }
 // uint16_t CurrentSensor::repeat_sample_channel(current_sensor_channel_t channel) {
 //   // configure for repeat scan mode

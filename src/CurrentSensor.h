@@ -129,7 +129,7 @@ typedef struct {
 
 // bitfield - table 7, 10, 11
 typedef struct {
-  uint16_t EMPTY:      1; // this isn't used
+  uint16_t EMPTY:      2; // this isn't used
   uint16_t PDIF_COM:   1; // only valid for UNIPOLAR REGISTER
   uint16_t AIN_14_15:  1;
   uint16_t AIN_12_13:  1;

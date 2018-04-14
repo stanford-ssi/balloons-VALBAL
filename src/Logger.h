@@ -16,51 +16,51 @@
 #include "Hardware.h"
 #include <bitset>
 
-struct block_t {
-  uint8_t data[512] = {0};
-} __attribute__((packed));
 
-const int CACHE_SIZE = 24;
+const int CACHE_SIZE = 180;
+const uint32_t MAX_LOG_TIME = 5000; // microseconds
 
 class Logger {
 public:
-/**********************************  SETUP  ***********************************/
-  bool format();
+  Logger();
   bool initialize();
+  bool wipe();
+  bool writeSomething(int bn, void *frame);
+  bool readSomething(int bn);
+  bool log(void *data, int bytes, bool retry=true);
 
-/********************************  FUNCTIONS  *********************************/
-  bool log(struct DataFrame *frame, bool sadness);
-  bool setupLogfile();
+  JankySdioCard card;
 
 private:
-/*********************************  OBJECTS  **********************************/
-  SdFat sd;
-  File binFile;
+  struct block_t {
+    uint8_t data[512] = {0};
+  } __attribute__((packed));
 
-  char fileName[14] = "data01.bin"; // FORTRAN style
+  int blocks_per_frame;
 
-  uint32_t bgnBlock, endBlock;
-  uint32_t curBlock;
-
-  block_t extra_cache[CACHE_SIZE-1];
-  block_t* cache[CACHE_SIZE] = {NULL};
-
-  bool findFilename();
-
-  int fileNum;
-
-  void operator=(const Logger& rhs) = delete;
-
-  std::bitset<CACHE_SIZE> avail;
-
-  uint8_t to_insert = 0;
+  block_t cache[CACHE_SIZE];
   uint8_t to_write = 0;
+  uint8_t to_insert = 0;
+  uint16_t cache_offset = 0;
 
+  uint32_t cur_block = 0;
+  uint32_t limit_block = 0;
+  const uint32_t MAX_SDHC_COUNT = 0xffff;
+  const uint32_t RU_MASK = 0x03ff;
+  enum class SDMode {Idle, Writing, BusyWait};
+
+  uint32_t entered;
+
+  SDMode mode = SDMode::Idle;
+  SDMode prev = SDMode::Idle;
+
+  bool findPosition();
+  bool queryData(int bn);
+  bool add_to_cache(void *data, int nbytes);
   uint8_t next(uint8_t idx);
-  bool writeCache(bool weep, int max);
 
-  bool logOk = false;
-  SdFormatter formatter;
+  std::bitset<CACHE_SIZE> cache_avail;
+
 };
 
 #endif

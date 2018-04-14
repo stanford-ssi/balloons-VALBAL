@@ -192,10 +192,12 @@ struct DataFrame {
   uint32_t  LAS_VENT_TIME_TOTAL              =                                 0;
   float     OVERPRESSURE                     =                                0;
 
+  uint8_t stuff_to_make_sure_it_goes_above_1024[512];
+
 } __attribute__((packed));
 
 #include <assert.h>
 
-static_assert(sizeof(DataFrame) < 600, "ohp dataframe too big");
+static_assert(sizeof(DataFrame) >= 1024, "ohp dataframe too big");
 
 #endif

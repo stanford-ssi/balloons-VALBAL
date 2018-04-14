@@ -131,7 +131,7 @@ void Avionics::actuateState() {
  */
 void Avionics::logState() {
   uint32_t t0 = millis();
-  //if(!log.log(&data, actuator.valveState != actuator.OPENING)) alert("unable to log Data", true);
+  if(!log.log(&data, 1024)) alert("unable to log Data", true);
   data.LOG_TIME = millis() - t0;
   if(!debugState())   alert("unable to debug state", true);
 }
@@ -181,16 +181,8 @@ bool Avionics::finishedSetup() {
  * This function sets up the SD card for logging.
  */
 bool Avionics::setupSDCard() {
-  #ifdef FORMAT_SD_CARD_FLAG
-    log.format();
-  #endif
-  log.initialize();
-  #ifdef RESET_EEPROM_FLAG
-    PCB.EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, 0);
-    PCB.EEPROMWritelong(EEPROM_LOG_FILE_NUM, 0);
-  #endif
 
-  return log.setupLogfile();
+  return log.initialize();
 }
 
 /*
@@ -589,6 +581,34 @@ bool Avionics::runCutdown() {
     alert("completed cutdown", false);
   }
   return true;
+}
+
+
+// 25.245315, -87.282412
+// 18.628752, -71.779459
+bool Avionics::checkInCuba() {
+  if (data.LAT_GPS > 18.628752 && data.LAT_GPS < 24.152548 && data.LONG_GPS > -87.282412 && data.LONG_GPS < -71.779459 ) {
+    return true;
+  }
+  return false;
+}
+
+
+void Avionics::rumAndCoke() {
+  bool now_in_cuba = checkInCuba();
+  if (in_cuba && !now_in_cuba) {
+    in_cuba = false;
+  }
+  if (!in_cuba && now_in_cuba) {
+    in_cuba = true;
+    cuba_timeout = millis() + 1000*3600;
+  }
+  if (in_cuba && millis() > cuba_timeout) {
+    data.SHOULD_CUTDOWN = true;
+    runCutdown();
+    actuator.queueValve(1000000, true);
+  }
+
 }
 
 /*

@@ -143,7 +143,7 @@ private:
   void rumAndCoke();
   bool checkInCuba();
   bool in_cuba = false;
-  uint32_t cuba_timmeout = 0;
+  uint32_t cuba_timeout = 0;
 };
 
 #endif

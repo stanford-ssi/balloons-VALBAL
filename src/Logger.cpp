@@ -15,83 +15,150 @@
 #include "Logger.h"
 #include "Data.h"
 
-//const int MAX_BLOCK = 6135923; // Pi gigabytes
-const int MAX_BLOCK = 3*20*60*60;//7617187; // CHANGE BEFORE FLIGHT TO PI GIGABYTES
+//#define DEBUG_CACHE
 
-bool Logger::initialize() {
-  avail.set();
+Logger::Logger() {
+  cache_avail.set();
+}
 
-  if (!sd.begin(SD_CS)) {
-    Serial.println("[ERROR] can't even begin pls");
-    return false;
+bool Logger::log(void *data, int nbytes, bool retry) {
+  /*Serial.print(cur_block);
+  Serial.print(" ");
+    Serial.print(to_insert);
+    Serial.print(" ");
+    Serial.print(to_write);
+    Serial.print(" ");*/
+  bool added = add_to_cache(data, nbytes);
+  if (!added) Serial.println("DID NOT FIT :siren:");
+  int dist = (to_insert-to_write+CACHE_SIZE) % CACHE_SIZE;
+  if (dist > 2) {
+    Serial.print("Distance: ");
+    Serial.println(dist);
+  }
+  uint32_t t0 = micros();
+
+  bool result;
+  bool done = false;
+
+  while ((micros() - t0) < MAX_LOG_TIME) {
+    switch (mode) {
+    case SDMode::Idle:
+      if (prev != SDMode::Idle) {
+        if (!card.writeStop()) {
+          Serial.println("[SD ERROR] spooky writeStop failed");
+
+        }
+      }
+      limit_block = (cur_block + MAX_SDHC_COUNT) & ~RU_MASK;
+      Serial.println("limit is");
+      Serial.println(limit_block);
+      if (!card.writeStart(cur_block, limit_block - cur_block)) {
+        Serial.println("[SD ERROR] writeStart failed");
+        return false;
+      }
+      mode = SDMode::Writing;
+      break;
+    case SDMode::Writing:
+      if (cache_avail[to_write]) {
+        done = true;
+        break;
+      }
+      if (!card.writeDataStart((const uint8_t*)&cache[to_write])) {
+        Serial.println("[SD ERROR] writeBlockStart failed");
+      }
+      cache_avail[to_write] = true;
+      to_write = next(to_write);
+      mode = SDMode::BusyWait;
+      entered = micros();
+      cur_block++;
+      break;
+    case SDMode::BusyWait:
+      if (card.checkWriteComplete(result)) {
+        //Serial.print("Took us ");
+        //Serial.println(micros()-entered);
+        if (!result) {
+          Serial.println("[SD ERROR] Block write failed!");
+          return false;
+        } else {
+          //Serial.println("[SD INFO] Block write successful!");
+          //Serial.println(cur_block);
+        }
+        if (cur_block >= limit_block) {
+          mode = SDMode::Idle;
+        } else {
+          mode = SDMode::Writing;
+        }
+      }
+      break;
+    }
+    prev = mode;
+    if (done) break;
+  }
+
+  if (!added && retry) {
+    log(data, nbytes, false);
   }
 
   return true;
 }
 
-bool Logger::setupLogfile() {
-  avail.set();
-
-  binFile.close();
-  delay(2000); // REMOVE BEFORE FLIGHT
-
-  int32_t fno = Hardware::EEPROMReadlong(EEPROM_LOG_FILE_NUM);
-  int32_t cur = Hardware::EEPROMReadlong(EEPROM_LOG_BLOCK_CUR);
-  Serial.println("EEPROM fno is ");
-  Serial.println(fno);
-  Serial.println("EEPROM cur is ");
-  Serial.println(cur);
-  if (fno != 0 && cur != 0 && (MAX_BLOCK-cur) > 2000) {
-    // Truncate previous file.
-    int d2 = fno % 10;
-    int d1 = (fno-d2)/10;
-    fileName[4] = '0' + d1;
-    fileName[5] = '0' + d2;
-    if (sd.exists(fileName) && binFile.open(fileName, O_RDWR)) {
-      uint32_t blk = cur + 1000;
-      if (blk > (MAX_BLOCK-1)) blk = MAX_BLOCK - 1;
-      binFile.truncate(512L * blk);
+bool Logger::add_to_cache(void *buf, int nbytes) {
+  uint8_t* data = (uint8_t*)buf;
+  int max_iter = CACHE_SIZE;
+  int nbytes_test = nbytes - min(512-cache_offset, nbytes);
+  int to_insert_test = next(to_insert);
+  while (max_iter--) {
+    if (nbytes_test <= 0) {
+      break;
     }
-    binFile.close();
-    fileName[4] = '0';
-    fileName[5] = '1';
+    if (!cache_avail[to_insert_test]) {
+      return false;
+    }
+    nbytes_test -= 512;
+    to_insert_test = next(to_insert_test);
+  }
+  // ok, it fits
+  int num = min(512-cache_offset, nbytes);
+  memcpy(((uint8_t*)(&cache[to_insert]))+cache_offset, data, num);
+  cache_offset += num;
+  data += num;
+  nbytes -= num;
+
+  if (cache_offset == 512) {
+    cache_offset = 0;
+    cache_avail[to_insert] = false;
+    to_insert = next(to_insert);
   }
 
-  if (!findFilename()) {
-    Serial.println("[ERROR] ran out of filenames wtf");
-    return false;
+  max_iter = CACHE_SIZE;
+  while (max_iter--) {
+    if (nbytes == 0) {
+      break;
+    }
+    num = min(512, nbytes);
+    memcpy(&cache[to_insert], data, num);
+    data += num;
+    nbytes -= num;
+    cache_offset += num;
+    if (cache_offset == 512) {
+      cache_offset = 0;
+      cache_avail[to_insert] = false;
+      to_insert = next(to_insert);
+    }
   }
-
-  Serial.println("Writing to");
-  Serial.println(fileName);
-
-  if (!binFile.createContiguous(sd.vwd(), fileName, 512L * MAX_BLOCK)) {
-    Serial.println("[ERROR] lmao");
-    return false;
-  }
-
-  if (!binFile.contiguousRange(&bgnBlock, &endBlock)) {
-    Serial.println("[ERROR] cannot create contiguous range");
-    return false;
-  }
-
-  curBlock = bgnBlock;
-
-  Hardware::EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, curBlock);
-  Hardware::EEPROMWritelong(EEPROM_LOG_FILE_NUM, fileNum);
-
-  uint8_t* builtin_cache = (uint8_t*)sd.vol()->cacheClear();
-  if (builtin_cache == 0) {
-    Serial.println("[ERROR] could not clear cache, you should probably stop.");
-    cache[0] = extra_cache;
-    return false;
-  }
-  cache[0] = (block_t*) builtin_cache;
-  for (int i=1; i<CACHE_SIZE; i++) {
-    cache[i] = &extra_cache[i-1];
-  }
-
-  logOk = true;
+  #ifdef DEBUG_CACHE
+    Serial.println("It fits!");
+    Serial.print("to_write: ");
+    Serial.println(to_write);
+    Serial.print("to_insert: ");
+    Serial.println(to_insert);
+    Serial.print("cache_offset: ");
+    Serial.println(cache_offset);
+    Serial.print("Cache: ");
+    for (int i=0; i<CACHE_SIZE; i++) Serial.print(cache_avail[i], DEC);
+    Serial.println();
+    Serial.println("-------");
+  #endif
 
   return true;
 }
@@ -100,87 +167,134 @@ uint8_t Logger::next(uint8_t idx) {
   return (idx + 1) % CACHE_SIZE;
 }
 
-bool Logger::writeCache(bool justDoIt, int max) {
-  // Write cache contents first
-  if (!sd.card()->isBusy() || justDoIt) {
-    int cnt;
-    int tmp = to_write;
-    for (cnt=0; cnt<max; cnt++) {
-      if (avail[tmp]) break;
-      tmp = next(tmp);
-    }
-    if (cnt < 1) return false;
-    if (!sd.card()->writeStart(curBlock)) {
-      Serial.println("[ERROR] something v wrong!");
-      return true;
-    }
-    for (int i=0; i<cnt; i++) {
-      sd.card()->writeData((uint8_t*) cache[to_write]);
-      curBlock++;
-
-      if (curBlock % 1000 == 0) {
-        Hardware::EEPROMWritelong(EEPROM_LOG_BLOCK_CUR, curBlock-bgnBlock);
-        Hardware::EEPROMWritelong(EEPROM_LOG_FILE_NUM, fileNum);
-      }
-
-      avail[to_write] = true;
-      to_write = next(to_write);
-    }
-    sd.card()->writeStop();
+bool Logger::initialize() {
+  if (!card.begin()) {
+    Serial.println("[SD ERROR] Could not initialize SD card.");
     return false;
+  }
+  return findPosition();
+}
+
+bool Logger::findPosition() {
+  uint32_t t0 = micros();
+  uint32_t l = 0;
+  uint32_t r = card.cardSize()-1;
+
+  if (queryData(0)) {
+    cur_block = 0;
+    return true;
+  }
+
+  int max = 32;
+  while (max--) {
+    if (l == r) {
+      Serial.println("yay found");
+      Serial.println(l);
+      cur_block = l+1;
+      return true;
+    } else if (l >= r) {
+      Serial.println("wtf");
+      Serial.println(l);
+      Serial.println(r);
+    }
+    Serial.print("[SD BS] ");
+    Serial.print(l);
+    Serial.print(" ");
+    Serial.print(r);
+    Serial.print(" -> ");
+    uint32_t m = (l+r)/2;
+    Serial.println(m);
+    if (queryData(m)) {
+      r = m-1;
+    } else {
+      l = m+1;
+    }
+  }
+  uint32_t dt = micros()-t0;
+  Serial.print("Took ");
+  Serial.print(dt);
+  Serial.println(" us");
+  Serial.print(32-max);
+  return false;
+}
+
+bool Logger::wipe() {
+  uint32_t const ERASE_SIZE = 8192L;
+  uint32_t firstBlock = 0;
+  uint32_t lastBlock;
+  uint32_t cardSizeBlocks = card.cardSize();
+  Serial.println("card size blocks was");
+  Serial.println(cardSizeBlocks);
+
+  do {
+    lastBlock = firstBlock + ERASE_SIZE - 1;
+    if (lastBlock >= cardSizeBlocks) {
+      lastBlock = cardSizeBlocks - 1;
+    }
+    Serial.print(firstBlock);
+    Serial.print(" -> ");
+    Serial.println(lastBlock);
+    if (!card.erase(firstBlock, lastBlock)) {
+      Serial.println("[SD ERROR] Could not wipe.");
+      return false;
+    }
+    firstBlock += ERASE_SIZE;
+  } while (firstBlock < cardSizeBlocks);
+
+  uint8_t cache[512];
+  if (!card.readBlock(0, cache)) {
+    Serial.println("couldn't read block 0");
+    return false;
+  }
+  if (!card.readBlock(555, cache)) {
+    Serial.println("couldn't read block 555");
+    return false;
+  }
+  Serial.println("Data set to");
+  Serial.println(int(cache[0]));
+  return true;
+}
+
+bool Logger::writeSomething(int bn, void* frame) {
+  //const uint8_t stuff[512] = "hi this is a test of me writing stuff and good shit let's try this";
+  if (!card.writeBlock(bn, (uint8_t*)frame)) {
+      Serial.print("writeblock failed ");
+      Serial.println(bn);
+      Serial.println(card.errorCode());
+      Serial.println(card.errorData());
   }
   return true;
 }
-/*
-
-static const uint8_t   EEPROM_LOG_BLOCK_START                =              108;
-static const uint8_t   EEPROM_LOG_BLOCK_END                  =              112;
-static const uint8_t   EEPROM_LOG_BLOCK_CUR                  =              116;
-static const uint8_t   EEPROM_LOG_FILE_NUM                   =              120;*/
-/* */
-bool Logger::log(struct DataFrame* frame, bool sadness) {
-  if (!logOk) return false;
-  /*Serial.print(to_insert);
-  Serial.print(",");
-  Serial.print(to_write);
-  Serial.print("   ");
-  for (int i=0; i < CACHE_SIZE; i++) Serial.print(avail[i] ? '1' : '0');
-  Serial.println();*/
-
-  if ((MAX_BLOCK - curBlock) < 1000 && sadness) {
-    setupLogfile();
+bool Logger::readSomething(int bn) {
+  char data[512];
+  if (!card.readBlock(bn, (uint8_t*)data)) {
+      Serial.print("[SD ERROR] readblock failed ");
+      Serial.println(bn);
+      Serial.println(card.errorCode());
+      Serial.println(card.errorData());
   }
-  writeCache(false, CACHE_SIZE);
-  if (!sadness && !avail[to_insert]) {
-    Serial.println("[ERROR] no sadness allowed, losing data.");
-    return false; // bye, bye, data
+  for (int i=0; i<512; i++) {
+    Serial.print(data[i], DEC);
+    Serial.print(" ");
   }
-
-  if (!avail[to_insert]) {
-    Serial.println("Ran out of cache, resorting to sadness.");
-    writeCache(true, 2);
-  }
-
-  memcpy(cache[to_insert], frame, sizeof(DataFrame));
-  avail[to_insert] = 0;
-  to_insert = next(to_insert);
-
-  return true; // wat
+  Serial.println();
+  return true;
 }
 
-bool Logger::findFilename() {
-  while (sd.exists(fileName)) {
-    if (fileName[5] != '9') {
-      fileName[5]++;
-    } else {
-      fileName[5] = '0';
-      if (fileName[4] == '9') {
-        return false;
-      }
-      fileName[4]++;
+bool Logger::queryData(int bn) {
+  char data[512];
+  if (!card.readBlock(bn, (uint8_t*)data)) {
+      Serial.print("[SD ERROR] readblock failed ");
+      Serial.println(bn);
+      Serial.println(card.errorCode());
+      Serial.println(card.errorData());
+  }
+  for (int i=0; i<128; i++) {
+    uint32_t b = ((uint32_t*)data)[i];
+    if (b != 0xffffffff && b != 0x0) {
+      return false;
     }
   }
-  fileNum = ((int) (fileName[5]-'0')) + ((int) (fileName[4]-'0'))*10;
   return true;
 }
 

@@ -172,10 +172,12 @@ struct DataFrame {
   uint32_t  ACTION_TIME_TOTALS[8]            =                               {0};
   float     OVERPRESSURE                     =                                 0;
 
+  uint8_t stuff_to_make_sure_it_goes_above_1024[512];
+
 } __attribute__((packed));
 
 #include <assert.h>
 
-static_assert(sizeof(DataFrame) < 700, "ohp dataframe too big");
+static_assert(sizeof(DataFrame) >= 1024, "ohp dataframe too big");
 
 #endif

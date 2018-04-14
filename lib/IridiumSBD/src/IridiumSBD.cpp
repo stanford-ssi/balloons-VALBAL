@@ -22,7 +22,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <time.h>
+//#include <time.h>
 #include "IridiumSBD.h"
 
 // Power on the RockBLOCK or return from sleep
@@ -187,43 +187,43 @@ bool IridiumSBD::hasRingAsserted()
    return ret;
 }
 
-int IridiumSBD::getSystemTime(struct tm &tm)
-{
-   char msstmResponseBuf[24];
-
-   send(F("AT-MSSTM\r"));
-   if (!waitForATResponse(msstmResponseBuf, sizeof(msstmResponseBuf), "-MSSTM: "))
-      return cancelled() ? ISBD_CANCELLED : ISBD_PROTOCOL_ERROR;
-
-   if (!isxdigit(msstmResponseBuf[0]))
-      return ISBD_NO_NETWORK;
-
-   // Latest epoch began at May 11, 2014, at 14:23:55 UTC.
-   struct tm epoch_start;
-   epoch_start.tm_year = 2014 - 1900;
-   epoch_start.tm_mon = 5 - 1;
-   epoch_start.tm_mday = 11;
-   epoch_start.tm_hour = 14;
-   epoch_start.tm_min = 23;
-   epoch_start.tm_sec = 55;
-
-   unsigned long ticks_since_epoch = strtoul(msstmResponseBuf, NULL, 16);
-
-   /* Strategy: we'll convert to seconds by finding the largest number of integral
-      seconds less than the equivalent ticks_since_epoch. Subtract that away and
-      we'll be left with a small number that won't overflow when we scale by 90/1000.
-
-      Many thanks to Scott Weldon for this suggestion.
-   */
-   unsigned long secs_since_epoch = (ticks_since_epoch / 1000) * 90;
-   unsigned long small_ticks = ticks_since_epoch - (secs_since_epoch / 90) * 1000;
-   secs_since_epoch += small_ticks * 90 / 1000;
-
-   time_t epoch_time = mktime(&epoch_start);
-   time_t now = epoch_time + secs_since_epoch;
-   memcpy(&tm, localtime(&now), sizeof tm);
-   return ISBD_SUCCESS;
-}
+// int IridiumSBD::getSystemTime(struct tm &tm)
+// {
+//    char msstmResponseBuf[24];
+//
+//    send(F("AT-MSSTM\r"));
+//    if (!waitForATResponse(msstmResponseBuf, sizeof(msstmResponseBuf), "-MSSTM: "))
+//       return cancelled() ? ISBD_CANCELLED : ISBD_PROTOCOL_ERROR;
+//
+//    if (!isxdigit(msstmResponseBuf[0]))
+//       return ISBD_NO_NETWORK;
+//
+//    // Latest epoch began at May 11, 2014, at 14:23:55 UTC.
+//    struct tm epoch_start;
+//    epoch_start.tm_year = 2014 - 1900;
+//    epoch_start.tm_mon = 5 - 1;
+//    epoch_start.tm_mday = 11;
+//    epoch_start.tm_hour = 14;
+//    epoch_start.tm_min = 23;
+//    epoch_start.tm_sec = 55;
+//
+//    unsigned long ticks_since_epoch = strtoul(msstmResponseBuf, NULL, 16);
+//
+//    /* Strategy: we'll convert to seconds by finding the largest number of integral
+//       seconds less than the equivalent ticks_since_epoch. Subtract that away and
+//       we'll be left with a small number that won't overflow when we scale by 90/1000.
+//
+//       Many thanks to Scott Weldon for this suggestion.
+//    */
+//    unsigned long secs_since_epoch = (ticks_since_epoch / 1000) * 90;
+//    unsigned long small_ticks = ticks_since_epoch - (secs_since_epoch / 90) * 1000;
+//    secs_since_epoch += small_ticks * 90 / 1000;
+//
+//    time_t epoch_time = mktime(&epoch_start);
+//    time_t now = epoch_time + secs_since_epoch;
+//    memcpy(&tm, localtime(&now), sizeof tm);
+//    return ISBD_SUCCESS;
+// }
 
 int IridiumSBD::getFirmwareVersion(char *version, size_t bufferSize)
 {

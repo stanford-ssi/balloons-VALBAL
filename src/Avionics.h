@@ -34,7 +34,7 @@
 #include "SpaghettiController2.h"
 #include "Utils.h"
 
-#define JANKSHITL
+//#define JANKSHITL
 
 // regualar min and max is not compatible with vector in std
 #define _min(a,b) ((a)<(b)?(a):(b))

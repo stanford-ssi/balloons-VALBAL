@@ -146,7 +146,7 @@ static const float     PSC_SLOPE                             =            0.011;
 static const float     PSC_INTERCEPT                         =          -0.2419;
 static const float     CM_WATER_TO_PA                        =          98.0665;
 
-static const uint8_t   CONTROLLER_INDEX_DEFAULT              =                0;
+static const uint8_t   CONTROLLER_INDEX_DEFAULT              =                1;
 
 enum {
   LEGACY_CONTROLLER_INDEX               =                0,

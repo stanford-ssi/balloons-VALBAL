@@ -36,7 +36,7 @@ int main(void) {
     VALBAL.updateState();
     VALBAL.evaluateState();
     VALBAL.actuateState();
-    //VALBAL.logState();
+    VALBAL.logState();
     VALBAL.sendComms();
     VALBAL.sleep();
   }
@@ -49,7 +49,7 @@ bool ISBDCallback() {
     VALBAL.updateState();
     VALBAL.evaluateState();
     VALBAL.actuateState();
-    // VALBAL.logState();
+    VALBAL.logState();
     VALBAL.sleep();
   }
   return true;

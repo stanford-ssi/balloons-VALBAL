@@ -160,8 +160,6 @@ struct DataFrame {
   uint16_t   COMMS_LENGTH                    =                                0;
 
   int32_t ACTIONS[4] = {0};
-  uint8_t CONTROLLER = 0;
-
 
   int32_t    ACTION_SPAG                     =                                0;
   float      SPAG_EFFORT                     =                                0;

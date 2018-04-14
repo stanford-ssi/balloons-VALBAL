@@ -32,7 +32,7 @@ public:
   bool     wake();
   bool     snooze();
   int16_t  writeRead(char* buff, uint16_t len);
-  
+
 private:
 /*********************************  HELPERS  **********************************/
   void     write(char* buff, uint16_t len);

@@ -11,6 +11,14 @@
 
 #include "RockBLOCK.h"
 
+void ISBDConsoleCallback(IridiumSBD *device, char c) {
+  Serial.print(c);
+}
+
+void ISBDDiagCallback(IridiumSBD *device, char c) {
+  Serial.print(c);
+}
+
 /**********************************  SETUP  ***********************************/
 /*
  * Function: init
@@ -20,16 +28,16 @@
 bool RockBLOCK::init(bool shouldStartup) {
   bool success = false;
   pinMode(RB_GATE, OUTPUT);
-  digitalWrite(RB_GATE, HIGH);
-  delay(2000);
-  isbd.attachConsole(Serial);
-  isbd.attachDiags(Serial);
-  isbd.setPowerProfile(1);
+  digitalWrite(RB_GATE, LOW);
+  delay(2500);
+
+  isbd.setPowerProfile(IridiumSBD::USB_POWER_PROFILE);
   Serial3.begin(RB_BAUD);
   if (shouldStartup) {
     restart();
     success = true;
   }
+  success = true; // lmao
   return success;
 }
 
@@ -41,10 +49,21 @@ bool RockBLOCK::init(bool shouldStartup) {
  */
 void RockBLOCK::restart() {
   EEPROM.write(EEPROMAddress, false);
-  digitalWrite(RB_GATE, LOW);
-  delay(1000);
+
+  // is this necessary? dunno. let the jank flow~
+  isbd.reentrant = false;
+  isbd.asleep = true;
+  isbd.remainingMessages = -1;
+  isbd.nextChar = -1;
+  isbd.remainingMessages = -1;
+  isbd.msstmWorkaroundRequested = true;
+
+  digitalWrite(RB_GATE, HIGH);
+
+  Serial3.begin(RB_BAUD);
+
   wake();
-  delay(3000);
+  delay(1000);
   EEPROM.write(EEPROMAddress, true);
 }
 
@@ -54,7 +73,9 @@ void RockBLOCK::restart() {
  * This function shuts down the RockBLOCK.
  */
 void RockBLOCK::shutdown() {
-  digitalWrite(RB_GATE, HIGH);
+  Serial.println("shutting down");
+  //isbd.sleep();
+  digitalWrite(RB_GATE, LOW);
   EEPROM.write(EEPROMAddress, false);
 }
 
@@ -101,7 +122,14 @@ int16_t RockBLOCK::writeRead(char* buff, uint16_t len) {
   if(len < 0) return -1;
   size_t  bufferSize = sizeof(rxBuffer);
   write(buff, len);
-  if(isbd.sendReceiveSBDBinary(rxBuffer, len, rxBuffer, bufferSize) != ISBD_SUCCESS) return -1;
+  Serial.println("time to like send stuff");
+  int weAlwaysCheckReturnCodes = isbd.sendReceiveSBDBinary(rxBuffer, len, rxBuffer, bufferSize);
+  Serial.println();
+  Serial.println();
+  Serial.println();
+  Serial.println("RETURN CODE");
+  Serial.println(weAlwaysCheckReturnCodes);
+  if(weAlwaysCheckReturnCodes != ISBD_SUCCESS) return -1;
   read(buff, bufferSize);
   return bufferSize;
 }

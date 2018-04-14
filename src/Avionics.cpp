@@ -55,7 +55,7 @@ void Avionics::init() {
   // pinMode(56, OUTPUT);
   // digitalWrite(56, HIGH);
 // #ifndef RB_DISABLED_FLAG
-//   //if(!RBModule.init(data.POWER_STATE_RB))     alert("unable to initialize RockBlock", true);
+  if(!RBModule.init(false))     alert("unable to initialize RockBlock", true);
 // #endif
   //if(!payload.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
   data.TIME = millis();
@@ -93,7 +93,18 @@ void Avionics::updateState() {
   //currentSensor.read_voltage(DIFF_12_13);
   //Serial.print("avg voltage: ");
   //uint32_t t0 = micros();
-  Serial.println(currentSensor.average_voltage_readings(DIFF_12_13, CURRENT_NUM_SAMPLES), 6);
+  if (data.LOOP_NUMBER % 100 == 33) {
+    Serial.print("& ");
+  Serial.println(currentSensor.average_voltage_readings(DIFF_14_15, CURRENT_NUM_SAMPLES), 6);
+}
+  if (data.LOOP_NUMBER % 100 == 66) {
+  Serial.print("> ");
+  Serial.println(sensors.getVoltageSuperCap());
+}
+if (data.LOOP_NUMBER % 100 == 99) {
+  Serial.print("$ ");
+  Serial.println(data.TEMP_INT);
+}
   //uint32_t dt = micros() - t0;
   //Serial.println(dt);
   delay(LOOP_INTERVAL);
@@ -149,7 +160,17 @@ void Avionics::sendComms() {
   if(data.DEBUG_STATE && ((millis() - data.RB_LAST) < RB_DEBUG_INTERVAL)) return;
   if(!data.DEBUG_STATE && ((millis() - data.RB_LAST) < data.RB_INTERVAL)) return;
   if(compressData() < 0) alert("unable to compress Data", true);
-  if(!sendSATCOMS())     alert("unable to communicate over RB", true);
+  if(!sendSATCOMS())  {
+    alert("unable to communicate over RB", true);
+    // cooldown for 30 seconds
+    uint32_t interval = data.RB_INTERVAL;
+    if (data.DEBUG_STATE) interval = RB_DEBUG_INTERVAL;
+    if (millis() > interval) {
+      data.RB_LAST = millis() - interval + 30000;
+    } else {
+      data.RB_LAST = millis();
+    }
+  }
   else data.RB_LAST = millis();
 #endif
 }
@@ -326,6 +347,12 @@ bool Avionics::processData() {
   bool success = true;
   filter.enableSensors(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
   filter.storeData(data.TIME, data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4,data.PRESS_BASELINE);
+  if (data.LOOP_NUMBER % 500 == 0) {
+    Serial.print("; ");
+    Serial.println(data.ALTITUDE_BAROMETER);
+    Serial.println(data.ASCENT_RATE);
+    Serial.println(data.RAW_PRESSURE_1);
+  }
   data.TEMP_INT                   = filter.getTemp(data.RAW_TEMP_1, data.RAW_TEMP_2, data.RAW_TEMP_3, data.RAW_TEMP_4);
   data.PRESS                      = filter.getPressure();
   data.BMP_1_REJECTIONS           = filter.getNumRejections(1);
@@ -351,7 +378,7 @@ bool Avionics::processData() {
   data.ALTITUDE_BAROMETER         = filter.getAltitude();
   data.ASCENT_RATE                = filter.getAscentRate();
   data.INCENTIVE_NOISE            = filter.getIncentiveNoise(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
-  if (data.ASCENT_RATE           >= 10) success = false;
+  //if (data.ASCENT_RATE           >= 10) success = false;
   return success;
 }
 
@@ -571,6 +598,30 @@ bool Avionics::runCutdown() {
   return true;
 }
 
+
+/*
+bool Avionics::checkInCuba() {
+  if (data.LAT_GPS )
+}*/
+
+/*
+void Avionics::rumAndCoke() {
+  bool now_in_cuba = checkInCuba();
+  if (in_cuba && !now_in_cuba) {
+    in_cuba = false;
+  }
+  if (!in_cuba && now_in_cuba) {
+    in_cuba = true;
+    cuba_timeout = millis() + 1000*3600;
+  }
+  if (in_cuba && millis() > cuba_timeout) {
+    data.SHOULD_CUTDOWN = true;
+    runCutdown();
+    actuator.queueValve(1000000, true);
+  }
+
+}*/
+
 /*
  * Function: runLED
  * -------------------
@@ -646,9 +697,19 @@ bool Avionics::runPayload() {
  */
 bool Avionics::sendSATCOMS() {
   alert("sending Rockblock message", false);
+  Serial.println("ayy rbing");
   data.RB_SENT_COMMS++;
 #ifndef RB_DISABLED_FLAG
+  char msg[] = "cagum deu clavat, a veure... #x";
+  msg[30] = (char)('0'+(data.RB_SENT_COMMS % 10));
+  data.COMMS_LENGTH = sizeof(msg);
+  memcpy(COMMS_BUFFER, msg, sizeof(msg));
+  Serial.println("waking up mr rockblock");
+  RBModule.restart();
   int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
+  Serial.println("crap returned");
+  Serial.println(ret);
+  RBModule.shutdown();
   if(ret < 0) return false;
   clearVariables();
   if(ret > 0) parseCommand(ret);

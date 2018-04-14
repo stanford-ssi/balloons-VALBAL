@@ -127,13 +127,17 @@ uint8_t GPS::getSats() {
  * still communicating with the comms interface.
  */
 void GPS::smartDelay(uint32_t ms) {
+Serial.println("GPS reading begin");
   uint32_t startt = millis();
   do {
     while (Serial1.available()) {
       char c = Serial1.read();
+      Serial.print(c);
       tinygps.encode(c);
     }
   } while (millis() - startt < ms);
+  Serial.println();
+  Serial.println("mmmmm");
 }
 
 /*********************************  HELPERS  **********************************/

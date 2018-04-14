@@ -20,7 +20,7 @@
 //#define STORAGE_MODE_FLAG // uncomment for power off
 #define RESET_EEPROM_FLAG // uncomment for EEPROM reset
 // #define HITL_ENABLED_FLAG // uncomment for HITL
-#define RB_DISABLED_FLAG  // uncomment to disable rockblock
+// #define RB_DISABLED_FLAG  // uncomment to disable rockblock
 
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   SD_CS                                 =               23;
@@ -78,7 +78,7 @@ static const uint32_t  CONSOLE_BAUD                          =           115200;
 static const uint32_t  GPS_BAUD                              =             9600;
 static const uint32_t  RB_BAUD                               =            19200;
 
-static const uint32_t CURRENT_NUM_SAMPLES                    =              256;
+static const uint32_t CURRENT_NUM_SAMPLES                    =             128;
 /***************************  Flight Parameters  ******************************/
 static const bool      MANUAL_MODE_DEFAULT                   =             false;
 static const uint8_t   REPORT_MODE_DEFAULT                   =                2;

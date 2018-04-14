@@ -22,9 +22,9 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
   //current_sensor_config_reg_t config_reg;
   config_manual_reg.SETUP = CURRENT_SENSOR_CONFIG;
   config_manual_reg.REFSEL = 0; // external differential
-  config_manual_reg.AVGON = 0;
-  config_manual_reg.NAVG = 0;
-  config_manual_reg.NSCAN = 0;
+  config_manual_reg.AVGON = 1;
+  config_manual_reg.NAVG = 3;
+  config_manual_reg.NSCAN = 3;
   config_manual_reg.SPM = 0; // keep the sensor powered on all the time for now QUESTION
   config_manual_reg.ECHO = 1;
   config_manual_reg.EMPTY = 0;
@@ -92,6 +92,7 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
   current_sensor_diff_reg_t range_reg;
   range_reg.SETUP = CURRENT_SENSOR_RANGE;
   range_reg.AIN_12_13 = 0;
+  range_reg.AIN_14_15 = 0;
    Serial.print("Range register: ");
    Serial.println(*(uint16_t *)&range_reg);
   set_range_reg(range_reg);
@@ -194,8 +195,6 @@ float CurrentSensor::average_voltage_readings(current_sensor_channel_t channel, 
     current_value += read_voltage(channel);
   }
   float avg = current_value / num_samples * 16129.03;
-  Serial.print("Current: ");
-  Serial.println(avg);
   return avg;
 }
 // uint16_t CurrentSensor::repeat_sample_channel(current_sensor_channel_t channel) {

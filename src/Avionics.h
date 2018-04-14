@@ -139,6 +139,11 @@ private:
   #ifdef JANKSHITL
   Biquad stepsim;
   #endif
+
+  void rumAndCoke();
+  bool checkInCuba();
+  bool in_cuba = false;
+  uint32_t cuba_timmeout = 0;
 };
 
 #endif

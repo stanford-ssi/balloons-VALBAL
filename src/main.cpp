@@ -30,14 +30,14 @@ extern "C"{
 Avionics VALBAL;
 int main(void) {
   VALBAL.init();
-  VALBAL.test();
+  //VALBAL.test();
 /***********************************  MAIN  ***********************************/
   while(true) {
     VALBAL.updateState();
     VALBAL.evaluateState();
     VALBAL.actuateState();
-    VALBAL.logState();
-    // VALBAL.sendComms();
+    //VALBAL.logState();
+    VALBAL.sendComms();
     VALBAL.sleep();
   }
   return 0;
@@ -49,7 +49,7 @@ bool ISBDCallback() {
     VALBAL.updateState();
     VALBAL.evaluateState();
     VALBAL.actuateState();
-    VALBAL.logState();
+    // VALBAL.logState();
     VALBAL.sleep();
   }
   return true;

@@ -388,65 +388,35 @@ bool Avionics::calcIncentives() {
   data.RE_ARM_CONSTANT   = computer.updateControllerConstants(data.BALLAST_ARM_ALT, data.INCENTIVE_THRESHOLD);
   if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) success =  false;
 
-  // "using SpaghettiController;" jkjk
-  SpaghettiController::Constants allControllerConstants;
-  allControllerConstants.freq                    = data.SPAG_FREQ;
-  allControllerConstants.k                       = data.SPAG_K;
-  allControllerConstants.b_dldt                  = data.SPAG_B_DLDT;
-  allControllerConstants.v_dldt                  = data.SPAG_V_DLDT;
-  allControllerConstants.rate_min                = data.SPAG_RATE_MIN;
-  allControllerConstants.rate_max                = data.SPAG_RATE_MAX;
-  allControllerConstants.b_tmin                  = data.SPAG_B_TMIN;
-  allControllerConstants.v_tmin                  = data.SPAG_V_TMIN;
-  allControllerConstants.h_cmd                   = data.SPAG_H_CMD;
-  spagController.updateConstants(allControllerConstants);
+  uint32_t INDEX = SPAG_CONTROLLER_INDEX;
+  spagController.updateConstants(data.SPAG_CONSTANTS);
+  SpaghettiController::Input spagInput;
+  spagInput.h = data.ALTITUDE_BAROMETER;
+  spagController.update(spagInput);
+  data.SPAG_STATE = spagController.getState();
+  data.ACTIONS[INDEX]  = spagController.getAction();
+  data.ACTION_TIME_TOTALS[2*INDEX] = data.ACTIONS[INDEX] < 0 ? data.ACTION_TIME_TOTALS[2*INDEX] - data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX];
+  data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
 
-  SpaghettiController::Input input;
-  input.h = data.ALTITUDE_BAROMETER;
-  spagController.update(input);
+  INDEX = SPAG2_CONTROLLER_INDEX;
+  spag2Controller.updateConstants(data.SPAG2_CONSTANTS);
+  SpaghettiController2::Input spag2Input;
+  spag2Input.h = data.ALTITUDE_BAROMETER;
+  spag2Controller.update(spag2Input);
+  data.SPAG2_STATE = spag2Controller.getState();
+  data.ACTIONS[INDEX]  = spag2Controller.getAction();
+  data.ACTION_TIME_TOTALS[2*INDEX] = data.ACTIONS[INDEX] < 0 ? data.ACTION_TIME_TOTALS[2*INDEX] - data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX];
+  data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
 
-  SpaghettiController::State allControllerStates = spagController.getState();
-
-  data.ACTIONS[SPAG_CONTROLLER_INDEX]  =     spagController.getAction();
-  data.SPAG_EFFORT                     =     allControllerStates.effort;
-  data.SPAG_VENT_TIME_INTERVAL         =     allControllerStates.v_T;
-  data.SPAG_BALLAST_TIME_INTERVAL      =     allControllerStates.b_T;
-  data.SPAG_VENT_TIME_TOTAL            =     data.ACTIONS[SPAG_CONTROLLER_INDEX] < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTIONS[0] : data.SPAG_VENT_TIME_TOTAL;
-  data.SPAG_BALLAST_TIME_TOTAL         =     data.ACTIONS[SPAG_CONTROLLER_INDEX] > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTIONS[0] : data.SPAG_BALLAST_TIME_TOTAL;
-
-  /* SPAGHETTI 2: CONTROLIOLI BOOGALOO */
-  SpaghettiController2::Constants spaghetti2Constants;
-  spaghetti2Constants.freq                    = data.SPAG_FREQ;
-  spaghetti2Constants.k                       = data.SPAG_K;
-  spaghetti2Constants.b_dldt                  = data.SPAG_B_DLDT;
-  spaghetti2Constants.v_dldt                  = data.SPAG_V_DLDT;
-  spaghetti2Constants.b_tmin                  = data.SPAG_B_TMIN;
-  spaghetti2Constants.v_tmin                  = data.SPAG_V_TMIN;
-  spaghetti2Constants.h_cmd                   = data.SPAG_H_CMD;
-  spaghetti2Constants.ascent_rate_thresh      = data.SPAG_ASCENT_RATE_THRESH;
-  spaghetti2Constants.v_ss_error_thresh       = data.SPAG_V_SS_ERROR_THRESH;
-  spaghetti2Constants.b_ss_error_thresh       = data.SPAG_B_SS_ERROR_THRESH;
-  spaghetti2Constants.rate_max                = data.SPAG_RATE_MAX;
-  spaghetti2Constants.kfuse                   = data.SPAG_KFUSE;
-  spaghetti2Constants.kfuse_v                 = data.SPAG_KFUSE_V;
-  spag2Controller.updateConstants(spaghetti2Constants);
-
-
-  SpaghettiController2::Input input2;
-  input2.h = data.ALTITUDE_BAROMETER;
-  spag2Controller.update(input2);
-  SpaghettiController2::State spaghetti2State = spag2Controller.getState();
-  data.ACTIONS[SPAG2_CONTROLLER_INDEX]  =     spag2Controller.getAction();
-  data.SPAG2_EFFORT = spaghetti2State.effort;
-
+  INDEX = LAS_CONTROLLER_INDEX;
   lasController.updateConstants(data.LAS_CONSTANTS);
   LasagnaController::Input lasInput;
   lasInput.h = data.ALTITUDE_BAROMETER;
   lasController.update(lasInput);
   data.LAS_STATE = lasController.getState();
-  data.ACTIONS[LAS_CONTROLLER_INDEX]  = lasController.getAction();
-  data.LAS_VENT_TIME_TOTAL            =     data.ACTIONS[LAS_CONTROLLER_INDEX] < 0 ? data.LAS_VENT_TIME_TOTAL - data.ACTIONS[LAS_CONTROLLER_INDEX] : data.LAS_VENT_TIME_TOTAL;
-  data.LAS_BALLAST_TIME_TOTAL         =     data.ACTIONS[LAS_CONTROLLER_INDEX] > 0 ? data.LAS_BALLAST_TIME_TOTAL + data.ACTIONS[LAS_CONTROLLER_INDEX] : data.LAS_BALLAST_TIME_TOTAL;
+  data.ACTIONS[INDEX]  = lasController.getAction();
+  data.ACTION_TIME_TOTALS[2*INDEX] = data.ACTIONS[INDEX] < 0 ? data.ACTION_TIME_TOTALS[2*INDEX] - data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX];
+  data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
 
   return success;
 }
@@ -753,30 +723,40 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 31) parseGPSPowerCommand(value);
   else if (index == 32) parsePayloadPowerCommand(value);
   else if (index == 33) data.CURRENT_CONTROLLER_INDEX = value;
-  else if (index == 34) data.SPAG_K = value;
-  else if (index == 35) data.SPAG_B_DLDT = value;
-  else if (index == 36) data.SPAG_V_DLDT = value;
-  else if (index == 37) data.SPAG_RATE_MIN = value;
-  else if (index == 38) data.SPAG_RATE_MAX = value;
-  else if (index == 39) data.SPAG_B_TMIN = value;
-  else if (index == 40) data.SPAG_V_TMIN = value;
-  else if (index == 41) data.SPAG_H_CMD = value;
-  else if (index == 42) data.SPAG_ASCENT_RATE_THRESH = value;
-  else if (index == 43) data.SPAG_V_SS_ERROR_THRESH = value;
-  else if (index == 44) data.SPAG_B_SS_ERROR_THRESH = value;
-  else if (index == 45) data.SPAG_KFUSE = value;
-  else if (index == 46) data.SPAG_KFUSE_V = value;
-  else if (index == 47) data.LAS_CONSTANTS.freq            = value;
-  else if (index == 48) data.LAS_CONSTANTS.k_v             = value;
-  else if (index == 49) data.LAS_CONSTANTS.k_h             = value;
-  else if (index == 50) data.LAS_CONSTANTS.b_dldt          = value;
-  else if (index == 51) data.LAS_CONSTANTS.v_dldt          = value;
-  else if (index == 52) data.LAS_CONSTANTS.b_tmin          = value;
-  else if (index == 53) data.LAS_CONSTANTS.v_tmin          = value;
-  else if (index == 54) data.LAS_CONSTANTS.h_cmd           = value;
-  else if (index == 55) data.LAS_CONSTANTS.kfuse           = value;
-  else if (index == 56) data.LAS_CONSTANTS.kfuse_val       = value;
-  else if (index == 57) data.LAS_CONSTANTS.ss_error_thresh = value;
+  else if (index == 34) data.SPAG_CONSTANTS.freq      = value;
+  else if (index == 35) data.SPAG_CONSTANTS.k         = value;
+  else if (index == 36) data.SPAG_CONSTANTS.b_dldt    = value;
+  else if (index == 37) data.SPAG_CONSTANTS.v_dldt    = value;
+  else if (index == 38) data.SPAG_CONSTANTS.rate_min  = value;
+  else if (index == 39) data.SPAG_CONSTANTS.rate_max  = value;
+  else if (index == 40) data.SPAG_CONSTANTS.b_tmin    = value;
+  else if (index == 41) data.SPAG_CONSTANTS.v_tmin    = value;
+  else if (index == 42) data.SPAG_CONSTANTS.h_cmd     = value;
+  else if (index == 43) data.SPAG2_CONSTANTS.freq               = value;
+  else if (index == 44) data.SPAG2_CONSTANTS.k                  = value;
+  else if (index == 45) data.SPAG2_CONSTANTS.b_dldt             = value;
+  else if (index == 46) data.SPAG2_CONSTANTS.v_dldt             = value;
+  else if (index == 47) data.SPAG2_CONSTANTS.rate_min           = value;
+  else if (index == 48) data.SPAG2_CONSTANTS.rate_max           = value;
+  else if (index == 49) data.SPAG2_CONSTANTS.b_tmin             = value;
+  else if (index == 50) data.SPAG2_CONSTANTS.v_tmin             = value;
+  else if (index == 51) data.SPAG2_CONSTANTS.h_cmd              = value;
+  else if (index == 52) data.SPAG2_CONSTANTS.v_ss_error_thresh  = value;
+  else if (index == 53) data.SPAG2_CONSTANTS.b_ss_error_thresh  = value;
+  else if (index == 54) data.SPAG2_CONSTANTS.ascent_rate_thresh = value;
+  else if (index == 55) data.SPAG2_CONSTANTS.kfuse              = value;
+  else if (index == 56) data.SPAG2_CONSTANTS.kfuse_v            = value;
+  else if (index == 57) data.LAS_CONSTANTS.freq            = value;
+  else if (index == 58) data.LAS_CONSTANTS.k_v             = value;
+  else if (index == 59) data.LAS_CONSTANTS.k_h             = value;
+  else if (index == 60) data.LAS_CONSTANTS.b_dldt          = value;
+  else if (index == 61) data.LAS_CONSTANTS.v_dldt          = value;
+  else if (index == 62) data.LAS_CONSTANTS.b_tmin          = value;
+  else if (index == 63) data.LAS_CONSTANTS.v_tmin          = value;
+  else if (index == 64) data.LAS_CONSTANTS.h_cmd           = value;
+  else if (index == 65) data.LAS_CONSTANTS.kfuse           = value;
+  else if (index == 66) data.LAS_CONSTANTS.kfuse_val       = value;
+  else if (index == 67) data.LAS_CONSTANTS.ss_error_thresh = value;
 }
 
 /*
@@ -950,10 +930,10 @@ void Avionics::clearVariables() {
   data.VALVE_NUM_ATTEMPTS = 0;
   data.BALLAST_NUM_ATTEMPTS = 0;
   data.LOOP_TIME_MAX = 0;
-  data.SPAG_BALLAST_TIME_TOTAL = 0;
-  data.SPAG_VENT_TIME_TOTAL = 0;
-  data.LAS_BALLAST_TIME_TOTAL = 0;
-  data.LAS_VENT_TIME_TOTAL = 0;
+  int len = sizeof(data.ACTION_TIME_TOTALS)/sizeof(data.ACTION_TIME_TOTALS[0]);
+  for(int i; i < len; i++){
+    data.ACTION_TIME_TOTALS[i] = 0;
+  }
 }
 
 /*
@@ -1059,18 +1039,18 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.RE_ARM_CONSTANT_LEGACY,             0,    4,        8,  lengthBits);
     lengthBits += compressVariable(data.VALVE_ALT_LAST_LEGACY,             -2000, 50000,    11, lengthBits);
     lengthBits += compressVariable(data.BALLAST_ALT_LAST_LEGACY,           -2000, 50000,    11, lengthBits);
-    lengthBits += compressVariable(data.SPAG_EFFORT*1000,                  -2, 2, 12, lengthBits);
-    lengthBits += compressVariable(data.SPAG_VENT_TIME_INTERVAL,           0,     600,   8, lengthBits);
-    lengthBits += compressVariable(data.SPAG_BALLAST_TIME_INTERVAL,        0,     600,   8, lengthBits);
-    lengthBits += compressVariable(data.SPAG_VENT_TIME_TOTAL/1000,         0,     600,   8, lengthBits);
-    lengthBits += compressVariable(data.SPAG_BALLAST_TIME_TOTAL/1000,      0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.SPAG_STATE.effort*1000,            -2, 2, 12, lengthBits);
+    lengthBits += compressVariable(data.SPAG2_STATE.effort*1000,           -2, 2, 12, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.ascent_rate,           -10,     -10,   11, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.fused_ascent_rate,     -10,     -10,   11, lengthBits);
-    lengthBits += compressVariable(data.LAS_STATE.effort,                  0,       1,   8, lengthBits);
-    lengthBits += compressVariable(data.LAS_STATE.effort_sum,              0,       1,   8, lengthBits);
+    lengthBits += compressVariable(data.LAS_STATE.effort,                  -2,       2,  11, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.v_cmd,                 -10,      10,   8, lengthBits);
-    lengthBits += compressVariable(data.LAS_BALLAST_TIME_TOTAL/1000,        0,     600,   8, lengthBits);
-    lengthBits += compressVariable(data.LAS_VENT_TIME_TOTAL/1000,           0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.ACTION_TIME_TOTALS[2]/1000,        0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.ACTION_TIME_TOTALS[3]/1000,        0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.ACTION_TIME_TOTALS[4]/1000,        0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.ACTION_TIME_TOTALS[5]/1000,        0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.ACTION_TIME_TOTALS[6]/1000,        0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.ACTION_TIME_TOTALS[7]/1000,        0,     600,   8, lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval
@@ -1096,26 +1076,34 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(1.0 / data.BALLAST_LAST_ACTION_CONSTANT,  0,    4095,    8,  lengthBits); // Ballast last action constant
     // spaghetti readback
     lengthBits += compressVariable(data.CURRENT_CONTROLLER_INDEX,       0,    3,    2,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_K,       0,    2,    6,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_B_DLDT*1000,       0,    10,    7,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_V_DLDT*1000,       0,    40,    9,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_RATE_MIN*1000,       0,    0.2,    8,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_RATE_MAX*1000,       0,    2,    8,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_B_TMIN,       0,    31,    5,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_V_TMIN,       0,    31,    5,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_H_CMD,       -2000,    40000,    11,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_ASCENT_RATE_THRESH,       0,    5,    6,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_V_SS_ERROR_THRESH,       0,    5000,    8,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_B_SS_ERROR_THRESH,       0,    5000,    8,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_KFUSE,         0,      16,     4, lengthBits);
-    lengthBits += compressVariable(data.SPAG_KFUSE_V,         0,       1,     4, lengthBits);
+    lengthBits += compressVariable(data.SPAG_CONSTANTS.k,                      0,      2,    6,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_CONSTANTS.b_dldt*1000,            0,      100,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_CONSTANTS.v_dldt*1000,            0,      100,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_CONSTANTS.rate_min*1000,          0,      0.2,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_CONSTANTS.rate_max*1000,          0,      2,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_CONSTANTS.b_tmin,                 0,      31,    5,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_CONSTANTS.v_tmin,                 0,      31,    5,  lengthBits);
+    lengthBits += compressVariable(data.SPAG_CONSTANTS.h_cmd,                  -2000,    40000,    11,  lengthBits);
+    lengthBits += compressVariable(data.SPAG2_CONSTANTS.k,                     0,      2,    6,      lengthBits);
+    lengthBits += compressVariable(data.SPAG2_CONSTANTS.b_dldt*1000,           0,      100,    8,    lengthBits);
+    lengthBits += compressVariable(data.SPAG2_CONSTANTS.v_dldt*1000,           0,      100,    8,    lengthBits);
+    lengthBits += compressVariable(data.SPAG2_CONSTANTS.rate_min*1000,         0,      0.2,    8,    lengthBits);
+    lengthBits += compressVariable(data.SPAG2_CONSTANTS.rate_max*1000,         0,      2,    8,    lengthBits);
+    lengthBits += compressVariable(data.SPAG2_CONSTANTS.b_tmin,                0,      31,    5,   lengthBits);
+    lengthBits += compressVariable(data.SPAG2_CONSTANTS.v_tmin,                0,      31,    5,   lengthBits);
+    lengthBits += compressVariable(data.SPAG2_CONSTANTS.h_cmd,                 -2000,    40000,    11,  lengthBits);
+    lengthBits += compressVariable(data.SPAG2_CONSTANTS.v_ss_error_thresh,     0,      3000,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG2_CONSTANTS.b_ss_error_thresh,     0,      3000,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG2_CONSTANTS.ascent_rate_thresh,    0,      10,    8,  lengthBits);
+    lengthBits += compressVariable(data.SPAG2_CONSTANTS.kfuse,                 0,      30,    6,  lengthBits);
+    lengthBits += compressVariable(data.SPAG2_CONSTANTS.kfuse_v,               0,      1,    4,  lengthBits);
 
     lengthBits += compressVariable(data.OVERPRESSURE,    -1940,  700,    12,  lengthBits);
 
     lengthBits += compressVariable(data.LAS_CONSTANTS.k_v,                   0,      .01,   8,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.k_h,                   0,      .01,   8,  lengthBits);
-    lengthBits += compressVariable(data.LAS_CONSTANTS.b_dldt,                0,       .1,   8,  lengthBits);
-    lengthBits += compressVariable(data.LAS_CONSTANTS.v_dldt,                0,       .1,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.b_dldt*1000,           0,      100,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.v_dldt*1000,           0,      100,   8,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.b_tmin,                0,       20,   4,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.v_tmin,                0,       20,   4,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.h_cmd,                 0,    20000,   8,  lengthBits);
@@ -1155,9 +1143,9 @@ void Avionics::printState() {
   Serial.print("CONTROLLER: ");
   Serial.println(data.CURRENT_CONTROLLER_INDEX);
   Serial.print("SPAG_EFFORT: ");
-  Serial.println(data.SPAG_EFFORT*1000);
+  Serial.println(data.SPAG_STATE.effort*1000);
   Serial.print("SPAG2_EFFORT: ");
-  Serial.println(data.SPAG_EFFORT*1000);
+  Serial.println(data.SPAG2_STATE.effort*1000);
   Serial.print("LAS_EFFORT: ");
   Serial.println(data.LAS_STATE.effort*1000);
   Serial.print("VALVE_INCENTIVE_LEGACY: ");
@@ -1523,8 +1511,6 @@ void Avionics::printState() {
   Serial.print(" COMMS_LENGTH:");
   Serial.print(data.COMMS_LENGTH);
   Serial.print(",");
-  Serial.print(" SPAG_EFFORT:");
-  Serial.print(data.SPAG_EFFORT, 8);
   Serial.print("\n\r");
   Serial.print("\n\r");
 }

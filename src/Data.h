@@ -13,6 +13,8 @@
 
 #include "Config.h"
 #include "LasagnaController.h"
+#include "SpaghettiController.h"
+#include "SpaghettiController2.h"
 
 /**************************  CURRENT DATA FRAME  ******************************/
 struct DataFrame {
@@ -161,41 +163,19 @@ struct DataFrame {
 
   int32_t ACTIONS[4] = {0};
 
-  int32_t    ACTION_SPAG                     =                                0;
-  float      SPAG_EFFORT                     =                                0;
-  float      SPAG_VENT_TIME_INTERVAL         =                                0;
-  float      SPAG_BALLAST_TIME_INTERVAL      =                                0;
-  uint32_t   SPAG_VALVE_INTERVAL_COUNTER     =                                0;
-  uint32_t   SPAG_BALLAST_INTERVAL_COUNTER   =                                0;
-  uint32_t   SPAG_VENT_TIME_TOTAL            =                                0;
-  uint32_t   SPAG_BALLAST_TIME_TOTAL         =                                0;
-
-  float     SPAG2_EFFORT                    =                                0;
-
-  float     SPAG_FREQ                        =               1000/LOOP_INTERVAL;
-  float     SPAG_K                           =                   SPAG_K_DEFAULT;
-  float     SPAG_B_DLDT                      =              SPAG_B_DLDT_DEFAULT;
-  float     SPAG_V_DLDT                      =              SPAG_V_DLDT_DEFAULT;
-  float     SPAG_RATE_MIN                    =            SPAG_RATE_MIN_DEFAULT;
-  float     SPAG_RATE_MAX                    =            SPAG_RATE_MAX_DEFAULT;
-  float     SPAG_B_TMIN                      =              SPAG_B_TMIN_DEFAULT;
-  float     SPAG_V_TMIN                      =              SPAG_V_TMIN_DEFAULT;
-  float     SPAG_H_CMD                       =               SPAG_H_CMD_DEFAULT;
-  float     SPAG_ASCENT_RATE_THRESH          =  SPAG_ASCENT_RATE_THRESH_DEFAULT;
-  float     SPAG_V_SS_ERROR_THRESH           =  SPAG_V_SS_ERROR_THRESH_DEFAULT ;
-  float     SPAG_B_SS_ERROR_THRESH           =  SPAG_B_SS_ERROR_THRESH_DEFAULT ;
-  float     SPAG_KFUSE                       =               SPAG_KFUSE_DEFAULT;
-  float     SPAG_KFUSE_V                     =             SPAG_KFUSE_V_DEFAULT;
+  SpaghettiController::Constants SPAG_CONSTANTS;
+  SpaghettiController::State SPAG_STATE;
+  SpaghettiController2::Constants SPAG2_CONSTANTS;
+  SpaghettiController2::State SPAG2_STATE;
   LasagnaController::Constants LAS_CONSTANTS;
   LasagnaController::State LAS_STATE;
-  uint32_t  LAS_BALLAST_TIME_TOTAL           =                                 0;
-  uint32_t  LAS_VENT_TIME_TOTAL              =                                 0;
-  float     OVERPRESSURE                     =                                0;
+  uint32_t  ACTION_TIME_TOTALS[8]            =                               {0};
+  float     OVERPRESSURE                     =                                 0;
 
 } __attribute__((packed));
 
 #include <assert.h>
 
-static_assert(sizeof(DataFrame) < 600, "ohp dataframe too big");
+static_assert(sizeof(DataFrame) < 700, "ohp dataframe too big");
 
 #endif

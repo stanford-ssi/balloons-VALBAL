@@ -407,16 +407,14 @@ bool Avionics::calcIncentives() {
 
   SpaghettiController::State allControllerStates = spagController.getState();
 
-  data.ACTIONS[0] = spagController.getAction();
-
+  data.ACTIONS[SPAG_CONTROLLER_INDEX]  =     spagController.getAction();
   data.SPAG_EFFORT                     =     allControllerStates.effort;
   data.SPAG_VENT_TIME_INTERVAL         =     allControllerStates.v_T;
   data.SPAG_BALLAST_TIME_INTERVAL      =     allControllerStates.b_T;
-  data.SPAG_VENT_TIME_TOTAL            =     data.ACTIONS[0] < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTIONS[0] : data.SPAG_VENT_TIME_TOTAL;
-  data.SPAG_BALLAST_TIME_TOTAL         =     data.ACTIONS[0] > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTIONS[0] : data.SPAG_BALLAST_TIME_TOTAL;
+  data.SPAG_VENT_TIME_TOTAL            =     data.ACTIONS[SPAG_CONTROLLER_INDEX] < 0 ? data.SPAG_VENT_TIME_TOTAL - data.ACTIONS[0] : data.SPAG_VENT_TIME_TOTAL;
+  data.SPAG_BALLAST_TIME_TOTAL         =     data.ACTIONS[SPAG_CONTROLLER_INDEX] > 0 ? data.SPAG_BALLAST_TIME_TOTAL + data.ACTIONS[0] : data.SPAG_BALLAST_TIME_TOTAL;
 
   /* SPAGHETTI 2: CONTROLIOLI BOOGALOO */
-
   SpaghettiController2::Constants spaghetti2Constants;
   spaghetti2Constants.freq                    = data.SPAG_FREQ;
   spaghetti2Constants.k                       = data.SPAG_K;
@@ -434,10 +432,19 @@ bool Avionics::calcIncentives() {
   spag2Controller.updateConstants(spaghetti2Constants);
 
   SpaghettiController2::Input input2;
-  input.h = data.ALTITUDE_BAROMETER;
+  input2.h = data.ALTITUDE_BAROMETER;
   spag2Controller.update(input2);
-
   SpaghettiController2::State spaghetti2State = spag2Controller.getState();
+  data.ACTIONS[SPAG2_CONTROLLER_INDEX]  =     spag2Controller.getAction();
+
+  lasController.updateConstants(data.LAS_CONSTANTS);
+  LasagnaController::Input lasInput;
+  lasInput.h = data.ALTITUDE_BAROMETER;
+  lasController.update(lasInput);
+  data.LAS_STATE = lasController.getState();
+  data.ACTIONS[LAS_CONTROLLER_INDEX]  = lasController.getAction();
+  data.LAS_VENT_TIME_TOTAL            =     data.ACTIONS[LAS_CONTROLLER_INDEX] < 0 ? data.LAS_VENT_TIME_TOTAL - data.ACTIONS[LAS_CONTROLLER_INDEX] : data.LAS_VENT_TIME_TOTAL;
+  data.LAS_BALLAST_TIME_TOTAL         =     data.ACTIONS[LAS_CONTROLLER_INDEX] > 0 ? data.LAS_BALLAST_TIME_TOTAL + data.ACTIONS[LAS_CONTROLLER_INDEX] : data.LAS_BALLAST_TIME_TOTAL;
 
   return success;
 }
@@ -732,41 +739,31 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 30) parseRockBLOCKPowerCommand(value);
   else if (index == 31) parseGPSPowerCommand(value);
   else if (index == 32) parsePayloadPowerCommand(value);
-  // controller switching
-  else if (index == 50) data.CONTROLLER = value;
-  else if (index == 51) data.SPAG_K = value;
-  else if (index == 52) data.SPAG_B_DLDT = value;
-  else if (index == 53) data.SPAG_V_DLDT = value;
-  else if (index == 54) data.SPAG_RATE_MIN = value;
-  else if (index == 55) data.SPAG_RATE_MAX = value;
-  else if (index == 56) data.SPAG_B_TMIN = value;
-  else if (index == 57) data.SPAG_V_TMIN = value;
-  else if (index == 58) data.SPAG_H_CMD = value;
-  else if (index == 59) data.SPAG_ASCENT_RATE_THRESH = value;
-  else if (index == 60) data.SPAG_V_SS_ERROR_THRESH = value;
-  else if (index == 61) data.SPAG_B_SS_ERROR_THRESH = value;
-  else if (index == 62) data.SPAG_KFUSE = value;
-  else if (index == 63) data.SPAG_KFUSE_V = value;
-  else if (index == 34) data.CURRENT_CONTROLLER_INDEX = value;
-  else if (index == 35) data.SPAG_K = value;
-  else if (index == 36) data.SPAG_B_DLDT = value;
-  else if (index == 37) data.SPAG_V_DLDT = value;
-  else if (index == 38) data.SPAG_RATE_MIN = value;
-  else if (index == 39) data.SPAG_RATE_MAX = value;
-  else if (index == 40) data.SPAG_B_TMIN = value;
-  else if (index == 41) data.SPAG_V_TMIN = value;
-  else if (index == 42) data.SPAG_H_CMD = value;
-  else if (index == 43)   data.LAS_CONSTANTS.freq            = value;
-  else if (index == 44)   data.LAS_CONSTANTS.k_v             = value;
-  else if (index == 45)   data.LAS_CONSTANTS.k_h             = value;
-  else if (index == 46)   data.LAS_CONSTANTS.b_dldt          = value;
-  else if (index == 47)   data.LAS_CONSTANTS.v_dldt          = value;
-  else if (index == 48)   data.LAS_CONSTANTS.b_tmin          = value;
-  else if (index == 49)   data.LAS_CONSTANTS.v_tmin          = value;
-  else if (index == 50)   data.LAS_CONSTANTS.h_cmd           = value;
-  else if (index == 51)   data.LAS_CONSTANTS.kfuse           = value;
-  else if (index == 52)   data.LAS_CONSTANTS.kfuse_val       = value;
-  else if (index == 53)   data.LAS_CONSTANTS.ss_error_thresh = value;
+  else if (index == 33) data.CONTROLLER = value;
+  else if (index == 34) data.SPAG_K = value;
+  else if (index == 35) data.SPAG_B_DLDT = value;
+  else if (index == 36) data.SPAG_V_DLDT = value;
+  else if (index == 37) data.SPAG_RATE_MIN = value;
+  else if (index == 38) data.SPAG_RATE_MAX = value;
+  else if (index == 39) data.SPAG_B_TMIN = value;
+  else if (index == 40) data.SPAG_V_TMIN = value;
+  else if (index == 41) data.SPAG_H_CMD = value;
+  else if (index == 42) data.SPAG_ASCENT_RATE_THRESH = value;
+  else if (index == 43) data.SPAG_V_SS_ERROR_THRESH = value;
+  else if (index == 44) data.SPAG_B_SS_ERROR_THRESH = value;
+  else if (index == 45) data.SPAG_KFUSE = value;
+  else if (index == 46) data.SPAG_KFUSE_V = value;
+  else if (index == 47) data.LAS_CONSTANTS.freq            = value;
+  else if (index == 48) data.LAS_CONSTANTS.k_v             = value;
+  else if (index == 49) data.LAS_CONSTANTS.k_h             = value;
+  else if (index == 50) data.LAS_CONSTANTS.b_dldt          = value;
+  else if (index == 51) data.LAS_CONSTANTS.v_dldt          = value;
+  else if (index == 52) data.LAS_CONSTANTS.b_tmin          = value;
+  else if (index == 53) data.LAS_CONSTANTS.v_tmin          = value;
+  else if (index == 54) data.LAS_CONSTANTS.h_cmd           = value;
+  else if (index == 55) data.LAS_CONSTANTS.kfuse           = value;
+  else if (index == 56) data.LAS_CONSTANTS.kfuse_val       = value;
+  else if (index == 57) data.LAS_CONSTANTS.ss_error_thresh = value;
 }
 
 /*
@@ -872,6 +869,7 @@ void Avionics::parseGPSPowerCommand(uint8_t command) {
 void Avionics::parseResistorPowerCommand(uint8_t command) {
   data.RESISTOR_MODE = command;
 }
+  uint8_t    CURRENT_CONTROLLER_INDEX        =         CONTROLLER_INDEX_DEFAULT;
 
 /*
  * Function: parsePayloadPowerCommand
@@ -941,6 +939,8 @@ void Avionics::clearVariables() {
   data.LOOP_TIME_MAX = 0;
   data.SPAG_BALLAST_TIME_TOTAL = 0;
   data.SPAG_VENT_TIME_TOTAL = 0;
+  data.LAS_BALLAST_TIME_TOTAL = 0;
+  data.LAS_VENT_TIME_TOTAL = 0;
 }
 
 /*
@@ -1056,6 +1056,8 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.LAS_STATE.effort,                  0,       1,   8, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.effort_sum,              0,       1,   8, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.v_cmd,                 -10,      10,   8, lengthBits);
+    lengthBits += compressVariable(data.LAS_BALLAST_TIME_TOTAL/1000,        0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.LAS_VENT_TIME_TOTAL/1000,           0,     600,   8, lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval

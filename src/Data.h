@@ -159,7 +159,7 @@ struct DataFrame {
   uint32_t   DATAFILE_LAST                   =                                0;
   uint16_t   COMMS_LENGTH                    =                                0;
 
-  int32_t ACTIONS[2] = {0};
+  int32_t ACTIONS[4] = {0};
   uint8_t CONTROLLER = 0;
 
 
@@ -188,6 +188,8 @@ struct DataFrame {
   float     SPAG_KFUSE_V                     =             SPAG_KFUSE_V_DEFAULT;
   LasagnaController::Constants LAS_CONSTANTS;
   LasagnaController::State LAS_STATE;
+  uint32_t  LAS_BALLAST_TIME_TOTAL           =                                 0;
+  uint32_t  LAS_VENT_TIME_TOTAL              =                                 0;
   float     OVERPRESSURE                     =                                0;
 
 } __attribute__((packed));

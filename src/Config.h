@@ -147,8 +147,13 @@ static const float     PSC_INTERCEPT                         =          -0.2419;
 static const float     CM_WATER_TO_PA                        =          98.0665;
 
 static const uint8_t   CONTROLLER_INDEX_DEFAULT              =                0;
-static const uint8_t   LEGACY_CONTROLLER_INDEX               =                0;
-static const uint8_t   SPAG_CONTROLLER_INDEX                 =                1;
+
+enum {
+  LEGACY_CONTROLLER_INDEX               =                0,
+  SPAG_CONTROLLER_INDEX                 =                1,
+  SPAG2_CONTROLLER_INDEX                =                2,
+  LAS_CONTROLLER_INDEX                  =                3
+};
 
 /*****************************  EEPROM ADDRESSES  *****************************/
 static const uint8_t   EEPROM_ROCKBLOCK                      =                0;

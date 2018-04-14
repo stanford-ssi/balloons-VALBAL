@@ -134,6 +134,8 @@ private:
   SpaghettiController spagController;
   SpaghettiController2 spag2Controller;
 
+  LasagnaController lasController;
+
   #ifdef JANKSHITL
   Biquad stepsim;
   #endif

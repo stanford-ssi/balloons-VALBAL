@@ -507,11 +507,11 @@ bool Avionics::runValve() {
   actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
   bool shouldAct = data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE);
   uint32_t valveTime = data.VALVE_VENT_DURATION;
-  if (data.CONTROLLER != 0) {
+  if (data.CURRENT_CONTROLLER_INDEX != 0) {
     int numControllers = sizeof(data.ACTIONS)/sizeof(data.ACTIONS[0]);
-    if (data.CONTROLLER <= numControllers && data.CONTROLLER > 0) {
-      shouldAct = data.ACTIONS[data.CONTROLLER - 1] < 0;
-      if (shouldAct) valveTime = -data.ACTIONS[data.CONTROLLER - 1];
+    if (data.CURRENT_CONTROLLER_INDEX <= numControllers && data.CURRENT_CONTROLLER_INDEX > 0) {
+      shouldAct = data.ACTIONS[data.CURRENT_CONTROLLER_INDEX - 1] < 0;
+      if (shouldAct) valveTime = -data.ACTIONS[data.CURRENT_CONTROLLER_INDEX - 1];
     }
   }
   if((shouldAct && actuator.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
@@ -536,16 +536,25 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the commanded action
  */
 bool Avionics::runBallast() {
+  Serial.println("runBallast() called");
   actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
   bool shouldAct = data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE);
   uint32_t ballastTime = data.BALLAST_DROP_DURATION;
-  if (data.CONTROLLER != 0) {
+  Serial.print("data.CURRENT_CONTROLLER_INDEX: ");
+  Serial.println(data.CURRENT_CONTROLLER_INDEX);
+  if (data.CURRENT_CONTROLLER_INDEX != 0) {
+    Serial.println("In first if body");
     int numControllers = sizeof(data.ACTIONS)/sizeof(data.ACTIONS[0]);
-    if (data.CONTROLLER <= numControllers && data.CONTROLLER > 0) {
-      shouldAct = data.ACTIONS[data.CONTROLLER - 1] > 0;
-      if (shouldAct) ballastTime = data.ACTIONS[data.CONTROLLER - 1];
+    if (data.CURRENT_CONTROLLER_INDEX <= numControllers && data.CURRENT_CONTROLLER_INDEX > 0) {
+      Serial.println("In second if body");
+      shouldAct = data.ACTIONS[data.CURRENT_CONTROLLER_INDEX - 1] > 0;
+      if (shouldAct) ballastTime = data.ACTIONS[data.CURRENT_CONTROLLER_INDEX - 1];
     }
   }
+  Serial.print("shouldAct is ");
+  Serial.println(shouldAct);
+  Serial.print("ballastTime is ");
+  Serial.println(ballastTime);
   if((shouldAct && actuator.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
     data.BALLAST_NUM_ATTEMPTS++;
     bool shouldBallast = (!data.MANUAL_MODE || data.FORCE_BALLAST);
@@ -554,6 +563,8 @@ bool Avionics::runBallast() {
     if(data.FORCE_BALLAST) ballastTime = data.BALLAST_FORCE_DURATION;
     if(shouldBallast) data.BALLAST_TIME_TOTAL += ballastTime;
     PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);
+    Serial.print("shouldBallast is ");
+    Serial.println(shouldBallast);
     actuator.queueBallast(ballastTime, shouldBallast);
     data.FORCE_BALLAST = false;
   }
@@ -741,7 +752,7 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 30) parseRockBLOCKPowerCommand(value);
   else if (index == 31) parseGPSPowerCommand(value);
   else if (index == 32) parsePayloadPowerCommand(value);
-  else if (index == 33) data.CONTROLLER = value;
+  else if (index == 33) data.CURRENT_CONTROLLER_INDEX = value;
   else if (index == 34) data.SPAG_K = value;
   else if (index == 35) data.SPAG_B_DLDT = value;
   else if (index == 36) data.SPAG_V_DLDT = value;
@@ -1084,7 +1095,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(1.0 / data.BALLAST_ALTITUDE_DIFF_CONSTANT,0,    4095,    8,  lengthBits); // Ballast Altitude Difference Constant
     lengthBits += compressVariable(1.0 / data.BALLAST_LAST_ACTION_CONSTANT,  0,    4095,    8,  lengthBits); // Ballast last action constant
     // spaghetti readback
-    lengthBits += compressVariable(data.CONTROLLER,       0,    3,    2,  lengthBits);
+    lengthBits += compressVariable(data.CURRENT_CONTROLLER_INDEX,       0,    3,    2,  lengthBits);
     lengthBits += compressVariable(data.SPAG_K,       0,    2,    6,  lengthBits);
     lengthBits += compressVariable(data.SPAG_B_DLDT*1000,       0,    10,    7,  lengthBits);
     lengthBits += compressVariable(data.SPAG_V_DLDT*1000,       0,    40,    9,  lengthBits);
@@ -1139,28 +1150,6 @@ int16_t Avionics::compressData() {
  * This function prints the current avionics state.
  */
 void Avionics::printState() {
-  Serial.print("CURRENT_CONTROLLER_INDEX:");
-  Serial.print(data.CURRENT_CONTROLLER_INDEX);
-  Serial.print(',');
-  Serial.print("CURRENT_CONTROLLER_INDEX:");
-  Serial.print(data.CURRENT_CONTROLLER_INDEX);
-  Serial.print(',');
-  Serial.print("VALVE_INCENTIVE_LEGACY:");
-  Serial.print(data.VALVE_INCENTIVE_LEGACY);
-  Serial.print(',');
-  Serial.print("BALLAST_INCENTIVE_LEGACY:");
-  Serial.print(data.BALLAST_INCENTIVE_LEGACY);
-  Serial.print(',');
-  Serial.print("SPAG_EFFORT:");
-  Serial.print(data.SPAG_EFFORT*1000);
-  Serial.print(',');
-  Serial.print("SPAG_VENT_TIME_INTERVAL:");
-  Serial.print(data.SPAG_VENT_TIME_INTERVAL);
-  Serial.print(',');
-  Serial.print("SPAG_BALLAST_TIME_INTERVAL:");
-  Serial.print(data.SPAG_BALLAST_TIME_INTERVAL);
-  Serial.print('\n');
-
   Serial.print("MANUAL_MODE: ");
   Serial.println(data.MANUAL_MODE);
   Serial.print("CONTROLLER: ");
@@ -1170,7 +1159,19 @@ void Avionics::printState() {
   Serial.print("SPAG2_EFFORT: ");
   Serial.println(data.SPAG_EFFORT*1000);
   Serial.print("LAS_EFFORT: ");
-  Serial.println(data.LAS_STATE.effort);
+  Serial.println(data.LAS_STATE.effort*1000);
+  Serial.print("VALVE_INCENTIVE_LEGACY: ");
+  Serial.println(data.VALVE_INCENTIVE_LEGACY);
+  Serial.print("BALLAST_INCENTIVE_LEGACY: ");
+  Serial.println(data.BALLAST_INCENTIVE_LEGACY);
+  Serial.print("VALVE QUEUE: ");
+  Serial.println(data.VALVE_QUEUE);
+  Serial.print("BALLAST QUEUE: ");
+  Serial.println(data.BALLAST_QUEUE);
+  Serial.print("ACTION: ");
+  Serial.println(data.ACTION);
+
+
   Serial.println();
   Serial.print("TIME:");
   Serial.print(data.TIME);

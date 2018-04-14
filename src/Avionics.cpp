@@ -783,6 +783,11 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 65) data.LAS_CONSTANTS.kfuse           = value;
   else if (index == 66) data.LAS_CONSTANTS.kfuse_val       = value;
   else if (index == 67) data.LAS_CONSTANTS.ss_error_thresh = value;
+  else if (index == 68) data.RB_HEAT_TEMP_THRESH           = value;
+  else if (index == 69) data.RB_HEAT_TEMP_GAIN             = value;
+  else if (index == 70) data.RB_HEAT_COMM_GAIN             = value;
+  else if (index == 71) data.RB_HEAT_CAP_GAIN              = value;
+  else if (index == 72) data.RB_HEAT_MAX_DUTY              = value;
 }
 
 /*

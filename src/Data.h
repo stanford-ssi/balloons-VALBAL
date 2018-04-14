@@ -172,6 +172,8 @@ struct DataFrame {
   uint32_t   SPAG_VENT_TIME_TOTAL            =                                0;
   uint32_t   SPAG_BALLAST_TIME_TOTAL         =                                0;
 
+  float     SPAG2_EFFORT                    =                                0;
+
   float     SPAG_FREQ                        =               1000/LOOP_INTERVAL;
   float     SPAG_K                           =                   SPAG_K_DEFAULT;
   float     SPAG_B_DLDT                      =              SPAG_B_DLDT_DEFAULT;

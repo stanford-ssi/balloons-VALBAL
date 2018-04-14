@@ -62,7 +62,7 @@ public:
    int sendReceiveSBDText(const char *message, uint8_t *rxBuffer, size_t &rxBufferSize);
    int sendReceiveSBDBinary(const uint8_t *txData, size_t txDataSize, uint8_t *rxBuffer, size_t &rxBufferSize);
    int getSignalQuality(int &quality);
-   int getSystemTime(struct tm &tm);
+   //int getSystemTime(struct tm &tm);
    int getFirmwareVersion(char *version, size_t bufferSize);
    int getWaitingMessageCount();
    bool isAsleep();

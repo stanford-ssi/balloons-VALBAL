@@ -458,11 +458,13 @@ bool Avionics::calcIncentives() {
   spaghetti2Constants.kfuse_v                 = data.SPAG_KFUSE_V;
   spag2Controller.updateConstants(spaghetti2Constants);
 
+
   SpaghettiController2::Input input2;
   input2.h = data.ALTITUDE_BAROMETER;
   spag2Controller.update(input2);
   SpaghettiController2::State spaghetti2State = spag2Controller.getState();
   data.ACTIONS[SPAG2_CONTROLLER_INDEX]  =     spag2Controller.getAction();
+  data.SPAG2_EFFORT = spaghetti2State.effort;
 
   lasController.updateConstants(data.LAS_CONSTANTS);
   LasagnaController::Input lasInput;
@@ -1220,10 +1222,16 @@ void Avionics::printState() {
   Serial.print(data.SPAG_BALLAST_TIME_INTERVAL);
   Serial.print('\n');
 
+  Serial.print("MANUAL_MODE: ");
+  Serial.println(data.MANUAL_MODE);
   Serial.print("CONTROLLER: ");
   Serial.println(data.CURRENT_CONTROLLER_INDEX);
-  Serial.print(" MANUAL_MODE: ");
-  Serial.println(data.MANUAL_MODE);
+  Serial.print("SPAG_EFFORT: ");
+  Serial.println(data.SPAG_EFFORT*1000);
+  Serial.print("SPAG2_EFFORT: ");
+  Serial.println(data.SPAG_EFFORT*1000);
+  Serial.print("LAS_EFFORT: ");
+  Serial.println(data.LAS_STATE.effort);
   Serial.println();
   Serial.print("TIME:");
   Serial.print(data.TIME);

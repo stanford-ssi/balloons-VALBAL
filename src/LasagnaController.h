@@ -32,11 +32,11 @@ public:
     float freq                 =   20;        // control freqency
     float k_v                  =   1e-3;      // velocity gain
     float k_h                  =   1.5e-3;    // altitude gain
-    float b_dldt               =   0.0006;    // balast dl/dt (kg/s)
+    float b_dldt               =   0.00019;    // balast dl/dt (kg/s)
     float v_dldt               =   0.0030;    // valve dl/dt (kg/s))
-    float b_tmin               =   5;         // minimum ballast event time
+    float b_tmin               =   10;         // minimum ballast event time
     float v_tmin               =   5;         // minimum valve event time
-    float h_cmd                =   14000;     // altidute comand
+    float h_cmd                =   13000;     // altidute comand
     float kfuse                =   7;
     float kfuse_val            =   0.5;
     float ss_error_thresh      =   750;

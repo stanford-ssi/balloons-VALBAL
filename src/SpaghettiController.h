@@ -23,15 +23,15 @@ public:
   } Input;
 
   typedef struct {
-    float freq;               // control freqency
-    float k;                  // gain modifier
-    float b_dldt;             // balast dl/dt (kg/s)
-    float v_dldt;             // valve dl/dt (kg/s)
-    float rate_min;           // min dl/dt rate threshold (kg/s)
-    float rate_max;           // max dl/dt rate threshold (kg/s)
-    float b_tmin;               // minimum ballast event time
-    float v_tmin;               // minimum valve event time
-    float h_cmd;              // altidute comand
+    float freq      =               20;        // control freqency
+    float k         =          0.00001;        // gain modifier
+    float b_dldt    =            0.001;        // balast dl/dt (kg/s)
+    float v_dldt    =            0.001;        // valve dl/dt (kg/s)
+    float rate_min  =          0.00001;        // min dl/dt rate threshold (kg/s)
+    float rate_max  =            0.001;        // max dl/dt rate threshold (kg/s)
+    float b_tmin    =                2;          // minimum ballast event time
+    float v_tmin    =                2;          // minimum valve event time
+    float h_cmd     =            13000;      // altidute comand
   } Constants;
 
   SpaghettiController();

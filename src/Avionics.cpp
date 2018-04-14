@@ -25,6 +25,7 @@
 void Avionics::init() {
   #ifdef JANKSHITL
   stepsim.setSS(101000);
+  tempsim.setSS(0);
   #endif
   Serial.begin(CONSOLE_BAUD);
   PCB.init();
@@ -246,17 +247,22 @@ bool Avionics::readData() {
   data.CURRENT_MOTOR_BALLAST      = (data.BALLAST_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
   data.CURRENT_PAYLOAD            = sensors.getCurrentSubsystem(PAYLOAD_CURRENT);
   data.TEMP_EXT                   = sensors.getDerivedTemp(EXT_TEMP_SENSOR);
-  data.RAW_TEMP_1                 = sensors.getRawTemp(1);
-  data.RAW_TEMP_2                 = sensors.getRawTemp(2);
-  data.RAW_TEMP_3                 = sensors.getRawTemp(3);
-  data.RAW_TEMP_4                 = sensors.getRawTemp(4);
   #ifdef JANKSHITL
   float p = stepsim.update(61900);
+  float t = tempsim.update(-30);
+  data.RAW_TEMP_1                 = t;
+  data.RAW_TEMP_2                 = t;
+  data.RAW_TEMP_3                 = t;
+  data.RAW_TEMP_4                 = t;
   data.RAW_PRESSURE_1             = p;
   data.RAW_PRESSURE_2             = p;
   data.RAW_PRESSURE_3             = p;
   data.RAW_PRESSURE_4             = p;
   #else
+  data.RAW_TEMP_1                 = sensors.getRawTemp(1);
+  data.RAW_TEMP_2                 = sensors.getRawTemp(2);
+  data.RAW_TEMP_3                 = sensors.getRawTemp(3);
+  data.RAW_TEMP_4                 = sensors.getRawTemp(4);
   data.RAW_PRESSURE_1             = sensors.getRawPressure(1);
   data.RAW_PRESSURE_2             = sensors.getRawPressure(2);
   data.RAW_PRESSURE_3             = sensors.getRawPressure(3);

@@ -46,6 +46,7 @@ public:
   Avionics() :
     #ifdef JANKSHITL
     stepsim({{1, -1.999969998200029, 0.999970000449996},{0, 1.124988749873439e-9, 1.124977500042189e-9}}),
+    tempsim({{1, -1.999999750000005, 1.000000000000000},{0, 0.124999997395833e-06, 0.124999997395833e-06}}),
     #endif
     superCap(),
     PCB(),
@@ -116,6 +117,12 @@ private:
   int16_t compressData();
 
 /*********************************  OBJECTS  **********************************/
+
+  #ifdef JANKSHITL
+  Biquad stepsim;
+  Biquad tempsim;
+  #endif
+
   char COMMS_BUFFER[COMMS_BUFFER_SIZE];
   DataFrame data;
   Logger log;
@@ -133,12 +140,8 @@ private:
 
   SpaghettiController spagController;
   SpaghettiController2 spag2Controller;
-
   LasagnaController lasController;
 
-  #ifdef JANKSHITL
-  Biquad stepsim;
-  #endif
 
   void rumAndCoke();
   bool checkInCuba();

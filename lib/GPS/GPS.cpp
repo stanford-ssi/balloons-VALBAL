@@ -52,6 +52,7 @@ bool GPS::restart() {
  * This function hotstarts the GPS.
  */
 void GPS::hotstart() {
+  Serial1.println("$PUBX,00*33");
   delay(1000);
 }
 
@@ -138,6 +139,7 @@ void GPS::smartDelay(uint32_t ms) {
 
 /*********************************  HELPERS  **********************************/
 bool GPS::setGPSMode(uint8_t* MSG, uint8_t len, uint16_t GPS_LOCK_TIME){
+  Serial.println("Setting uBlox mode: ");
   uint32_t startTime = millis();
   uint8_t gps_set_sucess = 0;
   while(!gps_set_sucess) {
@@ -157,6 +159,7 @@ bool GPS::setGPSMode(uint8_t* MSG, uint8_t len, uint16_t GPS_LOCK_TIME){
 void GPS::sendUBX(uint8_t* MSG, uint8_t len) {
   for(int i = 0; i < len; i++) {
     Serial1.write(MSG[i]);
+    Serial.print(MSG[i], HEX);
   }
   Serial1.println();
 }
@@ -171,6 +174,7 @@ bool GPS::getUBX_ACK(uint8_t* MSG) {
   uint8_t  ackByteID = 0;
   uint8_t  ackPacket[10];
   uint32_t startTime = millis();
+  Serial.print(" * Reading ACK response: ");
 
   ackPacket[0] = 0xB5;	 // header
   ackPacket[1] = 0x62;	 // header
@@ -190,15 +194,18 @@ bool GPS::getUBX_ACK(uint8_t* MSG) {
 
   while (millis() - startTime < 3000) {
     if (ackByteID > 9) {
+      Serial.println(" (SUCCESS!)");
       return true;
     }
     if (Serial1.available()) {
       b = Serial1.read();
       if (b == ackPacket[ackByteID]) {
         ackByteID++;
+        Serial.print(b, HEX);
       }
       else ackByteID = 0;
     }
   }
+  Serial.println(" (FAILED!)");
   return false;
 }

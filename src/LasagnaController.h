@@ -14,7 +14,7 @@
 class LasagnaController
 {
 public:
-  typedef struct {
+  typedef struct __attribute__((packed)) {
     unsigned int comp_ctr      =   0;
     int action                 =   0;               // action command
     float ascent_rate          =   0;        // filtered ascent rate
@@ -24,11 +24,11 @@ public:
     float v_cmd                =   0;
   } State;
 
-  typedef struct {
+  typedef struct __attribute__((packed)) {
     float h;                  // altidude
   } Input;
 
-  typedef struct {
+  typedef struct __attribute__((packed)) {
     float freq                 =   20;        // control freqency
     float k_v                  =   1e-3;      // velocity gain
     float k_h                  =   1.5e-3;    // altitude gain

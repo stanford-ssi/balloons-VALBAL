@@ -10,7 +10,7 @@
 class SpaghettiController2
 {
 public:
-  typedef struct {
+  typedef struct __attribute__((packed)) {
     float effort;             // Command effort from compensator
     float v_T;                // Interval time between vent events
     float b_T;                // Interval time between ballast events
@@ -22,11 +22,11 @@ public:
     float fused_ascent_rate;
   } State;
 
-  typedef struct {
+  typedef struct __attribute__((packed)) {
     float h;                  // altidude
   } Input;
 
-  typedef struct {
+  typedef struct __attribute__((packed)) {
     float freq                          =               20;       // control freqency
     float k                             =          0.00001;       // gain modifier
     float b_dldt                        =            0.001;       // balast dl/dt (kg/s)

@@ -17,6 +17,8 @@
 
 //#define DEBUG_CACHE
 
+//#define Serial Serial2
+
 Logger::Logger() {
   cache_avail.set();
 }
@@ -168,10 +170,12 @@ uint8_t Logger::next(uint8_t idx) {
 }
 
 bool Logger::initialize() {
+  Serial.println("card begin");
   if (!card.begin()) {
     Serial.println("[SD ERROR] Could not initialize SD card.");
     return false;
   }
+    Serial.println("card find position");
   return findPosition();
 }
 
@@ -187,15 +191,15 @@ bool Logger::findPosition() {
 
   int max = 32;
   while (max--) {
+    if (l > r) {
+      Serial.println("wtf");
+      return false;
+    }
     if (l == r) {
+      cur_block = l;
       Serial.println("yay found");
       Serial.println(l);
-      cur_block = l+1;
       return true;
-    } else if (l >= r) {
-      Serial.println("wtf");
-      Serial.println(l);
-      Serial.println(r);
     }
     Serial.print("[SD BS] ");
     Serial.print(l);
@@ -204,10 +208,12 @@ bool Logger::findPosition() {
     Serial.print(" -> ");
     uint32_t m = (l+r)/2;
     Serial.println(m);
-    if (queryData(m)) {
-      r = m-1;
-    } else {
+
+    bool avail = queryData(m);
+    if (!avail) {
       l = m+1;
+    } else {
+      r = m;
     }
   }
   uint32_t dt = micros()-t0;
@@ -215,6 +221,7 @@ bool Logger::findPosition() {
   Serial.print(dt);
   Serial.println(" us");
   Serial.print(32-max);
+  delay(2000);
   return false;
 }
 
@@ -252,6 +259,8 @@ bool Logger::wipe() {
   }
   Serial.println("Data set to");
   Serial.println(int(cache[0]));
+
+  cur_block = 0;
   return true;
 }
 

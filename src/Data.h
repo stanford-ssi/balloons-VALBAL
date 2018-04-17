@@ -21,6 +21,7 @@ struct DataFrame {
 /******************************  PRIMARY DATA  ********************************/
   uint32_t   TIME                            =                                0;
   uint32_t   LOOP_NUMBER                     =                                0; // Useful for checking data integrity
+  uint32_t CPU_SPEED = F_CPU;
   float      LAT_GPS                         =                                0;
   float      LONG_GPS                        =                                0;
   float      ALTITUDE_BAROMETER              =                                0;
@@ -53,6 +54,7 @@ struct DataFrame {
   float      CURRENT_TOTAL_MAX               =                                0;
   float      CURRENT_RB_AVG                  =                                0;
   float      CURRENT_RB_MAX                  =                                0;
+  float      CURRENT_MOTORS                  =                                0;
   float      CURRENT_MOTOR_VALVE_AVG         =                                0;
   float      CURRENT_MOTOR_VALVE_MAX         =                                0;
   float      CURRENT_MOTOR_BALLAST_AVG       =                                0;

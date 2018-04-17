@@ -18,7 +18,7 @@
 
 
 const int CACHE_SIZE = 180;
-const uint32_t MAX_LOG_TIME = 5000; // microseconds
+const uint32_t MAX_LOG_TIME = 15000; // microseconds
 
 class Logger {
 public:

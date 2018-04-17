@@ -91,6 +91,9 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
 
   current_sensor_diff_reg_t range_reg;
   range_reg.SETUP = CURRENT_SENSOR_RANGE;
+  Serial.println("'setting range to zero'");
+  range_reg.AIN_8_9 = 0;
+  range_reg.AIN_10_11 = 0;
   range_reg.AIN_12_13 = 0;
   range_reg.AIN_14_15 = 0;
    Serial.print("Range register: ");

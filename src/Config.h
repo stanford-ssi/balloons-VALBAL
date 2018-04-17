@@ -20,7 +20,8 @@
 //#define STORAGE_MODE_FLAG // uncomment for power off
 #define RESET_EEPROM_FLAG // uncomment for EEPROM reset
 // #define HITL_ENABLED_FLAG // uncomment for HITL
-// #define RB_DISABLED_FLAG  // uncomment to disable rockblock
+//#define RB_DISABLED_FLAG  // uncomment to disable rockblock
+//#define WIPE_SD_CARD_YOLO // uncomment to wipe the SD card
 
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   SD_CS                                 =               23;
@@ -40,7 +41,7 @@ static const uint8_t   PAYLOAD_GATE                          =               57;
 static const uint8_t   PAYLOAD_GPIO_1                        =               29;
 static const uint8_t   PAYLOAD_GPIO_2                        =               30;
 static const uint8_t   PAYLOAD_DAC                           =              A14;
-static const uint8_t   BATT_VOLTAGE                          =              A11;
+static const uint8_t   BATT_VOLTAGE                          =               A3;
 static const uint8_t   SUPER_CAP_VOLTAGE                     =              A15;
 static const uint8_t   SUPER_CAP_ENABLE                      =               49;
 static const uint8_t   FIVE_VOLT_ENABLE                      =               56;
@@ -177,7 +178,7 @@ static const uint8_t   EEPROM_LOG_BLOCK_CUR                  =              112;
 static const uint8_t   EEPROM_LOG_FILE_NUM                   =              116;
 
 /*****************************  CURRENT SENSOR CONSTANTS  **********************/
-static const uint32_t  CURRENT_SENSOR_CLOCK_SPEED            =         16000000; // 16 MHz
+static const uint32_t  CURRENT_SENSOR_CLOCK_SPEED            =         1000000; // 16 MHz
 static const float     CURRENT_SENSOR_VREF                   =              3.3;
 static const uint16_t  CURRENT_SENSOR_MAX_BIP                =            0x7FF;
 static const bool      USING_CHANNEL_DIFF_0_1                =            false;

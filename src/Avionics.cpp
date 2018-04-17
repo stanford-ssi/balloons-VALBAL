@@ -16,6 +16,8 @@
 
 #include "Avionics.h"
 
+//#define Serial Serial2
+
 /**********************************  SETUP  ***********************************/
 /*
  * Function: init
@@ -28,16 +30,18 @@ void Avionics::init() {
   tempsim.setSS(0);
   #endif
   Serial.begin(CONSOLE_BAUD);
+  delay(5000);
   PCB.init();
   actuator.init();
-  delay(5000);
   delay(1000);
   Serial.println("setting payload high");
+  pinMode(35, OUTPUT);
+  digitalWrite(35, HIGH);
   pinMode(PAYLOAD_GATE, OUTPUT);
   digitalWrite(PAYLOAD_GATE, HIGH);
   pinMode(GPS_GATE, OUTPUT);
   digitalWrite(GPS_GATE, HIGH);
-  // if(!setupSDCard())                          alert("unable to initialize SD Card", true);
+  if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   // if(!readHistory())                          alert("unable to initialize EEPROM", true);
   if(!sensors.init())                         alert("unable to initialize Sensors", true);
   delay(5000);
@@ -55,9 +59,9 @@ void Avionics::init() {
   // digitalWrite(49, HIGH);
   // pinMode(56, OUTPUT);
   // digitalWrite(56, HIGH);
-// #ifndef RB_DISABLED_FLAG
-//   //if(!RBModule.init(data.POWER_STATE_RB))     alert("unable to initialize RockBlock", true);
-// #endif
+#ifndef RB_DISABLED_FLAG
+  if(!RBModule.init(false))     alert("unable to initialize RockBlock", true);
+#endif
   //if(!payload.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
   data.TIME = millis();
   data.SETUP_STATE = false;
@@ -132,7 +136,9 @@ void Avionics::actuateState() {
  */
 void Avionics::logState() {
   uint32_t t0 = millis();
+  //Serial.println("begin");
   if(!log.log(&data, 1024)) alert("unable to log Data", true);
+  //Serial.println("end");
   data.LOG_TIME = millis() - t0;
   if(!debugState())   alert("unable to debug state", true);
 }
@@ -150,7 +156,17 @@ void Avionics::sendComms() {
   if(data.DEBUG_STATE && ((millis() - data.RB_LAST) < RB_DEBUG_INTERVAL)) return;
   if(!data.DEBUG_STATE && ((millis() - data.RB_LAST) < data.RB_INTERVAL)) return;
   if(compressData() < 0) alert("unable to compress Data", true);
-  if(!sendSATCOMS())     alert("unable to communicate over RB", true);
+  if(!sendSATCOMS())  {
+    alert("unable to communicate over RB", true);
+    // cooldown for 30 seconds
+    uint32_t interval = data.RB_INTERVAL;
+    if (data.DEBUG_STATE) interval = RB_DEBUG_INTERVAL;
+    if (millis() > interval) {
+      data.RB_LAST = millis() - interval + 30000;
+    } else {
+      data.RB_LAST = millis();
+    }
+  }
   else data.RB_LAST = millis();
 #endif
 }
@@ -182,8 +198,14 @@ bool Avionics::finishedSetup() {
  * This function sets up the SD card for logging.
  */
 bool Avionics::setupSDCard() {
+  Serial.println("calling initialize");
+  bool ret = log.initialize();
+  #ifdef WIPE_SD_CARD_YOLO
+    ret = log.wipe();
+  #endif
+    Serial.println("done initialize");
 
-  return log.initialize();
+  return ret;
 }
 
 /*
@@ -239,13 +261,15 @@ bool Avionics::readData() {
   data.TIME                       = millis();
   data.VOLTAGE_PRIMARY            = sensors.getVoltagePrimary();
   data.VOLTAGE_SUPERCAP           = sensors.getVoltageSuperCap();
-  data.CURRENT_TOTAL              = sensors.getCurrentTotal();
+  data.CURRENT_TOTAL              = -2*currentSensor.average_voltage_readings(DIFF_10_11, CURRENT_NUM_SAMPLES);
   data.JOULES_TOTAL               = sensors.getJoules();
-  data.CURRENT_RB                 = sensors.getCurrentSubsystem(RB_CURRENT);
+  data.CURRENT_RB                 = -currentSensor.average_voltage_readings(DIFF_14_15, CURRENT_NUM_SAMPLES);
   data.MAX_CURRENT_CHARGING_LIMIT = superCap.getChargingLimit();
-  data.CURRENT_MOTOR_VALVE        = (data.VALVE_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
-  data.CURRENT_MOTOR_BALLAST      = (data.BALLAST_STATE ? sensors.getCurrentSubsystem(MOTORS_CURRENT) : 0);
-  data.CURRENT_PAYLOAD            = sensors.getCurrentSubsystem(PAYLOAD_CURRENT);
+  float motcur = -currentSensor.average_voltage_readings(DIFF_8_9, CURRENT_NUM_SAMPLES);
+  data.CURRENT_MOTOR_VALVE        = (data.VALVE_STATE ? motcur : 0);
+  data.CURRENT_MOTOR_BALLAST      = (data.BALLAST_STATE ? motcur : 0);
+  data.CURRENT_MOTORS             = motcur;
+  data.CURRENT_PAYLOAD            = -currentSensor.average_voltage_readings(DIFF_12_13, CURRENT_NUM_SAMPLES);
   data.TEMP_EXT                   = sensors.getDerivedTemp(EXT_TEMP_SENSOR);
   #ifdef JANKSHITL
   float p = stepsim.update(61900);
@@ -278,7 +302,7 @@ bool Avionics::readData() {
  * This function reads data from the GPS module.
  */
 bool Avionics::readGPS() {
-  Serial.println("READ GPS CALLED");
+  //Serial.println("READ GPS CALLED");
   gpsModule.smartDelay(GPS_LOCK_TIMEOUT);
   data.LAT_GPS          = gpsModule.getLatitude();
   data.LONG_GPS         = gpsModule.getLongitude();
@@ -504,25 +528,25 @@ bool Avionics::runValve() {
  * This function actuates the valve based on the commanded action
  */
 bool Avionics::runBallast() {
-  Serial.println("runBallast() called");
+  //Serial.println("runBallast() called");
   actuator.updateMechanicalConstants(data.VALVE_MOTOR_SPEED_OPEN, data.VALVE_MOTOR_SPEED_CLOSE, data.BALLAST_MOTOR_SPEED, data.VALVE_OPENING_DURATION, data.VALVE_CLOSING_DURATION);
   bool shouldAct = data.BALLAST_INCENTIVE >= (1 + data.INCENTIVE_NOISE);
   uint32_t ballastTime = data.BALLAST_DROP_DURATION;
-  Serial.print("data.CURRENT_CONTROLLER_INDEX: ");
-  Serial.println(data.CURRENT_CONTROLLER_INDEX);
+  //Serial.print("data.CURRENT_CONTROLLER_INDEX: ");
+  //Serial.println(data.CURRENT_CONTROLLER_INDEX);
   if (data.CURRENT_CONTROLLER_INDEX != 0) {
-    Serial.println("In first if body");
+    //Serial.println("In first if body");
     int numControllers = sizeof(data.ACTIONS)/sizeof(data.ACTIONS[0]);
     if (data.CURRENT_CONTROLLER_INDEX <= numControllers && data.CURRENT_CONTROLLER_INDEX > 0) {
-      Serial.println("In second if body");
+      //Serial.println("In second if body");
       shouldAct = data.ACTIONS[data.CURRENT_CONTROLLER_INDEX - 1] > 0;
       if (shouldAct) ballastTime = data.ACTIONS[data.CURRENT_CONTROLLER_INDEX - 1];
     }
   }
-  Serial.print("shouldAct is ");
+  /*Serial.print("shouldAct is ");
   Serial.println(shouldAct);
   Serial.print("ballastTime is ");
-  Serial.println(ballastTime);
+  Serial.println(ballastTime);*/
   if((shouldAct && actuator.getBallastQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_BALLAST) {
     data.BALLAST_NUM_ATTEMPTS++;
     bool shouldBallast = (!data.MANUAL_MODE || data.FORCE_BALLAST);
@@ -664,7 +688,14 @@ bool Avionics::sendSATCOMS() {
   alert("sending Rockblock message", false);
   data.RB_SENT_COMMS++;
 #ifndef RB_DISABLED_FLAG
+  Serial.println();Serial.println();Serial.println();Serial.println();Serial.println();
+  Serial.println("Waking up mr rockblock");
+  Serial.println();Serial.println();
+  RBModule.restart();
   int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
+  Serial.println("returned");
+  Serial.println(ret);
+  RBModule.shutdown();
   if(ret < 0) return false;
   clearVariables();
   if(ret > 0) parseCommand(ret);
@@ -1169,6 +1200,19 @@ int16_t Avionics::compressData() {
  * This function prints the current avionics state.
  */
 void Avionics::printState() {
+  Serial.print("Primary voltage: ");
+  Serial.println(data.VOLTAGE_PRIMARY);
+  Serial.print("System current: ");
+  Serial.println(data.CURRENT_TOTAL);
+  Serial.print("Altitude: ");
+  Serial.println(data.ALTITUDE_BAROMETER);
+  Serial.print("Payload current: ");
+  Serial.println(data.CURRENT_PAYLOAD);
+  Serial.print("Motor current: ");
+  Serial.println(data.CURRENT_MOTORS);
+  Serial.print("RB current: ");
+  Serial.println(data.CURRENT_RB);
+  return;
   Serial.print("MANUAL_MODE: ");
   Serial.println(data.MANUAL_MODE);
   Serial.print("CONTROLLER: ");

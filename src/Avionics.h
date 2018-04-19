@@ -35,6 +35,7 @@
 #include "Utils.h"
 
 //#define JANKSHITL
+#define SERIALSHITL
 
 // regualar min and max is not compatible with vector in std
 #define _min(a,b) ((a)<(b)?(a):(b))

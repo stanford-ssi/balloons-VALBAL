@@ -8,6 +8,7 @@
   John Dean | deanjl@stanford.edu
   Ben Newman | blnewman@stanford.edu
   Keegan Mehall | kmehall@stanford.edu
+  Jonathan Zwiebel | jzwiebel@stanford.edu
 
   File: Avionics.cpp
   --------------------------
@@ -60,12 +61,15 @@ void Avionics::init() {
   // pinMode(56, OUTPUT);
   // digitalWrite(56, HIGH);
 #ifndef RB_DISABLED_FLAG
-  if(!RBModule.init(false))     alert("unable to initialize RockBlock", true);
+  if(!RBModule.init(true))     alert("unable to initialize RockBlock", true);
 #endif
   //if(!payload.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
   data.TIME = millis();
   data.SETUP_STATE = false;
 
+  #ifdef SERIALSHITL
+  Serial.println("SERIAL_SHITL_BEGIN");
+  #endif
 }
 
 /*
@@ -98,7 +102,7 @@ void Avionics::updateState() {
   //currentSensor.read_voltage(DIFF_12_13);
   //Serial.print("avg voltage: ");
   //uint32_t t0 = micros();
-  Serial.println(currentSensor.average_voltage_readings(DIFF_12_13, CURRENT_NUM_SAMPLES), 6);
+  //Serial.println(currentSensor.average_voltage_readings(DIFF_12_13, CURRENT_NUM_SAMPLES), 6);
   //uint32_t dt = micros() - t0;
   //Serial.println(dt);
   delay(LOOP_INTERVAL);
@@ -271,6 +275,14 @@ bool Avionics::readData() {
   data.CURRENT_MOTORS             = motcur;
   data.CURRENT_PAYLOAD            = -currentSensor.average_voltage_readings(DIFF_12_13, CURRENT_NUM_SAMPLES);
   data.TEMP_EXT                   = sensors.getDerivedTemp(EXT_TEMP_SENSOR);
+  data.RAW_TEMP_1                 = sensors.getRawTemp(1);
+  data.RAW_TEMP_2                 = sensors.getRawTemp(2);
+  data.RAW_TEMP_3                 = sensors.getRawTemp(3);
+  data.RAW_TEMP_4                 = sensors.getRawTemp(4);
+  data.RAW_PRESSURE_1             = sensors.getRawPressure(1);
+  data.RAW_PRESSURE_2             = sensors.getRawPressure(2);
+  data.RAW_PRESSURE_3             = sensors.getRawPressure(3);
+  data.RAW_PRESSURE_4             = sensors.getRawPressure(4);
   #ifdef JANKSHITL
   float p = stepsim.update(61900);
   float t = tempsim.update(-30);
@@ -282,15 +294,24 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_2             = p;
   data.RAW_PRESSURE_3             = p;
   data.RAW_PRESSURE_4             = p;
-  #else
-  data.RAW_TEMP_1                 = sensors.getRawTemp(1);
-  data.RAW_TEMP_2                 = sensors.getRawTemp(2);
-  data.RAW_TEMP_3                 = sensors.getRawTemp(3);
-  data.RAW_TEMP_4                 = sensors.getRawTemp(4);
-  data.RAW_PRESSURE_1             = sensors.getRawPressure(1);
-  data.RAW_PRESSURE_2             = sensors.getRawPressure(2);
-  data.RAW_PRESSURE_3             = sensors.getRawPressure(3);
-  data.RAW_PRESSURE_4             = sensors.getRawPressure(4);
+  #endif
+  #ifdef SERIALSHITL
+  Serial.print("SERIAL_SHITL_REQUEST ");
+  Serial.println(data.TIME);
+  uint8_t buffer[8][4];
+  for(int j = 0; j < 8; j++) {
+    for(int i = 0; i < 4; i++) {
+      buffer[j][i] = Serial.read();
+    }
+  }
+  data.RAW_TEMP_1 = *(float*)buffer[0];
+  data.RAW_TEMP_2 = *(float*)buffer[1];
+  data.RAW_TEMP_3 = *(float*)buffer[2];
+  data.RAW_TEMP_4 = *(float*)buffer[3];
+  data.RAW_PRESSURE_1 = *(float*)buffer[4];
+  data.RAW_PRESSURE_2 = *(float*)buffer[5];
+  data.RAW_PRESSURE_3 = *(float*)buffer[6];
+  data.RAW_PRESSURE_4 = *(float*)buffer[7];
   #endif
   if (data.POWER_STATE_GPS && ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) && (!data.VALVE_STATE)) readGPS();
   return true;
@@ -746,6 +767,10 @@ void Avionics::parseCommand(int16_t len) {
  * based on the command index.
  */
 void Avionics::updateConstant(uint8_t index, float value) {
+  Serial.print("UPDATE COSNTANTS CALLED: ");
+  Serial.print(index);
+  Serial.print(" , ");
+  Serial.println(value);
   if      (index ==  0) data.VALVE_ALT_LAST = value;
   else if (index ==  1) data.BALLAST_ALT_LAST = value;
   else if (index ==  2) data.VALVE_SETPOINT = value;
@@ -1200,21 +1225,47 @@ int16_t Avionics::compressData() {
  * This function prints the current avionics state.
  */
 void Avionics::printState() {
-  Serial.print("Primary voltage: ");
-  Serial.println(data.VOLTAGE_PRIMARY);
-  Serial.print("System current: ");
-  Serial.println(data.CURRENT_TOTAL);
-  Serial.print("Altitude: ");
-  Serial.println(data.ALTITUDE_BAROMETER);
-  Serial.print("Payload current: ");
-  Serial.println(data.CURRENT_PAYLOAD);
-  Serial.print("Motor current: ");
-  Serial.println(data.CURRENT_MOTORS);
-  Serial.print("RB current: ");
-  Serial.println(data.CURRENT_RB);
+  // Serial.print("Primary voltage: ");
+  // Serial.println(data.VOLTAGE_PRIMARY);
+  // Serial.print("System current: ");
+  // Serial.println(data.CURRENT_TOTAL);
+  // Serial.print("Altitude: ");
+  // Serial.println(data.ALTITUDE_BAROMETER);
+  // Serial.print("Payload current: ");
+  // Serial.println(data.CURRENT_PAYLOAD);
+  // Serial.print("Motor current: ");
+  // Serial.println(data.CURRENT_MOTORS);
+  // Serial.print("RB current: ");
+  // Serial.println(data.CURRENT_RB);
+  // return;
+  // Serial.print("MANUAL_MODE: ");
+  // Serial.println(data.MANUAL_MODE);
+  Serial.print(" RAW_TEMP_1:");
+  Serial.print(data.RAW_TEMP_1);
+  Serial.print(',');
+  Serial.print(" RAW_TEMP_2:");
+  Serial.print(data.RAW_TEMP_2);
+  Serial.print(',');
+  Serial.print(" RAW_TEMP_3:");
+  Serial.print(data.RAW_TEMP_3);
+  Serial.print(',');
+  Serial.print(" RAW_TEMP_4:");
+  Serial.print(data.RAW_TEMP_4);
+  Serial.print(',');
+  Serial.print(" RAW_PRESSURE_1:");
+  Serial.print(data.RAW_PRESSURE_1);
+  Serial.print(',');
+  Serial.print(" RAW_PRESSURE_2:");
+  Serial.print(data.RAW_PRESSURE_2);
+  Serial.print(',');
+  Serial.print(" RAW_PRESSURE_3:");
+  Serial.print(data.RAW_PRESSURE_3);
+  Serial.print(',');
+  Serial.print(" RAW_PRESSURE_4:");
+  Serial.print(data.RAW_PRESSURE_4);
+  Serial.println();
   return;
-  Serial.print("MANUAL_MODE: ");
-  Serial.println(data.MANUAL_MODE);
+
   Serial.print("CONTROLLER: ");
   Serial.println(data.CURRENT_CONTROLLER_INDEX);
   Serial.print("SPAG_EFFORT: ");

@@ -29,8 +29,8 @@ public:
     float v_dldt    =            0.001;        // valve dl/dt (kg/s)
     float rate_min  =          0.00001;        // min dl/dt rate threshold (kg/s)
     float rate_max  =            0.001;        // max dl/dt rate threshold (kg/s)
-    float b_tmin    =                4;          // minimum ballast event time
-    float v_tmin    =                4;          // minimum valve event time
+    float b_tmin    =                5;          // minimum ballast event time
+    float v_tmin    =                5;          // minimum valve event time
     float h_cmd     =            13500;      // altidute comand
   } Constants;
 

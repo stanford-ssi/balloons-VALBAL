@@ -378,7 +378,8 @@ bool Avionics::readData() {
  * This function reads data from the GPS module.
  */
 bool Avionics::readGPS() {
-  //Serial.println("READ GPS CALLED");
+  Serial.println();Serial.println();Serial.println();Serial.println();Serial.println();Serial.println();
+  Serial.println("READ GPS CALLED");
   gpsModule.smartDelay(GPS_LOCK_TIMEOUT);
   data.LAT_GPS          = gpsModule.getLatitude();
   data.LONG_GPS         = gpsModule.getLongitude();
@@ -387,6 +388,7 @@ bool Avionics::readGPS() {
   data.SPEED_GPS        = gpsModule.getSpeed();
   data.NUM_SATS_GPS     = gpsModule.getSats();
   data.GPS_LAST         = millis();
+  Serial.println();Serial.println();Serial.println();Serial.println();
   return true;
 }
 
@@ -1096,7 +1098,7 @@ void Avionics::clearVariables() {
   data.BALLAST_NUM_ATTEMPTS = 0;
   data.LOOP_TIME_MAX = 0;
   int len = sizeof(data.ACTION_TIME_TOTALS)/sizeof(data.ACTION_TIME_TOTALS[0]);
-  for(int i; i < len; i++){
+  for(int i=0; i < len; i++){
     data.ACTION_TIME_TOTALS[i] = 0;
   }
 }
@@ -1377,15 +1379,13 @@ void Avionics::printState() {
   Serial.println(data.ACTION);
 
   Serial.println("action crap");
-  for (int kk = 0; k < 4; k++ ) {
+  for (int kk = 0; kk < 4; kk++ ) {
     Serial.print(data.ACTION_TIME_TOTALS[2*kk]);
     Serial.print(" ");
       Serial.print(data.ACTION_TIME_TOTALS[2*kk+1]);
       Serial.println();
   }
-
-  return;
-
+      Serial.println();
   Serial.println();
   Serial.print("TIME:");
   Serial.print(data.TIME);

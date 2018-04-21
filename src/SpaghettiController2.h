@@ -28,14 +28,14 @@ public:
 
   typedef struct __attribute__((packed)) {
     float freq                          =               20;       // control freqency
-    float k                             =                1;       // gain modifier
-    float b_dldt                        =            0.001;       // balast dl/dt (kg/s)
+    float k                             =              0.3;       // gain modifier
+    float b_dldt                        =            0.0002;       // balast dl/dt (kg/s)
     float v_dldt                        =            0.001;       // valve dl/dt (kg/s)
     float rate_min                      =          0.00001;       // min dl/dt rate threshold (kg/s)
     float rate_max                      =            0.001;       // max dl/dt rate threshold (kg/s)
-    float b_tmin                        =                2;       // minimum ballast event time
-    float v_tmin                        =                2;       // minimum valve event time
-    float h_cmd                         =            13000;       // altidute comand
+    float b_tmin                        =                4;       // minimum ballast event time
+    float v_tmin                        =                4;       // minimum valve event time
+    float h_cmd                         =            13500;       // altidute comand
     float v_ss_error_thresh             =              0.4;
     float b_ss_error_thresh             =             1000;
     float ascent_rate_thresh            =             1000;

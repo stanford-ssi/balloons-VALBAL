@@ -72,7 +72,7 @@ void Charger::runChargerPID(uint8_t resistorMode, float temp) {
       chargingLimit = 1;
     }
   }
-  //resistor.setResistance(hex);
+  resistor.setResistance(hex);
 }
 
 /*

@@ -1219,6 +1219,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.ACTION_TIME_TOTALS[6]/1000,        0,     600,   8, lengthBits);
     lengthBits += compressVariable(data.ACTION_TIME_TOTALS[7]/1000,        0,     600,   8, lengthBits);
     lengthBits += compressVariable(data.RB_HEAT_DUTY,        0,     255,   8, lengthBits);
+    lengthBits += compressVariable(data.RB_HEAT_TEMP_THRESH,        -100,     100,   8, lengthBits);
     lengthBits += compressVariable(in_cuba,                        0,    1,       1,  lengthBits);
     lengthBits += compressVariable(cuba_timeout,                        0,    4000000,       10,  lengthBits);
   }
@@ -1359,6 +1360,8 @@ void Avionics::printState() {
   Serial.print(data.RAW_PRESSURE_4);
   Serial.println();
 
+  Serial.print("MANUAL_MODE: ");
+  Serial.println(data.MANUAL_MODE);
   Serial.print("CONTROLLER: ");
   Serial.println(data.CURRENT_CONTROLLER_INDEX);
   Serial.print("SPAG_EFFORT: ");
@@ -1377,6 +1380,8 @@ void Avionics::printState() {
   Serial.println(data.BALLAST_QUEUE);
   Serial.print("ACTION: ");
   Serial.println(data.ACTION);
+  Serial.print("HEATER THRESHOLD: ");
+  Serial.println(data.RB_HEAT_TEMP_THRESH);
 
   Serial.println("action crap");
   for (int kk = 0; kk < 4; kk++ ) {
@@ -1452,7 +1457,6 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" TEMP_INT:");
   Serial.print(data.TEMP_INT);
-  return;
   Serial.print(',');
   Serial.print(" JOULES_TOTAL:");
   Serial.print(data.JOULES_TOTAL);

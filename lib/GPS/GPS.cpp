@@ -10,6 +10,14 @@
 */
 
 #include "GPS.h"
+#include <SoftwareSerial.h>
+#include "Adafruit_GPS.h"
+
+SoftwareSerial lolSerial = SoftwareSerial(31, A21);
+
+#define Serial1 Serial4
+
+Adafruit_GPS Thingy(&Serial4);
 
 /**********************************  SETUP  ***********************************/
 /*
@@ -19,12 +27,11 @@
  */
 bool GPS::init(bool shouldStartup) {
   bool success = false;
-  pinMode(GPS_ENABLE_PIN, OUTPUT);
-  digitalWrite(GPS_ENABLE_PIN, LOW);
+  pinMode(57, OUTPUT);
+  digitalWrite(57, LOW);
   Serial.println("low");
   Serial.println(shouldStartup);
   delay(2000);
-  Serial1.begin(GPS_BAUD);
   if (shouldStartup) {
     success = restart();
   }
@@ -40,11 +47,16 @@ bool GPS::init(bool shouldStartup) {
 bool GPS::restart() {
   bool success = false;
   EEPROM.write(EEPROMAddress, false);
-  digitalWrite(GPS_ENABLE_PIN, HIGH);
+  digitalWrite(57, HIGH);
   delay(1000);
+  Thingy.begin(GPS_BAUD);
+  Thingy.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+  Thingy.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
+  Thingy.sendCommand("$PMTK605*31");
   EEPROM.write(EEPROMAddress, true);
   delay(3000);
-  success = setGPSMode(flightMode, sizeof(flightMode)/sizeof(uint8_t), GPS_LOCK_TIME);
+  //success = setGPSMode(flightMode, sizeof(flightMode)/sizeof(uint8_t), GPS_LOCK_TIME);
+  success = true;
   return success;
 }
 
@@ -64,7 +76,7 @@ void GPS::hotstart() {
  * This function shutsdown the GPS.
  */
 void GPS::shutdown() {
-  digitalWrite(GPS_ENABLE_PIN, LOW);
+  digitalWrite(57, LOW);
   EEPROM.write(EEPROMAddress, false);
 }
 
@@ -132,7 +144,7 @@ void GPS::smartDelay(uint32_t ms) {
   uint32_t startt = millis();
   do {
     while (Serial1.available()) {
-      char c = Serial1.read();
+      char c = Thingy.read();
       Serial.print(c);
       tinygps.encode(c);
     }

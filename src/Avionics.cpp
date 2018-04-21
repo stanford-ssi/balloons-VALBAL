@@ -304,15 +304,24 @@ bool Avionics::readData() {
       buffer[j][i] = Serial.read();
     }
   }
-  data.RAW_TEMP_1 = *(float*)buffer[0];
-  data.RAW_TEMP_2 = *(float*)buffer[1];
-  data.RAW_TEMP_3 = *(float*)buffer[2];
-  data.RAW_TEMP_4 = *(float*)buffer[3];
-  data.RAW_PRESSURE_1 = *(float*)buffer[4];
-  data.RAW_PRESSURE_2 = *(float*)buffer[5];
-  data.RAW_PRESSURE_3 = *(float*)buffer[6];
-  data.RAW_PRESSURE_4 = *(float*)buffer[7];
+  data.RAW_TEMP_1 = (isnan(*(float*)buffer[0]) ? *(float*)buffer[0] : data.RAW_TEMP_1);
+  data.RAW_TEMP_2 = (isnan(*(float*)buffer[1]) ? *(float*)buffer[1] : data.RAW_TEMP_2);
+  data.RAW_TEMP_3 = (isnan(*(float*)buffer[2]) ? *(float*)buffer[2] : data.RAW_TEMP_3);
+  data.RAW_TEMP_4 = (isnan(*(float*)buffer[3]) ? *(float*)buffer[3] : data.RAW_TEMP_4);
+  data.RAW_PRESSURE_1 = (isnan(*(float*)buffer[4]) ? *(float*)buffer[4] : data.RAW_PRESSURE_1);
+  data.RAW_PRESSURE_2 = (isnan(*(float*)buffer[5]) ? *(float*)buffer[5] : data.RAW_PRESSURE_2);
+  data.RAW_PRESSURE_3 = (isnan(*(float*)buffer[6]) ? *(float*)buffer[6] : data.RAW_PRESSURE_3);
+  data.RAW_PRESSURE_4 = (isnan(*(float*)buffer[7]) ? *(float*)buffer[7] : data.RAW_PRESSURE_4);
   #endif
+
+  data.RAW_TEMP_1 = (isnan(data.RAW_TEMP_1) ? 0 : data.RAW_TEMP_1);
+  data.RAW_TEMP_2 = (isnan(data.RAW_TEMP_2) ? 0 : data.RAW_TEMP_2);
+  data.RAW_TEMP_3 = (isnan(data.RAW_TEMP_3) ? 0 : data.RAW_TEMP_3);
+  data.RAW_TEMP_4 = (isnan(data.RAW_TEMP_4) ? 0 : data.RAW_TEMP_4);
+  data.RAW_PRESSURE_1 = (isnan(data.RAW_PRESSURE_1) ? 0 : data.RAW_PRESSURE_1);
+  data.RAW_PRESSURE_2 = (isnan(data.RAW_PRESSURE_2) ? 0 : data.RAW_PRESSURE_2);
+  data.RAW_PRESSURE_3 = (isnan(data.RAW_PRESSURE_3) ? 0 : data.RAW_PRESSURE_3);
+  data.RAW_PRESSURE_4 = (isnan(data.RAW_PRESSURE_4) ? 0 : data.RAW_PRESSURE_4);
   if (data.POWER_STATE_GPS && ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) && (!data.VALVE_STATE)) readGPS();
   return true;
 }
@@ -973,7 +982,8 @@ void Avionics::parsePayloadPowerCommand(bool command) {
  * This function provides debuging information.
  */
 bool Avionics::debugState() {
-  if(data.DEBUG_STATE) printState();
+  printState();
+  //if(data.DEBUG_STATE) printState();
   return true;
 }
 
@@ -1264,7 +1274,6 @@ void Avionics::printState() {
   Serial.print(" RAW_PRESSURE_4:");
   Serial.print(data.RAW_PRESSURE_4);
   Serial.println();
-  return;
 
   Serial.print("CONTROLLER: ");
   Serial.println(data.CURRENT_CONTROLLER_INDEX);
@@ -1285,6 +1294,7 @@ void Avionics::printState() {
   Serial.print("ACTION: ");
   Serial.println(data.ACTION);
 
+  return;
 
   Serial.println();
   Serial.print("TIME:");

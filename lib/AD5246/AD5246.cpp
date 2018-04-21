@@ -68,7 +68,7 @@ bool AD5246::setResistance(uint8_t hex) {
     pinMode(18, OUTPUT);
     delayMicroseconds(7);
 
-    bool stuffs2[] = {0,0,0,1,0,0,0,0};
+    bool stuffs2[] = {hex & 128,hex & 64,hex & 32,hex & 16,hex & 8,hex & 4,hex & 2,hex & 1};
     for (int i=0; i<8; i++) {
       digitalWriteFast(19, LOW);
       digitalWriteFast(18, stuffs2[i]);

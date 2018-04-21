@@ -1,6 +1,7 @@
 import serial
 import sys
 import struct
+import pandas as pd
 
 BAUD = 9600
 
@@ -10,11 +11,12 @@ DATA_PATH = sys.argv[2]
 START_SIGNAL = b'SERIAL_SHITL_BEGIN'
 REQUEST_SIGNAL = b'SERIAL_SHITL_REQUEST'
 
-with open(DATA_PATH, 'rb') as f:
-	data = None
-	# TODO: read data
-	
+print("\n>>> Starting data import")
+data = pd.read_csv(DATA_PATH)
+print("\n>>> Data imported succesfully")
+print("\n>>>Opening serial port")
 vb = serial.Serial(PORT, BAUD, timeout=1)
+print("\n>>> Port opened succcesfully")
 
 while(False):
 	incoming = vb.readline().strip()
@@ -27,25 +29,19 @@ while(False):
 while(True):
 	incoming = vb.readline().strip()
 	if len(incoming.split()) == 2 and incoming.split()[0] == REQUEST_SIGNAL:
+
 		requested_time = float(incoming.split()[1])
 		print("\n>>> 	ValBal Requested Data at Time: " + str(requested_time))
-		first = struct.pack('f', 1.1)
-		second = struct.pack('f', 2.2)
-		third = struct.pack('f', -3.3)
-		fourth = struct.pack('f', requested_time)
-		fifth = struct.pack('f', 5.5)
-		sixth = struct.pack('f', 6666.666)
-		seventh = struct.pack('f', -7777777.77)
-		eigth = struct.pack('f', 8)
-		vb.write(first)
-		vb.write(second)
-		vb.write(third)
-		vb.write(fourth)	
-		vb.write(fifth)
-		vb.write(sixth)	
-		vb.write(seventh)
-		vb.write(eigth)			
+		data_row = data.ix[(data['Time'] - requested_time).abs().argsort()[:2]]
+	
+		vb.write(struct.pack('f', float(list(data_row['raw_temp_1'])[0])))
+		vb.write(struct.pack('f', float(list(data_row['raw_temp_2'])[0])))
+		vb.write(struct.pack('f', float(list(data_row['raw_temp_3'])[0])))
+		vb.write(struct.pack('f', float(list(data_row['raw_temp_4'])[0])))
+		vb.write(struct.pack('f', float(list(data_row['raw_pressure_1'])[0])))
+		vb.write(struct.pack('f', float(list(data_row['raw_pressure_2'])[0])))
+		vb.write(struct.pack('f', float(list(data_row['raw_pressure_3'])[0])))
+		vb.write(struct.pack('f', float(list(data_row['raw_pressure_4'])[0])))		
 	else: 
-		# print(incoming.decode("utf-8"),end='')
 		print(incoming)
 

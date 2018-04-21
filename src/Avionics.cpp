@@ -295,8 +295,8 @@ bool Avionics::setup5VLine() {
   return true;
 }
 
-float Salt = 0;
-float Slift = 0.3;
+float Salt = 13000;
+float Slift = 0.1;
 
 
 /*
@@ -328,7 +328,12 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_3             = sensors.getRawPressure(3);
   data.RAW_PRESSURE_4             = sensors.getRawPressure(4);
   #ifdef JANKSHITL
-  float v = 5*sqrt(Slift);
+  float v;
+  if (Slift >= 0) {
+    v = 5*sqrt(Slift);
+  } else {
+    v = -5*sqrt(-Slift);
+  }
   Salt += v*data.LOOP_TIME/1000.;
   float p = 3.86651e-20 * pow(44330-Salt,5.255);
   data.RAW_PRESSURE_1             = p;
@@ -1136,7 +1141,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.ALTITUDE_BAROMETER,                   -2000, 40000,   16, lengthBits); // altitude_barometer
   lengthBits += compressVariable(data.ALTITUDE_GPS,                         -2000, 40000,   14, lengthBits);
   lengthBits += compressVariable(data.ASCENT_RATE,                          -10,   10,      11, lengthBits);
-  lengthBits += compressVariable(data.CURRENT_CONTROLLER_INDEX,             0,    1,        1,  lengthBits);
+  lengthBits += compressVariable(data.CURRENT_CONTROLLER_INDEX,             0,    3,        2,  lengthBits);
   lengthBits += compressVariable(data.VALVE_STATE,                           0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_STATE,                         0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.VALVE_QUEUE / 1000,                    0,    1023,    10, lengthBits);
@@ -1193,12 +1198,12 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(log2(data.BMP_2_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_2_logrejections
     lengthBits += compressVariable(log2(data.BMP_3_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_3_logrejections
     lengthBits += compressVariable(log2(data.BMP_4_REJECTIONS + 1),          0,    6,       4,  lengthBits); // sensor_4_logrejections
-    lengthBits += compressVariable(data.ACTION_LEGACY / 1000,              -1023, 1023,     7,  lengthBits);
-    lengthBits += compressVariable(data.VALVE_INCENTIVE_LEGACY,            -50,   10,       12, lengthBits);
-    lengthBits += compressVariable(data.BALLAST_INCENTIVE_LEGACY,          -50,   10,       12, lengthBits);
-    lengthBits += compressVariable(data.RE_ARM_CONSTANT_LEGACY,             0,    4,        8,  lengthBits);
-    lengthBits += compressVariable(data.VALVE_ALT_LAST_LEGACY,             -2000, 50000,    11, lengthBits);
-    lengthBits += compressVariable(data.BALLAST_ALT_LAST_LEGACY,           -2000, 50000,    11, lengthBits);
+    lengthBits += compressVariable(data.ACTION / 1000,              -1023, 1023,     7,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_INCENTIVE,            -50,   10,       12, lengthBits);
+    lengthBits += compressVariable(data.BALLAST_INCENTIVE,          -50,   10,       12, lengthBits);
+    lengthBits += compressVariable(data.RE_ARM_CONSTANT,             0,    4,        8,  lengthBits);
+    lengthBits += compressVariable(data.VALVE_ALT_LAST,             -2000, 50000,    11, lengthBits);
+    lengthBits += compressVariable(data.BALLAST_ALT_LAST,           -2000, 50000,    11, lengthBits);
     lengthBits += compressVariable(data.SPAG_STATE.effort*1000,            -2, 2, 12, lengthBits);
     lengthBits += compressVariable(data.SPAG2_STATE.effort*1000,           -2, 2, 12, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.ascent_rate,           -10,     10,   11, lengthBits);
@@ -1238,7 +1243,6 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(1.0 / data.BALLAST_ALTITUDE_DIFF_CONSTANT,0,    4095,    8,  lengthBits); // Ballast Altitude Difference Constant
     lengthBits += compressVariable(1.0 / data.BALLAST_LAST_ACTION_CONSTANT,  0,    4095,    8,  lengthBits); // Ballast last action constant
     // spaghetti readback
-    lengthBits += compressVariable(data.CURRENT_CONTROLLER_INDEX,       0,    3,    2,  lengthBits);
     lengthBits += compressVariable(data.SPAG_CONSTANTS.k,                      0,      2,    6,  lengthBits);
     lengthBits += compressVariable(data.SPAG_CONSTANTS.b_dldt*1000,            0,      100,    8,  lengthBits);
     lengthBits += compressVariable(data.SPAG_CONSTANTS.v_dldt*1000,            0,      100,    8,  lengthBits);
@@ -1327,7 +1331,7 @@ void Avionics::printState() {
   // return;
   // Serial.print("MANUAL_MODE: ");
   // Serial.println(data.MANUAL_MODE);
-  /*
+
   Serial.print(" RAW_TEMP_1:");
   Serial.print(data.RAW_TEMP_1);
   Serial.print(',');
@@ -1362,9 +1366,9 @@ void Avionics::printState() {
   Serial.print("LAS_EFFORT: ");
   Serial.println(data.LAS_STATE.effort*1000);
   Serial.print("VALVE_INCENTIVE_LEGACY: ");
-  Serial.println(data.VALVE_INCENTIVE_LEGACY);
+  Serial.println(data.VALVE_INCENTIVE);
   Serial.print("BALLAST_INCENTIVE_LEGACY: ");
-  Serial.println(data.BALLAST_INCENTIVE_LEGACY);
+  Serial.println(data.BALLAST_INCENTIVE);
   Serial.print("VALVE QUEUE: ");
   Serial.println(data.VALVE_QUEUE);
   Serial.print("BALLAST QUEUE: ");
@@ -1372,7 +1376,15 @@ void Avionics::printState() {
   Serial.print("ACTION: ");
   Serial.println(data.ACTION);
 
-  return;*/
+  Serial.println("action crap");
+  for (int kk = 0; k < 4; k++ ) {
+    Serial.print(data.ACTION_TIME_TOTALS[2*kk]);
+    Serial.print(" ");
+      Serial.print(data.ACTION_TIME_TOTALS[2*kk+1]);
+      Serial.println();
+  }
+
+  return;
 
   Serial.println();
   Serial.print("TIME:");
@@ -1539,20 +1551,6 @@ void Avionics::printState() {
   Serial.print(" CURRENT_CONTROLLER_INDEX:");
   Serial.print(data.CURRENT_CONTROLLER_INDEX);
   Serial.print(',');
-  Serial.print(" RE_ARM_CONSTANT_LEGACY:");
-  Serial.print(data.RE_ARM_CONSTANT_LEGACY);
-  Serial.print(',');
-  Serial.print(" VALVE_ALT_LAST_LEGACY:");
-  Serial.print(data.VALVE_ALT_LAST_LEGACY);
-  Serial.print(',');
-  Serial.print(" RE_ARM_CONSTANT_LEGACY:");
-  Serial.print(data.RE_ARM_CONSTANT_LEGACY);
-  Serial.print(',');
-  Serial.print(" VALVE_ALT_LAST_LEGACY:");
-  Serial.print(data.VALVE_ALT_LAST_LEGACY);
-  Serial.print(',');
-  Serial.print(" BALLAST_ALT_LAST_LEGACY:");
-  Serial.print(data.BALLAST_ALT_LAST_LEGACY);
   Serial.print(',');
  // END OF CONTROLLER SWITCHING ADDITION
   Serial.print(" DEBUG_STATE:");

@@ -133,7 +133,7 @@ void GPS::smartDelay(uint32_t ms) {
   do {
     while (Serial1.available()) {
       char c = Serial1.read();
-      //Serial.print(c);
+      Serial.print(c);
       tinygps.encode(c);
     }
   } while (millis() - startt < ms);

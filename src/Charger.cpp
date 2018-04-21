@@ -46,7 +46,7 @@ void Charger::enable5VBoost() {
  * This function disables the 5 Volt line.
  */
 void Charger::disable5VBoost() {
-  //digitalWrite(FIVE_VOLT_ENABLE, LOW);
+  digitalWrite(FIVE_VOLT_ENABLE, LOW);
 }
 
 /*

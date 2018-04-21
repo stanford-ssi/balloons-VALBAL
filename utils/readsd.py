@@ -26,7 +26,11 @@ data = []
 #for _ in range(87744):
 #    f.read(N)
 
-for _ in range(700000):
+aa = {"uint32_t": "I", "float": "f", "uint16_t": "H", "bool": "?", "uint8_t": "B", "int32_t":"I"}
+sz = {"uint32_t": 4, "float": 4, "uint16_t": 2, "bool": 1, "uint8_t": 1, "int32_t": 4}
+
+alts = []
+for _ in range(7000000):
     #print(_)
     frame = f.read(1024)
     #print(frame)
@@ -34,8 +38,6 @@ for _ in range(700000):
 
     df = {}
     i = 0
-    aa = {"uint32_t": "I", "float": "f", "uint16_t": "H", "bool": "?", "uint8_t": "B", "int32_t":"I"}
-    sz = {"uint32_t": 4, "float": 4, "uint16_t": 2, "bool": 1, "uint8_t": 1, "int32_t": 4}
     for (t, n) in stuffs:
         df[n] = struct.unpack(aa[t], frame[i:i+sz[t]])[0]
         i += sz[t]
@@ -46,17 +48,21 @@ for _ in range(700000):
     #    print(df['LOOP_NUMBER']-data[-1]['LOOP_NUMBER'])
     #print(_, df['LOOP_NUMBER'])
     if len(data)>= 10 and (df['LOOP_NUMBER'] == 0) and data[-1]['LOOP_NUMBER'] == 0 and data[-9]['LOOP_NUMBER'] == 0: break
+    #if len(data)>= 10 and (df['LOOP_NUMBER'] == 0) and data[-1] == 0 and data[-9] == 0: break
     #if len(data)>= 2 and (df['LOOP_NUMBER'] > data[-1]['LOOP_NUMBER'] + 20): break
     if df['LOOP_NUMBER'] >= 20*86400*10:
         continue
 
     data.append(df)
+    continue
+    data.append(df['LOOP_NUMBER'])
+    alts.append(df['ALTITUDE_BAROMETER'])
 
 import pickle
 pickle.dump(data, open('pickled3','wb'))
 #pp(data[-1])
 log = np.array([x['LOOP_NUMBER'] for x in data])
-log = np.array([x['CPU_SPEED'] for x in data])
+#log = np.array([x['CPU_SPEED'] for x in data])
 import matplotlib.pyplot as plt
 plt.plot(log)
 plt.show()

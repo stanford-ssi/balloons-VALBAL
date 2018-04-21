@@ -27,25 +27,31 @@
  */
 void Avionics::init() {
   #ifdef JANKSHITL
-  stepsim.setSS(101000);
-  tempsim.setSS(0);
+  //stepsim.setSS(101000);
+  //tempsim.setSS(0);
   #endif
   Serial.begin(CONSOLE_BAUD);
-  delay(5000);
+  delay(3000);
   PCB.init();
   actuator.init();
-  delay(1000);
+  delay(500);
   Serial.println("setting payload high");
+
+  // y no radio
   pinMode(35, OUTPUT);
-  digitalWrite(35, HIGH);
+  digitalWrite(35, LOW);
+
+  // here be heaters
+  pinMode(36, OUTPUT);
+
+
   pinMode(PAYLOAD_GATE, OUTPUT);
-  digitalWrite(PAYLOAD_GATE, HIGH);
-  pinMode(GPS_GATE, OUTPUT);
-  digitalWrite(GPS_GATE, HIGH);
+  digitalWrite(PAYLOAD_GATE, LOW);
+
   if(!setupSDCard())                          alert("unable to initialize SD Card", true);
-  // if(!readHistory())                          alert("unable to initialize EEPROM", true);
+  if(!readHistory())                          alert("unable to initialize EEPROM", true);
   if(!sensors.init())                         alert("unable to initialize Sensors", true);
-  delay(5000);
+  delay(2000);
   Serial.println("Serial has been init");
   if(!currentSensor.init(CURRENT_MONITOR_CS)) alert("unable to initialize Current Sensor", true);
 // #ifdef HITL_ENABLED_FLAG
@@ -61,7 +67,7 @@ void Avionics::init() {
   // pinMode(56, OUTPUT);
   // digitalWrite(56, HIGH);
 #ifndef RB_DISABLED_FLAG
-  if(!RBModule.init(true))     alert("unable to initialize RockBlock", true);
+  if(!RBModule.init(false))     alert("unable to initialize RockBlock", true);
 #endif
   //if(!payload.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
   data.TIME = millis();
@@ -80,10 +86,34 @@ void Avionics::init() {
 void Avionics::test() {
   alert("Initializing test...", true);
 
-  actuator.queueBallast(5000, true);
-  //actuator.queueValve(12000, true);
+  actuator.queueBallast(60000, true);
+  //actuator.queueValve(30000, true)
+  //data.SHOULD_CUTDOWN = true;
   //actuator.cutDown();
 }
+
+
+#define minmin(a,b) ((a)<(b)?(a):(b))
+#define maxmax(a,b) ((a)>(b)?(a):(b))
+
+void Avionics::runHeaters() {
+  float duty = 0;
+  duty += maxmax((data.RB_HEAT_TEMP_THRESH - data.TEMP_INT) * data.RB_HEAT_TEMP_GAIN,0);
+  duty += maxmax((data.RB_HEAT_CAP_NOMINAL - data.VOLTAGE_SUPERCAP_AVG)* data.RB_HEAT_CAP_GAIN, 0);
+  duty += maxmax((((float)(millis()-data.RB_LAST)) - 2*data.RB_INTERVAL)/1000./3600.*data.RB_HEAT_COMM_GAIN, 0);
+
+  duty = minmin(1, duty);
+  duty = maxmax(0, duty);
+
+  int dutyint = duty*data.RB_HEAT_MAX_DUTY;
+  /*Serial.println((data.RB_HEAT_TEMP_THRESH - data.TEMP_INT));
+  Serial.println((data.RB_HEAT_CAP_NOMINAL - data.VOLTAGE_SUPERCAP_AVG));
+  Serial.println((((float)(millis()-data.RB_LAST)) - 2*data.RB_INTERVAL)/1000./3600.);*/
+  //Serial.println(dutyint);
+  analogWrite(36, dutyint);
+  data.RB_HEAT_DUTY = dutyint;
+}
+
 
 /********************************  FUNCTIONS  *********************************/
 /*
@@ -99,13 +129,17 @@ void Avionics::updateState() {
 //   if(!simulateData()) alert("unable to simulate Data", true);
 // #endif
   if(!processData())  alert("unable to process Data", true);
+
+  /*if (data.TIME > 40000 && data.TIME < 40050) {
+    actuator.queueBallast(30000, true);
+  }*/
   //currentSensor.read_voltage(DIFF_12_13);
   //Serial.print("avg voltage: ");
   //uint32_t t0 = micros();
   //Serial.println(currentSensor.average_voltage_readings(DIFF_12_13, CURRENT_NUM_SAMPLES), 6);
   //uint32_t dt = micros() - t0;
   //Serial.println(dt);
-  delay(LOOP_INTERVAL);
+  //delay(LOOP_INTERVAL);
 }
 
 /*
@@ -130,6 +164,8 @@ void Avionics::actuateState() {
   if(!runBallast()) alert("unable to run ballast", true);
   if(!runCutdown()) alert("unable to run cutdown", true);
   if(!runLED())     alert("unable to run LED", true);
+  runHeaters();
+  rumAndCoke();
   //if(!runPayload()) alert("Unable to run payload", true);
 }
 
@@ -155,10 +191,14 @@ void Avionics::logState() {
 void Avionics::sendComms() {
 #ifndef RB_DISABLED_FLAG
   if(!data.VALVE_STATE && !data.POWER_STATE_RB && ((millis() - data.RB_LAST) > RB_RESTART_INTERVAL)) {
+    Serial.println("RESTARTING RB WAT");
     RBModule.restart();
+    data.POWER_STATE_RB = true;
   }
+  Serial.println(millis()-data.RB_LAST);
   if(data.DEBUG_STATE && ((millis() - data.RB_LAST) < RB_DEBUG_INTERVAL)) return;
   if(!data.DEBUG_STATE && ((millis() - data.RB_LAST) < data.RB_INTERVAL)) return;
+  Serial.println("not sending data at this time");
   if(compressData() < 0) alert("unable to compress Data", true);
   if(!sendSATCOMS())  {
     alert("unable to communicate over RB", true);
@@ -255,6 +295,10 @@ bool Avionics::setup5VLine() {
   return true;
 }
 
+float Salt = 0;
+float Slift = 0.3;
+
+
 /*
  * Function: readData
  * -------------------
@@ -266,7 +310,7 @@ bool Avionics::readData() {
   data.VOLTAGE_PRIMARY            = sensors.getVoltagePrimary();
   data.VOLTAGE_SUPERCAP           = sensors.getVoltageSuperCap();
   data.CURRENT_TOTAL              = -2*currentSensor.average_voltage_readings(DIFF_10_11, CURRENT_NUM_SAMPLES);
-  data.JOULES_TOTAL               = sensors.getJoules();
+  data.JOULES_TOTAL               += data.LOOP_TIME/1000.*data.VOLTAGE_PRIMARY*data.CURRENT_TOTAL/1000.;
   data.CURRENT_RB                 = -currentSensor.average_voltage_readings(DIFF_14_15, CURRENT_NUM_SAMPLES);
   data.MAX_CURRENT_CHARGING_LIMIT = superCap.getChargingLimit();
   float motcur = -currentSensor.average_voltage_readings(DIFF_8_9, CURRENT_NUM_SAMPLES);
@@ -284,12 +328,9 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_3             = sensors.getRawPressure(3);
   data.RAW_PRESSURE_4             = sensors.getRawPressure(4);
   #ifdef JANKSHITL
-  float p = stepsim.update(61900);
-  float t = tempsim.update(-30);
-  data.RAW_TEMP_1                 = t;
-  data.RAW_TEMP_2                 = t;
-  data.RAW_TEMP_3                 = t;
-  data.RAW_TEMP_4                 = t;
+  float v = 5*sqrt(Slift);
+  Salt += v*data.LOOP_TIME/1000.;
+  float p = 3.86651e-20 * pow(44330-Salt,5.255);
   data.RAW_PRESSURE_1             = p;
   data.RAW_PRESSURE_2             = p;
   data.RAW_PRESSURE_3             = p;
@@ -438,7 +479,11 @@ bool Avionics::calcIncentives() {
   computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
   data.RE_ARM_CONSTANT   = computer.updateControllerConstants(data.BALLAST_ARM_ALT, data.INCENTIVE_THRESHOLD);
-  if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) success =  false;
+  data.VALVE_ALT_LAST    = computer.getAltitudeSinceLastVentCorrected(data.ALTITUDE_BAROMETER, data.VALVE_ALT_LAST);
+  data.BALLAST_ALT_LAST  = computer.getAltitudeSinceLastDropCorrected(data.ALTITUDE_BAROMETER, data.BALLAST_ALT_LAST);
+  data.VALVE_INCENTIVE   = computer.getValveIncentive(data.ASCENT_RATE, data.ALTITUDE_BAROMETER, data.VALVE_ALT_LAST);
+  data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE_BAROMETER, data.BALLAST_ALT_LAST);
+  if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) success = false;
 
   uint32_t INDEX = SPAG_CONTROLLER_INDEX;
   spagController.updateConstants(data.SPAG_CONSTANTS);
@@ -448,7 +493,7 @@ bool Avionics::calcIncentives() {
   data.SPAG_STATE = spagController.getState();
   data.ACTIONS[INDEX]  = spagController.getAction();
   data.ACTION_TIME_TOTALS[2*INDEX] = data.ACTIONS[INDEX] < 0 ? data.ACTION_TIME_TOTALS[2*INDEX] - data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX];
-  data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
+  data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX+1] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
 
   INDEX = SPAG2_CONTROLLER_INDEX;
   spag2Controller.updateConstants(data.SPAG2_CONSTANTS);
@@ -458,7 +503,7 @@ bool Avionics::calcIncentives() {
   data.SPAG2_STATE = spag2Controller.getState();
   data.ACTIONS[INDEX]  = spag2Controller.getAction();
   data.ACTION_TIME_TOTALS[2*INDEX] = data.ACTIONS[INDEX] < 0 ? data.ACTION_TIME_TOTALS[2*INDEX] - data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX];
-  data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
+  data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX+1] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
 
   INDEX = LAS_CONTROLLER_INDEX;
   lasController.updateConstants(data.LAS_CONSTANTS);
@@ -468,7 +513,7 @@ bool Avionics::calcIncentives() {
   data.LAS_STATE = lasController.getState();
   data.ACTIONS[INDEX]  = lasController.getAction();
   data.ACTION_TIME_TOTALS[2*INDEX] = data.ACTIONS[INDEX] < 0 ? data.ACTION_TIME_TOTALS[2*INDEX] - data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX];
-  data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
+  data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX+1] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
 
   return success;
 }
@@ -530,10 +575,10 @@ bool Avionics::runValve() {
   bool shouldAct = data.VALVE_INCENTIVE >= (1 + data.INCENTIVE_NOISE);
   uint32_t valveTime = data.VALVE_VENT_DURATION;
   if (data.CURRENT_CONTROLLER_INDEX != 0) {
-    int numControllers = sizeof(data.ACTIONS)/sizeof(data.ACTIONS[0]);
+    int numControllers = 3;
     if (data.CURRENT_CONTROLLER_INDEX <= numControllers && data.CURRENT_CONTROLLER_INDEX > 0) {
-      shouldAct = data.ACTIONS[data.CURRENT_CONTROLLER_INDEX - 1] < 0;
-      if (shouldAct) valveTime = -data.ACTIONS[data.CURRENT_CONTROLLER_INDEX - 1];
+      shouldAct = data.ACTIONS[data.CURRENT_CONTROLLER_INDEX] < 0;
+      if (shouldAct) valveTime = -data.ACTIONS[data.CURRENT_CONTROLLER_INDEX];
     }
   }
   if((shouldAct && actuator.getValveQueue() <= QUEUE_APPEND_THRESHOLD) || data.FORCE_VALVE) {
@@ -567,10 +612,10 @@ bool Avionics::runBallast() {
   if (data.CURRENT_CONTROLLER_INDEX != 0) {
     //Serial.println("In first if body");
     int numControllers = sizeof(data.ACTIONS)/sizeof(data.ACTIONS[0]);
-    if (data.CURRENT_CONTROLLER_INDEX <= numControllers && data.CURRENT_CONTROLLER_INDEX > 0) {
+    if (data.CURRENT_CONTROLLER_INDEX <= 3 && data.CURRENT_CONTROLLER_INDEX > 0) {
       //Serial.println("In second if body");
-      shouldAct = data.ACTIONS[data.CURRENT_CONTROLLER_INDEX - 1] > 0;
-      if (shouldAct) ballastTime = data.ACTIONS[data.CURRENT_CONTROLLER_INDEX - 1];
+      shouldAct = data.ACTIONS[data.CURRENT_CONTROLLER_INDEX] > 0;
+      if (shouldAct) ballastTime = data.ACTIONS[data.CURRENT_CONTROLLER_INDEX];
     }
   }
   /*Serial.print("shouldAct is ");
@@ -625,6 +670,7 @@ bool Avionics::checkInCuba() {
 
 
 void Avionics::rumAndCoke() {
+  if (data.CUBA_NUMBER != 1973) return;
   bool now_in_cuba = checkInCuba();
   if (in_cuba && !now_in_cuba) {
     in_cuba = false;
@@ -633,10 +679,17 @@ void Avionics::rumAndCoke() {
     in_cuba = true;
     cuba_timeout = millis() + 1000*3600;
   }
+  /*if (in_cuba){
+    Serial.println("CUBA WARNING");
+    Serial.println(data.LOOP_TIME);
+    Serial.println(cuba_timeout-millis());
+  } else {
+    Serial.println("NOT IN CUBA");
+  }*/
   if (in_cuba && millis() > cuba_timeout) {
     data.SHOULD_CUTDOWN = true;
     runCutdown();
-    actuator.queueValve(1000000, true);
+    //actuator.queueValve(1000000, true);
   }
 
 }
@@ -739,6 +792,7 @@ bool Avionics::sendSATCOMS() {
  * This function parses the command received from the RockBLOCK.
  */
 void Avionics::parseCommand(int16_t len) {
+  Serial.println("Got stuff");
   COMMS_BUFFER[len] = 0;
   const char* commandStrFormat = "%d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s";
   uint8_t commandIndexes[8] = {0};
@@ -757,6 +811,8 @@ void Avionics::parseCommand(int16_t len) {
 
   for (uint8_t i = 0; i < numScanned / 2; i++) {
     uint8_t index = commandIndexes[i];
+    Serial.print(index);
+    Serial.print(" -> ");
     if (index == CUTDOWN_INDEX && (strlen(CUTDOWN_COMMAND) == strlen(commandStrings[i])) && strncmp(commandStrings[i], CUTDOWN_COMMAND, strlen(commandStrings[i])) == 0) {
       data.SHOULD_CUTDOWN = true;
     }
@@ -765,6 +821,7 @@ void Avionics::parseCommand(int16_t len) {
     char* charAfterNumbers;
     float commandValue = (float) strtod(commandStrings[i], &charAfterNumbers);
     if (*charAfterNumbers) return;
+    Serial.println(commandValue);
     updateConstant(index, commandValue);
   }
 }
@@ -853,6 +910,12 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 70) data.RB_HEAT_COMM_GAIN             = value;
   else if (index == 71) data.RB_HEAT_CAP_GAIN              = value;
   else if (index == 72) data.RB_HEAT_MAX_DUTY              = value;
+  else if (index == 73) data.RB_HEAT_CAP_NOMINAL           = value;
+  else if (index == 74) {
+    data.CUBA_NUMBER           = (int)value;
+    in_cuba = false;
+    cuba_timeout = millis() + 3600*1000;
+  }
 }
 
 /*
@@ -1138,8 +1201,8 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.BALLAST_ALT_LAST_LEGACY,           -2000, 50000,    11, lengthBits);
     lengthBits += compressVariable(data.SPAG_STATE.effort*1000,            -2, 2, 12, lengthBits);
     lengthBits += compressVariable(data.SPAG2_STATE.effort*1000,           -2, 2, 12, lengthBits);
-    lengthBits += compressVariable(data.LAS_STATE.ascent_rate,           -10,     -10,   11, lengthBits);
-    lengthBits += compressVariable(data.LAS_STATE.fused_ascent_rate,     -10,     -10,   11, lengthBits);
+    lengthBits += compressVariable(data.LAS_STATE.ascent_rate,           -10,     10,   11, lengthBits);
+    lengthBits += compressVariable(data.LAS_STATE.fused_ascent_rate,     -10,     10,   11, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.effort,                  -2,       2,  11, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.v_cmd,                 -10,      10,   8, lengthBits);
     lengthBits += compressVariable(data.ACTION_TIME_TOTALS[2]/1000,        0,     600,   8, lengthBits);
@@ -1148,6 +1211,9 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.ACTION_TIME_TOTALS[5]/1000,        0,     600,   8, lengthBits);
     lengthBits += compressVariable(data.ACTION_TIME_TOTALS[6]/1000,        0,     600,   8, lengthBits);
     lengthBits += compressVariable(data.ACTION_TIME_TOTALS[7]/1000,        0,     600,   8, lengthBits);
+    lengthBits += compressVariable(data.RB_HEAT_DUTY,        0,     255,   8, lengthBits);
+    lengthBits += compressVariable(in_cuba,                        0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(cuba_timeout,                        0,    4000000,       10,  lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval
@@ -1195,8 +1261,6 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.SPAG2_CONSTANTS.kfuse,                 0,      30,    6,  lengthBits);
     lengthBits += compressVariable(data.SPAG2_CONSTANTS.kfuse_v,               0,      1,    4,  lengthBits);
 
-    lengthBits += compressVariable(data.OVERPRESSURE,    -1940,  700,    12,  lengthBits);
-
     lengthBits += compressVariable(data.LAS_CONSTANTS.k_v,                   0,      .01,   8,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.k_h,                   0,      .01,   8,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.b_dldt*1000,           0,      100,   8,  lengthBits);
@@ -1235,6 +1299,19 @@ int16_t Avionics::compressData() {
  * This function prints the current avionics state.
  */
 void Avionics::printState() {
+  //if (data.LOOP_NUMBER % 500 != 0) return;
+  Serial.print("CURRENT MOTORS: ");
+    Serial.print(data.CURRENT_MOTORS);
+    Serial.print(" ");
+      Serial.print(data.CURRENT_TOTAL);
+      Serial.print(" ");
+        Serial.print(data.CURRENT_RB);
+      Serial.print(" ");
+        Serial.print(data.CURRENT_PAYLOAD);
+      Serial.print(" ");
+      //Serial.print(data.CURRENT_MOTOR_BALLAST_AVG);
+      Serial.println();
+      //return;
   // Serial.print("Primary voltage: ");
   // Serial.println(data.VOLTAGE_PRIMARY);
   // Serial.print("System current: ");
@@ -1250,6 +1327,7 @@ void Avionics::printState() {
   // return;
   // Serial.print("MANUAL_MODE: ");
   // Serial.println(data.MANUAL_MODE);
+  /*
   Serial.print(" RAW_TEMP_1:");
   Serial.print(data.RAW_TEMP_1);
   Serial.print(',');
@@ -1294,7 +1372,7 @@ void Avionics::printState() {
   Serial.print("ACTION: ");
   Serial.println(data.ACTION);
 
-  return;
+  return;*/
 
   Serial.println();
   Serial.print("TIME:");
@@ -1362,6 +1440,7 @@ void Avionics::printState() {
   Serial.print(',');
   Serial.print(" TEMP_INT:");
   Serial.print(data.TEMP_INT);
+  return;
   Serial.print(',');
   Serial.print(" JOULES_TOTAL:");
   Serial.print(data.JOULES_TOTAL);

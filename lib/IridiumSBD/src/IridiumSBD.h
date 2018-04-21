@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ISBD_DEFAULT_AT_TIMEOUT         30
 #define ISBD_MSSTM_RETRY_INTERVAL       10
 #define ISBD_DEFAULT_SBDIX_INTERVAL     10
-#define ISBD_USB_SBDIX_INTERVAL         45
+#define ISBD_USB_SBDIX_INTERVAL         30
 #define ISBD_DEFAULT_SENDRECEIVE_TIME   300
 #define ISBD_STARTUP_MAX_TIME           240
 #define ISBD_MAX_MESSAGE_LENGTH         340

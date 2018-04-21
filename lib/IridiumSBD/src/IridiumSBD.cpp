@@ -290,20 +290,25 @@ int IridiumSBD::internalBegin()
 
    // Decide whether the internal MSSTM workaround should be enforced on TX/RX
    // By default it is unless the firmware rev is >= TA13001
-   char version[8];
-   int ret = getFirmwareVersion(version, sizeof(version));
+   char version[8] = "TA16005";
+   //int ret = getFirmwareVersion(version, sizeof(version));
+   int ret = ISBD_SUCCESS;
    if (ret != ISBD_SUCCESS)
    {
+     Serial.println("WAS NOT SUCCESS");
       diagprint(F("Unknown FW version\r\n"));
       msstmWorkaroundRequested = true;
    }
    else
    {
+     Serial.println("WAS SUCCESS, BUT");
+     Serial.println(version);
       diagprint(F("Firmware version is ")); diagprint(version); diagprint(F("\r\n"));
       if (version[0] == 'T' && version[1] == 'A')
       {
          unsigned long ver = strtoul(version + 2, NULL, 10);
          msstmWorkaroundRequested = ver < ISBD_MSSTM_WORKAROUND_FW_VER;
+         Serial.println(msstmWorkaroundRequested);
       }
    }
    diagprint(F("MSSTM workaround is")); diagprint(msstmWorkaroundRequested ? F("") : F(" NOT")); diagprint(F(" enforced.\r\n"));

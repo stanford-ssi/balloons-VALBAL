@@ -1,11 +1,9 @@
 /*
   Stanford Student Space Initiative
-  Balloons | VALBAL | December 2017
+  Balloons | VALBAL | May 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | atedjara@stanford.edu
   Joan Creus-Costa | jcreus@stanford.edu
-  John Dean | deanjl@stanford.edu
-  Ben Newman | blnewman@stanford.edu
   Claire Huang | chuang20@stanford.edu
 
   File: Controller.cpp
@@ -62,44 +60,52 @@ float Controller::updateControllerConstants(float BallastArmAlt, float incentive
 }
 
 /*
- * Function: updateInputs
+ * Function: getAltitudeSinceLastVentCorrected
  * -------------------
- * This function updates all the inputs for all of the controllers
+ * This function returns a corrected altitude since last vent value.
  */
-void Controller::updateInputs(ControllerInputs allInputs) {
-// LEGACY CONTROLLER
-  ControllerLegacyInputs legacyInputs;
-  legacyInputs.altitude              = allInputs.altitude;
-  legacyInputs.altitudeSinceLastVent = allInputs.altitudeSinceLastVent;
-  legacyInputs.altitudeSinceLastDrop = allInputs.altitudeSinceLastDrop;
-  legacyInputs.ascentRate            = allInputs.ascentRate;
-  legacyController.update(legacyInputs);
-
-  SpaghettiController::Input spagInput;
-  spagInput.h = allInputs.altitude;
-  spagController.update(spagInput);
+float Controller::getAltitudeSinceLastVentCorrected(double altitude, double altitudeSinceLastVent) {
+  float altitudeSinceLastVentCorrected = min(altitudeSinceLastVent, altitude + RE_ARM_CONSTANT);
+  return altitudeSinceLastVentCorrected;
 }
 
 /*
- * Function: getActions
+ * Function: getAltitudeSinceLastDropCorrected
  * -------------------
- * This function gets each controller's actions, adds it to the actions struct
- * and returns the action struct
+ * This function returns a corrected altitude since last drop value.
  */
-ControllerActions Controller::getActions() {
-  controller_actions.controllerLegacyAction = legacyController.getAction();
-  controller_actions.controllerSpagAction   = spagController.getAction();
-  return controller_actions;
+float Controller::getAltitudeSinceLastDropCorrected(double altitude, double altitudeSinceLastDrop) {
+  float altitudeSinceLastDropCorrected = altitudeSinceLastDrop;
+  if (!firstBallastDropped && altitude >= BALLAST_ARM_ALT && altitudeSinceLastDrop == BALLAST_ALT_LAST_DEFAULT) {
+    altitudeSinceLastDropCorrected = BALLAST_ALT_LAST_FILLER;
+    firstBallastDropped = true;
+  }
+  if(firstBallastDropped) altitudeSinceLastDropCorrected = max(altitudeSinceLastDropCorrected, altitude - RE_ARM_CONSTANT);
+  return altitudeSinceLastDropCorrected;
 }
 
 /*
- * Function: getStates
+ * Function: getValveIncentive
  * -------------------
- * This function gets each controller's state, adds it to the state struct
- * and returns the state struct
+ * This function calculates the incentive to actuate the valve based on a PID
+ * feedback controller.
  */
-ControllerStates Controller::getStates() {
-  controller_states.controllerLegacyState = legacyController.getState();
-  controller_states.controllerSpagState   = spagController.getState();
-  return controller_states;
+float Controller::getValveIncentive(double ascentRate, double altitude, double altitudeSinceLastVentCorrected) {
+  float proportionalTerm = VALVE_VELOCITY_CONSTANT      * ascentRate;
+  float integralTerm     = VALVE_ALTITUDE_DIFF_CONSTANT * (altitude - VALVE_SETPOINT);
+  float derivativeTerm   = VALVE_LAST_ACTION_CONSTANT   * (altitude - altitudeSinceLastVentCorrected);
+  return proportionalTerm + integralTerm + derivativeTerm;
+}
+
+/*
+ * Function: getBallastIncentive
+ * -------------------
+ * This function calculates the incentive to actuate the ballast based on a PID
+ * feedback controller.
+ */
+float Controller::getBallastIncentive(double ascentRate, double altitude, double altitudeSinceLastDropCorrected) {
+  float proportionalTerm = BALLAST_VELOCITY_CONSTANT * -1 * ascentRate;
+  float integralTerm     = BALLAST_ALTITUDE_DIFF_CONSTANT * (BALLAST_SETPOINT - altitude);
+  float derivativeTerm   = BALLAST_LAST_ACTION_CONSTANT   * (altitudeSinceLastDropCorrected - altitude);
+  return proportionalTerm + integralTerm + derivativeTerm;
 }

@@ -34,8 +34,8 @@
 #include "SpaghettiController2.h"
 #include "Utils.h"
 
-//#define JANKSHITL
-#define SERIALSHITL
+#define JANKSHITL
+// #define SERIALSHITL
 
 // regualar min and max is not compatible with vector in std
 #define _min(a,b) ((a)<(b)?(a):(b))
@@ -46,8 +46,8 @@ public:
 /**********************************  SETUP  ***********************************/
   Avionics() :
     #ifdef JANKSHITL
-    stepsim({{1, -1.999969998200029, 0.999970000449996},{0, 1.124988749873439e-9, 1.124977500042189e-9}}),
-    tempsim({{1, -1.999999750000005, 1.000000000000000},{0, 0.124999997395833e-06, 0.124999997395833e-06}}),
+    //stepsim({{1, -1.999969998200029, 0.999970000449996},{0, 1.124988749873439e-9, 1.124977500042189e-9}}),
+    //tempsim({{1, -1.999999750000005, 1.000000000000000},{0, 0.124999997395833e-06, 0.124999997395833e-06}}),
     #endif
     superCap(),
     PCB(),
@@ -120,8 +120,8 @@ private:
 /*********************************  OBJECTS  **********************************/
 
   #ifdef JANKSHITL
-  Biquad stepsim;
-  Biquad tempsim;
+  //Biquad stepsim;
+  //Biquad tempsim;
   #endif
 
   char COMMS_BUFFER[COMMS_BUFFER_SIZE];
@@ -143,7 +143,7 @@ private:
   SpaghettiController2 spag2Controller;
   LasagnaController lasController;
 
-
+  void runHeaters();
   void rumAndCoke();
   bool checkInCuba();
   bool in_cuba = false;

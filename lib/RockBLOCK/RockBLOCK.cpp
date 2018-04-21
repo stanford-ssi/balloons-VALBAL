@@ -48,6 +48,8 @@ bool RockBLOCK::init(bool shouldStartup) {
  * This function restarts the RockBLOCK.
  */
 void RockBLOCK::restart() {
+  for (int i=0; i<3; i++) Serial.println();
+  Serial.println("Starting up RB");
   EEPROM.write(EEPROMAddress, false);
 
   // is this necessary? dunno. let the jank flow~

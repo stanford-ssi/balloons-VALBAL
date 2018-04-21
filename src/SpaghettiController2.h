@@ -28,7 +28,7 @@ public:
 
   typedef struct __attribute__((packed)) {
     float freq                          =               20;       // control freqency
-    float k                             =          0.00001;       // gain modifier
+    float k                             =                1;       // gain modifier
     float b_dldt                        =            0.001;       // balast dl/dt (kg/s)
     float v_dldt                        =            0.001;       // valve dl/dt (kg/s)
     float rate_min                      =          0.00001;       // min dl/dt rate threshold (kg/s)

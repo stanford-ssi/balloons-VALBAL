@@ -89,9 +89,24 @@ bool CurrentSensor::init(uint8_t chip_select_pin) {
    Serial.println(*(uint16_t *)&bipolar_reg);
   set_bipolar_reg(bipolar_reg);
 
+/*
+  current_sensor_diff_reg_t unipolar;
+  unipolar.SETUP = CURRENT_SENSOR_UNI;
+  unipolar.AIN_0_1 = 0;
+  unipolar.AIN_2_3 = 0;
+  unipolar.AIN_4_5 = 0;
+  unipolar.AIN_6_7 = 0;
+  unipolar.AIN_8_9 = 1;
+  unipolar.AIN_10_11 = 0;
+  unipolar.AIN_12_13 = 0;
+  unipolar.AIN_14_15 = 0;
+  unipolar.PDIF_COM = 0;
+ set_bipolar_reg(unipolar);*/
+
   current_sensor_diff_reg_t range_reg;
   range_reg.SETUP = CURRENT_SENSOR_RANGE;
   Serial.println("'setting range to zero'");
+  //range_reg.AIN_6_7 = 0;
   range_reg.AIN_8_9 = 0;
   range_reg.AIN_10_11 = 0;
   range_reg.AIN_12_13 = 0;

@@ -21,6 +21,8 @@ bool GPS::init(bool shouldStartup) {
   bool success = false;
   pinMode(GPS_ENABLE_PIN, OUTPUT);
   digitalWrite(GPS_ENABLE_PIN, LOW);
+  Serial.println("low");
+  Serial.println(shouldStartup);
   delay(2000);
   Serial1.begin(GPS_BAUD);
   if (shouldStartup) {
@@ -131,7 +133,7 @@ void GPS::smartDelay(uint32_t ms) {
   do {
     while (Serial1.available()) {
       char c = Serial1.read();
-      Serial.print(c);
+      //Serial.print(c);
       tinygps.encode(c);
     }
   } while (millis() - startt < ms);

@@ -185,7 +185,7 @@ typedef enum {
   DIFF_2_3 = 2,
   DIFF_4_5 = 4,
   DIFF_6_7 = 6,
-  DIFF_8_9 = 8,
+  DIFF_8_9 = 9,
   DIFF_10_11 = 10,
   DIFF_12_13 = 12,
   DIFF_14_15 = 14

@@ -95,7 +95,7 @@ static const float     INCENTIVE_THRESHOLD_DEFAULT           =             0.75;
 static const float     RE_ARM_DEFAULT                        =                0;
 static const float     BALLAST_ARM_ALT_DEFAULT               =          13250.0;
 static const float     BALLAST_ALT_LAST_FILLER               =          14000.0;
-static const uint32_t  BALLAST_REVERSE_INTERVAL_DEFAULT      =            70000;
+static const uint32_t  BALLAST_REVERSE_INTERVAL_DEFAULT      =           300000;
 static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              120;
 
 static const float     VALVE_SETPOINT_DEFAULT                =          14500.0;
@@ -147,7 +147,7 @@ static const float     PSC_SLOPE                             =            0.011;
 static const float     PSC_INTERCEPT                         =          -0.2419;
 static const float     CM_WATER_TO_PA                        =          98.0665;
 
-static const uint8_t   CONTROLLER_INDEX_DEFAULT              =                1;
+static const uint8_t   CONTROLLER_INDEX_DEFAULT              =                0;
 
 enum {
   LEGACY_CONTROLLER_INDEX               =                0,

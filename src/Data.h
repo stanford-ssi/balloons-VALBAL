@@ -164,12 +164,15 @@ struct DataFrame {
   uint16_t   COMMS_LENGTH                    =                                0;
 
   float RB_HEAT_TEMP_THRESH                  =                              -40;
-  float RB_HEAT_TEMP_GAIN                    =                                1;    // degrees c of temp to percent duty cycle
-  float RB_HEAT_COMM_GAIN                    =                                1;    // s of comm to percent duty cycle
+  float RB_HEAT_TEMP_GAIN                    =                        0.1666;    // degrees c of temp to percent duty cycle
+  float RB_HEAT_COMM_GAIN                    =                         1;    // hours of comm to percent duty cycle
   float RB_HEAT_CAP_GAIN                     =                                1;    // voltage drop to percent duty cycle
-  float RB_HEAT_MAX_DUTY                     =                               50;    // max duty cylce for heater in percent
+  float RB_HEAT_CAP_NOMINAL                     =                            4.5;    // voltage drop to percent duty cycle
+  float RB_HEAT_MAX_DUTY                     =                              128;    // max duty cylce for heater in percent
   float RB_HEAT_DUTY                         =                                0;
   int32_t ACTIONS[4] = {0};
+
+  int CUBA_NUMBER = 1973;
 
   SpaghettiController::Constants SPAG_CONSTANTS;
   SpaghettiController::State SPAG_STATE;

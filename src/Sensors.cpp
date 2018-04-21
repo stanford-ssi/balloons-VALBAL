@@ -22,7 +22,7 @@ bool Sensors::init() {
   bool sucess = true;
   pinMode(BATT_VOLTAGE,           INPUT);
   pinMode(SUPER_CAP_VOLTAGE,      INPUT);
-  pinMode(EXT_TEMP_SENSOR,        INPUT);
+  //pinMode(EXT_TEMP_SENSOR,        INPUT);
   if (!bme1.begin()) {
     Serial.println("Could not initialize BMP280 sensor 1 in first test, check wiring!");
   }
@@ -48,6 +48,8 @@ bool Sensors::init() {
   Serial.println(bme4.readPressure());
   Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_400);
   Wire.setDefaultTimeout(5000);
+
+  // lol gdi
   int8_t ack = 0;
   ack |= LTC2991_register_write(LTC2991_I2C_ADDRESS, LTC2991_CHANNEL_ENABLE_REG, LTC2991_ENABLE_ALL_CHANNELS);
   ack |= LTC2991_register_write(LTC2991_I2C_ADDRESS, LTC2991_CONTROL_V1234_REG, 0x00);

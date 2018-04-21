@@ -12,6 +12,10 @@
 
 #include "Actuators.h"
 
+#define JANKSHITL
+
+extern float Slift;
+
 /**********************************  SETUP  ***********************************/
 /*
  * Function: init
@@ -25,7 +29,7 @@ void Actuators::init() {
   pinMode(BALLAST_REVERSE,  OUTPUT);
   pinMode(CUTDOWN_POWER,    OUTPUT);
   pinMode(CUTDOWN_SIGNAL,   OUTPUT);
-  digitalWrite(CUTDOWN_POWER, HIGH);
+  digitalWrite(CUTDOWN_POWER, LOW);
   digitalWrite(CUTDOWN_SIGNAL, LOW);
 }
 
@@ -121,6 +125,9 @@ bool Actuators::checkValve(float current) {
       uint32_t deltaTime = (millis() - valveCheckTime);
       valveCheckTime = millis();
       (deltaTime >= valveQueue) ? (valveQueue = 0) : (valveQueue -= deltaTime);
+      #ifdef JANKSHITL
+        Slift -= deltaTime/1000.*0.001;
+      #endif
     }
     if(valveQueue == 0) {
       valveActionStartTime = millis();
@@ -170,6 +177,9 @@ bool Actuators::checkBallast(float current, uint32_t reverseTimeout, uint16_t st
       uint32_t deltaTime = (millis() - ballastCheckTime);
       ballastCheckTime = millis();
       (deltaTime >= ballastQueue) ? (ballastQueue = 0) : (ballastQueue -= deltaTime);
+      #ifdef JANKSHITL
+        Slift += deltaTime/1000.*0.0002;
+      #endif
       if ((millis() - ballastDirectionTime) >= reverseTimeout) {
         ballastDirectionTime = millis();
         ballastDirection = !ballastDirection;

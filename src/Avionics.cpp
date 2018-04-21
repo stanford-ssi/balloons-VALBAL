@@ -923,6 +923,7 @@ void Avionics::updateConstant(uint8_t index, float value) {
     in_cuba = false;
     cuba_timeout = millis() + 3600*1000;
   }
+  else if (index == 75) data.RESISTOR_MODE           = (int)value;
 }
 
 /*

@@ -21,7 +21,7 @@
 #define RESET_EEPROM_FLAG // uncomment for EEPROM reset
 // #define HITL_ENABLED_FLAG // uncomment for HITL
 //#define RB_DISABLED_FLAG  // uncomment to disable rockblock
-#define WIPE_SD_CARD_YOLO // uncomment to wipe the SD card
+//#define WIPE_SD_CARD_YOLO // uncomment to wipe the SD card
 
 /*****************************  TEENSY PIN OUTS  ******************************/
 static const uint8_t   SD_CS                                 =               23;

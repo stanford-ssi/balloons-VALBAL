@@ -39,7 +39,6 @@ bool AD5246::setResistance(uint8_t hex) {
   digitalWriteFast(18, HIGH);
   digitalWriteFast(19, HIGH);
 
-  for (int kk=0; kk<2; kk++) {
     Serial.println("setting resistance fam");
     int mx = 128;
 
@@ -93,8 +92,5 @@ bool AD5246::setResistance(uint8_t hex) {
     digitalWriteFast(19, HIGH);
     delayMicroseconds(10);
     digitalWriteFast(18, HIGH);
-
-    delay(100);
-  }
   return true;
 }

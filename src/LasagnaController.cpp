@@ -62,3 +62,7 @@ int LasagnaController::getAction(){
 LasagnaController::State LasagnaController::getState(){
   return state;
 }
+
+LasagnaController::Constants LasagnaController::getConstants(){
+  return constants;
+}

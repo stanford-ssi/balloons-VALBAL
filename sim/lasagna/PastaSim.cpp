@@ -6,13 +6,14 @@ PastaSim::PastaSim() :
 	l_noise(0,0.002),
 	v_noise(0,0.8)
 {
-	b_dldt = 0.0006;
-	v_dldt = 0.0006;
+	b_dldt = 0.0002;
+	v_dldt = 0.002;
 	klin = 7;
 	h = 14000;
 	l = 0;
 	freq = 20;
-	gen.seed(std::time(0));
+	//gen.seed(std::time(0));
+	gen.seed(1);
 }
 
 double PastaSim::evolve(double action){

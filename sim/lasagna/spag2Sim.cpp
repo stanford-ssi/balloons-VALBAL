@@ -9,7 +9,7 @@
 
 
 #define FREQ 20
-#define CONTROLLER LasagnaController
+#define CONTROLLER SpaghettiController2
 #define LAS LasagnaController
 #define SPAG SpaghettiController2
 
@@ -26,11 +26,10 @@ int main ()
 	fstream o ("output.bin", std::fstream::out | std::fstream::binary);
 	
 	PastaSim sim;
-
 	CONTROLLER las;
 	CONTROLLER::Constants con;
 	las.updateConstants(con);
-	printf("%f %f \n",las.getConstants().freq,las.getConstants().kfuse);
+	printf("Spag2 to the rescue\n");
 	miniframe data;
 	float v_cmd = 0;
 	int dur = 100*60*60*FREQ;
@@ -47,8 +46,8 @@ int main ()
 		CONTROLLER::State state = las.getState();
 		act_sum += state.action;
 		if(i%(FREQ) == 0){
-			float buf[6] = {sim.h, v_cmd,state.effort, state.effort_sum, state.fused_ascent_rate, state.ascent_rate};
-			o.write((char*)&buf, sizeof(float)*6);
+			float buf[2] = {sim.h, state.effort};
+			o.write((char*)&buf, sizeof(float)*2);
 			o.write((char*)&act_sum,sizeof(act_sum));
 		}
 		if(i%(FREQ*60*60) == 0){

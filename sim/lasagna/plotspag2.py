@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 data = []
 with open("output.bin", "rb") as f:
 	while True:
-		dat = f.read(4*7)
+		dat = f.read(4*3)
 		if dat:
-			b = struct.unpack('ffffffi',dat)
+			b = struct.unpack('ffi',dat)
 			data.append(b)
 		else:
 			break
@@ -15,7 +15,7 @@ with open("output.bin", "rb") as f:
 data = np.array(data)
 t = np.arange(0,data.shape[0])/60/60
 
-v = ['alt', 'cmd', 'ef', 'ef_s','fuse','v','act']
+v = ['alt', 'ef', 'act']
 D = lambda x : data[:,v.index(x)]
 fig, ax1 = plt.subplots()
 ax1.plot(t,D('alt'))
@@ -31,9 +31,9 @@ ax1.axhline(13250,c='gray',alpha=0.4)
 
 print(np.sum(np.abs(np.diff(D('act')))))
 
-ax3 = ax1.twinx()
-ax3.plot(t,D('fuse'),'red')
-ax3.plot(t,D('v'),'orange')
+#ax3 = ax1.twinx()
+#ax3.plot(t,D('fuse'),'red')
+#ax3.plot(t,D('v'),'orange')
 
 ax1.set_title(np.sum(np.abs(np.diff(D('act')))))
 plt.show()

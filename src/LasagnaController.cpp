@@ -1,51 +1,64 @@
 #include "LasagnaController.h"
 
 LasagnaController::LasagnaController() :
-  constants{0},
-  v_filter({{1.0003141592601912, -1.9999999013039569, 0.99968584073980871}, {4.93480216e-07,   4.93480216e-07,  -4.93480216e-07,  -4.93480216e-07}}),
-  action_filter({{1, -0.99994, 0.0}, {0.5, 0.5, -0.0}})
-{
-  state.effort = 0;
-  state.effort_sum = 0;
-  state.action = 0;
-  state.ascent_rate = 0;
-  state.fused_ascent_rate = 0;
-  state.v_cmd = 0;
-}
+  v1_filter({{1.0003141592601912L, -1.9999999013039569L, 0.99968584073980871L}, {4.93480216e-07L,   4.93480216e-07L,  -4.93480216e-07L,  -4.93480216e-07L}}),
+  v2_filter({{1.0007479981811036L, -1.9999994404986428L, 0.9992520018188963L}, {2.79750679e-06L,  2.79750679e-06L, -2.79750679e-06L, -2.79750679e-06L}}),
+  action_filter({{1L, -0.99994L, 0.0L}, {0.5L, 0.5L, -0.0L}})
+{}
 
 bool LasagnaController::update(Input input){
 
-  /* biquad for veloctiy with fused action effect estimation*/
-  state.ascent_rate = v_filter.update(input.h);
-  float action_effect = float(state.action)*constants.kfuse;
-  state.fused_ascent_rate = state.ascent_rate + action_filter.update(state.action > 0 ? action_effect*constants.b_dldt : action_effect*constants.v_dldt*constants.kfuse_val);
+  switch(state.status){
+    case PRELAUNCH:
+      if(launch_h > constants.equil_h_thresh) launch_h = input.h;
+      if(input.h - launch_h > constants.launch_h_thresh) state.status = ASCENT;
+      break;
+    case ASCENT:
+      if(input.h > constants.equil_h_thresh) state.status = EQUIL;
+      break;
+    case EQUIL:
+      break;
+  }
+  
+  state.v1 = v1_filter.update(input.h);
+  state.v2 = v2_filter.update(input.h);
+  state.v = (state.status==EQUIL) ? state.v1 : state.v2;
+  float action_effect = (state.status==EQUIL) ? float(state.action)*constants.kfuse : 0;
+  state.fused_v = state.v + action_filter.update(state.action > 0 ? action_effect*constants.b_dldt : action_effect*constants.v_dldt*constants.kfuse_val);
+  innerLoop(input.h);
+  if(state.status==PRELAUNCH) state.action = 0;
+  return true;
+}
 
+
+void LasagnaController::innerLoop(float input_h){
   if(state.comp_ctr >= comp_freq*constants.freq){
-    state.v_cmd = constants.k_h * (constants.h_cmd - input.h);
-    state.effort = constants.k_v * (state.v_cmd - state.fused_ascent_rate);
+    state.v_cmd = constants.k_h * (constants.h_cmd - input_h);
+    state.v_cmd = clamp(state.v_cmd,-(constants.k_h*constants.ss_error_thresh+constants.v_limit),(constants.k_h*constants.ss_error_thresh+constants.v_limit));
+    state.effort = constants.k_v * (state.v_cmd - state.fused_v);
     state.comp_ctr = 0;
   }
-
 
   float deadband_effort = 0;
   float thresh = constants.k_v*constants.k_h*constants.ss_error_thresh;
   //float thresh = 0;
-  if(jankabs(state.effort)-thresh > 0){
+  if(abs(state.effort)-thresh > 0){
     deadband_effort = state.effort + ((state.effort<0)-(state.effort>0))*thresh;
   }
-  state.effort_sum += deadband_effort*constants.freq;
-
-  if(state.effort_sum >= constants.b_tmin*constants.b_dldt*constants.kfuse){
+  deadband_effort = clamp(deadband_effort,-constants.v_dldt,constants.b_dldt);
+  //if(state.v>constants.v_limit) deadband_effort = -max(-deadband_effort,float(0));
+  //if(state.v<-constants.v_limit) deadband_effort = max(deadband_effort,float(0));
+  state.effort_sum += deadband_effort/constants.freq;
+  if(state.effort_sum >= constants.b_tmin*constants.b_dldt){
     state.action = constants.b_tmin;
-    state.effort_sum -= constants.b_tmin*constants.b_dldt*constants.kfuse;
-  } else if(-state.effort_sum >= constants.v_tmin*constants.v_dldt*constants.kfuse){
+    state.effort_sum -= constants.b_tmin*constants.b_dldt;
+  } else if(-state.effort_sum >= constants.v_tmin*constants.v_dldt){
     state.action = -constants.v_tmin;
-    state.effort_sum -= -constants.v_tmin*constants.v_dldt*constants.kfuse;
+    state.effort_sum -= -constants.v_tmin*constants.v_dldt;
   } else {
     state.action = 0;
   }
   state.comp_ctr++;
-  return true;
 }
 
 void LasagnaController::updateConstants(Constants constants){

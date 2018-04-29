@@ -17,6 +17,21 @@ Jank precompiler defined abs
 */
 #define jankabs(x) ((x>0)-(x<0))*x
 
+template<class T> const T& abs(const T& x)
+{
+    return ((x>0)-(x<0))*x;
+}
+
+template<class T> const T& max(const T& a, const T& b)
+{
+    return (a < b) ? b : a;
+}
+
+template<class T> const T& clamp( const T& v, const T& lo, const T& hi)
+{
+    return v < lo ? lo : hi < v ? hi : v;
+}
+
 /*
  * class: Biquad
  * -------------------

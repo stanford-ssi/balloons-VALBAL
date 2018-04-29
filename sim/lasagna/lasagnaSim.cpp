@@ -33,7 +33,7 @@ int main ()
 	printf("%f %f \n",las.getConstants().freq,las.getConstants().kfuse);
 	miniframe data;
 	float v_cmd = 0;
-	int dur = 100*60*60*FREQ;
+	int dur = 60*60*60*FREQ;
 	int act_sum = 0;
 	for(int i = 0; i < 60*60*20*4; i++){
 		CONTROLLER::Input input;
@@ -47,7 +47,7 @@ int main ()
 		CONTROLLER::State state = las.getState();
 		act_sum += state.action;
 		if(i%(FREQ) == 0){
-			float buf[6] = {sim.h, v_cmd,state.effort, state.effort_sum, state.fused_ascent_rate, state.ascent_rate};
+			float buf[6] = {sim.h, v_cmd,state.effort, state.effort_sum, state.fused_v, state.v};
 			o.write((char*)&buf, sizeof(float)*6);
 			o.write((char*)&act_sum,sizeof(act_sum));
 		}

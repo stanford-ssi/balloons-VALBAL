@@ -9,11 +9,11 @@ PastaSim::PastaSim() :
 	b_dldt = 0.0002;
 	v_dldt = 0.002;
 	klin = 7;
-	h = 14000;
-	l = 0;
+	h = 0;
+	l = .1;
 	freq = 20;
-	//gen.seed(std::time(0));
-	gen.seed(1);
+	gen.seed(std::time(0));
+	//gen.seed(1);
 }
 
 double PastaSim::evolve(double action){

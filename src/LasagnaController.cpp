@@ -10,8 +10,14 @@ bool LasagnaController::update(Input input){
 
   switch(state.status){
     case PRELAUNCH:
-      if(launch_h > constants.equil_h_thresh) launch_h = input.h;
-      if(input.h - launch_h > constants.launch_h_thresh) state.status = ASCENT;
+      if(launch_h > constants.equil_h_thresh){        // this is the first time lasagna is called on startup
+        if(input.h > constants.equil_h_thresh){       // looks like we are already in flight ohp
+          launch_h = 0;
+          state.status = EQUIL;
+        } else {
+        launch_h = input.h;
+        } 
+      } else if(input.h - launch_h > constants.launch_h_thresh) state.status = ASCENT;
       break;
     case ASCENT:
       if(input.h > constants.equil_h_thresh) state.status = EQUIL;

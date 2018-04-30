@@ -12,9 +12,9 @@
 
 #include "Actuators.h"
 
-#define JANKSHITL
+//#define JANKSHITL
 
-extern float Slift;
+//extern float Slift;
 
 /**********************************  SETUP  ***********************************/
 /*

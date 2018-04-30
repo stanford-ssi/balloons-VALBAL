@@ -19,6 +19,14 @@
 
 //#define Serial Serial2
 
+IntervalTimer sixtyScoreRevolutionsPerMinute;
+
+volatile int numExecutions = 0;
+
+void rpmCounter() {
+  numExecutions++;
+}
+
 /**********************************  SETUP  ***********************************/
 /*
  * Function: init
@@ -76,6 +84,8 @@ void Avionics::init() {
   #ifdef SERIALSHITL
   Serial.println("SERIAL_SHITL_BEGIN");
   #endif
+
+  sixtyScoreRevolutionsPerMinute.begin(rpmCounter, 50000);
 }
 
 /*
@@ -482,6 +492,7 @@ bool Avionics::calcDebug() {
  * This function gets the updated incentives from the flight computer.
  */
 bool Avionics::calcIncentives() {
+  noInterrupts();
   bool success = true;
   computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
@@ -496,9 +507,12 @@ bool Avionics::calcIncentives() {
   spagController.updateConstants(data.SPAG_CONSTANTS);
   SpaghettiController::Input spagInput;
   spagInput.h = data.ALTITUDE_BAROMETER;
-  spagController.update(spagInput);
-  data.SPAG_STATE = spagController.getState();
-  data.ACTIONS[INDEX]  = spagController.getAction();
+  data.ACTIONS[INDEX] = 0;
+  for (int k=0; k<numExecutions; k++) {
+    spagController.update(spagInput);
+    data.SPAG_STATE = spagController.getState();
+    data.ACTIONS[INDEX] += spagController.getAction();
+  }
   data.ACTION_TIME_TOTALS[2*INDEX] = data.ACTIONS[INDEX] < 0 ? data.ACTION_TIME_TOTALS[2*INDEX] - data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX];
   data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX+1] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
 
@@ -506,9 +520,12 @@ bool Avionics::calcIncentives() {
   spag2Controller.updateConstants(data.SPAG2_CONSTANTS);
   SpaghettiController2::Input spag2Input;
   spag2Input.h = data.ALTITUDE_BAROMETER;
-  spag2Controller.update(spag2Input);
-  data.SPAG2_STATE = spag2Controller.getState();
-  data.ACTIONS[INDEX]  = spag2Controller.getAction();
+  data.ACTIONS[INDEX] = 0;
+  for (int k=0; k<numExecutions; k++) {
+    spag2Controller.update(spag2Input);
+    data.SPAG2_STATE = spag2Controller.getState();
+    data.ACTIONS[INDEX] += spag2Controller.getAction();
+  }
   data.ACTION_TIME_TOTALS[2*INDEX] = data.ACTIONS[INDEX] < 0 ? data.ACTION_TIME_TOTALS[2*INDEX] - data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX];
   data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX+1] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
 
@@ -516,12 +533,17 @@ bool Avionics::calcIncentives() {
   lasController.updateConstants(data.LAS_CONSTANTS);
   LasagnaController::Input lasInput;
   lasInput.h = data.ALTITUDE_BAROMETER;
-  lasController.update(lasInput);
-  data.LAS_STATE = lasController.getState();
-  data.ACTIONS[INDEX]  = lasController.getAction();
+  data.ACTIONS[INDEX] = 0;
+  for (int k=0; k<numExecutions; k++) {
+    lasController.update(lasInput);
+    data.LAS_STATE = lasController.getState();
+    data.ACTIONS[INDEX] += lasController.getAction();
+  }
   data.ACTION_TIME_TOTALS[2*INDEX] = data.ACTIONS[INDEX] < 0 ? data.ACTION_TIME_TOTALS[2*INDEX] - data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX];
   data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX+1] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
+  numExecutions = 0;
 
+  interrupts();
   return success;
 }
 

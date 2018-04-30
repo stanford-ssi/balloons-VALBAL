@@ -493,6 +493,9 @@ bool Avionics::calcDebug() {
  */
 bool Avionics::calcIncentives() {
   noInterrupts();
+    int numExecNow = numExecutions;
+    numExecutions = 0;
+  interrupts();
   bool success = true;
   computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
@@ -508,7 +511,7 @@ bool Avionics::calcIncentives() {
   SpaghettiController::Input spagInput;
   spagInput.h = data.ALTITUDE_BAROMETER;
   data.ACTIONS[INDEX] = 0;
-  for (int k=0; k<numExecutions; k++) {
+  for (int k=0; k<numExecNow; k++) {
     spagController.update(spagInput);
     data.SPAG_STATE = spagController.getState();
     data.ACTIONS[INDEX] += spagController.getAction();
@@ -521,7 +524,7 @@ bool Avionics::calcIncentives() {
   SpaghettiController2::Input spag2Input;
   spag2Input.h = data.ALTITUDE_BAROMETER;
   data.ACTIONS[INDEX] = 0;
-  for (int k=0; k<numExecutions; k++) {
+  for (int k=0; k<numExecNow; k++) {
     spag2Controller.update(spag2Input);
     data.SPAG2_STATE = spag2Controller.getState();
     data.ACTIONS[INDEX] += spag2Controller.getAction();
@@ -534,16 +537,13 @@ bool Avionics::calcIncentives() {
   LasagnaController::Input lasInput;
   lasInput.h = data.ALTITUDE_BAROMETER;
   data.ACTIONS[INDEX] = 0;
-  for (int k=0; k<numExecutions; k++) {
+  for (int k=0; k<numExecNow; k++) {
     lasController.update(lasInput);
     data.LAS_STATE = lasController.getState();
     data.ACTIONS[INDEX] += lasController.getAction();
   }
   data.ACTION_TIME_TOTALS[2*INDEX] = data.ACTIONS[INDEX] < 0 ? data.ACTION_TIME_TOTALS[2*INDEX] - data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX];
   data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX+1] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
-  numExecutions = 0;
-
-  interrupts();
   return success;
 }
 
@@ -1231,8 +1231,8 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.BALLAST_ALT_LAST,           -2000, 50000,    11, lengthBits);
     lengthBits += compressVariable(data.SPAG_STATE.effort*1000,            -2, 2, 12, lengthBits);
     lengthBits += compressVariable(data.SPAG2_STATE.effort*1000,           -2, 2, 12, lengthBits);
-    lengthBits += compressVariable(data.LAS_STATE.ascent_rate,           -10,     10,   11, lengthBits);
-    lengthBits += compressVariable(data.LAS_STATE.fused_ascent_rate,     -10,     10,   11, lengthBits);
+    lengthBits += compressVariable(data.LAS_STATE.v,           -10,     10,   11, lengthBits);
+    lengthBits += compressVariable(data.LAS_STATE.fused_v,     -10,     10,   11, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.effort,                  -2,       2,  11, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.v_cmd,                 -10,      10,   8, lengthBits);
     lengthBits += compressVariable(data.ACTION_TIME_TOTALS[2]/1000,        0,     600,   8, lengthBits);

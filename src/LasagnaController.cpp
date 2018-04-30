@@ -16,7 +16,7 @@ bool LasagnaController::update(Input input){
           state.status = EQUIL;
         } else {
         launch_h = input.h;
-        } 
+        }
       } else if(input.h - launch_h > constants.launch_h_thresh) state.status = ASCENT;
       break;
     case ASCENT:
@@ -25,7 +25,7 @@ bool LasagnaController::update(Input input){
     case EQUIL:
       break;
   }
-  
+
   state.v1 = v1_filter.update(input.h);
   state.v2 = v2_filter.update(input.h);
   state.v = (state.status==EQUIL) ? state.v1 : state.v2;
@@ -40,7 +40,7 @@ bool LasagnaController::update(Input input){
 void LasagnaController::innerLoop(float input_h){
   if(state.comp_ctr >= comp_freq*constants.freq){
     state.v_cmd = constants.k_h * (constants.h_cmd - input_h);
-    state.v_cmd = clamp(state.v_cmd,-(constants.k_h*constants.ss_error_thresh+constants.v_limit),(constants.k_h*constants.ss_error_thresh+constants.v_limit));
+    state.v_cmd = pasta_clamp(state.v_cmd,-(constants.k_h*constants.ss_error_thresh+constants.v_limit),(constants.k_h*constants.ss_error_thresh+constants.v_limit));
     state.effort = constants.k_v * (state.v_cmd - state.fused_v);
     state.comp_ctr = 0;
   }
@@ -51,7 +51,7 @@ void LasagnaController::innerLoop(float input_h){
   if(abs(state.effort)-thresh > 0){
     deadband_effort = state.effort + ((state.effort<0)-(state.effort>0))*thresh;
   }
-  deadband_effort = clamp(deadband_effort,-constants.v_dldt,constants.b_dldt);
+  deadband_effort = pasta_clamp(deadband_effort,-constants.v_dldt,constants.b_dldt);
   //if(state.v>constants.v_limit) deadband_effort = -max(-deadband_effort,float(0));
   //if(state.v<-constants.v_limit) deadband_effort = max(deadband_effort,float(0));
   state.effort_sum += deadband_effort/constants.freq;

@@ -35,7 +35,8 @@
 #include "Utils.h"
 
 // #define JANKSHITL
-// #define SERIALSHITL
+#define SERIALSHITL
+#define SERIALSHITL_LEN 32
 
 
 // regualar min and max is not compatible with vector in std

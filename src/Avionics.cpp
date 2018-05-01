@@ -353,11 +353,17 @@ bool Avionics::readData() {
   #endif
   #ifdef SERIALSHITL
   Serial.print("SERIAL_SHITL_REQUEST ");
-  Serial.println(data.TIME);
+  Serial.println(data.TIME * 20);
   uint8_t buffer[8][4];
-  for(int j = 0; j < 8; j++) {
-    for(int i = 0; i < 4; i++) {
-      buffer[j][i] = Serial.read();
+  while(true) {
+    Serial.println(Serial.available());
+    if(Serial.available() == SERIALSHITL_LEN) {
+      for(int j = 0; j < 8; j++) {
+        for(int i = 0; i < 4; i++) {
+          buffer[j][i] = Serial.read();
+        }
+      }
+      break;
     }
   }
   data.RAW_TEMP_1 = (isnan(*(float*)buffer[0]) ? *(float*)buffer[0] : data.RAW_TEMP_1);
@@ -544,6 +550,8 @@ bool Avionics::calcIncentives() {
   }
   data.ACTION_TIME_TOTALS[2*INDEX] = data.ACTIONS[INDEX] < 0 ? data.ACTION_TIME_TOTALS[2*INDEX] - data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX];
   data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX+1] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
+  Serial.print("numExecNow: ");
+  Serial.println(numExecNow);
   return success;
 }
 
@@ -1330,24 +1338,24 @@ int16_t Avionics::compressData() {
  */
 void Avionics::printState() {
   //if (data.LOOP_NUMBER % 500 != 0) return;
-  Serial.print("CURRENT MOTORS: ");
-    Serial.print(data.CURRENT_MOTORS);
-    Serial.print(" ");
-      Serial.print(data.CURRENT_TOTAL);
-      Serial.print(" ");
-        Serial.print(data.CURRENT_RB);
-      Serial.print(" ");
-        Serial.print(data.CURRENT_PAYLOAD);
-      Serial.print(" ");
-      //Serial.print(data.CURRENT_MOTOR_BALLAST_AVG);
-      Serial.println();
+  // Serial.print("CURRENT MOTORS: ");
+  //   Serial.print(data.CURRENT_MOTORS);
+  //   Serial.print(" ");
+  //     Serial.print(data.CURRENT_TOTAL);
+  //     Serial.print(" ");
+  //       Serial.print(data.CURRENT_RB);
+  //     Serial.print(" ");
+  //       Serial.print(data.CURRENT_PAYLOAD);
+  //     Serial.print(" ");
+  //     //Serial.print(data.CURRENT_MOTOR_BALLAST_AVG);
+  //     Serial.println();
       //return;
   // Serial.print("Primary voltage: ");
   // Serial.println(data.VOLTAGE_PRIMARY);
   // Serial.print("System current: ");
   // Serial.println(data.CURRENT_TOTAL);
-  // Serial.print("Altitude: ");
-  // Serial.println(data.ALTITUDE_BAROMETER);
+  Serial.print("Altitude: ");
+  Serial.println(data.ALTITUDE_BAROMETER);
   // Serial.print("Payload current: ");
   // Serial.println(data.CURRENT_PAYLOAD);
   // Serial.print("Motor current: ");
@@ -1358,30 +1366,31 @@ void Avionics::printState() {
   // Serial.print("MANUAL_MODE: ");
   // Serial.println(data.MANUAL_MODE);
 
-  Serial.print(" RAW_TEMP_1:");
-  Serial.print(data.RAW_TEMP_1);
-  Serial.print(',');
-  Serial.print(" RAW_TEMP_2:");
-  Serial.print(data.RAW_TEMP_2);
-  Serial.print(',');
-  Serial.print(" RAW_TEMP_3:");
-  Serial.print(data.RAW_TEMP_3);
-  Serial.print(',');
-  Serial.print(" RAW_TEMP_4:");
-  Serial.print(data.RAW_TEMP_4);
-  Serial.print(',');
-  Serial.print(" RAW_PRESSURE_1:");
-  Serial.print(data.RAW_PRESSURE_1);
-  Serial.print(',');
-  Serial.print(" RAW_PRESSURE_2:");
-  Serial.print(data.RAW_PRESSURE_2);
-  Serial.print(',');
-  Serial.print(" RAW_PRESSURE_3:");
-  Serial.print(data.RAW_PRESSURE_3);
-  Serial.print(',');
-  Serial.print(" RAW_PRESSURE_4:");
-  Serial.print(data.RAW_PRESSURE_4);
+  // Serial.print(" RAW_TEMP_1:");
+  // Serial.print(data.RAW_TEMP_1);
+  // Serial.print(',');
+  // Serial.print(" RAW_TEMP_2:");
+  // Serial.print(data.RAW_TEMP_2);
+  // Serial.print(',');
+  // Serial.print(" RAW_TEMP_3:");
+  // Serial.print(data.RAW_TEMP_3);
+  // Serial.print(',');
+  // Serial.print(" RAW_TEMP_4:");
+  // Serial.print(data.RAW_TEMP_4);
+  // Serial.print(',');
+  Serial.print("RAW_PRESSURE_1: ");
+  Serial.println(data.RAW_PRESSURE_1);
+  //Serial.print(',');
+  Serial.print("RAW_PRESSURE_2: ");
+  Serial.println(data.RAW_PRESSURE_2);
+  //Serial.print(',');
+  Serial.print("RAW_PRESSURE_3: ");
+  Serial.println(data.RAW_PRESSURE_3);
+  //Serial.print(',');
+  Serial.print("RAW_PRESSURE_4: ");
+  Serial.println(data.RAW_PRESSURE_4);
   Serial.println();
+  return;
 
   Serial.print("MANUAL_MODE: ");
   Serial.println(data.MANUAL_MODE);

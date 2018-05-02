@@ -106,9 +106,7 @@ private:
   void    parseGPSPowerCommand(uint8_t command);
   void    parseResistorPowerCommand(uint8_t command);
   void    parsePayloadPowerCommand(bool command);
-  void    parseRockBLOCKModeCommand(bool command);
-
-  bool    debugState();
+  void    parseRockBLOCKModeCommand(bool command);  bool    debugState();
   void    setupLog();
   void    printHeader();
   void    logHeader();

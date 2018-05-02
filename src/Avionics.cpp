@@ -82,7 +82,16 @@ void Avionics::init() {
   data.SETUP_STATE = false;
 
   #ifdef SERIALSHITL
-  Serial.println("SERIAL_SHITL_BEGIN");
+  //holds until connection with PC is established
+  while(true){
+    Serial.write(FSTART);
+    delay(100);
+    if(Serial.available()){
+      if(Serial.read() == FSTART){
+        break;
+      }
+    }
+  }
   #endif
 
   sixtyScoreRevolutionsPerMinute.begin(rpmCounter, 50000);
@@ -329,6 +338,36 @@ bool Avionics::readData() {
   data.CURRENT_MOTORS             = motcur;
   data.CURRENT_PAYLOAD            = -currentSensor.average_voltage_readings(DIFF_12_13, CURRENT_NUM_SAMPLES);
   data.TEMP_EXT                   = sensors.getDerivedTemp(EXT_TEMP_SENSOR);
+  #ifdef SERIALSHITL
+  elapsedMicros te = 0;
+  Serial.write(FSTART);
+  uint32_t t = data.TIME;
+  char* b = (char*)(&t);
+  Serial.write(b,4);
+  const int len = sizeof(float)*8;
+  char bytes[len];
+  float vals[8];
+  while(true){
+    if(Serial.available() == len){
+      for(int i = 0;i < len; i++){
+        bytes[i]= Serial.read();
+        //Serial.printf("%x,",bytes[i]);
+      }
+      memcpy(vals,bytes,len);
+      break;
+    }
+  }
+
+  data.RAW_TEMP_1 = (isnan(vals[0]) ? data.RAW_TEMP_1 : vals[0]);
+  data.RAW_TEMP_2 = (isnan(vals[1]) ? data.RAW_TEMP_2 : vals[1]);
+  data.RAW_TEMP_3 = (isnan(vals[2]) ? data.RAW_TEMP_3 : vals[2]);
+  data.RAW_TEMP_4 = (isnan(vals[3]) ? data.RAW_TEMP_4 : vals[3]);
+  data.RAW_PRESSURE_1 = (isnan(vals[4]) ? data.RAW_PRESSURE_1: vals[4]);
+  data.RAW_PRESSURE_2 = (isnan(vals[5]) ? data.RAW_PRESSURE_2: vals[5]);
+  data.RAW_PRESSURE_3 = (isnan(vals[6]) ? data.RAW_PRESSURE_3: vals[6]);
+  data.RAW_PRESSURE_4 = (isnan(vals[7]) ? data.RAW_PRESSURE_4: vals[7]);
+  Serial.println(te);
+  #else
   data.RAW_TEMP_1                 = sensors.getRawTemp(1);
   data.RAW_TEMP_2                 = sensors.getRawTemp(2);
   data.RAW_TEMP_3                 = sensors.getRawTemp(3);
@@ -337,6 +376,7 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_2             = sensors.getRawPressure(2);
   data.RAW_PRESSURE_3             = sensors.getRawPressure(3);
   data.RAW_PRESSURE_4             = sensors.getRawPressure(4);
+  #endif
   #ifdef JANKSHITL
   float v;
   if (Slift >= 0) {
@@ -350,30 +390,6 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_2             = p;
   data.RAW_PRESSURE_3             = p;
   data.RAW_PRESSURE_4             = p;
-  #endif
-  #ifdef SERIALSHITL
-  Serial.print("SERIAL_SHITL_REQUEST ");
-  Serial.println(data.TIME * 20);
-  uint8_t buffer[8][4];
-  while(true) {
-    Serial.println(Serial.available());
-    if(Serial.available() == SERIALSHITL_LEN) {
-      for(int j = 0; j < 8; j++) {
-        for(int i = 0; i < 4; i++) {
-          buffer[j][i] = Serial.read();
-        }
-      }
-      break;
-    }
-  }
-  data.RAW_TEMP_1 = (isnan(*(float*)buffer[0]) ? *(float*)buffer[0] : data.RAW_TEMP_1);
-  data.RAW_TEMP_2 = (isnan(*(float*)buffer[1]) ? *(float*)buffer[1] : data.RAW_TEMP_2);
-  data.RAW_TEMP_3 = (isnan(*(float*)buffer[2]) ? *(float*)buffer[2] : data.RAW_TEMP_3);
-  data.RAW_TEMP_4 = (isnan(*(float*)buffer[3]) ? *(float*)buffer[3] : data.RAW_TEMP_4);
-  data.RAW_PRESSURE_1 = (isnan(*(float*)buffer[4]) ? *(float*)buffer[4] : data.RAW_PRESSURE_1);
-  data.RAW_PRESSURE_2 = (isnan(*(float*)buffer[5]) ? *(float*)buffer[5] : data.RAW_PRESSURE_2);
-  data.RAW_PRESSURE_3 = (isnan(*(float*)buffer[6]) ? *(float*)buffer[6] : data.RAW_PRESSURE_3);
-  data.RAW_PRESSURE_4 = (isnan(*(float*)buffer[7]) ? *(float*)buffer[7] : data.RAW_PRESSURE_4);
   #endif
 
   data.RAW_TEMP_1 = (isnan(data.RAW_TEMP_1) ? 0 : data.RAW_TEMP_1);

@@ -190,5 +190,8 @@ static const bool      USING_CHANNEL_DIFF_10_11              =            true;
 static const bool      USING_CHANNEL_DIFF_12_13              =            true;
 static const bool      USING_CHANNEL_DIFF_14_15              =            true;
 
+/***************************** SHITL stuff ************************************/
+#define FSTART 0xAA
+
 
 #endif

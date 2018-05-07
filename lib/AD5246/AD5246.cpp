@@ -31,7 +31,7 @@ bool AD5246::init() {
  */
 bool AD5246::setResistance(uint8_t hex) {
   // TODO actually use the right hex
-  Serial.println("setting resistance fam");
+  //Serial.println("setting resistance fam");
 
   pinMode(18, OUTPUT);
   pinMode(19, OUTPUT);
@@ -39,7 +39,7 @@ bool AD5246::setResistance(uint8_t hex) {
   digitalWriteFast(18, HIGH);
   digitalWriteFast(19, HIGH);
 
-    Serial.println("setting resistance fam");
+    //Serial.println("setting resistance fam");
     int mx = 128;
 
     // SDA 18

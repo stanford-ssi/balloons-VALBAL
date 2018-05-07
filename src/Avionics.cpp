@@ -1366,19 +1366,21 @@ void Avionics::printState() {
   //     //Serial.print(data.CURRENT_MOTOR_BALLAST_AVG);
   //     Serial.println();
       //return;
-  // Serial.print("Primary voltage: ");
-  // Serial.println(data.VOLTAGE_PRIMARY);
+  Serial.print("Primary voltage: ");
+  Serial.println(data.VOLTAGE_PRIMARY);
   // Serial.print("System current: ");
   // Serial.println(data.CURRENT_TOTAL);
-  Serial.print("Altitude: ");
-  Serial.println(data.ALTITUDE_BAROMETER);
-  // Serial.print("Payload current: ");
-  // Serial.println(data.CURRENT_PAYLOAD);
-  // Serial.print("Motor current: ");
-  // Serial.println(data.CURRENT_MOTORS);
-  // Serial.print("RB current: ");
-  // Serial.println(data.CURRENT_RB);
-  // return;
+  //Serial.print("Altitude: ");
+  //Serial.println(data.ALTITUDE_BAROMETER);
+  Serial.print("System current: ");
+  Serial.println(data.CURRENT_TOTAL);
+  Serial.print("Payload current: ");
+  Serial.println(data.CURRENT_PAYLOAD);
+  Serial.print("Motor current: ");
+  Serial.println(data.CURRENT_MOTORS);
+  Serial.print("RB current: ");
+  Serial.println(data.CURRENT_RB);
+  return;
   // Serial.print("MANUAL_MODE: ");
   // Serial.println(data.MANUAL_MODE);
 
@@ -1394,7 +1396,7 @@ void Avionics::printState() {
   // Serial.print(" RAW_TEMP_4:");
   // Serial.print(data.RAW_TEMP_4);
   // Serial.print(',');
-  Serial.print("RAW_PRESSURE_1: ");
+  /*Serial.print("RAW_PRESSURE_1: ");
   Serial.println(data.RAW_PRESSURE_1);
   //Serial.print(',');
   Serial.print("RAW_PRESSURE_2: ");
@@ -1404,7 +1406,7 @@ void Avionics::printState() {
   Serial.println(data.RAW_PRESSURE_3);
   //Serial.print(',');
   Serial.print("RAW_PRESSURE_4: ");
-  Serial.println(data.RAW_PRESSURE_4);
+  Serial.println(data.RAW_PRESSURE_4);*/
   Serial.println();
   return;
 

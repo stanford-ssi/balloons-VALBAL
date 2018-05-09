@@ -9,9 +9,9 @@ from pprint import pprint as pp
 
 d = os.path.dirname(os.path.abspath(__file__))
 #with open(os.path.abspath(os.path.join(d, "../src/Data.h"))) as ff:
-with open(os.path.abspath(os.path.join(d, "frame2.h"))) as ff:
+with open(os.path.abspath(os.path.join(d, "Data.h"))) as ff:
     t = ff.read()
-    stuffs = re.findall('^  (.*?)\s+(.*?)\s+=',t, re.MULTILINE)
+    stuffs = re.findall('^\s*(.*?)\s+(.*?)\s*[=;]',t, re.MULTILINE)
 
 #f = open(sys.argv[1])
 f = open('/dev/mmcblk0','rb')
@@ -34,14 +34,15 @@ aa = {"uint32_t": "I", "float": "f", "uint16_t": "H", "bool": "?", "uint8_t": "B
 sz = {"uint32_t": 4, "float": 4, "uint16_t": 2, "bool": 1, "uint8_t": 1, "int32_t": 4}
 mp = {"uint32_t": 'uint32', "float": 'float32', "uint16_t": 'uint16', "bool": 'bool_', "uint8_t": 'uint8',"int32_t":"int32"}
 mp2 = {"uint32_t": '<u4', "float": '<f4', "uint16_t": '<u2', "bool": 'u1', "uint8_t": 'u1'}
+print(stuffs)
 typestr=[(x[1].lower(),mp[x[0]]) for i, x in enumerate(stuffs)]
-A = np.zeros((d,), dtype=typestr)
+#A = np.zeros((d,), dtype=typestr)
 stuffs = [(k.lower(), v.lower()) for (k, v) in stuffs]
 
 alts = []
 lops = []
-for _ in range(45070):
-    f.read(1024)
+#for _ in range(45070):
+#    f.read(1024)
 for _ in range(d):
     #print(_)
     frame = f.read(1024)
@@ -50,11 +51,13 @@ for _ in range(d):
 
     df = {}
     i = 0
-    for (t, n) in stuffs:
+    for (t, n) in stuffs[:10]:
         df[n] = struct.unpack(aa[t], frame[i:i+sz[t]])[0]
-        A[_][n] = df[n]
+        #A[_][n] = df[n]
         i += sz[t]
     #if len(data) > 0 and abs(df['TIME']-data[-1]['TIME']) > 1000*10: break
+    if abs(df['altitude_barometer']) < 50000:
+     lops.append(df['altitude_barometer'])
     pp((df['loop_number'], _))
     continue
     #pp(df['LOG_TIME'])
@@ -73,6 +76,10 @@ for _ in range(d):
     continue
     data.append(df['LOOP_NUMBER'])
     alts.append(df['ALTITUDE_BAROMETER'])
+
+plt.plot(lops)
+plt.show()
+exit()
 
 df = pd.DataFrame.from_records(A, index='time')#, columns=[x[0].lower() for x in stuffs])
 launch_unix = 1524345300 * 1000

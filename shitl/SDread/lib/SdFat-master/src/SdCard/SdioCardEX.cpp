@@ -44,7 +44,7 @@ void SdioCardEX::giveInfo(String str) {
 }
 
 bool SdioCardEX::readBlock(uint32_t lba, uint8_t* dst) {
-  giveInfo("readBlock");
+  //giveInfo("readBlock");
   if (m_curState != READ_STATE || lba != m_curLba) {
     if (!syncBlocks()) {
       return false;
@@ -67,7 +67,7 @@ bool SdioCardEX::readBlock(uint32_t lba, uint8_t* dst) {
 }
 //-----------------------------------------------------------------------------
 bool SdioCardEX::readBlocks(uint32_t lba, uint8_t* dst, size_t nb) {
-  giveInfo("readBlocks");
+  //giveInfo("readBlocks");
   for (size_t i = 0; i < nb; i++) {
     if (!readBlock(lba + i, dst + i*512UL)) {
       return false;
@@ -77,7 +77,7 @@ bool SdioCardEX::readBlocks(uint32_t lba, uint8_t* dst, size_t nb) {
 }
 //-----------------------------------------------------------------------------
 bool SdioCardEX::syncBlocks() {
-  giveInfo("syncBlocks");
+  //giveInfo("syncBlocks");
   if (m_curState == READ_STATE) {
     m_curState = IDLE_STATE;
     if (!SdioCard::readStop()) {
@@ -93,7 +93,7 @@ bool SdioCardEX::syncBlocks() {
 }
 //-----------------------------------------------------------------------------
 bool SdioCardEX::writeBlock(uint32_t lba, const uint8_t* src) {
-  giveInfo("writeBlock");
+  //giveInfo("writeBlock");
   if (m_curState != WRITE_STATE || m_curLba != lba) {
     uint32_t t0 = micros();
     if (!syncBlocks()) {
@@ -127,7 +127,7 @@ bool SdioCardEX::writeBlock(uint32_t lba, const uint8_t* src) {
 }
 //-----------------------------------------------------------------------------
 bool SdioCardEX::writeBlocks(uint32_t lba, const uint8_t* src, size_t nb) {
-  giveInfo("writeBlocks");
+  //giveInfo("writeBlocks");
   for (size_t i = 0; i < nb; i++) {
     if (!writeBlock(lba + i, src + i*512UL)) {
       return false;

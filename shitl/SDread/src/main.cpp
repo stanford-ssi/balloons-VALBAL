@@ -5,6 +5,7 @@ SdioCardEX card;
 
 void setup() {
   Serial.begin(115200);
+  delay(2000);
   if (!card.begin()) {
     Serial.println("[SD ERROR] Could not initialize SD card.");
   }

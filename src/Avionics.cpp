@@ -344,6 +344,19 @@ bool Avionics::readData() {
   uint32_t t = data.TIME;
   char* b = (char*)(&t);
   Serial.write(b,4);
+  float report[9];
+  report[0] = data.ALTITUDE_BAROMETER;
+  report[1] = data.ASCENT_RATE;
+  report[2] = data.LAS_STATE.v;
+  report[3] = data.LAS_STATE.effort;
+  report[4] = data.LAS_STATE.status;
+  report[5] = data.ACTIONS[LAS_CONTROLLER_INDEX];
+  report[6] = data.LAS_STATE.effort_sum;
+  report[7] = data.VALVE_QUEUE;
+  report[8] = data.BALLAST_QUEUE;
+
+  b = (char*)(&report);
+  Serial.write(b, sizeof(report));
   const int len = sizeof(float)*8;
   char bytes[len];
   float vals[8];
@@ -357,7 +370,6 @@ bool Avionics::readData() {
       break;
     }
   }
-
   data.RAW_TEMP_1 = (isnan(vals[0]) ? data.RAW_TEMP_1 : vals[0]);
   data.RAW_TEMP_2 = (isnan(vals[1]) ? data.RAW_TEMP_2 : vals[1]);
   data.RAW_TEMP_3 = (isnan(vals[2]) ? data.RAW_TEMP_3 : vals[2]);
@@ -366,6 +378,7 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_2 = (isnan(vals[5]) ? data.RAW_PRESSURE_2: vals[5]);
   data.RAW_PRESSURE_3 = (isnan(vals[6]) ? data.RAW_PRESSURE_3: vals[6]);
   data.RAW_PRESSURE_4 = (isnan(vals[7]) ? data.RAW_PRESSURE_4: vals[7]);
+  Serial.print("SHITL TIME: ");
   Serial.println(te);
   #else
   data.RAW_TEMP_1                 = sensors.getRawTemp(1);
@@ -391,7 +404,6 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_3             = p;
   data.RAW_PRESSURE_4             = p;
   #endif
-
   data.RAW_TEMP_1 = (isnan(data.RAW_TEMP_1) ? 0 : data.RAW_TEMP_1);
   data.RAW_TEMP_2 = (isnan(data.RAW_TEMP_2) ? 0 : data.RAW_TEMP_2);
   data.RAW_TEMP_3 = (isnan(data.RAW_TEMP_3) ? 0 : data.RAW_TEMP_3);
@@ -1366,12 +1378,12 @@ void Avionics::printState() {
   //     //Serial.print(data.CURRENT_MOTOR_BALLAST_AVG);
   //     Serial.println();
       //return;
+  Serial.print("Altitude: ");
+  Serial.println(data.ALTITUDE_BAROMETER);
   Serial.print("Primary voltage: ");
   Serial.println(data.VOLTAGE_PRIMARY);
   // Serial.print("System current: ");
   // Serial.println(data.CURRENT_TOTAL);
-  //Serial.print("Altitude: ");
-  //Serial.println(data.ALTITUDE_BAROMETER);
   Serial.print("System current: ");
   Serial.println(data.CURRENT_TOTAL);
   Serial.print("Payload current: ");

@@ -8,3 +8,5 @@ src/Cutdown.h
 lib/readme.txt
 sim/**/*.bin
 sim/**/*.h5
+shitl/**/*.npy
+shitl/test-outputs/*

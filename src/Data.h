@@ -73,7 +73,7 @@ struct DataFrame {
 /*****************************  SECONDARY DATA  *******************************/
   bool       POWER_STATE_LED                 =                             true;
   bool       POWER_STATE_RB                  =                             true;
-  bool       POWER_STATE_GPS                 =                             true;
+  bool       POWER_STATE_GPS                 =                            !true;
   bool       POWER_STATE_PAYLOAD             =                             true;
   uint8_t    NUM_SATS_GPS                    =                                0;
   float      SPEED_GPS                       =                                0;

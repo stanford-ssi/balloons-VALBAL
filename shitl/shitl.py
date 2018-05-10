@@ -6,9 +6,15 @@ import numpy
 import serial
 import csv
 import pickle
-FILE_PATH = './realdata/data.pickle'
-FSTART      = b'\xaa'
+import time 
+head = "ALTITUDE_BAROMETER,ASCENT_RATE,LAS_STATE.v,LAS_STATE.effort,LAS_STATE.status,LAS_STATE.action,VALVE_QUEUE,BALLAST_QUEUE"
+timestr = time.strftime("%Y%m%d-%H%M%S")
+print(timestr)
+f= open("test-outputs/SHTIL-" + timestr + ".csv","w+")
+f.write(head+"\n")
+f.close()
 
+FSTART      = b'\xaa'
 
 def serial_ports():
     """ Lists serial port names
@@ -71,6 +77,13 @@ if __name__ == '__main__':
 			fetch = struct.pack('ffffffff',*data)
 			teensy.write(fetch)	
 			dat = dat[idx:,:]
+			sta = teensy.read(9*4)
+			status = struct.unpack('fffffffff',sta)
+			print('>>> VB Status:', status)
+			f= open("test-outputs/SHTIL-" + timestr + ".csv","a+")
+			f.write(", ".join(str(i) for i in status) + "\n")
+			f.close()
+
 		else:
 			try:
 				pass

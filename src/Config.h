@@ -20,7 +20,7 @@
 //#define STORAGE_MODE_FLAG // uncomment for power off
 #define RESET_EEPROM_FLAG // uncomment for EEPROM reset
 // #define HITL_ENABLED_FLAG // uncomment for HITL
-//#define RB_DISABLED_FLAG  // uncomment to disable rockblock
+#define RB_DISABLED_FLAG  // uncomment to disable rockblock
 //#define WIPE_SD_CARD_YOLO // uncomment to wipe the SD card
 
 /*****************************  TEENSY PIN OUTS  ******************************/
@@ -81,7 +81,7 @@ static const uint32_t  RB_BAUD                               =            19200;
 
 static const uint32_t CURRENT_NUM_SAMPLES                    =             128;
 /***************************  Flight Parameters  ******************************/
-static const bool      MANUAL_MODE_DEFAULT                   =             true;
+static const bool      MANUAL_MODE_DEFAULT                   =            false;
 static const uint8_t   REPORT_MODE_DEFAULT                   =                2;
 static const uint32_t  QUEUE_APPEND_THRESHOLD                =             1000;
 
@@ -147,7 +147,7 @@ static const float     PSC_SLOPE                             =            0.011;
 static const float     PSC_INTERCEPT                         =          -0.2419;
 static const float     CM_WATER_TO_PA                        =          98.0665;
 
-static const uint8_t   CONTROLLER_INDEX_DEFAULT              =                0;
+static const uint8_t   CONTROLLER_INDEX_DEFAULT              =                3;
 
 enum {
   LEGACY_CONTROLLER_INDEX               =                0,

@@ -16,6 +16,7 @@
 #include "Hardware.h"
 #include <bitset>
 
+//#define DEBUG_CACHE
 
 const int CACHE_SIZE = 180;
 const uint32_t MAX_LOG_TIME = 15000; // microseconds
@@ -38,7 +39,8 @@ private:
 
   int blocks_per_frame;
 
-  block_t cache[CACHE_SIZE];
+  block_t dangerous_sea_of_ram[CACHE_SIZE+1];
+  block_t* cache;
   uint8_t to_write = 0;
   uint8_t to_insert = 0;
   uint16_t cache_offset = 0;

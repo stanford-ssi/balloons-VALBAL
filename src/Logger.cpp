@@ -170,6 +170,9 @@ uint8_t Logger::next(uint8_t idx) {
 }
 
 bool Logger::initialize() {
+  const int boundary_of_death = 0x20000000;
+  int spooky_offset = (boundary_of_death-(int)(&dangerous_sea_of_ram)) >> 9;
+  cache = (block_t*)(boundary_of_death - (spooky_offset << 9));
   Serial.println("card begin");
   if (!card.begin()) {
     Serial.println("[SD ERROR] Could not initialize SD card.");

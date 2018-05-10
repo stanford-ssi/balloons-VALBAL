@@ -41,11 +41,26 @@ bool GPS::restart() {
   bool success = false;
   EEPROM.write(EEPROMAddress, false);
   digitalWrite(GPS_ENABLE_PIN, HIGH);
+  Serial.println("bootup");
+  uint32_t t0 = millis();
+  while (millis()-t0 < 1000) {
+    if (Serial1.available()) {
+      Serial.print((char)Serial1.read());
+    }
+  }
+  Serial.println();
+  Serial.println("done");
   delay(1000);
   EEPROM.write(EEPROMAddress, true);
-  delay(3000);
+  delay(1000);
+  while (Serial1.available()) Serial1.read();
+  if (GPS_MODE == 1) success = setGPSMode(gpsonly, sizeof(gpsonly)/sizeof(uint8_t), GPS_LOCK_TIME);
   success = setGPSMode(flightMode, sizeof(flightMode)/sizeof(uint8_t), GPS_LOCK_TIME);
   return success;
+}
+
+void GPS::lowpower() {
+  if (GPS_MODE == 1) setGPSMode(pms, sizeof(pms)/sizeof(uint8_t), GPS_LOCK_TIME);
 }
 
 /*
@@ -206,7 +221,12 @@ bool GPS::getUBX_ACK(uint8_t* MSG) {
         ackByteID++;
         Serial.print(b, HEX);
       }
-      else ackByteID = 0;
+      else {
+        Serial.print("[");
+        Serial.print(b, HEX);
+        Serial.print("]");
+        ackByteID = 0;
+      }
     }
   }
   Serial.println(" (FAILED!)");

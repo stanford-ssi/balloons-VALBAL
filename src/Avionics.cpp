@@ -1005,6 +1005,13 @@ void Avionics::updateConstant(uint8_t index, float value) {
     cuba_timeout = millis() + 3600*1000;
   }
   else if (index == 75) data.RESISTOR_MODE           = (int)value;
+  else if (index == 79) {
+    int GPS_MODE = (int) value;
+    if (GPS_MODE == 0 || GPS_MODE == 1) {
+      gpsModule.GPS_MODE = GPS_MODE;
+      gpsModule.restart();
+    }
+  }
 }
 
 /*
@@ -1110,7 +1117,6 @@ void Avionics::parseGPSPowerCommand(uint8_t command) {
 void Avionics::parseResistorPowerCommand(uint8_t command) {
   data.RESISTOR_MODE = command;
 }
-  uint8_t    CURRENT_CONTROLLER_INDEX        =         CONTROLLER_INDEX_DEFAULT;
 
 /*
  * Function: parsePayloadPowerCommand

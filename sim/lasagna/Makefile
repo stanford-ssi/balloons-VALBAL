@@ -7,7 +7,7 @@ SRCF = $(addprefix ../../src/, $(addsuffix .cpp, $(_SRCF)))
 all: build run
 
 build:
-	$(CC) $(CFLAGS) -o lasagnaSim lasagnaSimMC.cpp PastaSim.cpp $(SRCF)
+	$(CC) $(CFLAGS) -o lasagnaSim lasagnaSimOldData.cpp PastaSim.cpp $(SRCF)
 
 run:
 	./lasagnaSim #> output.csv

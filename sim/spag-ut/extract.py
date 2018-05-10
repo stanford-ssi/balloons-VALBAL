@@ -6,7 +6,7 @@ L = 8742380
 df = pd.read_hdf('ssi63.h5', start=20*60*60*100, stop=20*60*60*110)
 print(len(df))
 
-vrs = ['SPAG_FREQ', 'SPAG_K', 'SPAG_B_DLDT', 'SPAG_V_DLDT', 'SPAG_RATE_MIN', 'SPAG_RATE_MAX', 'SPAG_B_TMIN', 'SPAG_V_TMIN', 'SPAG_H_CMD', 'ALTITUDE_BAROMETER']
+vrs = ['ALTITUDE_BAROMETER']
 typ = ['f' for _ in range(len(vrs))]
 
 

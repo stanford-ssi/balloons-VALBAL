@@ -9,10 +9,19 @@ void setup() {
   if (!card.begin()) {
     Serial.println("[SD ERROR] Could not initialize SD card.");
   }
+  Serial.println("ye");
+  while (Serial.read() != 0xaa);
+  while (!Serial.available()); uint32_t b0 = Serial.read();
+  while (!Serial.available()); uint32_t b1 = Serial.read();
+  while (!Serial.available()); uint32_t b2 = Serial.read();
+  while (!Serial.available()); uint32_t b3 = Serial.read();
+
+  uint32_t k = b0 | (b1 << 8) | (b2 << 16) | (b3 << 24);
+
   uint8_t block[516];
   uint32_t max = card.cardSize()-1;
 
-  for (int k=0; k<max; k++) {
+  for (; k<max; k++) {
     card.readBlock(k, block);
 
     bool stop = true;

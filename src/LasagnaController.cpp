@@ -48,7 +48,7 @@ void LasagnaController::innerLoop(float input_h){
   float deadband_effort = 0;
   float thresh = constants.k_v*constants.k_h*constants.ss_error_thresh;
   //float thresh = 0;
-  if(abs(state.effort)-thresh > 0){
+  if(jankabs(state.effort)-thresh > 0){
     deadband_effort = state.effort + ((state.effort<0)-(state.effort>0))*thresh;
   }
   deadband_effort = pasta_clamp(deadband_effort,-constants.v_dldt,constants.b_dldt);

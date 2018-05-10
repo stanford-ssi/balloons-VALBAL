@@ -1,8 +1,9 @@
-import time 
-head = "ALTITUDE_BAROMETER,ASCENT_RATE,LAS_STATE.v,LAS_STATE.effort,LAS_STATE.status,LAS_STATE.action,VALVE_QUEUE,BALLAST_QUEUE"
-timestr = time.strftime("%Y%m%d-%H%M%S")
-print(timestr)
-f= open("test-outputs/SHTIL-" + timestr + ".csv","w+")
-f.write(head+"\n")
-f.write(", ".join(str(i) for i in [0.1, 10.1, 12321.01]) + "\n")
-f.close()
+import re
+filename = "../src/Avionics.cpp"
+file = open(filename, 'r')
+lines = file.readlines()
+for i,line in enumerate(lines):
+    if re.search('diddlybop', line, re.I):
+    	num_report = int(re.findall(r"\[(.)\]",lines[i+1])[0])
+    	names = [re.findall(r"\= (.*)\;",k)[0] for k in lines[i+2:i+2+num_report]]
+    	print(names)

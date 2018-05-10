@@ -105,7 +105,7 @@ void Avionics::init() {
 void Avionics::test() {
   alert("Initializing test...", true);
 
-  actuator.queueBallast(60000, true);
+  actuator.queueBallast(10000, true);
   //actuator.queueValve(30000, true)
   //data.SHOULD_CUTDOWN = true;
   //actuator.cutDown();
@@ -344,17 +344,40 @@ bool Avionics::readData() {
   uint32_t t = data.TIME;
   char* b = (char*)(&t);
   Serial.write(b,4);
-  float report[9];
-  report[0] = data.ALTITUDE_BAROMETER;
-  report[1] = data.ASCENT_RATE;
-  report[2] = data.LAS_STATE.v;
-  report[3] = data.LAS_STATE.effort;
-  report[4] = data.LAS_STATE.status;
-  report[5] = data.ACTIONS[LAS_CONTROLLER_INDEX];
-  report[6] = data.LAS_STATE.effort_sum;
-  report[7] = data.VALVE_QUEUE;
-  report[8] = data.BALLAST_QUEUE;
-
+  // DO NOT REMOVE THE LINE BELOW, OR COPY IT ELSEWHERE IN THE CODE, ITS ACTUALLY IMPORTANT I SWEAR. -john bean
+  int j = 0;
+  //diddlybop
+  float report[29];
+  report[j] = data.ALTITUDE_BAROMETER;  j++;
+  report[j] = data.ASCENT_RATE;  j++;
+  report[j] = data.ACTIONS[LAS_CONTROLLER_INDEX];  j++;
+  report[j] = data.VALVE_QUEUE;  j++;
+  report[j] = data.BALLAST_QUEUE;  j++;
+  report[j] = data.LAS_STATE.comp_ctr;  j++;
+  report[j] = data.LAS_STATE.action;  j++;
+  report[j] = data.LAS_STATE.v;  j++;
+  report[j] = data.LAS_STATE.v1;  j++;
+  report[j] = data.LAS_STATE.v2;  j++;
+  report[j] = data.LAS_STATE.fused_v;  j++;
+  report[j] = data.LAS_STATE.effort;  j++;
+  report[j] = data.LAS_STATE.effort_sum;  j++;
+  report[j] = data.LAS_STATE.v_cmd;  j++;
+  report[j] = data.LAS_STATE.status;  j++;
+  report[j] = data.LAS_CONSTANTS.freq;  j++;
+  report[j] = data.LAS_CONSTANTS.k_v;  j++;
+  report[j] = data.LAS_CONSTANTS.k_h;  j++;
+  report[j] = data.LAS_CONSTANTS.b_dldt;  j++;
+  report[j] = data.LAS_CONSTANTS.v_dldt;  j++;
+  report[j] = data.LAS_CONSTANTS.b_tmin;  j++;
+  report[j] = data.LAS_CONSTANTS.v_tmin;  j++;
+  report[j] = data.LAS_CONSTANTS.h_cmd;  j++;
+  report[j] = data.LAS_CONSTANTS.kfuse;  j++;
+  report[j] = data.LAS_CONSTANTS.kfuse_val;  j++;
+  report[j] = data.LAS_CONSTANTS.ss_error_thresh;  j++;
+  report[j] = data.LAS_CONSTANTS.v_limit;  j++;
+  report[j] = data.LAS_CONSTANTS.equil_h_thresh;  j++;
+  report[j] = data.LAS_CONSTANTS.launch_h_thresh;  j++;
+  //twiddlydeet
   b = (char*)(&report);
   Serial.write(b, sizeof(report));
   const int len = sizeof(float)*8;

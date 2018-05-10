@@ -1,20 +1,3 @@
 typedef struct __attribute__ ((packed)) {
-  float SPAG_FREQ;
-  float SPAG_K;
-  float SPAG_B_DLDT;
-  float SPAG_V_DLDT;
-  float SPAG_RATE_MIN;
-  float SPAG_RATE_MAX;
-  float SPAG_B_TMIN;
-  float SPAG_V_TMIN;
-  float SPAG_H_CMD;
   float ALTITUDE_BAROMETER;
-  float SPAG_EFFORT;
-  float SPAG_VENT_TIME_INTERVAL;
-  float SPAG_BALLAST_TIME_INTERVAL;
-  unsigned int SPAG_VALVE_INTERVAL_COUNTER;
-  unsigned int SPAG_BALLAST_INTERVAL_COUNTER;
-  int ACTION_SPAG;
-  unsigned int SPAG_VENT_TIME_TOTAL;
-  unsigned int SPAG_BALLAST_TIME_TOTAL;
 } miniframe;

@@ -45,16 +45,13 @@ void Avionics::init() {
   delay(500);
   Serial.println("setting payload high");
 
-  // y no radio
-  pinMode(35, OUTPUT);
-  digitalWrite(35, LOW);
 
   // here be heaters
   pinMode(36, OUTPUT);
 
 
-  pinMode(PAYLOAD_GATE, OUTPUT);
-  digitalWrite(PAYLOAD_GATE, LOW);
+  pinMode(57, OUTPUT);
+  digitalWrite(57, LOW);
 
   if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   if(!readHistory())                          alert("unable to initialize EEPROM", true);
@@ -77,7 +74,7 @@ void Avionics::init() {
 #ifndef RB_DISABLED_FLAG
   if(!RBModule.init(false))     alert("unable to initialize RockBlock", true);
 #endif
-  //if(!payload.init(data.POWER_STATE_PAYLOAD)) alert("unable to initialize Payload", true);
+  if(!radio.init(data.POWER_STATE_RADIO)) alert("unable to initialize Payload", true);
   data.TIME = millis();
   data.SETUP_STATE = false;
 
@@ -185,7 +182,7 @@ void Avionics::actuateState() {
   if(!runLED())     alert("unable to run LED", true);
   runHeaters();
   rumAndCoke();
-  //if(!runPayload()) alert("Unable to run payload", true);
+  if(!runRadio()) alert("Unable to run payload", true);
 }
 
 /*
@@ -735,55 +732,29 @@ bool Avionics::runLED() {
  * -------------------
  * This function interfaces with the payload.
  */
-bool Avionics::runPayload() {
+bool Avionics::runRadio() {
   if (!data.POWER_STATE_PAYLOAD) return true;
-  payload.readyDataFrame();
-  payload.addVariable(data.TIME / 1000,                 0,    3000000, 20);
-  payload.addVariable(data.LAT_GPS,                    -90,   90,      21);
-  payload.addVariable(data.LONG_GPS,                   -180,  180,     22);
-  payload.addVariable(data.ALTITUDE_BAROMETER,         -2000, 40000,   16);
-  payload.addVariable(data.ALTITUDE_GPS,               -2000, 40000,   14);
-  payload.addVariable(data.ASCENT_RATE,                -10,   10,      11);
-  payload.addVariable(data.ACTION / 1000,              -1023, 1023,     7);
-  payload.addVariable(data.VALVE_STATE,                 0,    1,        1);
-  payload.addVariable(data.BALLAST_STATE,               0,    1,        1);
-  payload.addVariable(data.VALVE_QUEUE / 1000,          0,    1023,    10);
-  payload.addVariable(data.BALLAST_QUEUE / 1000,        0,    1023,    10);
-  payload.addVariable(data.VALVE_TIME_TOTAL / 1000,     0,    16383,   13);
-  payload.addVariable(data.BALLAST_TIME_TOTAL / 1000,   0,    16383,   13);
-  payload.addVariable(data.VALVE_NUM_ACTIONS,           0,    63,       6);
-  payload.addVariable(data.BALLAST_NUM_ACTIONS,         0,    63,       6);
-  payload.addVariable(data.VALVE_NUM_ATTEMPTS,          0,    63,       6);
-  payload.addVariable(data.BALLAST_NUM_ATTEMPTS,        0,    63,       6);
-  payload.addVariable(data.BALLAST_NUM_OVERCURRENTS,    0,    63,       6);
-  payload.addVariable(data.CUTDOWN_STATE,               0,    1,        1);
-  payload.addVariable(data.MAX_CURRENT_CHARGING_LIMIT,  0,    3,        2);
-  payload.addVariable(data.SYSTEM_POWER_STATE,          0,    3,        2);
-  payload.addVariable(data.TEMP_INT,                   -85,   65,       9);
-  payload.addVariable(data.JOULES_TOTAL,                0,    1572863, 18);
-  payload.addVariable(data.VOLTAGE_PRIMARY,             0,    6,        9);
-  payload.addVariable(data.VOLTAGE_SUPERCAP_AVG,        0,    6,        9);
-  payload.addVariable(data.CURRENT_TOTAL_AVG,           0,    4095,    12);
-  payload.addVariable(data.CURRENT_TOTAL_MIN,           0,    4095,    12);
-  payload.addVariable(data.CURRENT_TOTAL_MAX,           0,    4095,    12);
-  payload.addVariable(data.CURRENT_RB_AVG,              0,    1023,     8);
-  payload.addVariable(data.CURRENT_RB_MAX,              0,    1023,     8);
-  payload.addVariable(data.CURRENT_MOTOR_VALVE_AVG,     0,    1023,     8);
-  payload.addVariable(data.CURRENT_MOTOR_VALVE_MAX,     0,    1023,     8);
-  payload.addVariable(data.CURRENT_MOTOR_BALLAST_AVG,   0,    1023,     8);
-  payload.addVariable(data.CURRENT_MOTOR_BALLAST_MAX,   0,    1023,     8);
-  payload.addVariable(data.CURRENT_PAYLOAD_AVG,         0,    1023,     8);
-  payload.addVariable(data.CURRENT_PAYLOAD_MAX,         0,    1023,     8);
-  payload.addVariable(data.TEMP_EXT,                   -100,  30,       8);
-  payload.addVariable(data.LOOP_TIME_MAX,               0,    10239,    10);
-  payload.addVariable(data.RB_SENT_COMMS,               0,    8191,     13);
-  payload.addVariable(data.RESISTOR_MODE,               0,    4,        3);
-  payload.addVariable(data.MANUAL_MODE,                 0,    1,        1);
-  payload.addVariable(data.REPORT_MODE,                 0,    2,        2);
-  payload.theLatitude = data.LAT_GPS;
-  payload.theLongitude = data.LONG_GPS;
-  payload.setDataFrame();
-  payload.run();
+  radio.readyDataFrame();
+  radio.addVariable(data.ALTITUDE_BAROMETER, -100, 25000, 16);
+  radio.addVariable(data.ASCENT_RATE, -6, 6, 10);
+  radio.addVariable(data.LAT_GPS,  -90, 90,  20);
+  radio.addVariable(data.LONG_GPS, -180,  180, 21);
+  radio.addVariable(data.VALVE_TIME_TOTAL / 1000, 0,  16383, 13);
+  radio.addVariable(data.BALLAST_TIME_TOTAL / 1000, 0,  16383, 13);
+  radio.addVariable(data.VOLTAGE_PRIMARY, 0,  6,  9);
+  radio.addVariable(data.VOLTAGE_SUPERCAP,  0,  6,  9);
+  radio.addVariable(data.TEMP_INT, -60, 60, 8);
+  radio.addVariable(data.CURRENT_CONTROLLER_INDEX,  0,  3, 2);
+  radio.addVariable(data.CURRENT_TOTAL, 0, 1500, 8);
+  radio.addVariable(data.CURRENT_RB,  0,  2500, 8);
+  radio.addVariable(data.CURRENT_MOTORS, 0,  500, 7);
+  radio.addVariable(data.MANUAL_MODE, 0,  1,  1);
+  radio.addVariable(data.OVERPRESSURE, -500,  1000,  9);
+  radio.addVariable(data.OVERPRESSURE_VREF, 0,  6,  9);
+  radio.addVariable(data.LAS_STATE.v, -6, 6, 10);
+  radio.addVariable(data.LAS_STATE.fused_v, -6, 6, 10);
+  radio.setDataFrame();
+  radio.run();
   return true;
 }
 
@@ -841,7 +812,6 @@ void Avionics::parseCommand(int16_t len) {
     if (index == CUTDOWN_INDEX && (strlen(CUTDOWN_COMMAND) == strlen(commandStrings[i])) && strncmp(commandStrings[i], CUTDOWN_COMMAND, strlen(commandStrings[i])) == 0) {
       data.SHOULD_CUTDOWN = true;
     }
-    if (index == PAYLOAD_INDEX) payload.setConfig(commandStrings[i], strlen(commandStrings[i]));
     if (index < 0 || index > 80) return;
     char* charAfterNumbers;
     float commandValue = (float) strtod(commandStrings[i], &charAfterNumbers);
@@ -923,20 +893,21 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 58) data.LAS_CONSTANTS.k_v             = value;
   else if (index == 59) data.LAS_CONSTANTS.k_h             = value;
   else if (index == 60) data.LAS_CONSTANTS.b_dldt          = value;
-  else if (index == 61) data.LAS_CONSTANTS.v_dldt          = value;
-  else if (index == 62) data.LAS_CONSTANTS.b_tmin          = value;
-  else if (index == 63) data.LAS_CONSTANTS.v_tmin          = value;
-  else if (index == 64) data.LAS_CONSTANTS.h_cmd           = value;
-  else if (index == 65) data.LAS_CONSTANTS.kfuse           = value;
-  else if (index == 66) data.LAS_CONSTANTS.kfuse_val       = value;
-  else if (index == 67) data.LAS_CONSTANTS.ss_error_thresh = value;
-  else if (index == 68) data.RB_HEAT_TEMP_THRESH           = value;
-  else if (index == 69) data.RB_HEAT_TEMP_GAIN             = value;
-  else if (index == 70) data.RB_HEAT_COMM_GAIN             = value;
-  else if (index == 71) data.RB_HEAT_CAP_GAIN              = value;
-  else if (index == 72) data.RB_HEAT_MAX_DUTY              = value;
-  else if (index == 73) data.RB_HEAT_CAP_NOMINAL           = value;
-  else if (index == 74) {
+  else if (index == 61) data.LAS_CONSTANTS.v_dldt_a        = value;
+  else if (index == 62) data.LAS_CONSTANTS.v_dldt_b        = value;
+  else if (index == 63) data.LAS_CONSTANTS.b_tmin          = value;
+  else if (index == 64) data.LAS_CONSTANTS.v_tmin          = value;
+  else if (index == 65) data.LAS_CONSTANTS.h_cmd           = value;
+  else if (index == 66) data.LAS_CONSTANTS.kfuse           = value;
+  else if (index == 67) data.LAS_CONSTANTS.kfuse_val       = value;
+  else if (index == 68) data.LAS_CONSTANTS.ss_error_thresh = value;
+  else if (index == 69) data.RB_HEAT_TEMP_THRESH           = value;
+  else if (index == 70) data.RB_HEAT_TEMP_GAIN             = value;
+  else if (index == 71) data.RB_HEAT_COMM_GAIN             = value;
+  else if (index == 72) data.RB_HEAT_CAP_GAIN              = value;
+  else if (index == 73) data.RB_HEAT_MAX_DUTY              = value;
+  else if (index == 74) data.RB_HEAT_CAP_NOMINAL           = value;
+  else if (index == 75) {
     data.CUBA_NUMBER           = (int)value;
     in_cuba = false;
     cuba_timeout = millis() + 3600*1000;
@@ -1063,11 +1034,23 @@ void Avionics::parseResistorPowerCommand(uint8_t command) {
 void Avionics::parsePayloadPowerCommand(bool command) {
   if (command && !data.POWER_STATE_PAYLOAD) {
     data.POWER_STATE_PAYLOAD = true;
-    payload.restart();
+    digitalWrite(57, HIGH);
   }
   else if (!command) {
     data.POWER_STATE_PAYLOAD = false;
-    payload.shutdown();
+    digitalWrite(57, LOW);
+  }
+}
+
+/* Wow I'm really not a fan of code decomposition - Joan. */
+void Avionics::parseRadioPowerCommand(bool command) {
+  if (command && !data.POWER_STATE_RADIO) {
+    data.POWER_STATE_RADIO = true;
+    radio.restart();
+  }
+  else if (!command) {
+    data.POWER_STATE_RADIO = false;
+    radio.shutdown();
   }
 }
 
@@ -1296,7 +1279,8 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.LAS_CONSTANTS.k_v,                   0,      .01,   8,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.k_h,                   0,      .01,   8,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.b_dldt*1000,           0,      100,   8,  lengthBits);
-    lengthBits += compressVariable(data.LAS_CONSTANTS.v_dldt*1000,           0,      100,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.v_dldt_a*1000,           0,      100,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.v_dldt_b*1000,           0,      100,   8,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.b_tmin,                0,       20,   4,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.v_tmin,                0,       20,   4,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.h_cmd,                 0,    20000,   8,  lengthBits);

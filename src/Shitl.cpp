@@ -9,7 +9,7 @@ void Avionics::shitlUpdate(){
   int j = 0;
   // DO NOT REMOVE THE LINE BELOW, OR COPY IT ELSEWHERE IN THE CODE, ITS ACTUALLY IMPORTANT I SWEAR. -john bean
   //diddlybop
-  float report[29];
+  float report[30];
   report[j] = data.ALTITUDE_BAROMETER;  j++;
   report[j] = data.ASCENT_RATE;  j++;
   report[j] = data.ACTIONS[LAS_CONTROLLER_INDEX];  j++;
@@ -29,7 +29,8 @@ void Avionics::shitlUpdate(){
   report[j] = data.LAS_CONSTANTS.k_v;  j++;
   report[j] = data.LAS_CONSTANTS.k_h;  j++;
   report[j] = data.LAS_CONSTANTS.b_dldt;  j++;
-  report[j] = data.LAS_CONSTANTS.v_dldt;  j++;
+  report[j] = data.LAS_CONSTANTS.v_dldt_a;  j++;
+  report[j] = data.LAS_CONSTANTS.v_dldt_b;  j++;
   report[j] = data.LAS_CONSTANTS.b_tmin;  j++;
   report[j] = data.LAS_CONSTANTS.v_tmin;  j++;
   report[j] = data.LAS_CONSTANTS.h_cmd;  j++;

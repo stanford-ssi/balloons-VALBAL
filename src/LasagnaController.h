@@ -31,11 +31,13 @@ public:
     float effort               =   0;
     float effort_sum           =   0;
     float v_cmd                =   0;
+    float v_dldt               =   0;
     Status status              =   PRELAUNCH;
   } State;
 
   typedef struct __attribute__((packed)) {
-    float h;                  // altidude
+    float h  = 0;                  // altidude
+    float op = 0;
   } Input;
 
   typedef struct __attribute__((packed)) {
@@ -43,7 +45,8 @@ public:
     float k_v                  =  .5*1e-3;      // velocity gain
     float k_h                  =  .5*1.5e-3;    // altitude gain
     float b_dldt               =   0.0002;    // balast dl/dt (kg/s)
-    float v_dldt               =   0.0030;    // valve dl/dt (kg/s))
+    float v_dldt_a             =   0;
+    float v_dldt_b             =   0.0030;    // valve dl/dt (kg/s))
     float b_tmin               =   10;         // minimum ballast event time
     float v_tmin               =   5;         // minimum valve event time
     float h_cmd                =   13500;     // altidute comand

@@ -452,6 +452,7 @@ bool Avionics::processData() {
   data.ALTITUDE_BAROMETER         = filter.getAltitude();
   data.ASCENT_RATE                = filter.getAscentRate();
   data.INCENTIVE_NOISE            = filter.getIncentiveNoise(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
+  data.OVERPRESSURE_FILT          = op_filter.update(data.OVERPRESSURE);
   if (data.ASCENT_RATE           >= 10) success = false;
   return success;
 }

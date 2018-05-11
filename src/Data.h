@@ -176,7 +176,7 @@ struct DataFrame {
   uint32_t  ACTION_TIME_TOTALS[8]            =                               {0};
   float     OVERPRESSURE                     =                                 0;
   float     OVERPRESSURE_VREF                =                                 0;
-
+  float     OVERPRESSURE_FILT                =                                 0;
   uint8_t stuff_to_make_sure_it_goes_above_1024[512];
   bool       POWER_STATE_RADIO =                             true;
 

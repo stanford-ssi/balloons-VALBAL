@@ -11,7 +11,7 @@ import re
 import os
 FSTART      = b'\xaa'
 
-srcname = "../src/Avionics.cpp"
+srcname = "../src/Shitl.cpp"
 file = open(srcname, 'r')
 lines = file.readlines()
 for i,line in enumerate(lines):
@@ -57,6 +57,7 @@ while(1):
 		print('>>> Returned Time:',dat[idx,0])
 		data = np.flip(dat[idx,1:],axis=0)       #whoops had to flip it cause temp is first
 		fetch = struct.pack('ffffffff',*data)
+		teensy.write(b'\x00')
 		teensy.write(fetch)	
 		dat = dat[idx:,:]
 		sta = teensy.read(num_report*4)

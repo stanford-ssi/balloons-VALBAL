@@ -102,7 +102,7 @@ void Avionics::init() {
 void Avionics::test() {
   alert("Initializing test...", true);
 
-  actuator.queueBallast(10000, true);
+  actuator.queueBallast(100000, true);
   //actuator.queueValve(30000, true)
   //data.SHOULD_CUTDOWN = true;
   //actuator.cutDown();

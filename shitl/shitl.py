@@ -73,6 +73,7 @@ while(1):
 		status.insert(0,float(time))
 		print('>>> VB Status:', status)
 		if os.path.getmtime('commands.txt') != cmdtime:
+			print(">>> Command file changed")
 			cmdtime = os.path.getmtime('commands.txt')
 			with open("commands.txt","r") as f:
 				try:
@@ -80,8 +81,8 @@ while(1):
 					cmd = re.findall(r"\((.*?)\)",lines)[0].split(',')
 					index = int(cmd[0])
 					value = float(cmd[1])
-					print(index,value)
-					cmd_msg = struct.pack('cf',*[bytes([index]),value])
+					print(">>> ",index,value)
+					cmd_msg = struct.pack('if',*[index,value])
 					cmd_ready = True
 				except:
 					pass

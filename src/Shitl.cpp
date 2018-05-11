@@ -58,15 +58,20 @@ void Avionics::shitlUpdate(){
     }
   }
   if(flags & (1<<0)){
+    Serial.println("OOO FLAG");
     int index;
     float value;
     while(true){
-      if(Serial.available()==5){
-        index = (int)Serial.read(); 
+      if(Serial.available()==8){
+        for(int i=0;i<4;i++){
+          bytes[i]=Serial.read();
+        }
+        memcpy(&index,bytes,4); 
         for(int i=0;i<4;i++){
           bytes[i]=Serial.read();
         }
         memcpy(&value,bytes,4);
+        break;
       }
     }
     updateConstant(index,value);

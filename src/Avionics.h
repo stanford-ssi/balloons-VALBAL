@@ -116,6 +116,7 @@ private:
   void    printState();
   bool    logData();
   int16_t compressData();
+  void    shitlUpdate();
 
 /*********************************  OBJECTS  **********************************/
 

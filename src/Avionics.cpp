@@ -102,7 +102,7 @@ void Avionics::init() {
 void Avionics::test() {
   alert("Initializing test...", true);
 
-  actuator.queueBallast(10000, true);
+  actuator.queueBallast(100000, true);
   //actuator.queueValve(30000, true)
   //data.SHOULD_CUTDOWN = true;
   //actuator.cutDown();
@@ -329,7 +329,7 @@ bool Avionics::readData() {
   data.JOULES_TOTAL               += data.LOOP_TIME/1000.*data.VOLTAGE_PRIMARY*data.CURRENT_TOTAL/1000.;
   data.CURRENT_RB                 = -currentSensor.average_voltage_readings(DIFF_14_15, CURRENT_NUM_SAMPLES);
   data.MAX_CURRENT_CHARGING_LIMIT = superCap.getChargingLimit();
-  float motcur = -currentSensor.average_voltage_readings(DIFF_8_9, CURRENT_NUM_SAMPLES);
+  float motcur = currentSensor.average_voltage_readings(DIFF_8_9, CURRENT_NUM_SAMPLES);
   data.CURRENT_MOTOR_VALVE        = (data.VALVE_STATE ? motcur : 0);
   data.CURRENT_MOTOR_BALLAST      = (data.BALLAST_STATE ? motcur : 0);
   data.CURRENT_MOTORS             = motcur;
@@ -734,7 +734,7 @@ bool Avionics::runLED() {
  * This function interfaces with the payload.
  */
 bool Avionics::runRadio() {
-  if (!data.POWER_STATE_PAYLOAD) return true;
+  if (!data.POWER_STATE_RADIO) return true;
   radio.readyDataFrame();
   radio.addVariable(data.ALTITUDE_BAROMETER, -100, 25000, 16);
   radio.addVariable(data.ASCENT_RATE, -6, 6, 10);

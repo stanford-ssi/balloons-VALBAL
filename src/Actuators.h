@@ -67,6 +67,7 @@ private:
   uint32_t ballastCheckTime = 0;
   uint32_t ballastStallTime = 0;
   uint32_t ballastDirectionTime = 0;
+  uint32_t ballastForceReverseTime = 0;
   bool     ballastDirection = false;
   uint32_t numBallastOverCurrents = 0;
   float    currentLast = 0;

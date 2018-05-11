@@ -167,10 +167,14 @@ bool Actuators::checkBallast(float current, uint32_t reverseTimeout, uint16_t st
     }
   }
   if (ballastState == OPEN) {
-    if (current >= stallCurrent && ((currentLast < stallCurrent) || (millis() - ballastStallTime >= BALLAST_STALL_TIMEOUT)) && (millis() - ballastDirectionTime >= BALLAST_STALL_TIMEOUT)) {
+    if ((current >= stallCurrent || current <= -stallCurrent) && ((currentLast < stallCurrent) || (millis() - ballastStallTime >= BALLAST_STALL_TIMEOUT)) && (millis() - ballastDirectionTime >= BALLAST_STALL_TIMEOUT)) {
       ballastDirection = !ballastDirection;
       ballastStallTime = millis();
       numBallastOverCurrents++;
+    }
+    if((millis() - ballastForceReverseTime) >= reverseTimeout) {
+      ballastDirection = !ballastDirection;
+      ballastForceReverseTime = millis();
     }
     currentLast = current;
     if(ballastQueue > 0) {
@@ -180,10 +184,6 @@ bool Actuators::checkBallast(float current, uint32_t reverseTimeout, uint16_t st
       #ifdef JANKSHITL
         Slift += deltaTime/1000.*0.0002;
       #endif
-      if ((millis() - ballastDirectionTime) >= reverseTimeout) {
-        ballastDirectionTime = millis();
-        ballastDirection = !ballastDirection;
-      }
       dropBallast(ballastDirection);
     }
     if(ballastQueue == 0) {

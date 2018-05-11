@@ -10,7 +10,8 @@ import time
 import re
 import os
 FSTART      = b'\xaa'
-
+cmdtime = os.path.getmtime('commands.txt')
+cmd_ready=False
 srcname = "../src/Shitl.cpp"
 file = open(srcname, 'r')
 lines = file.readlines()
@@ -57,15 +58,35 @@ while(1):
 		print('>>> Returned Time:',dat[idx,0])
 		data = np.flip(dat[idx,1:],axis=0)       #whoops had to flip it cause temp is first
 		fetch = struct.pack('ffffffff',*data)
-		teensy.write(b'\x00')
+		if cmd_ready:
+			teensy.write(b'\x01')
+		else:
+			teensy.write(b'\x00')
 		teensy.write(fetch)	
+		if cmd_ready:
+			teensy.write(cmd_msg)
+			cmd_ready=False;
+			print('>>> Sent Command',index,value)
 		dat = dat[idx:,:]
 		sta = teensy.read(num_report*4)
 		status = list(struct.unpack("f"*num_report,sta))
 		status.insert(0,float(time))
 		print('>>> VB Status:', status)
+		if os.path.getmtime('commands.txt') != cmdtime:
+			cmdtime = os.path.getmtime('commands.txt')
+			with open("commands.txt","r") as f:
+				try:
+					lines = f.readlines()[0]
+					cmd = re.findall(r"\((.*?)\)",lines)[0].split(',')
+					index = int(cmd[0])
+					value = float(cmd[1])
+					print(index,value)
+					cmd_msg = struct.pack('cf',*[bytes([index]),value])
+					cmd_ready = True
+				except:
+					pass
 		fbin.write(sta)
-		if(n % (20*10) == 0):
+		if(n % (20*1) == 0):
 			f= open(logfile,"a+")
 			f.write(", ".join(str(i) for i in status) + "\n")
 			f.close()

@@ -4,7 +4,7 @@
   Davy Ragland | dragland@stanford.edu
   Joan Creus-Costa | jcreus@stanford.edu
 
-  File: Payload.h
+  File: Radio.h
   --------------------------
   Client side script to read payload data
   over Serial from the payload board.
@@ -17,10 +17,10 @@
 #include <EEPROM.h>
 #include "RadioInterface.h"
 
-class Payload {
+class Radio {
 public:
 /**********************************  SETUP  ***********************************/
-  Payload(uint8_t payloadGatePinNum, uint8_t GPIO_1, uint8_t GPIO_2, uint8_t DAC, uint8_t EEPROMAddressVal) :
+  Radio(uint8_t payloadGatePinNum, uint8_t GPIO_1, uint8_t GPIO_2, uint8_t DAC, uint8_t EEPROMAddressVal) :
     payloadGate(payloadGatePinNum),
     payloadGPIO1(GPIO_1),
     payloadGPIO2(GPIO_2),
@@ -33,7 +33,6 @@ public:
   void    restart();
   void    shutdown();
 
-  bool    setConfig(const char * str, size_t len);
   bool    readyDataFrame();
   bool    addVariable(float var, float minimum, float maximum, int16_t resolution);
   bool    setDataFrame();
@@ -45,9 +44,7 @@ public:
   float theLongitude = 0.0;
 
 private:
-  bool    sendConfig();
   bool    sendDataFrame();
-  bool    sendHeartBeat();
 
 /*********************************  OBJECTS  **********************************/
   static const uint8_t SATCOMMS_BUFFER_SIZE = 20;

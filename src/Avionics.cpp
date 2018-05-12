@@ -762,7 +762,7 @@ bool Avionics::runRadio() {
   radio.addVariable(data.CURRENT_MOTORS, 0,  500, 7);
   radio.addVariable(data.MANUAL_MODE, 0,  1,  1);
   radio.addVariable(data.OVERPRESSURE, -500,  500,  9);
-  radio.addVariable(data.OVERPRESSURE_VREF, 0,  6,  7);
+  radio.addVariable(data.OVERPRESSURE_VREF, 0,  3.84,  7);
   radio.addVariable(data.LAS_STATE.v, -6, 6, 8);
   radio.addVariable(data.LAS_STATE.effort, -0.005, 0.005, 9);
   radio.addVariable(data.BALLAST_NUM_OVERCURRENTS, 0, 127, 6);
@@ -1264,6 +1264,8 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.RB_HEAT_TEMP_THRESH,        -100,     100,   8, lengthBits);
     lengthBits += compressVariable(in_cuba,                        0,    1,       1,  lengthBits);
     lengthBits += compressVariable(cuba_timeout,                        0,    4000000,       10,  lengthBits);
+    lengthBits += compressVariable(data.OVERPRESSURE_FILT,    -500,     500,   9, lengthBits);
+    lengthBits += compressVariable(data.OVERPRESSURE_VREF_FILT,    0,     3.84,   8, lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval

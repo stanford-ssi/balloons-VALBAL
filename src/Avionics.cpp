@@ -737,6 +737,8 @@ bool Avionics::runLED() {
   return true;
 }
 
+uint32_t last_received = 0;
+
 /*
  * Function: runPayload
  * -------------------
@@ -756,7 +758,7 @@ bool Avionics::runRadio() {
   radio.addVariable(data.TEMP_INT, -60, 60, 8);
   radio.addVariable(data.CURRENT_CONTROLLER_INDEX,  0,  3, 2);
   radio.addVariable(data.CURRENT_TOTAL, 0, 1500, 8);
-  radio.addVariable(data.CURRENT_RB,  0,  2500, 8);
+  radio.addVariable(data.CURRENT_RB,  0,  2500, 7);
   radio.addVariable(data.CURRENT_MOTORS, 0,  500, 7);
   radio.addVariable(data.MANUAL_MODE, 0,  1,  1);
   radio.addVariable(data.OVERPRESSURE, -500,  500,  9);
@@ -764,12 +766,27 @@ bool Avionics::runRadio() {
   radio.addVariable(data.LAS_STATE.v, -6, 6, 8);
   radio.addVariable(data.LAS_STATE.effort, -0.005, 0.005, 9);
   radio.addVariable(data.BALLAST_NUM_OVERCURRENTS, 0, 127, 6);
+  bool got_sth = (millis()-last_received) < 15000;
+  radio.addVariable(got_sth, 0, 1, 1);
   radio.setDataFrame();
   radio.run();
   if (radio.got_rb) {
+    last_received = millis();
     for(uint16_t i = 0; i < COMMS_BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
     memcpy(COMMS_BUFFER, radio.message, radio.parse_pos);
-    parseCommand(radio.parse_pos);
+    if (COMMS_BUFFER[0] == 'a' &&
+          COMMS_BUFFER[1] == 'a' &&
+            COMMS_BUFFER[2] == 'a' &&
+              COMMS_BUFFER[3] == 'a' &&
+                COMMS_BUFFER[4] == 'a' &&
+                  COMMS_BUFFER[5] == 'a' &&
+                    COMMS_BUFFER[6] == 'a' &&
+                      COMMS_BUFFER[7] == 'a') {
+                        data.SHOULD_CUTDOWN = true;
+                      }
+    else {
+      parseCommand(radio.parse_pos);
+    }
     radio.got_rb = false;
   }
   return true;

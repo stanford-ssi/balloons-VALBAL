@@ -867,88 +867,88 @@ void Avionics::updateConstant(uint8_t index, float value) {
   Serial.print(index);
   Serial.print(" , ");
   Serial.println(value);
-  if      (index ==  0) data.VALVE_ALT_LAST = value;
-  else if (index ==  1) data.BALLAST_ALT_LAST = value;
-  else if (index ==  2) data.VALVE_SETPOINT = value;
-  else if (index ==  3) data.BALLAST_SETPOINT = value;
-  else if (index ==  4) data.BALLAST_ARM_ALT = value;
-  else if (index ==  5) data.INCENTIVE_THRESHOLD = value;
-  else if (index ==  6) data.VALVE_VELOCITY_CONSTANT = value;
-  else if (index ==  7) data.VALVE_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
-  else if (index ==  8) data.VALVE_LAST_ACTION_CONSTANT = 1.0 / value;
-  else if (index ==  9) data.BALLAST_VELOCITY_CONSTANT = value;
-  else if (index == 10) data.BALLAST_ALTITUDE_DIFF_CONSTANT = 1.0 / value;
-  else if (index == 11) data.BALLAST_LAST_ACTION_CONSTANT = 1.0 / value;
-  else if (index == 12) data.VALVE_VENT_DURATION = value * 1000;
-  else if (index == 13) data.BALLAST_DROP_DURATION = value * 1000;
-  else if (index == 14) data.PRESS_BASELINE = value;
-  else if (index == 15) data.BALLAST_REVERSE_INTERVAL = value * 1000;
-  else if (index == 16) data.BALLAST_STALL_CURRENT = value;
-  else if (index == 17) data.VALVE_MOTOR_SPEED_OPEN = value;
-  else if (index == 18) data.VALVE_MOTOR_SPEED_CLOSE = value;
-  else if (index == 19) data.BALLAST_MOTOR_SPEED = value;
-  else if (index == 20) data.VALVE_OPENING_DURATION = value * 1000;
-  else if (index == 21) data.VALVE_CLOSING_DURATION = value * 1000;
-  else if (index == 22) data.POWER_STATE_LED = value;
-  else if (index == 23) data.RB_INTERVAL = value * 1000;
-  else if (index == 24) data.GPS_INTERVAL = value * 1000;
-  else if (index == 25) parseManualCommand(value);
-  else if (index == 26) parseReportCommand(value);
-  else if (index == 27) parseSensorsCommand(value);
-  else if (index == 28) parseValveCommand(value * 1000);
-  else if (index == 29) parseBallastCommand(value * 1000);
-  else if (index == 30) parseRockBLOCKPowerCommand(value);
-  else if (index == 31) parseGPSPowerCommand(value);
-  else if (index == 32) parsePayloadPowerCommand(value);
-  else if (index == 33) data.CURRENT_CONTROLLER_INDEX = value;
-  else if (index == 34) data.SPAG_CONSTANTS.freq      = value;
-  else if (index == 35) data.SPAG_CONSTANTS.k         = value;
-  else if (index == 36) data.SPAG_CONSTANTS.b_dldt    = value;
-  else if (index == 37) data.SPAG_CONSTANTS.v_dldt    = value;
-  else if (index == 38) data.SPAG_CONSTANTS.rate_min  = value;
-  else if (index == 39) data.SPAG_CONSTANTS.rate_max  = value;
-  else if (index == 40) data.SPAG_CONSTANTS.b_tmin    = value;
-  else if (index == 41) data.SPAG_CONSTANTS.v_tmin    = value;
-  else if (index == 42) data.SPAG_CONSTANTS.h_cmd     = value;
-  else if (index == 43) data.SPAG2_CONSTANTS.freq               = value;
-  else if (index == 44) data.SPAG2_CONSTANTS.k                  = value;
-  else if (index == 45) data.SPAG2_CONSTANTS.b_dldt             = value;
-  else if (index == 46) data.SPAG2_CONSTANTS.v_dldt             = value;
-  else if (index == 47) data.SPAG2_CONSTANTS.rate_min           = value;
-  else if (index == 48) data.SPAG2_CONSTANTS.rate_max           = value;
-  else if (index == 49) data.SPAG2_CONSTANTS.b_tmin             = value;
-  else if (index == 50) data.SPAG2_CONSTANTS.v_tmin             = value;
-  else if (index == 51) data.SPAG2_CONSTANTS.h_cmd              = value;
-  else if (index == 52) data.SPAG2_CONSTANTS.v_ss_error_thresh  = value;
-  else if (index == 53) data.SPAG2_CONSTANTS.b_ss_error_thresh  = value;
-  else if (index == 54) data.SPAG2_CONSTANTS.ascent_rate_thresh = value;
-  else if (index == 55) data.SPAG2_CONSTANTS.kfuse              = value;
-  else if (index == 56) data.SPAG2_CONSTANTS.kfuse_v            = value;
-  else if (index == 57) data.LAS_CONSTANTS.freq            = value;
-  else if (index == 58) data.LAS_CONSTANTS.k_v             = value;
-  else if (index == 59) data.LAS_CONSTANTS.k_h             = value;
-  else if (index == 60) data.LAS_CONSTANTS.b_dldt          = value;
-  else if (index == 61) data.LAS_CONSTANTS.v_dldt_a        = value;
-  else if (index == 62) data.LAS_CONSTANTS.v_dldt_b        = value;
-  else if (index == 63) data.LAS_CONSTANTS.b_tmin          = value;
-  else if (index == 64) data.LAS_CONSTANTS.v_tmin          = value;
-  else if (index == 65) data.LAS_CONSTANTS.h_cmd           = value;
-  else if (index == 66) data.LAS_CONSTANTS.kfuse           = value;
-  else if (index == 67) data.LAS_CONSTANTS.kfuse_val       = value;
-  else if (index == 68) data.LAS_CONSTANTS.ss_error_thresh = value;
-  else if (index == 69) data.RB_HEAT_TEMP_THRESH           = value;
-  else if (index == 70) data.RB_HEAT_TEMP_GAIN             = value;
-  else if (index == 71) data.RB_HEAT_COMM_GAIN             = value;
-  else if (index == 72) data.RB_HEAT_CAP_GAIN              = value;
-  else if (index == 73) data.RB_HEAT_MAX_DUTY              = value;
-  else if (index == 74) data.RB_HEAT_CAP_NOMINAL           = value;
-  else if (index == 75) {
+  if      (index ==  0) data.VALVE_ALT_LAST = value; // Altitude During Last Venting Event | meters
+  else if (index ==  1) data.BALLAST_ALT_LAST = value; // Altitude During Last Ballast Event | meters
+  else if (index ==  2) data.VALVE_SETPOINT = value; // Valve Setpoint | meters
+  else if (index ==  3) data.BALLAST_SETPOINT = value; // Ballast Setpoint | meters
+  else if (index ==  4) data.BALLAST_ARM_ALT = value; // Ballast Arming Altitude | meters
+  else if (index ==  5) data.INCENTIVE_THRESHOLD = value; // Incentive threshold
+  else if (index ==  6) data.VALVE_VELOCITY_CONSTANT = value; // Valve Speed Constant
+  else if (index ==  7) data.VALVE_ALTITUDE_DIFF_CONSTANT = 1.0 / value; // Valve Altitude Difference Constant | 1 / X
+  else if (index ==  8) data.VALVE_LAST_ACTION_CONSTANT = 1.0 / value; // Valve Last Action Constant | 1 / X
+  else if (index ==  9) data.BALLAST_VELOCITY_CONSTANT = value; // Ballast Speed Constant
+  else if (index == 10) data.BALLAST_ALTITUDE_DIFF_CONSTANT = 1.0 / value; // Ballast Altitude Difference Constant | 1 / X
+  else if (index == 11) data.BALLAST_LAST_ACTION_CONSTANT = 1.0 / value; // Ballast last action constant | 1 / X
+  else if (index == 12) data.VALVE_VENT_DURATION = value * 1000; // Valve duration | seconds
+  else if (index == 13) data.BALLAST_DROP_DURATION = value * 1000; // Ballast duration | seconds
+  else if (index == 14) data.PRESS_BASELINE = value; // Pressure baseline | Pascals
+  else if (index == 15) data.BALLAST_REVERSE_INTERVAL = value * 1000; // Ballast reverse timeout | seconds
+  else if (index == 16) data.BALLAST_STALL_CURRENT = value; // Ballast stall current | milliamps
+  else if (index == 17) data.VALVE_MOTOR_SPEED_OPEN = value; // Valve motor speed open | Between 0 and 255
+  else if (index == 18) data.VALVE_MOTOR_SPEED_CLOSE = value; // Valve motor speed close | Between 0 and 255
+  else if (index == 19) data.BALLAST_MOTOR_SPEED = value; // Ballast motor speed | Between 0 and 255
+  else if (index == 20) data.VALVE_OPENING_DURATION = value * 1000; // Valve opening timeout | seconds
+  else if (index == 21) data.VALVE_CLOSING_DURATION = value * 1000; // Valve closing timeout | seconds
+  else if (index == 22) data.POWER_STATE_LED = value; // LED Power State | bool (0 or 1)
+  else if (index == 23) data.RB_INTERVAL = value * 1000; // RB communication interval | seconds
+  else if (index == 24) data.GPS_INTERVAL = value * 1000; // GPS communication interval | seconds
+  else if (index == 25) parseManualCommand(value); // Manual mode | 0: automatic; 1: manual
+  else if (index == 26) parseReportCommand(value); // Report mode | 0: standard; 1: extended; 2: readback
+  else if (index == 27) parseSensorsCommand(value); // Active sensors | u8; little endian
+  else if (index == 28) parseValveCommand(value * 1000); // Vent now for X seconds (0 to clear queue) | seconds
+  else if (index == 29) parseBallastCommand(value * 1000); // Ballast now for X seconds (0 to clear queue) | seconds
+  else if (index == 30) parseRockBLOCKPowerCommand(value); // RB Power State | 0: shutdown; 1: restart
+  else if (index == 31) parseGPSPowerCommand(value); // GPS Power State | 0: shutdown; 1: restart; 2: hot start
+  else if (index == 32) parsePayloadPowerCommand(value); // Payload Power State | 0: shutdown; 1: restart
+  else if (index == 33) data.CURRENT_CONTROLLER_INDEX = value; // Controller Index | 0: Legacy; 1: Spaghetti; 2: Spaghetti2; 3: Lasagna
+  else if (index == 34) data.SPAG_CONSTANTS.freq      = value; // Spaghetti Frequency
+  else if (index == 35) data.SPAG_CONSTANTS.k         = value; // Spaghetti K Value
+  else if (index == 36) data.SPAG_CONSTANTS.b_dldt    = value; // Spaghetti B DLDT
+  else if (index == 37) data.SPAG_CONSTANTS.v_dldt    = value; // Spaghetti V DLDT
+  else if (index == 38) data.SPAG_CONSTANTS.rate_min  = value; // Spaghetti Rate Min
+  else if (index == 39) data.SPAG_CONSTANTS.rate_max  = value; // Spaghetti Rate Max
+  else if (index == 40) data.SPAG_CONSTANTS.b_tmin    = value; // Spaghetti B TMIN
+  else if (index == 41) data.SPAG_CONSTANTS.v_tmin    = value; // Spaghetti V TMIN
+  else if (index == 42) data.SPAG_CONSTANTS.h_cmd     = value; // Spaghetti H CMD
+  else if (index == 43) data.SPAG2_CONSTANTS.freq               = value; // Spaghetti2 FREQ
+  else if (index == 44) data.SPAG2_CONSTANTS.k                  = value; // Spaghetti2 K
+  else if (index == 45) data.SPAG2_CONSTANTS.b_dldt             = value; // Spaghetti2 B DLDT
+  else if (index == 46) data.SPAG2_CONSTANTS.v_dldt             = value; // Spaghetti2 V DLDT
+  else if (index == 47) data.SPAG2_CONSTANTS.rate_min           = value; // Spaghetti2 RATE MIN
+  else if (index == 48) data.SPAG2_CONSTANTS.rate_max           = value; // Spaghetti2 RATE MAX
+  else if (index == 49) data.SPAG2_CONSTANTS.b_tmin             = value; // Spaghetti2 B TMIN
+  else if (index == 50) data.SPAG2_CONSTANTS.v_tmin             = value; // Spaghetti2 V TMIN
+  else if (index == 51) data.SPAG2_CONSTANTS.h_cmd              = value; // Spaghetti2 H CMD
+  else if (index == 52) data.SPAG2_CONSTANTS.v_ss_error_thresh  = value; // Spaghetti2 V SS ERROR THRESH
+  else if (index == 53) data.SPAG2_CONSTANTS.b_ss_error_thresh  = value; // Spaghetti2 B SS ERROR THRESH
+  else if (index == 54) data.SPAG2_CONSTANTS.ascent_rate_thresh = value; // Spaghetti2 ASCENT RATE THRESH
+  else if (index == 55) data.SPAG2_CONSTANTS.kfuse              = value; // Spaghetti2 KFUSE
+  else if (index == 56) data.SPAG2_CONSTANTS.kfuse_v            = value; // Spaghetti2 KFUSE V
+  else if (index == 57) data.LAS_CONSTANTS.freq            = value; // Lasagna FREQ
+  else if (index == 58) data.LAS_CONSTANTS.k_v             = value; // Lasagna K V
+  else if (index == 59) data.LAS_CONSTANTS.k_h             = value; // Lasagna K H
+  else if (index == 60) data.LAS_CONSTANTS.b_dldt          = value; // Lasagna B dLdT
+  else if (index == 61) data.LAS_CONSTANTS.v_dldt_a        = value; // Lasagna V dLdT A
+  else if (index == 62) data.LAS_CONSTANTS.v_dldt_b        = value; // Lasagna V dLdT B
+  else if (index == 63) data.LAS_CONSTANTS.b_tmin          = value; // Lasagna B tMin
+  else if (index == 64) data.LAS_CONSTANTS.v_tmin          = value; // Lasagna V tMin
+  else if (index == 65) data.LAS_CONSTANTS.h_cmd           = value; // Lasagna H Cmd
+  else if (index == 66) data.LAS_CONSTANTS.kfuse           = value; // Lasagna kFuse
+  else if (index == 67) data.LAS_CONSTANTS.kfuse_val       = value; // Lasagna kFuse V
+  else if (index == 68) data.LAS_CONSTANTS.ss_error_thresh = value; // Lasagna SS Error Thresh
+  else if (index == 69) data.RB_HEAT_TEMP_THRESH           = value; // RB Heat Temp Thresh
+  else if (index == 70) data.RB_HEAT_TEMP_GAIN             = value; // RB Heat Temp Gain
+  else if (index == 71) data.RB_HEAT_COMM_GAIN             = value; // RB Heat Comm Gain
+  else if (index == 72) data.RB_HEAT_CAP_GAIN              = value; // RB Heat Cap Gain
+  else if (index == 73) data.RB_HEAT_MAX_DUTY              = value; // RB Heat Max Duty
+  else if (index == 74) data.RB_HEAT_CAP_NOMINAL           = value; // RB Heat Cap Nominal | V
+  else if (index == 75) { // Cuba Number
     data.CUBA_NUMBER           = (int)value;
     in_cuba = false;
     cuba_timeout = millis() + 3600*1000;
   }
-  else if (index == 75) data.RESISTOR_MODE           = (int)value;
-  else if (index == 79) {
+  else if (index == 76) data.RESISTOR_MODE           = (int)value; // Resistor mode
+  else if (index == 79) { // GPS Mode
     int GPS_MODE = (int) value;
     if (GPS_MODE == 0 || GPS_MODE == 1) {
       gpsModule.GPS_MODE = GPS_MODE;

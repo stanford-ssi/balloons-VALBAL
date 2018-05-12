@@ -31,12 +31,12 @@ f= open(logfile,"w+")
 f.write(", ".join(names)+"\n")
 f.close()
 fbin = open(binfile,"wb")
-dat = np.load('ssi63bmp.npy')
+dat = np.load('ssi63bmp10hr.npy')
 teensy = serial.Serial('/dev/ttyACM0')
-#wait for teensy configured for SITL testing
+
+#WAIT FOR TEENSY TO BEGIN TESTING
 while(1):
 	read = teensy.read(1)
-
 	if read == FSTART:
 		print('>>> VALBAL found ready for SITL testing')
 		teensy.write(FSTART)
@@ -46,27 +46,39 @@ while(1):
 			print(read.decode("utf-8"),end='')
 		except:
 			pass
+
 n = 0
 while(1):
 	read = teensy.read(1)
 	if read == FSTART:
+		
+		#READ REQUEST
 		print('>>> Data requested')
 		request = teensy.read(4)
+
+		## SEND FLAGS
+		if cmd_ready:
+			teensy.write(b'\x01')
+		else:
+			teensy.write(b'\x00')
+
+
+		## SENDS DATA
 		time = struct.unpack('I',request)[0]/1000
 		print('>>> Request Time:',time)
 		idx = np.searchsorted(dat[:,0], time, side="left")
 		print('>>> Returned Time:',dat[idx,0])
 		data = np.flip(dat[idx,1:],axis=0)       #whoops had to flip it cause temp is first
 		fetch = struct.pack('ffffffff',*data)
-		if cmd_ready:
-			teensy.write(b'\x01')
-		else:
-			teensy.write(b'\x00')
 		teensy.write(fetch)	
+		
+		## SEND ADDITIONAL DATA
 		if cmd_ready:
 			teensy.write(cmd_msg)
 			cmd_ready=False;
 			print('>>> Sent Command',index,value)
+
+		## DO NON-TIME-CRITICAL THINGS
 		dat = dat[idx:,:]
 		sta = teensy.read(num_report*4)
 		status = list(struct.unpack("f"*num_report,sta))
@@ -92,6 +104,7 @@ while(1):
 			f.write(", ".join(str(i) for i in status) + "\n")
 			f.close()
 		n+=1
+
 	else:
 		try:
 			pass

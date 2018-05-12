@@ -1,9 +1,13 @@
 import re
-filename = "../src/Avionics.cpp"
-file = open(filename, 'r')
-lines = file.readlines()
-for i,line in enumerate(lines):
-    if re.search('diddlybop', line, re.I):
-    	num_report = int(re.findall(r"\[(.)\]",lines[i+1])[0])
-    	names = [re.findall(r"\= (.*)\;",k)[0] for k in lines[i+2:i+2+num_report]]
-    	print(names)
+import struct
+import os
+
+with open("commands.txt","r") as f:
+
+	lines = f.readlines()[0]
+	cmd = re.findall(r"\((.*?)\)",lines)[0].split(',')
+	index = int(cmd[0])
+	value = float(cmd[1])
+	print(chr(index))
+	cmd_msg = struct.pack('if',*[index,value])
+	print(cmd_msg)

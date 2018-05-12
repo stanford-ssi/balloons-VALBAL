@@ -48,10 +48,11 @@ void Avionics::init() {
 
   // here be heaters
   pinMode(36, OUTPUT);
-
+  pinMode(OP_PIN, INPUT);
+  pinMode(VR_PIN, INPUT);
 
   pinMode(57, OUTPUT);
-  digitalWrite(57, LOW);
+  digitalWrite(57, HIGH);
 
   if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   if(!readHistory())                          alert("unable to initialize EEPROM", true);
@@ -102,7 +103,8 @@ void Avionics::init() {
 void Avionics::test() {
   alert("Initializing test...", true);
 
-  actuator.queueBallast(100000, true);
+    actuator.queueBallast(5000, true);
+      actuator.queueValve(5000, true);
   //actuator.queueValve(30000, true)
   //data.SHOULD_CUTDOWN = true;
   //actuator.cutDown();
@@ -452,7 +454,14 @@ bool Avionics::processData() {
   data.ALTITUDE_BAROMETER         = filter.getAltitude();
   data.ASCENT_RATE                = filter.getAscentRate();
   data.INCENTIVE_NOISE            = filter.getIncentiveNoise(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
+  float overpressure = analogRead(OP_PIN) * 1.2 / ((double)pow(2, 12)) * 3.2;
+  float vref = analogRead(VR_PIN) * 1.2 / ((double)pow(2, 12)) * 3.2;
+  float qty = (vref - 0.8)/2.;
+  data.OVERPRESSURE = 498.1778/qty * (overpressure - (qty+0.5));
+
+  data.OVERPRESSURE_VREF = vref;
   data.OVERPRESSURE_FILT          = op_filter.update(data.OVERPRESSURE);
+  data.OVERPRESSURE_VREF_FILT          = op_vref_filter.update(data.OVERPRESSURE_VREF);
   if (data.ASCENT_RATE           >= 10) success = false;
   return success;
 }
@@ -536,8 +545,8 @@ bool Avionics::calcIncentives() {
   }
   data.ACTION_TIME_TOTALS[2*INDEX] = data.ACTIONS[INDEX] < 0 ? data.ACTION_TIME_TOTALS[2*INDEX] - data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX];
   data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX+1] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
-  Serial.print("numExecNow: ");
-  Serial.println(numExecNow);
+  //Serial.print("numExecNow: ");
+  //Serial.println(numExecNow);
   return success;
 }
 
@@ -750,12 +759,19 @@ bool Avionics::runRadio() {
   radio.addVariable(data.CURRENT_RB,  0,  2500, 8);
   radio.addVariable(data.CURRENT_MOTORS, 0,  500, 7);
   radio.addVariable(data.MANUAL_MODE, 0,  1,  1);
-  radio.addVariable(data.OVERPRESSURE, -500,  1000,  9);
-  radio.addVariable(data.OVERPRESSURE_VREF, 0,  6,  9);
-  radio.addVariable(data.LAS_STATE.v, -6, 6, 10);
-  radio.addVariable(data.LAS_STATE.fused_v, -6, 6, 10);
+  radio.addVariable(data.OVERPRESSURE, -500,  500,  9);
+  radio.addVariable(data.OVERPRESSURE_VREF, 0,  6,  7);
+  radio.addVariable(data.LAS_STATE.v, -6, 6, 8);
+  radio.addVariable(data.LAS_STATE.effort, -0.005, 0.005, 9);
+  radio.addVariable(data.BALLAST_NUM_OVERCURRENTS, 0, 127, 6);
   radio.setDataFrame();
   radio.run();
+  if (radio.got_rb) {
+    for(uint16_t i = 0; i < COMMS_BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
+    memcpy(COMMS_BUFFER, radio.message, radio.parse_pos);
+    parseCommand(radio.parse_pos);
+    radio.got_rb = false;
+  }
   return true;
 }
 
@@ -1329,6 +1345,9 @@ void Avionics::printState() {
   //     //Serial.print(data.CURRENT_MOTOR_BALLAST_AVG);
   //     Serial.println();
       //return;
+  Serial.print("manual mode ");
+  Serial.println(data.MANUAL_MODE);
+  return;
   Serial.print("Altitude: ");
   Serial.println(data.ALTITUDE_BAROMETER);
   Serial.print("Primary voltage: ");
@@ -1343,6 +1362,10 @@ void Avionics::printState() {
   Serial.println(data.CURRENT_MOTORS);
   Serial.print("RB current: ");
   Serial.println(data.CURRENT_RB);
+  Serial.print("Overpressure: ");
+  Serial.println(data.OVERPRESSURE_FILT);
+  Serial.print("Overpressure vref: ");
+  Serial.println(data.OVERPRESSURE_VREF_FILT);
   return;
   // Serial.print("MANUAL_MODE: ");
   // Serial.println(data.MANUAL_MODE);

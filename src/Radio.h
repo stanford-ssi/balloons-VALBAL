@@ -43,8 +43,13 @@ public:
   float theLatitude = 0.0;
   float theLongitude = 0.0;
 
+  uint8_t message[64];
+  uint8_t parse_pos = 0;
+  bool got_rb = false;
+
 private:
   bool    sendDataFrame();
+  void receive_byte();
 
 /*********************************  OBJECTS  **********************************/
   static const uint8_t SATCOMMS_BUFFER_SIZE = 20;
@@ -62,6 +67,11 @@ private:
   uint8_t payloadGPIO2;
   uint8_t payloadDAC;
   uint8_t EEPROMAddress;
+
+
+  bool parsing = true;
+  uint8_t last_bytes[4] = {0};
+  uint8_t frame_size;
 };
 
 #endif

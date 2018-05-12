@@ -10,3 +10,5 @@ sim/**/*.bin
 sim/**/*.h5
 shitl/**/*.npy
 shitl/test-outputs/*
+
+.idea

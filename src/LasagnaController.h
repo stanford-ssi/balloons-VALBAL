@@ -47,15 +47,15 @@ public:
     float b_dldt               =   0.0002;    // balast dl/dt (kg/s)
     float v_dldt_a             =   0;
     float v_dldt_b             =   0.0030;    // valve dl/dt (kg/s))
-    float b_tmin               =   10;         // minimum ballast event time
-    float v_tmin               =   5;         // minimum valve event time
+    float b_tmin               =   2;         // minimum ballast event time
+    float v_tmin               =   3;         // minimum valve event time
     float h_cmd                =   13500;     // altidute comand
     float kfuse                =   7;
     float kfuse_val            =   0.5;
     float ss_error_thresh      =   750;
     float v_limit              =   0.5;
     float equil_h_thresh       =   10000;      //altitude where controller transitions to normal mode
-    float launch_h_thresh      =   100;
+    float launch_h_thresh      =   300;
   } Constants;
 
   LasagnaController();

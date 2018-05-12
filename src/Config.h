@@ -20,7 +20,7 @@
 //#define STORAGE_MODE_FLAG // uncomment for power off
 #define RESET_EEPROM_FLAG // uncomment for EEPROM reset
 // #define HITL_ENABLED_FLAG // uncomment for HITL
-#define RB_DISABLED_FLAG  // uncomment to disable rockblock
+//#define RB_DISABLED_FLAG  // uncomment to disable rockblock
 //#define WIPE_SD_CARD_YOLO // uncomment to wipe the SD card
 
 /*****************************  TEENSY PIN OUTS  ******************************/
@@ -146,6 +146,9 @@ static const float     SPAG_KFUSE_V_DEFAULT                  =              0.5;
 static const float     PSC_SLOPE                             =            0.011;
 static const float     PSC_INTERCEPT                         =          -0.2419;
 static const float     CM_WATER_TO_PA                        =          98.0665;
+
+static const int OP_PIN = A12;
+static const int VR_PIN = A21;
 
 static const uint8_t   CONTROLLER_INDEX_DEFAULT              =                3;
 

@@ -91,10 +91,42 @@ bool Radio::addVariable(float var, float minimum, float maximum, int16_t resolut
  * This function sets a data frame message from the avionics.
  */
 bool Radio::setDataFrame(){
-  lengthBits += 8 - (lengthBits % 8);
+  if ((lengthBits % 8) != 0) lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;
   return true;
 }
+
+
+
+void Radio::receive_byte() {
+	if (Serial6.available() > 0) {
+		uint8_t byte = Serial6.read();
+		last_bytes[0] = last_bytes[1];
+		last_bytes[1] = last_bytes[2];
+		last_bytes[2] = last_bytes[3];
+		last_bytes[3] = byte;
+		if (*(uint32_t*)RADIO_START_SEQUENCE == *(uint32_t*)last_bytes) {
+			parsing = true;
+			parse_pos = 0;
+			memset(&message, 0, 64);
+			return;
+		}
+		if (*(uint32_t*)RADIO_END_SEQUENCE == *(uint32_t*)last_bytes) {
+			parsing = false;
+			((uint8_t*)&message)[parse_pos] = 0;
+			((uint8_t*)&message)[parse_pos-1] = 0;
+			((uint8_t*)&message)[parse_pos-2] = 0;
+			((uint8_t*)&message)[parse_pos-3] = 0;
+			Serial6.clear();
+      got_rb = true;
+		}
+		if (parsing && parse_pos < 62) {
+			((uint8_t*)&message)[parse_pos] = byte;
+			parse_pos++;
+		}
+	}
+}
+
 
 /*
  * Function: run
@@ -102,6 +134,8 @@ bool Radio::setDataFrame(){
  * This function handles the hardware interface and timing with the payload.
  */
 bool Radio::run(){
+  uint32_t tmax = micros() + 2500;
+  while (Serial6.available() && (micros() < tmax) ) receive_byte();
   sendDataFrame();
   return true;
 }
@@ -123,4 +157,3 @@ bool Radio::sendDataFrame() {
 
   return true;
 }
-

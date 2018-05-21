@@ -52,9 +52,9 @@ void Avionics::init() {
   pinMode(VR_PIN, INPUT);
 
   pinMode(57, OUTPUT);
-  digitalWrite(57, HIGH);
+  digitalWrite(57, LOW);
 
-  if(!setupSDCard())                          alert("unable to initialize SD Card", true);
+  //if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   if(!readHistory())                          alert("unable to initialize EEPROM", true);
   if(!sensors.init())                         alert("unable to initialize Sensors", true);
   delay(2000);
@@ -183,7 +183,7 @@ void Avionics::actuateState() {
   if(!runCutdown()) alert("unable to run cutdown", true);
   if(!runLED())     alert("unable to run LED", true);
   runHeaters();
-  rumAndCoke();
+  //rumAndCoke();
   if(!runRadio()) alert("Unable to run payload", true);
 }
 
@@ -195,7 +195,7 @@ void Avionics::actuateState() {
 void Avionics::logState() {
   uint32_t t0 = millis();
   //Serial.println("begin");
-  if(!log.log(&data, 1024)) alert("unable to log Data", true);
+  //if(!log.log(&data, 1024)) alert("unable to log Data", true);
   //Serial.println("end");
   data.LOG_TIME = millis() - t0;
   if(!debugState())   alert("unable to debug state", true);
@@ -775,14 +775,14 @@ bool Avionics::runRadio() {
     last_received = millis();
     for(uint16_t i = 0; i < COMMS_BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
     memcpy(COMMS_BUFFER, radio.message, radio.parse_pos);
-    if (COMMS_BUFFER[0] == 'a' &&
-          COMMS_BUFFER[1] == 'a' &&
-            COMMS_BUFFER[2] == 'a' &&
+    if (COMMS_BUFFER[0] == 'l' &&
+          COMMS_BUFFER[1] == 'm' &&
+            COMMS_BUFFER[2] == 'f' &&
               COMMS_BUFFER[3] == 'a' &&
-                COMMS_BUFFER[4] == 'a' &&
-                  COMMS_BUFFER[5] == 'a' &&
-                    COMMS_BUFFER[6] == 'a' &&
-                      COMMS_BUFFER[7] == 'a') {
+                COMMS_BUFFER[4] == 'o' &&
+                  COMMS_BUFFER[5] == 'r' &&
+                    COMMS_BUFFER[6] == 'i' &&
+                      COMMS_BUFFER[7] == 'p') {
                         data.SHOULD_CUTDOWN = true;
                       }
     else {
@@ -947,7 +947,8 @@ void Avionics::updateConstant(uint8_t index, float value) {
     in_cuba = false;
     cuba_timeout = millis() + 3600*1000;
   }
-  else if (index == 75) data.RESISTOR_MODE           = (int)value;
+  else if (index == 76) data.RESISTOR_MODE           = (int)value;
+  else if (index == 77) parseRadioPowerCommand(value);
   else if (index == 79) {
     int GPS_MODE = (int) value;
     if (GPS_MODE == 0 || GPS_MODE == 1) {
@@ -1365,9 +1366,9 @@ void Avionics::printState() {
   //     //Serial.print(data.CURRENT_MOTOR_BALLAST_AVG);
   //     Serial.println();
       //return;
-  Serial.print("manual mode ");
+  Serial.print("!!!!!!manual mode ");
   Serial.println(data.MANUAL_MODE);
-  return;
+  //return;
   Serial.print("Altitude: ");
   Serial.println(data.ALTITUDE_BAROMETER);
   Serial.print("Primary voltage: ");
@@ -1386,7 +1387,7 @@ void Avionics::printState() {
   Serial.println(data.OVERPRESSURE_FILT);
   Serial.print("Overpressure vref: ");
   Serial.println(data.OVERPRESSURE_VREF_FILT);
-  return;
+  //return;
   // Serial.print("MANUAL_MODE: ");
   // Serial.println(data.MANUAL_MODE);
 
@@ -1414,7 +1415,7 @@ void Avionics::printState() {
   Serial.print("RAW_PRESSURE_4: ");
   Serial.println(data.RAW_PRESSURE_4);*/
   Serial.println();
-  return;
+  //return;
 
   Serial.print("MANUAL_MODE: ");
   Serial.println(data.MANUAL_MODE);
@@ -1538,6 +1539,7 @@ void Avionics::printState() {
   Serial.print(" CURRENT_RB_MAX:");
   Serial.print(data.CURRENT_RB_MAX);
   Serial.print(',');
+  return;
   Serial.print(" CURRENT_MOTOR_VALVE_AVG:");
   Serial.print(data.CURRENT_MOTOR_VALVE_AVG);
   Serial.print(',');

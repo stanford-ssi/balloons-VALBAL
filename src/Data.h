@@ -74,7 +74,7 @@ struct DataFrame {
   bool       POWER_STATE_LED                 =                             true;
   bool       POWER_STATE_RB                  =                             true;
   bool       POWER_STATE_GPS                 =                            !true;
-  bool       POWER_STATE_PAYLOAD             =                             true;
+  bool       POWER_STATE_PAYLOAD             =                            !true;
   uint8_t    NUM_SATS_GPS                    =                                0;
   float      SPEED_GPS                       =                                0;
   float      HEADING_GPS                     =                                0;
@@ -179,7 +179,7 @@ struct DataFrame {
   float     OVERPRESSURE_VREF                =                                 0;
   float     OVERPRESSURE_VREF_FILT           =                                 0;
   uint8_t stuff_to_make_sure_it_goes_above_1024[512];
-  bool       POWER_STATE_RADIO =                            true;
+  bool       POWER_STATE_RADIO =                           !true;
 
 } __attribute__((packed));
 

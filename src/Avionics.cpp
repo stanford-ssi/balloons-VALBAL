@@ -209,14 +209,17 @@ void Avionics::logState() {
 void Avionics::sendComms() {
 #ifndef RB_DISABLED_FLAG
   if(!data.VALVE_STATE && !data.POWER_STATE_RB && ((millis() - data.RB_LAST) > RB_RESTART_INTERVAL)) {
-    Serial.println("RESTARTING RB WAT");
+    Serial.println("RB emergency auto-restart");
     RBModule.restart();
     data.POWER_STATE_RB = true;
   }
-  Serial.println(millis()-data.RB_LAST);
+  Serial.println((millis()-data.RB_LAST)/RB_DEBUG_INTERVAL);
   if(data.DEBUG_STATE && ((millis() - data.RB_LAST) < RB_DEBUG_INTERVAL)) return;
   if(!data.DEBUG_STATE && ((millis() - data.RB_LAST) < data.RB_INTERVAL)) return;
-  Serial.println("not sending data at this time");
+  if (!data.POWER_STATE_RB) {
+    Serial.println("normally would've comm'd here, but we're too rekt to do that rn.");
+    return;
+  }
   if(compressData() < 0) alert("unable to compress Data", true);
   if(!sendSATCOMS())  {
     alert("unable to communicate over RB", true);
@@ -557,7 +560,7 @@ bool Avionics::calcIncentives() {
  * -------------------
  * This function updates the ouput of the superCap charging circuit.
  */
-bool Avionics::runCharger() {
+ bool Avionics::runCharger() {
   superCap.runChargerPID(data.RESISTOR_MODE, data.TEMP_INT);
   if(data.SYSTEM_POWER_STATE == 0) {
     if (data.VOLTAGE_SUPERCAP_AVG < 3.5) {
@@ -566,8 +569,9 @@ bool Avionics::runCharger() {
     }
   }
   if(data.SYSTEM_POWER_STATE == 1) {
-    if (data.VOLTAGE_SUPERCAP_AVG < 2.3) {
+    if (data.VOLTAGE_SUPERCAP_AVG < 3.0) {
       data.POWER_STATE_RB = false;
+      Serial.println("shutting down RB, possibly mid comm, sad");
       RBModule.shutdown();
       data.RB_LAST = millis();
       data.SYSTEM_POWER_STATE = 2;
@@ -578,25 +582,26 @@ bool Avionics::runCharger() {
     }
   }
   if(data.SYSTEM_POWER_STATE == 2) {
-    if (data.VOLTAGE_SUPERCAP_AVG < 2.25) {
+    if (data.VOLTAGE_SUPERCAP_AVG < 2.5) {
       superCap.disable5VBoost();
       data.SYSTEM_POWER_STATE = 3;
     }
-    if (data.VOLTAGE_SUPERCAP_AVG > 3.5) {
+    if (data.VOLTAGE_SUPERCAP_AVG > 4.56) {
       data.POWER_STATE_RB = true;
-      RBModule.restart();
+      Serial.println("rb good to go again");
       data.RB_LAST = millis();
       data.SYSTEM_POWER_STATE = 1;
     }
   }
   if(data.SYSTEM_POWER_STATE == 3) {
-    if (data.VOLTAGE_SUPERCAP_AVG > 3.0) {
+    if (data.VOLTAGE_SUPERCAP_AVG > 4.5) {
+      Serial.println("enabling 5 V boost");
       superCap.enable5VBoost();
       data.SYSTEM_POWER_STATE = 2;
     }
   }
   return true;
-}
+ }
 
 /*
  * Function: runValve
@@ -1365,14 +1370,13 @@ void Avionics::printState() {
   //     Serial.print(" ");
   //     //Serial.print(data.CURRENT_MOTOR_BALLAST_AVG);
   //     Serial.println();
-      //return;
-  Serial.print("!!!!!!manual mode ");
-  Serial.println(data.MANUAL_MODE);
   //return;
-  Serial.print("Altitude: ");
-  Serial.println(data.ALTITUDE_BAROMETER);
   Serial.print("Primary voltage: ");
   Serial.println(data.VOLTAGE_PRIMARY);
+  Serial.print("Primary supercap inst: ");
+  Serial.println(data.VOLTAGE_SUPERCAP);
+  Serial.print("Primary supercap avg: ");
+  Serial.println(data.VOLTAGE_SUPERCAP_AVG);
   // Serial.print("System current: ");
   // Serial.println(data.CURRENT_TOTAL);
   Serial.print("System current: ");
@@ -1383,10 +1387,7 @@ void Avionics::printState() {
   Serial.println(data.CURRENT_MOTORS);
   Serial.print("RB current: ");
   Serial.println(data.CURRENT_RB);
-  Serial.print("Overpressure: ");
-  Serial.println(data.OVERPRESSURE_FILT);
-  Serial.print("Overpressure vref: ");
-  Serial.println(data.OVERPRESSURE_VREF_FILT);
+  return;
   //return;
   // Serial.print("MANUAL_MODE: ");
   // Serial.println(data.MANUAL_MODE);

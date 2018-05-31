@@ -673,6 +673,7 @@ bool Avionics::runBallast() {
     actuator.queueBallast(ballastTime, shouldBallast);
     data.FORCE_BALLAST = false;
   }
+  data.BALLAST_DIRECTION = actuator.getBallastDirection();
   data.BALLAST_QUEUE = actuator.getBallastQueue();
   data.BALLAST_NUM_OVERCURRENTS = actuator.getNumBallastOverCurrents();
   data.BALLAST_STATE = actuator.checkBallast(data.CURRENT_MOTOR_BALLAST, data.BALLAST_REVERSE_INTERVAL, data.BALLAST_STALL_CURRENT);
@@ -1199,6 +1200,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.BALLAST_QUEUE / 1000,                  0,    1023,    10, lengthBits);
   lengthBits += compressVariable(data.VALVE_TIME_TOTAL / 1000,               0,    16383,   13, lengthBits); // valve time total
   lengthBits += compressVariable(data.BALLAST_TIME_TOTAL / 1000,             0,    16383,   13, lengthBits); // ballast time total
+  lengthBits += compressVariable(data.BALLAST_DIRECTION,                     0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.VALVE_NUM_ACTIONS,                     0,    63,      6,  lengthBits);
   lengthBits += compressVariable(data.BALLAST_NUM_ACTIONS,                   0,    63,      6,  lengthBits);
   lengthBits += compressVariable(data.VALVE_NUM_ATTEMPTS,                    0,    63,      6,  lengthBits);

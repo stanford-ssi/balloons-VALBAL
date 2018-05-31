@@ -3,6 +3,7 @@
   Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
+  Jonathan Zwiebel | jzwiebel@stanford.edu
 
   File: Actuators.h
   --------------------------
@@ -31,6 +32,7 @@ public:
   bool     checkBallast(float current, uint32_t reverseTimeout, uint16_t stallCurrent);
   uint32_t getValveQueue();
   uint32_t getBallastQueue();
+  bool     getBallastDirection();
   uint32_t getNumBallastOverCurrents();
   void     clearBallastOverCurrents();
 
@@ -68,9 +70,10 @@ private:
   uint32_t ballastStallTime = 0;
   uint32_t ballastDirectionTime = 0;
   uint32_t ballastForceReverseTime = 0;
-  bool     ballastDirection = false;
   uint32_t numBallastOverCurrents = 0;
   float    currentLast = 0;
+
+  bool ballastDirection = false;
 };
 
 #endif

@@ -4,6 +4,7 @@
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Keegan Mehall | kmehall@stanford.edu
+  Jonathan Zwiebel | jzwiebel@stanford.edu
 
   File: Actuators.cpp
   --------------------------
@@ -228,6 +229,15 @@ uint32_t Actuators::getNumBallastOverCurrents() {
  */
 void Actuators::clearBallastOverCurrents() {
   numBallastOverCurrents = 0;
+}
+
+/*
+* Function: getBallastDirection
+* ---------------0
+* This function returns the current direction of the ballast motor.
+*/
+bool Actuators::getBallastDirection() {
+  return ballastDirection;
 }
 
 /*

@@ -943,20 +943,23 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 66) data.LAS_CONSTANTS.kfuse           = value; // Lasagna kFuse
   else if (index == 67) data.LAS_CONSTANTS.kfuse_val       = value; // Lasagna kFuse V
   else if (index == 68) data.LAS_CONSTANTS.ss_error_thresh = value; // Lasagna SS Error Thresh
-  else if (index == 69) data.RB_HEAT_TEMP_THRESH           = value; // RB Heat Temp Thresh
-  else if (index == 70) data.RB_HEAT_TEMP_GAIN             = value; // RB Heat Temp Gain
-  else if (index == 71) data.RB_HEAT_COMM_GAIN             = value; // RB Heat Comm Gain
-  else if (index == 72) data.RB_HEAT_CAP_GAIN              = value; // RB Heat Cap Gain
-  else if (index == 73) data.RB_HEAT_MAX_DUTY              = value; // RB Heat Max Duty
-  else if (index == 74) data.RB_HEAT_CAP_NOMINAL           = value; // RB Heat Cap Nominal | V
-  else if (index == 75) { // Cuba Number
+  else if (index == 69) data.LAS_CONSTANTS.v_limit         = value; // Lasanga V Limit
+  else if (index == 70) data.LAS_CONSTANTS.equil_h_thresh  = value; // Lasagna Equilibrium H Thresh
+  else if (index == 71) data.LAS_CONSTANTS.launch_h_thresh = value; // Lasagna Launch H Thresh
+  else if (index == 72) data.RB_HEAT_TEMP_THRESH           = value; // RB Heat Temp Thresh
+  else if (index == 73) data.RB_HEAT_TEMP_GAIN             = value; // RB Heat Temp Gain
+  else if (index == 74) data.RB_HEAT_COMM_GAIN             = value; // RB Heat Comm Gain
+  else if (index == 75) data.RB_HEAT_CAP_GAIN              = value; // RB Heat Cap Gain
+  else if (index == 76) data.RB_HEAT_MAX_DUTY              = value; // RB Heat Max Duty
+  else if (index == 77) data.RB_HEAT_CAP_NOMINAL           = value; // RB Heat Cap Nominal | V
+  else if (index == 78) { // Cuba Number
     data.CUBA_NUMBER           = (int)value;
     in_cuba = false;
     cuba_timeout = millis() + 3600*1000;
   }
-  else if (index == 76) data.RESISTOR_MODE           = (int)value; // Resistor mode
-  else if (index == 77) parseRadioPowerCommand(value);
-  else if (index == 79) { // GPS mode
+  else if (index == 79) data.RESISTOR_MODE           = (int)value; // Resistor mode
+  else if (index == 80) parseRadioPowerCommand(value);
+  else if (index == 81) { // GPS mode
     int GPS_MODE = (int) value;
     if (GPS_MODE == 0 || GPS_MODE == 1) {
       gpsModule.GPS_MODE = GPS_MODE;
@@ -1335,6 +1338,9 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.LAS_CONSTANTS.kfuse,                 0,        30,  6,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.kfuse_val,             0,        1,   4,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.ss_error_thresh,       0,     3000,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.v_limit,               0,        2,   6,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.equil_h_thresh,        0,    20000,  16,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.launch_h_thresh,       0,     2000,  12,  lengthBits);
   }
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;

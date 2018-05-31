@@ -211,6 +211,7 @@ void Avionics::sendComms() {
   if(!data.VALVE_STATE && !data.POWER_STATE_RB && ((millis() - data.RB_LAST) > RB_RESTART_INTERVAL)) {
     Serial.println("RB emergency auto-restart");
     RBModule.restart();
+    data.RB_RESTARTS++;
     data.POWER_STATE_RB = true;
   }
   Serial.println((millis()-data.RB_LAST)/RB_DEBUG_INTERVAL);
@@ -1147,6 +1148,7 @@ void Avionics::clearVariables() {
   data.VALVE_NUM_ATTEMPTS = 0;
   data.BALLAST_NUM_ATTEMPTS = 0;
   data.LOOP_TIME_MAX = 0;
+  data.RB_RESTARTS = 0;
   int len = sizeof(data.ACTION_TIME_TOTALS)/sizeof(data.ACTION_TIME_TOTALS[0]);
   for(int i=0; i < len; i++){
     data.ACTION_TIME_TOTALS[i] = 0;
@@ -1227,6 +1229,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.TEMP_EXT,                             -100,  30,      8,  lengthBits);
   lengthBits += compressVariable(data.LOOP_TIME_MAX,                         0,    10239,   10, lengthBits);
   lengthBits += compressVariable(data.RB_SENT_COMMS,                         0,    8191,    13, lengthBits);
+  lengthBits += compressVariable(data.RB_RESTARTS,                           0,    31,      5,  lengthBits);
   lengthBits += compressVariable(data.RESISTOR_MODE,                         0,    4,       3,  lengthBits);
   lengthBits += compressVariable(data.MANUAL_MODE,                           0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.REPORT_MODE,                           0,    2,       2,  lengthBits);

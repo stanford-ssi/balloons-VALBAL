@@ -27,6 +27,7 @@
 #include "Actuators.h"
 #include "Controller.h"
 #include "Radio.h"
+#include "Heater.h"
 #include <GPS.h>
 #include <RockBLOCK.h>
 
@@ -149,6 +150,8 @@ private:
   SpaghettiController spagController;
   SpaghettiController2 spag2Controller;
   LasagnaController lasController;
+
+  Heater heater;
 
   void runHeaters();
   void rumAndCoke();

@@ -12,6 +12,7 @@
 #define data_H
 
 #include "Config.h"
+#include "Heater.h"
 #include "LasagnaController.h"
 #include "SpaghettiController.h"
 #include "SpaghettiController2.h"
@@ -158,13 +159,8 @@ struct DataFrame {
   uint32_t   DATAFILE_LAST                   =                                0;
   uint16_t   COMMS_LENGTH                    =                                0;
 
-  float RB_HEAT_TEMP_THRESH                  =                              -40;
-  float RB_HEAT_TEMP_GAIN                    =                        0.1666;    // degrees c of temp to percent duty cycle
-  float RB_HEAT_COMM_GAIN                    =                         1;    // hours of comm to percent duty cycle
-  float RB_HEAT_CAP_GAIN                     =                                1;    // voltage drop to percent duty cycle
-  float RB_HEAT_CAP_NOMINAL                     =                            4.5;    // voltage drop to percent duty cycle
-  float RB_HEAT_MAX_DUTY                     =                              128;    // max duty cylce for heater in percent
-  float RB_HEAT_DUTY                         =                                0;
+  float      RB_HEAT_DUTY                    =                                0;
+
   int32_t ACTIONS[4] = {0};
 
   int CUBA_NUMBER = 1973;
@@ -175,6 +171,7 @@ struct DataFrame {
   SpaghettiController2::State SPAG2_STATE;
   LasagnaController::Constants LAS_CONSTANTS;
   LasagnaController::State LAS_STATE;
+  Heater::Constants HEATER_CONSTANTS;
   uint32_t  ACTION_TIME_TOTALS[8]            =                               {0};
   float     OVERPRESSURE                     =                                 0;
   float     OVERPRESSURE_FILT                =                                 0;

@@ -110,26 +110,15 @@ void Avionics::test() {
   //actuator.cutDown();
 }
 
-
-#define minmin(a,b) ((a)<(b)?(a):(b))
-#define maxmax(a,b) ((a)>(b)?(a):(b))
-
 void Avionics::runHeaters() {
-  float duty = 0;
-  duty += maxmax((data.RB_HEAT_TEMP_THRESH - data.TEMP_INT) * data.RB_HEAT_TEMP_GAIN,0);
-  duty += maxmax((data.RB_HEAT_CAP_NOMINAL - data.VOLTAGE_SUPERCAP_AVG)* data.RB_HEAT_CAP_GAIN, 0);
-  duty += maxmax((((float)(millis()-data.RB_LAST)) - 2*data.RB_INTERVAL)/1000./3600.*data.RB_HEAT_COMM_GAIN, 0);
+  heater.updateConstants(data.HEATER_CONSTANTS);
 
-  duty = minmin(1, duty);
-  duty = maxmax(0, duty);
-
-  int dutyint = duty*data.RB_HEAT_MAX_DUTY;
-  /*Serial.println((data.RB_HEAT_TEMP_THRESH - data.TEMP_INT));
-  Serial.println((data.RB_HEAT_CAP_NOMINAL - data.VOLTAGE_SUPERCAP_AVG));
-  Serial.println((((float)(millis()-data.RB_LAST)) - 2*data.RB_INTERVAL)/1000./3600.);*/
-  //Serial.println(dutyint);
-  analogWrite(36, dutyint);
-  data.RB_HEAT_DUTY = dutyint;
+  Heater::Input heaterInput;
+  heaterInput.temp_int = data.TEMP_INT;
+  heaterInput.voltage_supercap_average = data.VOLTAGE_SUPERCAP_AVG;
+  heaterInput.rb_interval = data.RB_INTERVAL;
+  heaterInput.rb_last = data.RB_LAST;
+  data.RB_HEAT_DUTY = heater.update(heaterInput);
 }
 
 
@@ -946,12 +935,12 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 69) data.LAS_CONSTANTS.v_limit         = value; // Lasanga V Limit
   else if (index == 70) data.LAS_CONSTANTS.equil_h_thresh  = value; // Lasagna Equilibrium H Thresh
   else if (index == 71) data.LAS_CONSTANTS.launch_h_thresh = value; // Lasagna Launch H Thresh
-  else if (index == 72) data.RB_HEAT_TEMP_THRESH           = value; // RB Heat Temp Thresh
-  else if (index == 73) data.RB_HEAT_TEMP_GAIN             = value; // RB Heat Temp Gain
-  else if (index == 74) data.RB_HEAT_COMM_GAIN             = value; // RB Heat Comm Gain
-  else if (index == 75) data.RB_HEAT_CAP_GAIN              = value; // RB Heat Cap Gain
-  else if (index == 76) data.RB_HEAT_MAX_DUTY              = value; // RB Heat Max Duty
-  else if (index == 77) data.RB_HEAT_CAP_NOMINAL           = value; // RB Heat Cap Nominal | V
+  else if (index == 72) data.HEATER_CONSTANTS.temp_thresh           = value; // RB Heat Temp Thresh
+  else if (index == 73) data.HEATER_CONSTANTS.temp_gain             = value; // RB Heat Temp Gain
+  else if (index == 74) data.HEATER_CONSTANTS.comm_gain             = value; // RB Heat Comm Gain
+  else if (index == 75) data.HEATER_CONSTANTS.cap_gain              = value; // RB Heat Cap Gain
+  else if (index == 76) data.HEATER_CONSTANTS.max_duty              = value; // RB Heat Max Duty
+  else if (index == 77) data.HEATER_CONSTANTS.cap_nominal           = value; // RB Heat Cap Nominal | V
   else if (index == 78) { // Cuba Number
     data.CUBA_NUMBER           = (int)value;
     in_cuba = false;
@@ -1276,7 +1265,12 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.ACTION_TIME_TOTALS[6]/1000,        0,     600,   8, lengthBits);
     lengthBits += compressVariable(data.ACTION_TIME_TOTALS[7]/1000,        0,     600,   8, lengthBits);
     lengthBits += compressVariable(data.RB_HEAT_DUTY,        0,     255,   8, lengthBits);
-    lengthBits += compressVariable(data.RB_HEAT_TEMP_THRESH,        -100,     100,   8, lengthBits);
+    lengthBits += compressVariable(data.HEATER_CONSTANTS.temp_thresh,        -100,     100,   8, lengthBits);
+    lengthBits += compressVariable(data.HEATER_CONSTANTS.temp_gain,        0,     1,   8, lengthBits);
+    lengthBits += compressVariable(data.HEATER_CONSTANTS.comm_gain,        0,     4,   4, lengthBits);
+    lengthBits += compressVariable(data.HEATER_CONSTANTS.cap_gain,        0,     4,   4, lengthBits);
+    lengthBits += compressVariable(data.HEATER_CONSTANTS.cap_nominal,        0,     5,   8, lengthBits);
+    lengthBits += compressVariable(data.HEATER_CONSTANTS.max_duty,        0,     256,   8, lengthBits);
     lengthBits += compressVariable(in_cuba,                        0,    1,       1,  lengthBits);
     lengthBits += compressVariable(cuba_timeout,                        0,    4000000,       10,  lengthBits);
     lengthBits += compressVariable(data.OVERPRESSURE_FILT,    -500,     500,   9, lengthBits);
@@ -1449,8 +1443,6 @@ void Avionics::printState() {
   Serial.println(data.BALLAST_QUEUE);
   Serial.print("ACTION: ");
   Serial.println(data.ACTION);
-  Serial.print("HEATER THRESHOLD: ");
-  Serial.println(data.RB_HEAT_TEMP_THRESH);
 
   Serial.println("action crap");
   for (int kk = 0; kk < 4; kk++ ) {

@@ -36,6 +36,7 @@
 
 // #define JANKSHITL
 // #define SERIALSHITL
+#define SERIALMONITOR
 //#define SERIALSHITL_LEN 32
 
 
@@ -120,6 +121,7 @@ private:
   bool    logData();
   int16_t compressData();
   void    shitlUpdate();
+  void    serialMonitorUpdate();
 
 /*********************************  OBJECTS  **********************************/
 

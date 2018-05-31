@@ -1,13 +1,14 @@
+// Same as Shitl.cpp first half
 #include "Avionics.h"
 #include "Arduino.h"
-void Avionics::shitlUpdate(){
+void Avionics::serialMonitorUpdate(){
   elapsedMicros te = 0;
   Serial.write(FSTART);
   uint32_t t = data.TIME;
   char* b = (char*)(&t);
   Serial.write(b,4);
   int j = 0;
-  // DO NOT REMOVE THE LINE BELOW, OR COPY IT ELSEWHERE IN THE CODE, ITS ACTUALLY IMPORTANT I SWEAR. -john bean
+  // DO NOT REMOVE THE LINE BELOW, OR COPY IT ELSEWHERE IN THE CODE, ITS ACTUALLY IMPORTANT I SWEAR. -john bean (the python script looks it to start parsing variable names we need in shitl)
   //diddlybop
   float report[30];
   report[j] = data.ALTITUDE_BAROMETER;  j++;
@@ -42,48 +43,4 @@ void Avionics::shitlUpdate(){
   report[j] = data.LAS_CONSTANTS.launch_h_thresh;  j++;
   b = (char*)(&report);
   Serial.write(b, sizeof(report));
-  const int len = sizeof(float)*8;
-  char bytes[len];
-  char flags;
-  float vals[8];
-  while(true){
-    if(Serial.available() == len+1){
-      flags = Serial.read();
-      for(int i = 0;i < len; i++){
-        bytes[i]= Serial.read();
-        //Serial.printf("%x,",bytes[i]);
-      }
-      memcpy(vals,bytes,len);
-      break;
-    }
-  }
-  if(flags & (1<<0)){
-    Serial.println("OOO FLAG");
-    int index;
-    float value;
-    while(true){
-      if(Serial.available()==8){
-        for(int i=0;i<4;i++){
-          bytes[i]=Serial.read();
-        }
-        memcpy(&index,bytes,4); 
-        for(int i=0;i<4;i++){
-          bytes[i]=Serial.read();
-        }
-        memcpy(&value,bytes,4);
-        break;
-      }
-    }
-    updateConstant(index,value);
-  }
-  data.RAW_TEMP_1 = (isnan(vals[0]) ? data.RAW_TEMP_1 : vals[0]);
-  data.RAW_TEMP_2 = (isnan(vals[1]) ? data.RAW_TEMP_2 : vals[1]);
-  data.RAW_TEMP_3 = (isnan(vals[2]) ? data.RAW_TEMP_3 : vals[2]);
-  data.RAW_TEMP_4 = (isnan(vals[3]) ? data.RAW_TEMP_4 : vals[3]);
-  data.RAW_PRESSURE_1 = (isnan(vals[4]) ? data.RAW_PRESSURE_1: vals[4]);
-  data.RAW_PRESSURE_2 = (isnan(vals[5]) ? data.RAW_PRESSURE_2: vals[5]);
-  data.RAW_PRESSURE_3 = (isnan(vals[6]) ? data.RAW_PRESSURE_3: vals[6]);
-  data.RAW_PRESSURE_4 = (isnan(vals[7]) ? data.RAW_PRESSURE_4: vals[7]);
-  Serial.print("SHITL TIME: ");
-  Serial.println(te);
 }

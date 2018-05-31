@@ -86,7 +86,6 @@ void Avionics::init() {
     delay(100);
     if(Serial.available()){
       if(Serial.read() == FSTART){
-        Serial.println("READY TO START\n\n");
         break;
       }
     }
@@ -141,10 +140,9 @@ void Avionics::runHeaters() {
  * This function handles basic flight data collection.
  */
 void Avionics::updateState() {
-  // #ifndef HITL_ENABLED_FLAG
-  //   if(!readData())     alert("unable to read Data", true);
-  // #endif
-  if(!readData())     alert("unable to read Data", true);
+  #ifndef HITL_ENABLED_FLAG
+    if(!readData())     alert("unable to read Data", true);
+  #endif
 // #ifdef HITL_ENABLED_FLAG
 //   if(!simulateData()) alert("unable to simulate Data", true);
 // #endif

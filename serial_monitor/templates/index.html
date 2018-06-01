@@ -1,10 +1,21 @@
 <head>
-    <title>Hello</title>
+    <title>Serial Monitor</title>
+<style type="text/css">
+.scroll-box {
+    white-space: pre;
+    height: 400px;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-wrap: break-word;
+}
+</style>
     
 <script type="text/javascript">
     console.log("I'm running the thing");
     var source = new EventSource('/stream');
     var first = true;
+    let EXTRA_START = ";";
                                                                       
     source.onopen = function (event) {
         console.log("The connection is open");
@@ -17,41 +28,33 @@
     };
                                                                       
     source.addEventListener('message', function (event) {
-        console.log("I got a message");
+        //console.log("I got a message");
 
         var msg = event.data
-        msg = msg.replace(/;/g, "<br>");
-        document.getElementById("status-txt").innerHTML = msg;
 
-        /*
-        var msg_arr = event.data.split(";");
+        if (msg.charAt(0) == EXTRA_START) {
+            // This message is from the extra logging information (misc print statements throughout the code)
 
-        for (var i = 0; i < msg_arr.length; i++) {
-            curr_msg = msg_arr[i];
-            curr_msg_id = curr_msg.split(":")[0];
+            msg = msg.substring(1, msg.length) + "<br>"; // remove the start character from the beginning of the string
+            extra_div = document.getElementById("extra-txt");
 
-            if (first) {
-                var p = document.createElement("P");
-                var t = document.createTextNode(curr_msg);
-                p.appendChild(t);
-                p.setAttribute("id", curr_msg_id); 
-                document.getElementById("status").appendChild(p);
+
+            // handle the scrolling: only auto-scroll if you're toward the bottom of the screen
+            if (extra_div.scrollTop >= extra_div.scrollHeight - extra_div.clientHeight - 400) {
+                extra_div.innerHTML += msg;
+                extra_div.scrollTop = extra_div.scrollHeight;
             } else {
-                if (document.getElementById(curr_msg_id) != null) {
-                    document.getElementById(curr_msg_id).innerHTML = curr_msg;
-                } else {
-                    console.log("bad");
-                }
+                extra_div.innerHTML += msg;
             }
+        } else {
+            // This message is from the SHITL Logging: Put it in the top part of the screen
+
+            msg = msg.replace(/;/g, "<br>");
+            document.getElementById("status-txt").innerHTML = msg;
         }
-        first = false;
-        */
 
     });
                                                                       
-    //source.onmesssage = function (event) {
-    //    console.log("EAT ME");
-    //};
 </script>
     
     
@@ -59,7 +62,11 @@
 <body>
 
     <h1> Serial Monitor! </h1>
+    <h2> SHITL Variables </h2>
     <p id="status-txt" style="class:pre;"> {{ status }}</p>
+    <hr>
+    <h2> Other Print Statements </h2>
+    <p id="extra-txt" class="scroll-box"></p>
     <div id="status">
     </div>
 

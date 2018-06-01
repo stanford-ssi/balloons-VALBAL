@@ -15,9 +15,10 @@ import _thread
 
 # constants
 TEENSY_ADR = '/dev/tty.usbmodem144121'#'/dev/ttyACM0'
-srcname = "../balloons-VALBAL/src/Shitl.cpp"
+srcname = "../src/Shitl.cpp"
 log_file_path = "sample_shitl.txt"
 FSTART = b'\xaa'
+EXTRA_START = ';'
 
 # flags
 WILL_LOG = False#True
@@ -63,7 +64,8 @@ def send_message(message):
 def run_serial(teensy, names, num_report):
     # Await teensy response to make sure we can talk
     # But only do this if it's the first time reading in serial
-    buffer = ""
+    buf = ""
+    using_extra = False
     while (1):
         #print('>>> about to read start byte')
         read = teensy.read(1)
@@ -109,22 +111,38 @@ def run_serial(teensy, names, num_report):
             status = list(struct.unpack('f'*num_report, data))
             status.insert(0, time)
 
+            # if the buffer isn't empty, just flush it
+            if (len(buf) > 0):
+                #print(buf)
+                send_message(buf)
+                buf = ""
 
             
             #print(">>> VB Status: ", status)
             print(">>> VB Status:")
             for i in range(num_report):
-                buffer += "\t%s:\t%f;"%(names[i], status[i])
+                buf += "\t%s:\t%f;"%(names[i], status[i])
                 print("\t%s:\t%f"%(names[i], status[i]))
             if WILL_LOG: log_file.write(data)
-            buffer = buffer[:-1] # shave off the last semicolon
-            send_message(buffer)
-            buffer = ""
+            buf = buf[:-1] # shave off the last semicolon
+            send_message(buf)
+            buf = ""
 
         else:
             try:
-                #print(read)
-                pass
+                if (len(buf) == 0):
+                    buf = EXTRA_START
+
+                next_chr = read.decode("utf-8")
+                if (next_chr == "\n"):
+                    print(buf)
+                    send_message(buf)
+                    buf = ""
+                else:
+                    buf += next_chr
+               # print(next_chr, end="")
+
+                #pass
                 #if len(buffer) > 100:
                 #    print("going to send a message")
                 #print(len(buffer))

@@ -112,7 +112,6 @@ private:
   void    parseRadioPowerCommand(bool command);
   void    parseRockBLOCKModeCommand(bool command);  bool    debugState();
   void    setupLog();
-  void    printHeader();
   void    logHeader();
   void    alert(const char*, bool fatal);
   void    clearVariables();
@@ -121,6 +120,7 @@ private:
   bool    logData();
   int16_t compressData();
   void    shitlUpdate();
+  int     numExecReset();
 
 /*********************************  OBJECTS  **********************************/
 
@@ -153,11 +153,13 @@ private:
 
   Heater heater;
 
+
   void runHeaters();
   void rumAndCoke();
   bool checkInCuba();
   bool in_cuba = false;
   uint32_t cuba_timeout = 0;
 };
+
 
 #endif

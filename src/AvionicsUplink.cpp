@@ -129,9 +129,9 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 76) data.HEATER_CONSTANTS.max_duty              = value; // RB Heat Max Duty
   else if (index == 77) data.HEATER_CONSTANTS.cap_nominal           = value; // RB Heat Cap Nominal | V
   else if (index == 78) { // Cuba Number
-    data.CUBA_NUMBER           = (int)value;
-    in_cuba = false;
-    cuba_timeout = millis() + 3600*1000;
+    data.GEOFENCED_CUTDOWN_ENABLE           = (bool)value;
+    data.IN_CUBA = false;
+    data.CUBA_TIMEOUT = millis() + 1000*data.CUBA_MAX_SECONDS;
   }
   else if (index == 79) data.RESISTOR_MODE           = (int)value; // Resistor mode
   else if (index == 80) parseRadioPowerCommand(value);
@@ -142,6 +142,11 @@ void Avionics::updateConstant(uint8_t index, float value) {
       gpsModule.restart();
     }
   }
+  else if (index == 90) data.BB_LAT1 = value;
+  else if (index == 91) data.BB_LAT2 = value;
+  else if (index == 92) data.BB_LON1 = value;
+  else if (index == 93) data.BB_LON2 = value;
+  else if (index == 94) data.CUBA_MAX_SECONDS = value;
 }
 
 /*

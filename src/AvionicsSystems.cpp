@@ -8,7 +8,7 @@
 bool Avionics::runCharger() {
   superCap.runChargerPID(data.RESISTOR_MODE, data.TEMP_INT);
   if(data.SYSTEM_POWER_STATE == 0) {
-    if (data.VOLTAGE_SUPERCAP_AVG < 3.5) {
+    if (data.VOLTAGE_SUPERCAP_AVG < 4.25) {
       data.POWER_STATE_LED = false;
       data.SYSTEM_POWER_STATE = 1;
     }
@@ -21,13 +21,14 @@ bool Avionics::runCharger() {
       data.RB_LAST = millis();
       data.SYSTEM_POWER_STATE = 2;
     }
-    if (data.VOLTAGE_SUPERCAP_AVG > 4.0) {
+    if (data.VOLTAGE_SUPERCAP_AVG > 4.5) {
       data.POWER_STATE_LED = true;
       data.SYSTEM_POWER_STATE = 0;
     }
   }
   if(data.SYSTEM_POWER_STATE == 2) {
     if (data.VOLTAGE_SUPERCAP_AVG < 2.5) {
+      actuator.pause();
       superCap.disable5VBoost();
       data.SYSTEM_POWER_STATE = 3;
     }
@@ -41,6 +42,7 @@ bool Avionics::runCharger() {
   if(data.SYSTEM_POWER_STATE == 3) {
     if (data.VOLTAGE_SUPERCAP_AVG > 4) {
       Serial.println("enabling 5 V boost");
+      actuator.play();
       superCap.enable5VBoost();
       data.SYSTEM_POWER_STATE = 2;
     }
@@ -146,23 +148,38 @@ bool Avionics::runCutdown() {
 // 25.245315, -87.282412
 // 18.628752, -71.779459
 bool Avionics::checkInCuba() {
-  if (data.LAT_GPS > 18.628752 && data.LAT_GPS < 24.152548 && data.LONG_GPS > -87.282412 && data.LONG_GPS < -71.779459 ) {
+  if (data.LAT_GPS > data.BB_LAT1 && data.LAT_GPS < data.BB_LAT2 && data.LONG_GPS > data.BB_LON1 && data.LONG_GPS < data.BB_LON2 ) {
     return true;
   }
   return false;
 }
 
+void Avionics::timedCutdown() {
+  if (data.TIMED_CUTDOWN_ENABLE) {
+    Serial.print("Timed cutdown is enabled... will cutdown in ");
+    Serial.println(data.TIMED_CUTDOWN_MILLIS-millis());
+  }
+  if (data.TIMED_CUTDOWN_ENABLE && millis() > data.TIMED_CUTDOWN_MILLIS) {
+    data.SHOULD_CUTDOWN = true;
+    data.TIMED_CUTDOWN_ENABLE = false;
+    runCutdown();
+  }
+}
+
 
 void Avionics::rumAndCoke() {
-  if (data.CUBA_NUMBER != 1973) return;
+  if (!data.GEOFENCED_CUTDOWN_ENABLE) return;
   bool now_in_cuba = checkInCuba();
-  if (in_cuba && !now_in_cuba) {
-    in_cuba = false;
+  if (data.IN_CUBA && !now_in_cuba) {
+    data.IN_CUBA = false;
   }
-  if (!in_cuba && now_in_cuba) {
-    in_cuba = true;
-    cuba_timeout = millis() + 1000*3600;
+  if (!data.IN_CUBA && now_in_cuba) {
+    data.IN_CUBA = true;
+    data.CUBA_TIMEOUT = millis() + 1000*data.CUBA_MAX_SECONDS;
   }
+  Serial.print("Geofenced cutdown is enabled... ");
+  if (data.IN_CUBA) { Serial.println("I think I'm in Cuba"); }
+  else { Serial.println("but I live in a free country"); }
   /*if (in_cuba){
     Serial.println("CUBA WARNING");
     Serial.println(data.LOOP_TIME);
@@ -170,7 +187,7 @@ void Avionics::rumAndCoke() {
   } else {
     Serial.println("NOT IN CUBA");
   }*/
-  if (in_cuba && millis() > cuba_timeout) {
+  if (data.IN_CUBA && millis() > data.CUBA_TIMEOUT) {
     data.SHOULD_CUTDOWN = true;
     runCutdown();
     //actuator.queueValve(1000000, true);

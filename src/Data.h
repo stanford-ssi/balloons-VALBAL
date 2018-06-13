@@ -153,6 +153,8 @@ struct DataFrame {
   float      CURRENT_MOTOR_VALVE             =                                0;
   float      CURRENT_MOTOR_BALLAST           =                                0;
   float      CURRENT_PAYLOAD                 =                                0;
+  float      VOLTAGE_SUPERCAP_MIN            =                              314;
+  float      VOLTAGE_PRIMARY_MIN             =                              314;
 
   uint32_t   GPS_LAST                        =                                0;
   uint32_t   RB_LAST                         =                                0;
@@ -163,7 +165,19 @@ struct DataFrame {
 
   int32_t ACTIONS[4] = {0};
 
-  int CUBA_NUMBER = 1973;
+  bool GEOFENCED_CUTDOWN_ENABLE = false;
+  bool IN_CUBA = false;
+  uint32_t CUBA_TIMEOUT = 0;
+  uint32_t CUBA_MAX_SECONDS = 3600;
+  float BB_LAT1 = 18.628752;
+  float BB_LAT2 = 24.152548;
+  float BB_LON1 = -87.282412;
+  float BB_LON2 = -71.779459;
+
+  bool TIMED_CUTDOWN_ENABLE = false;
+  uint32_t TIMED_CUTDOWN_MILLIS = 0;
+
+  bool       POWER_STATE_RADIO =                           !true;
 
   SpaghettiController::Constants SPAG_CONSTANTS;
   SpaghettiController::State SPAG_STATE;
@@ -178,7 +192,6 @@ struct DataFrame {
   float     OVERPRESSURE_VREF                =                                 0;
   float     OVERPRESSURE_VREF_FILT           =                                 0;
   uint8_t stuff_to_make_sure_it_goes_above_1024[512];
-  bool       POWER_STATE_RADIO =                           !true;
 
 } __attribute__((packed));
 

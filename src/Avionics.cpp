@@ -112,6 +112,11 @@ void Avionics::test() {
 }
 
 void Avionics::runHeaters() {
+  if (!data.POWER_STATE_LED) {
+    analogWrite(36, 0);
+    data.RB_HEAT_DUTY = 0;
+    return;
+  }
   heater.updateConstants(data.HEATER_CONSTANTS);
 
   Heater::Input heaterInput;
@@ -173,7 +178,8 @@ void Avionics::actuateState() {
   if(!runCutdown()) alert("unable to run cutdown", true);
   if(!runLED())     alert("unable to run LED", true);
   runHeaters();
-  //rumAndCoke();
+  rumAndCoke();
+  timedCutdown();
   if(!runRadio()) alert("Unable to run payload", true);
 }
 
@@ -294,6 +300,8 @@ void Avionics::clearVariables() {
   data.BALLAST_NUM_ATTEMPTS = 0;
   data.LOOP_TIME_MAX = 0;
   data.RB_RESTARTS = 0;
+  data.VOLTAGE_SUPERCAP_MIN = 314;
+  data.VOLTAGE_PRIMARY_MIN = 314;
   int len = sizeof(data.ACTION_TIME_TOTALS)/sizeof(data.ACTION_TIME_TOTALS[0]);
   for(int i=0; i < len; i++){
     data.ACTION_TIME_TOTALS[i] = 0;

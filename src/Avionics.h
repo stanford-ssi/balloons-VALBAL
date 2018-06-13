@@ -157,8 +157,7 @@ private:
   void runHeaters();
   void rumAndCoke();
   bool checkInCuba();
-  bool in_cuba = false;
-  uint32_t cuba_timeout = 0;
+  void timedCutdown();
 };
 
 

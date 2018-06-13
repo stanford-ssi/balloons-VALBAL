@@ -59,7 +59,9 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.TEMP_INT,                             -85,   65,      9,  lengthBits);
   lengthBits += compressVariable(data.JOULES_TOTAL,                          0,    1572863, 18, lengthBits);
   lengthBits += compressVariable(data.VOLTAGE_PRIMARY,                       0,    6,       9,  lengthBits);
+  lengthBits += compressVariable(data.VOLTAGE_PRIMARY_MIN,                   0,    6,       9,  lengthBits);
   lengthBits += compressVariable(data.VOLTAGE_SUPERCAP_AVG,                  0,    6,       9,  lengthBits);
+  lengthBits += compressVariable(data.VOLTAGE_SUPERCAP_MIN,                  0,    6,       9,  lengthBits);
   lengthBits += compressVariable(data.CURRENT_TOTAL_AVG,                     0,    4095,    12, lengthBits);
   lengthBits += compressVariable(data.CURRENT_TOTAL_MIN,                     0,    4095,    12, lengthBits);
   lengthBits += compressVariable(data.CURRENT_TOTAL_MAX,                     0,    4095,    12, lengthBits);
@@ -124,10 +126,10 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.HEATER_CONSTANTS.cap_gain,        0,     4,   4, lengthBits);
     lengthBits += compressVariable(data.HEATER_CONSTANTS.cap_nominal,        0,     5,   8, lengthBits);
     lengthBits += compressVariable(data.HEATER_CONSTANTS.max_duty,        0,     256,   8, lengthBits);
-    lengthBits += compressVariable(in_cuba,                        0,    1,       1,  lengthBits);
-    lengthBits += compressVariable(cuba_timeout,                        0,    4000000,       10,  lengthBits);
-    lengthBits += compressVariable(data.OVERPRESSURE_FILT,    -500,     500,   9, lengthBits);
-    lengthBits += compressVariable(data.OVERPRESSURE_VREF_FILT,    0,     3.84,   8, lengthBits);
+    lengthBits += compressVariable(data.IN_CUBA,                        0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.CUBA_TIMEOUT,                        0,    4000000,       10,  lengthBits);
+    lengthBits += compressVariable(data.TIMED_CUTDOWN_ENABLE,            0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.GEOFENCED_CUTDOWN_ENABLE,            0,    1,       1,  lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval

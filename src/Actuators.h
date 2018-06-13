@@ -42,6 +42,9 @@ public:
   state_t  valveState = CLOSED;
   state_t  ballastState = CLOSED;
 
+  void pause();
+  void play();
+
 private:
 /*********************************  HELPERS  **********************************/
   void     stopValve();
@@ -74,6 +77,8 @@ private:
   float    currentLast = 0;
 
   bool ballastDirection = false;
+
+  bool paused = false;
 };
 
 #endif

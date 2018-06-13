@@ -16,7 +16,10 @@ bool Avionics::processData() {
   data.BMP_3_REJECTIONS           = filter.getNumRejections(3);
   data.BMP_4_REJECTIONS           = filter.getNumRejections(4);
 
+  data.VOLTAGE_PRIMARY_MIN        = _min(data.VOLTAGE_PRIMARY, data.VOLTAGE_PRIMARY_MIN);
+
   data.VOLTAGE_SUPERCAP_AVG       = filter.getAvgVoltageSuperCap(data.VOLTAGE_SUPERCAP);
+  data.VOLTAGE_SUPERCAP_MIN       = _min(data.VOLTAGE_SUPERCAP, data.VOLTAGE_SUPERCAP_MIN);
   data.CURRENT_TOTAL_AVG          = filter.getAvgCurrentSystem(data.CURRENT_TOTAL);
   data.CURRENT_TOTAL_MIN          = filter.getMinCurrentSystem();
   data.CURRENT_TOTAL_MAX          = filter.getMaxCurrentSystem();

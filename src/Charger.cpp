@@ -68,7 +68,7 @@ void Charger::runChargerPID(uint8_t resistorMode, float temp) {
       chargingLimit = 2;
     }
     if (temp <= CHARGER_TEMP_THRESH_LOW) {
-      hex = 0x7F;
+      hex = 0x38;
       chargingLimit = 1;
     }
   }

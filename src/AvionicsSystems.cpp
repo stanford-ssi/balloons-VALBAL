@@ -31,7 +31,7 @@ bool Avionics::runCharger() {
       superCap.disable5VBoost();
       data.SYSTEM_POWER_STATE = 3;
     }
-    if (data.VOLTAGE_SUPERCAP_AVG > 4.56) {
+    if (data.VOLTAGE_SUPERCAP_AVG > 4.5) {
       data.POWER_STATE_RB = true;
       Serial.println("rb good to go again");
       data.RB_LAST = millis();
@@ -39,7 +39,7 @@ bool Avionics::runCharger() {
     }
   }
   if(data.SYSTEM_POWER_STATE == 3) {
-    if (data.VOLTAGE_SUPERCAP_AVG > 4.5) {
+    if (data.VOLTAGE_SUPERCAP_AVG > 4) {
       Serial.println("enabling 5 V boost");
       superCap.enable5VBoost();
       data.SYSTEM_POWER_STATE = 2;

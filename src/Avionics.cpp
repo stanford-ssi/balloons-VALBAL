@@ -55,7 +55,7 @@ void Avionics::init() {
   pinMode(57, OUTPUT);
   digitalWrite(57, LOW);
 
-  //if(!setupSDCard())                          alert("unable to initialize SD Card", true);
+  if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   if(!readHistory())                          alert("unable to initialize EEPROM", true);
   if(!sensors.init())                         alert("unable to initialize Sensors", true);
   delay(2000);
@@ -185,7 +185,7 @@ void Avionics::actuateState() {
 void Avionics::logState() {
   uint32_t t0 = millis();
   //Serial.println("begin");
-  //if(!log.log(&data, 1024)) alert("unable to log Data", true);
+  if(!log.log(&data, 1024)) alert("unable to log Data", true);
   //Serial.println("end");
   data.LOG_TIME = millis() - t0;
   if(!debugState())   alert("unable to debug state", true);

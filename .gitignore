@@ -9,6 +9,9 @@ lib/readme.txt
 sim/**/*.bin
 sim/**/*.h5
 shitl/**/*.npy
+shitl/**/*.h5
 shitl/test-outputs/*
+hootl/**/*.bin
+hootl/**/*.h5
 
 .idea

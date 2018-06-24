@@ -3,18 +3,18 @@
 
 
 PastaSim::PastaSim() : 
-	l_noise(0,0.002),
-	v_noise(0,0.8)
+	l_noise(0,0.003),
+	v_noise(0,1.5)
 {
-	b_dldt = 0.0002;
+	b_dldt = 0.001;
 	v_dldt = 0.002;
 	klin = 7;
 	//h = 13000;
 	h = 0;
 	l = .1;
 	freq = 20;
-	//gen.seed(std::time(0));
-	gen.seed(1);
+	gen.seed(std::time(0));
+	//gen.seed(1);
 }
 
 double PastaSim::evolve(double action){

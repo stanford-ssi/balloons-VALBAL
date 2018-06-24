@@ -134,3 +134,47 @@ void DBiquad::setCoeffs(Coeffs coeffs){
   this->coeffs = coeffs;
   setSS(y[0]);
 }
+
+
+/**********************************************/
+/************* AdjustableLowpass **************/
+/**********************************************/
+
+AdjustableLowpass::AdjustableLowpass(float F0, float Q, float Fs) {
+  this->F0 = F0;
+  this->Q = Q;
+  this->Fs = Fs;
+  biquad.setCoeffs(calcCoeffs()); 
+}
+
+void AdjustableLowpass::setQ(float Q){
+  this->Q = Q;
+  biquad.setCoeffs(calcCoeffs()); 
+}
+
+void AdjustableLowpass::setCorner(float F0){
+  this->F0 = F0;
+  biquad.setCoeffs(calcCoeffs()); 
+}
+
+void AdjustableLowpass::setSampleRate(float Fs){
+  this->Fs = Fs;
+  biquad.setCoeffs(calcCoeffs());
+}
+
+float AdjustableLowpass::update(float input){
+  return biquad.update(input);
+}
+
+Biquad::Coeffs AdjustableLowpass::calcCoeffs(){
+  float w0 = 2 * pi * F0 / Fs;
+  float alpha = sin(w0)/(2*Q);
+  Biquad::Coeffs coeffs;
+  coeffs.a[0] = 1+alpha;
+  coeffs.a[1] = -2*cos(w0);
+  coeffs.a[2] = 1-alpha;
+  coeffs.b[0] = (1-cos(w0))/2;
+  coeffs.b[1] = 1-cos(w0);
+  coeffs.b[2] = (1-cos(w0))/2;
+  return coeffs;
+}

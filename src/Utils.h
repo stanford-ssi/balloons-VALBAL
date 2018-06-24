@@ -12,6 +12,10 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <math.h>
+
+#define pi 3.14159
+
 /*
 Custom functions define here so they can be compiled on both x64 and ARM
 */
@@ -72,5 +76,27 @@ private:
   double y[3];
   Coeffs coeffs;
 };
+
+
+/*
+ * class: AdjustableLowpass
+ * -------------------
+ * Adjustable 2nd order IIR lowpass filter. Wrapper for biquad 
+ */
+class AdjustableLowpass{
+public:
+  AdjustableLowpass(float F0, float Q, float Fs);
+  void setQ(float Q);
+  void setCorner(float F0);
+  void setSampleRate(float Fs);
+  float update(float input);
+private:
+  Biquad::Coeffs calcCoeffs();
+  Biquad biquad;
+  float Q;
+  float F0;
+  float Fs;
+};
+
 
 #endif

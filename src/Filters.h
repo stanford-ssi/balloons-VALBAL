@@ -16,43 +16,97 @@
 #include <bitset>         // std::bitset
 //#include <SD.h>
 
-typedef struct __attribute__((packed)) {
-  float p1;
-  float p2;
-  float p3;
-  float p4;
-} Raw_Pressure;
-
-typedef struct __attribute__((packed)) {
-  float T1;
-  float T2;
-  float T3;
-  float T4;
-} Raw_Temp;
-
-typedef struct __attribute__((packed)) {
-  bool e1 = true;
-  bool e2 = true;
-  bool e3 = true;
-  bool e4 = true;
-} Bmp_Enable;
-
-typedef struct __attribute__((packed)) {
-  int c1 = 0;
-  int c2 = 0;
-  int c3 = 0;
-  int c4 = 0;
-} Bmp_Rejections;
-
 class Filters {
 public:
-  void inputPressureDat(float time,Raw_Pressure P);
-  void enableBmps(Bmp_Enable enable);
-  float getAltitude(){return h_filtered};
+/**********************************  SETUP  ***********************************/
+  bool     init();
+
+/********************************  FUNCTIONS  *********************************/
+  void     enableSensors(bool BMP1Enable, bool BMP2Enable, bool BMP3Enable, bool BMP4Enable);
+  float    getTemp(float RAW_TEMP_1, float RAW_TEMP_2, float RAW_TEMP_3, float RAW_TEMP_4);
+  void     storeData(uint32_t time_stamp, float RAW_PRESSURE_1, float RAW_PRESSURE_2, float RAW_PRESSURE_3, float RAW_PRESSURE_4, float pressureBaselineArg);
+  uint32_t getNumRejections(uint8_t sensor);
+
+  float    getAvgVoltageSuperCap(float voltage);
+  float    getAvgCurrentSystem(float current);
+  float    getAvgCurrentRB(float current);
+  float    getAvgCurrentMotorValve(float current,bool on);
+  float    getAvgCurrentMotorBallast(float current,bool on);
+  float    getAvgCurrentPayload(float current);
+
+  float    getMinCurrentSystem();
+  float    getMaxCurrentSystem();
+  float    getMaxCurrentRB();
+  float    getMaxCurrentMotorValve();
+  float    getMaxCurrentMotorBallast();
+  float    getMaxCurrentPayload();
+
+  double   getPressure();
+  double   getAltitude();
+  double   getAscentRate();
+  float    getIncentiveNoise(bool IncludeBMP1, bool IncludeBMP2, bool IncludeBMP3, bool IncludeBMP4);
+
+  void     clearCurrentValues();
 
 private:
-  float h_filtered;
-  float 
+/*********************************  HELPERS  **********************************/
+  void     consensousCheck();
+  void     velocityCheck();
+  void     findLastAccepted();
+  void     errorCheckAltitudes();
+  double   calculateAltitude(float pressure);
+  void     markFailure(uint8_t sensor);
+  
+/*********************************  OBJECTS  **********************************/
+  bool     enabledSensors[4] = {true};
+  uint32_t rejectedSensors[4] = {0};
+  uint8_t  numSensors;
+
+  float    superCapVoltageBuffer[VOLTAGE_BUFFER_SIZE] = {0};
+  uint16_t superCapVoltageIndex = 0;
+
+  float    currentSystemTotal = 0;
+  float    currentSystemMax = 0;
+  float    currentSystemMin = 10000;
+  uint32_t currentSystemCount = 0;
+  float    currentRBTotal = 0;
+  float    currentRBMax = 0;
+  uint32_t currentRBCount = 0;
+  float    currentMotorValveTotal = 0;
+  float    currentMotorValveMax = 0;
+  uint32_t currentMotorValveCount = 0;
+  float    currentMotorBallastTotal = 0;
+  float    currentMotorBallastMax = 0;
+  uint32_t currentMotorBallastCount = 0;
+  float    currentPayloadTotal = 0;
+  float    currentPayloadMax = 0;
+  uint32_t currentPayloadCount = 0;
+
+  float    pressureBaseline;
+  float    meanAscentRates[4];
+  float    meanAltitudes[4];
+  uint16_t altitudeIndex = 0;
+  double   sampleTimeSeconds[ALTITUDE_BUFFER_SIZE] = {0};
+  float    altitudeBuffer[4][ALTITUDE_BUFFER_SIZE] = {{0}};
+
+  // we use a bitset to optimise the memory footprint
+  // bool     altitudeErrors[4][ALTITUDE_BUFFER_SIZE] = {{false}};
+  std::bitset<ALTITUDE_BUFFER_SIZE> altitudeErrors[4];
+
+  double   sumX[4] = {0};
+  double   sumY[4] = {0};
+  double   sumXY[4] = {0};
+  double   sumX2[4] = {0};
+  int      sampleCount[4] = {ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE,ALTITUDE_BUFFER_SIZE};
+
+  bool     firstBUFFER = true;
+
+  float    lastAcceptedAltitudes[4];
+  double   lastAcceptedTimes[4];
+  double   pressures[4];
+  bool     filtered = false;
+
+  // File debugFile;
 };
 
 #endif

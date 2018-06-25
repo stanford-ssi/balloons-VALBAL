@@ -16,7 +16,6 @@
 #include "LasagnaController.h"
 #include "SpaghettiController.h"
 #include "SpaghettiController2.h"
-#include "Filters.h"
 
 /**************************  CURRENT DATA FRAME  ******************************/
 struct DataFrame {
@@ -94,8 +93,14 @@ struct DataFrame {
   bool       FORCE_VALVE                     =                            false;
   bool       FORCE_BALLAST                   =                            false;
 
-  Bmp_Enable        BMP_ENABLE;
-  Bmp_Rejections    BMP_REJECTIONS;
+  bool       BMP_1_ENABLE                    =                             true;
+  bool       BMP_2_ENABLE                    =                             true;
+  bool       BMP_3_ENABLE                    =                             true;
+  bool       BMP_4_ENABLE                    =                             true;
+  uint32_t   BMP_1_REJECTIONS                =                                0;
+  uint32_t   BMP_2_REJECTIONS                =                                0;
+  uint32_t   BMP_3_REJECTIONS                =                                0;
+  uint32_t   BMP_4_REJECTIONS                =                                0;
 
 /*****************************  TERTIARY DATA  ********************************/
   uint32_t   RB_INTERVAL                     =              RB_INTERVAL_DEFAULT;

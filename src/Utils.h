@@ -86,6 +86,7 @@ private:
 class AdjustableLowpass{
 public:
   AdjustableLowpass(float F0, float Q, float Fs);
+  AdjustableLowpass();
   void setQ(float Q);
   void setCorner(float F0);
   void setSampleRate(float Fs);

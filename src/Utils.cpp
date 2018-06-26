@@ -140,6 +140,13 @@ void DBiquad::setCoeffs(Coeffs coeffs){
 /************* AdjustableLowpass **************/
 /**********************************************/
 
+AdjustableLowpass::AdjustableLowpass() {
+  this->F0 = 1;
+  this->Q = 0.5;
+  this->Fs = 20;
+  biquad.setCoeffs(calcCoeffs()); 
+}
+
 AdjustableLowpass::AdjustableLowpass(float F0, float Q, float Fs) {
   this->F0 = F0;
   this->Q = Q;

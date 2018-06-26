@@ -12,9 +12,17 @@
 #ifndef FILTERS_H
 #define FILTERS_H
 
-#include "Config.h"
-#include <bitset>         // std::bitset
-//#include <SD.h>
+#include "Utils.h"
+
+/* 
+ * Yes, some of these values should be in a config file. However, I can't include that otherwise
+ * we can't hootl, so live with it.
+ */
+const float mf = 1/60.0; 
+const float H_FILTER_CORNER_DEFAULT = mf; 
+const int N_V_FILTERS = 5; 
+const float V_FILTERS_CORNER_DEFAULT[N_V_FILTERS] = {mf, mf/2, mf/5, mf/10, mf/15}; 
+const float freq = 20;
 
 typedef struct __attribute__((packed)) {
   float p1;
@@ -46,13 +54,19 @@ typedef struct __attribute__((packed)) {
 
 class Filters {
 public:
-  void inputPressureDat(float time,Raw_Pressure P);
-  void enableBmps(Bmp_Enable enable);
-  float getAltitude(){return h_filtered};
-
-private:
+  Filters();
+  bool init();
+  void inputPressureDat(float time,Raw_Pressure P,Bmp_Enable enable);
+  Bmp_Rejections getBmpRejections();
+  float getTemp(Raw_Temp T);
+  
+  AdjustableLowpass h_filter;
   float h_filtered;
-  float 
+  float h_prefiltered_last;
+  float v_raw;
+  AdjustableLowpass v_filters[N_V_FILTERS];
+  float v_filtered[N_V_FILTERS];
+private:
 };
 
 #endif

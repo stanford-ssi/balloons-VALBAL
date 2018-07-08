@@ -13,6 +13,7 @@
 #define UTILS_H
 
 #include <math.h>
+#include "spa.h"
 
 #define pi 3.14159
 
@@ -97,6 +98,18 @@ private:
   float F0;
   float Fs;
 };
+
+
+class SunsetPredictor{
+public:
+  SunsetPredictor();
+  void calcValues(float lon, float lat, float gps_tow, float gps_week);
+  spa_data spa;
+  float solar_elevation;
+  float dsedt;
+  float estimated_dldt;
+};
+
 
 
 #endif

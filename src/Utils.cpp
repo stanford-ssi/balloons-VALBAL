@@ -178,3 +178,33 @@ Biquad::Coeffs AdjustableLowpass::calcCoeffs(){
   coeffs.b[2] = (1-cos(w0))/2;
   return coeffs;
 }
+
+
+
+SunsetPredictor::SunsetPredictor(){
+    // We don't use the date feilds so they are just some arbitrary day
+    spa.year          = 2003;
+    spa.month         = 10;
+    spa.day           = 17;
+    spa.hour          = 12;
+    spa.minute        = 30;
+    spa.second        = 30;
+    spa.timezone      = -7.0;
+
+    // Still not intirely sure what these should be TODO
+    spa.delta_ut1     = 0;
+    spa.delta_t       = 67;
+    
+    // Stanford Cooridinates default
+    spa.longitude     = -122.1697;
+    spa.latitude      = 37.4275;
+
+    // Stuff that is way to detailed for what we need
+    spa.elevation     = 0;
+    spa.pressure      = 1000;
+    spa.temperature   = 0;
+    spa.slope         = 0;
+    spa.azm_rotation  = 0;
+    spa.atmos_refract = 0.5667;
+    spa.function      = SPA_ZA;    
+}

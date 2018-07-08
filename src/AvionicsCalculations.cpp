@@ -87,6 +87,7 @@ bool Avionics::calcIncentives() {
   data.BALLAST_INCENTIVE = computer.getBallastIncentive(data.ASCENT_RATE, data.ALTITUDE_BAROMETER, data.BALLAST_ALT_LAST);
   if (!data.MANUAL_MODE && data.VALVE_INCENTIVE >= 1 && data.BALLAST_INCENTIVE >= 1) success = false;
 
+
   uint32_t INDEX = SPAG_CONTROLLER_INDEX;
   spagController.updateConstants(data.SPAG_CONSTANTS);
   SpaghettiController::Input spagInput;

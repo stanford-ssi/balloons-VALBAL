@@ -15,6 +15,7 @@
 
 #include "Config.h"
 #include <EEPROM.h>
+#include "spa.h"
 
 class Actuators {
 public:

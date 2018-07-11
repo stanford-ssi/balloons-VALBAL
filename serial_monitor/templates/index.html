@@ -9,54 +9,152 @@
     overflow-x: hidden;
     word-wrap: break-word;
 }
+
+.highlight {
+    background: red;
+}
+
+
 </style>
     
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+
+
 <script type="text/javascript">
+
+ // set up the chart
+$(document).ready(function() {
+
     console.log("I'm running the thing");
-    var source = new EventSource('/stream');
     var first = true;
     let EXTRA_START = ";";
-                                                                      
-    source.onopen = function (event) {
-        console.log("The connection is open");
-        console.log(source.readyState);
-        first = true;
-    };
-                                                                      
-    source.onerror = function (event) {
-        console.log("ERROR in EventSource!");
-    };
-                                                                      
-    source.addEventListener('message', function (event) {
-        //console.log("I got a message");
-
-        var msg = event.data
-
-        if (msg.charAt(0) == EXTRA_START) {
-            // This message is from the extra logging information (misc print statements throughout the code)
-
-            msg = msg.substring(1, msg.length) + "<br>"; // remove the start character from the beginning of the string
-            extra_div = document.getElementById("extra-txt");
 
 
-            // handle the scrolling: only auto-scroll if you're toward the bottom of the screen
-            if (extra_div.scrollTop >= extra_div.scrollHeight - extra_div.clientHeight - 400) {
-                extra_div.innerHTML += msg;
-                extra_div.scrollTop = extra_div.scrollHeight;
+
+
+            var ctx = document.getElementById('myChart').getContext('2d');
+
+            var chart = new Chart(ctx, {
+                // The type of chart we want to create
+                type: 'line',
+
+                // The data for our dataset
+                data: {
+                    //labels: ["January", "February", "March", "April", "May", "June", "July"],
+                    labels:[],
+                    datasets: [{
+                        label: "Time",
+                        backgroundColor: 'rgb(255, 99, 132)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        //data: [0, 10, 5, 2, 20, 30, 45],
+                        data: [],
+                        fill: false,
+                    }]
+                },
+
+                // Configuration options go here -- all to make plotting more efficient
+                options: {
+                    responsive: false,
+                    animation: {
+                        duration: 0,
+                    },
+                    hover: {
+                        duration: 0,
+                    },
+                    responsiveAnimationDuration: 0,
+                    elements: {
+                        line: {
+                            tension: 0, // disables bezier curves
+                        }
+                    },
+                    datasetFill: false,
+                }
+            });
+
+
+
+        // set up the server side events
+        var source = new EventSource('/stream');                                                           
+        source.onopen = function (event) {
+            console.log("The connection is open");
+            console.log(source.readyState);
+            first = true;
+        };
+                                                                          
+        source.onerror = function (event) {
+            console.log("ERROR in EventSource!");
+        };
+                                                                          
+        source.addEventListener('message', function (event) {
+            //console.log("I got a message");
+
+            var msg = event.data
+
+            if (msg.charAt(0) == EXTRA_START) {
+                // This message is from the extra logging information (misc print statements throughout the code)
+
+                msg = msg.substring(1, msg.length) + "<br>"; // remove the start character from the beginning of the string
+                extra_div = document.getElementById("extra-txt");
+
+
+                // handle the scrolling: only auto-scroll if you're toward the bottom of the screen
+                if (extra_div.scrollTop >= extra_div.scrollHeight - extra_div.clientHeight - 400) {
+                    extra_div.innerHTML += msg;
+                    extra_div.scrollTop = extra_div.scrollHeight;
+                } else {
+                    extra_div.innerHTML += msg;
+                }
             } else {
-                extra_div.innerHTML += msg;
+                // This message is from the SHITL Logging: Put it in the top part of the screen
+                stat_elem = document.getElementById("status-txt")
+                //stat_elem.innerHTML = "";
+                msg_arr = msg.split(";");
+                if (first) {
+                    for (var i= 0; i < msg_arr.length; i++) {
+                        // this is so ugly...
+                        new_div = document.createElement('div');
+                        new_div.setAttribute("class", "status");
+                        new_div.setAttribute("id", "status-"+i);
+                        new_div.innerHTML = msg_arr[i]+"<br>";
+                        new_div.addEventListener('click', function(e) {
+                            //console.log("clicked the thing!");
+                            $(this).toggleClass("highlight");
+                        });
+                        stat_elem.appendChild(new_div);
+                        //stat_elem.innerHTML += "<div id=\"satus-"+i+"\" class=\"status\">" + msg_arr[i] + "<br></div>";
+                    }
+                    first = false;
+                } else {
+
+                    for (var i = 0; i < msg_arr.length; i++) {
+                        document.getElementById("status-"+i).innerHTML = msg_arr[i];
+
+                    }
+
+                    // update the chart with the time
+                    chart.data.labels.push(".");
+                    chart.data.datasets.forEach((dataset) => {
+
+                        dataset.data.push(parseFloat(msg_arr[0].split(":")[1]));
+                        if (dataset.data.length > 10) {
+                            dataset.data.shift();
+                            chart.data.labels.shift();
+                        } 
+
+                    });
+                    chart.update();
+                }
+                //msg = msg.replace(/;/g, "<br>");
+                //document.getElementById("status-txt").innerHTML = msg;
             }
-        } else {
-            // This message is from the SHITL Logging: Put it in the top part of the screen
 
-            msg = msg.replace(/;/g, "<br>");
-            document.getElementById("status-txt").innerHTML = msg;
-        }
+        });
 
-    });
+
                                                                       
-</script>
-    
+     });   
+    </script>
     
 </head>
 <body>
@@ -64,6 +162,7 @@
     <h1> Serial Monitor! </h1>
     <h2> SHITL Variables </h2>
     <p id="status-txt" style="class:pre;"> {{ status }}</p>
+    <canvas id="myChart" width="200" height="200"></canvas>
     <hr>
     <h2> Other Print Statements </h2>
     <p id="extra-txt" class="scroll-box"></p>

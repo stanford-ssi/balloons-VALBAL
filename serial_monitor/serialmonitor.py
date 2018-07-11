@@ -122,7 +122,7 @@ def run_serial(teensy, names, num_report):
             print(">>> VB Status:")
             for i in range(num_report):
                 buf += "\t%s:\t%f;"%(names[i], status[i])
-                print("\t%s:\t%f"%(names[i], status[i]))
+                #print("\t%s:\t%f"%(names[i], status[i]))
             if WILL_LOG: log_file.write(data)
             buf = buf[:-1] # shave off the last semicolon
             send_message(buf)
@@ -135,7 +135,7 @@ def run_serial(teensy, names, num_report):
 
                 next_chr = read.decode("utf-8")
                 if (next_chr == "\n"):
-                    print(buf)
+                    #print(buf)
                     send_message(buf)
                     buf = ""
                 else:

@@ -96,7 +96,7 @@ bool Avionics::runBallast() {
   //Serial.println(data.CURRENT_CONTROLLER_INDEX);
   if (data.CURRENT_CONTROLLER_INDEX != 0) {
     //Serial.println("In first if body");
-    int numControllers = sizeof(data.ACTIONS)/sizeof(data.ACTIONS[0]);
+    int numControllers = 3;
     if (data.CURRENT_CONTROLLER_INDEX <= 3 && data.CURRENT_CONTROLLER_INDEX > 0) {
       //Serial.println("In second if body");
       shouldAct = data.ACTIONS[data.CURRENT_CONTROLLER_INDEX] > 0;
@@ -111,7 +111,7 @@ bool Avionics::runBallast() {
     data.BALLAST_NUM_ATTEMPTS++;
     bool shouldBallast = (!data.MANUAL_MODE || data.FORCE_BALLAST);
     if(shouldBallast) data.BALLAST_NUM_ACTIONS++;
-    if(!data.FORCE_BALLAST) data.BALLAST_ALT_LAST = data.ALTITUDE_BAROMETER;
+    if(!data.FORCE_BALLAST && data.CURRENT_CONTROLLER_INDEX == 0) data.BALLAST_ALT_LAST = data.ALTITUDE_BAROMETER;
     if(data.FORCE_BALLAST) ballastTime = data.BALLAST_FORCE_DURATION;
     if(shouldBallast) data.BALLAST_TIME_TOTAL += ballastTime;
     PCB.EEPROMWritelong(EEPROM_BALLAST_ALT_LAST, data.BALLAST_ALT_LAST);

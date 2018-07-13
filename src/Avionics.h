@@ -60,7 +60,8 @@ public:
     RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK),
     radio(PAYLOAD_GATE, PAYLOAD_GPIO_1, PAYLOAD_GPIO_2, PAYLOAD_DAC, EEPROM_PAYLOAD),
     op_filter({{1.0627905195293135L, -1.9960534568565431L, 0.9372094804706866L}, {0.0009866357858642205L, 0.001973271571728441L, 0.0009866357858642205L}}),
-    op_vref_filter({{1.0627905195293135L, -1.9960534568565431L, 0.9372094804706866L}, {0.0009866357858642205L, 0.001973271571728441L, 0.0009866357858642205L}})
+    op_vref_filter({{1.0627905195293135L, -1.9960534568565431L, 0.9372094804706866L}, {0.0009866357858642205L, 0.001973271571728441L, 0.0009866357858642205L}}),
+    sunsetPredictor()
     {
   }
   void    init();
@@ -153,11 +154,14 @@ private:
 
   Heater heater;
 
+  uint32_t lastSunsetUpdate = 0;
+  SunsetPredictor sunsetPredictor;
 
   void runHeaters();
   void rumAndCoke();
   bool checkInCuba();
   void timedCutdown();
+  void updateSunValues();
 };
 
 

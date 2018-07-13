@@ -9,6 +9,7 @@
 */
 
 #include "Utils.h"
+#include "spa.h"
 //#include <iostream>
 
 
@@ -206,5 +207,28 @@ SunsetPredictor::SunsetPredictor(){
     spa.slope         = 0;
     spa.azm_rotation  = 0;
     spa.atmos_refract = 0.5667;
-    spa.function      = SPA_ZA;    
+    spa.function      = SPA_ZA;
+}
+
+void SunsetPredictor::calcValues(float lon, float lat, float gps_tow, float gps_week) {
+    spa.longitude = lon;
+    spa.latitude = lat;
+    spa.gps_tow = gps_tow;
+    spa.gps_week = gps_week - 1;
+
+    spa_calculate(&spa);
+    solar_elevation = 90.0 - spa.zenith;
+
+    spa.gps_week = gps_week - 1;
+    spa_calculate(&spa);
+    dsedt = solar_elevation - (90 - spa.zenith); // Leaves dsedt in units of deg/sec
+
+    if(dsedt > 0) {
+      estimated_dldt = 0;
+    }
+    else {
+      estimated_dldt = 0; // f(solar_elevation, dsedt): need lookup table
+    }
+
+    // spa.gps_week = gps_week;
 }

@@ -163,7 +163,10 @@ struct DataFrame {
 
   float      RB_HEAT_DUTY                    =                                0;
 
-  int32_t ACTIONS[4] = {0};
+
+  float ESTIMATED_DLDT                       =                                0;
+  float SOLAR_ELEVATION                      =                                0;
+  float DSEDT                                =                                0;
 
   bool GEOFENCED_CUTDOWN_ENABLE = false;
   bool IN_CUBA = false;

@@ -131,3 +131,21 @@ bool Avionics::calcIncentives() {
   //Serial.println(numExecNow);
   return success;
 }
+
+/*
+ * Function: calculateSunDldt
+ * -------------------
+ * This function calcualtes an approximate dldt caused by the big fireball in the sky
+ */
+void Avionics::updateSunValues() {
+    if(lastSunsetUpdate == data.GPS_LAST) {
+      return;
+    }
+    lastSunsetUpdate = data.GPS_LAST;
+    // TODO: add values for gps_tow and gps_week
+    // TOOD: add scaling and shifting
+    sunsetPredictor.calcValues(data.LONG_GPS, data.LAT_GPS, 0, 0);
+    data.ESTIMATED_DLDT = sunsetPredictor.estimated_dldt;
+    data.SOLAR_ELEVATION = sunsetPredictor.solar_elevation;
+    data.DSEDT = sunsetPredictor.dsedt;
+}

@@ -7,36 +7,25 @@
  */
 bool Avionics::processData() {
   bool success = true;
-  filter.enableSensors(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
-  filter.storeData(data.TIME, data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4,data.PRESS_BASELINE);
-  data.TEMP_INT                   = filter.getTemp(data.RAW_TEMP_1, data.RAW_TEMP_2, data.RAW_TEMP_3, data.RAW_TEMP_4);
-  data.PRESS                      = filter.getPressure();
-  data.BMP_1_REJECTIONS           = filter.getNumRejections(1);
-  data.BMP_2_REJECTIONS           = filter.getNumRejections(2);
-  data.BMP_3_REJECTIONS           = filter.getNumRejections(3);
-  data.BMP_4_REJECTIONS           = filter.getNumRejections(4);
 
-  data.VOLTAGE_PRIMARY_MIN        = _min(data.VOLTAGE_PRIMARY, data.VOLTAGE_PRIMARY_MIN);
+  float pressures[] = {data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4};
+  filter.update_state(data.TIME, pressures, data);
 
-  data.VOLTAGE_SUPERCAP_AVG       = filter.getAvgVoltageSuperCap(data.VOLTAGE_SUPERCAP);
-  data.VOLTAGE_SUPERCAP_MIN       = _min(data.VOLTAGE_SUPERCAP, data.VOLTAGE_SUPERCAP_MIN);
-  data.CURRENT_TOTAL_AVG          = filter.getAvgCurrentSystem(data.CURRENT_TOTAL);
-  data.CURRENT_TOTAL_MIN          = filter.getMinCurrentSystem();
-  data.CURRENT_TOTAL_MAX          = filter.getMaxCurrentSystem();
-  data.CURRENT_RB_AVG             = filter.getAvgCurrentRB(data.CURRENT_RB);
-  data.CURRENT_RB_MAX             = filter.getMaxCurrentRB();
-  data.CURRENT_MOTOR_VALVE_AVG    = filter.getAvgCurrentMotorValve(data.CURRENT_MOTOR_VALVE, (data.VALVE_STATE));
-  data.CURRENT_MOTOR_VALVE_MAX    = filter.getMaxCurrentMotorValve();
-  data.CURRENT_MOTOR_BALLAST_AVG  = filter.getAvgCurrentMotorBallast(data.CURRENT_MOTOR_BALLAST, (data.BALLAST_STATE));
-  data.CURRENT_MOTOR_BALLAST_MAX  = filter.getMaxCurrentMotorBallast();
-  data.CURRENT_PAYLOAD_AVG        = filter.getAvgCurrentPayload(data.CURRENT_PAYLOAD);
-  data.CURRENT_PAYLOAD_MAX        = filter.getMaxCurrentPayload();
+  float temperatures[] = {data.RAW_TEMP_1, data.RAW_TEMP_2, data.RAW_TEMP_3, data.RAW_TEMP_4};
+  data.TEMP_INT = filter.update_temperature(temperatures);
 
-  data.LOOP_TIME_MAX              = _max(data.LOOP_TIME, data.LOOP_TIME_MAX);
+  filter.update_voltage_primary(data.VOLTAGE_PRIMARY);
+  data.VOLTAGE_SUPERCAP_AVG = filter.update_voltage_supercap(data.VOLTAGE_SUPERCAP);
 
-  data.ALTITUDE_BAROMETER         = filter.getAltitude();
-  data.ASCENT_RATE                = filter.getAscentRate();
-  data.INCENTIVE_NOISE            = filter.getIncentiveNoise(data.BMP_1_ENABLE, data.BMP_2_ENABLE, data.BMP_3_ENABLE, data.BMP_4_ENABLE);
+  filter.update_current_total(data.CURRENT_TOTAL);
+  filter.update_current_rb(data.CURRENT_RB);
+  filter.update_current_payload(data.CURRENT_PAYLOAD);
+  filter.update_current_motors(data.CURRENT_MOTORS, data.VALVE_STATE, data.BALLAST_STATE);
+
+  filter.update_loop_time(data.LOOP_TIME);
+
+  data.INCENTIVE_NOISE            = filter.get_incentive_noise(data);
+
   float overpressure = analogRead(OP_PIN) * 1.2 / ((double)pow(2, 12)) * 3.2;
   float vref = analogRead(VR_PIN) * 1.2 / ((double)pow(2, 12)) * 3.2;
   float qty = (vref - 0.8)/2.;

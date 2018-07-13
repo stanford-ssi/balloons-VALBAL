@@ -6,7 +6,13 @@ LasagnaController::LasagnaController() :
   action_filter({{1L, -0.99994L, 0.0L}, {0.5L, 0.5L, -0.0L}})
 {}
 
-bool LasagnaController::update(Input input){
+bool LasagnaController::update(Input input){ 
+
+  if(isnan(input.dldt_ext)){
+    input.dldt_ext = 0; 
+  } else {
+    input.dldt_ext = pasta_clamp(input.dldt_ext,-0.0001, 0.0001);
+  }
 
   switch(state.status){
     case PRELAUNCH:
@@ -29,8 +35,12 @@ bool LasagnaController::update(Input input){
   state.v1 = v1_filter.update(input.h);
   state.v2 = v2_filter.update(input.h);
   state.v = (state.status==EQUIL) ? state.v1 : state.v2;
-  float action_effect = (state.status==EQUIL) ? float(state.action)*constants.kfuse : 0;
-  state.fused_v = state.v + action_filter.update(state.action > 0 ? action_effect*constants.b_dldt : action_effect*state.v_dldt*constants.kfuse_val);
+  float dldt_total = 0;
+  if(state.status==EQUIL){
+    float act_dldt = state.action > 0 ? float(state.action)*constants.kfuse*constants.b_dldt : float(state.action)*constants.kfuse*state.v_dldt*constants.kfuse_val;
+    dldt_total = act_dldt + input.dldt_ext;
+  }
+  state.fused_v = state.v + action_filter.update(dldt_total);
   innerLoop(input.h);
   if(state.status==PRELAUNCH) state.action = 0;
   return true;

@@ -13,7 +13,7 @@
 #define FILTERS_H
 
 #include "Utils.h"
-//#include "Data.h"
+#include "Data.h"
 
 #ifdef JOHNSIM
   #include <stdint.h>
@@ -22,8 +22,6 @@
 #else
   #include <Arduino.h>
 #endif
-
-struct DataFrame;
 
 /*
  * Yes, some of these values should be in a config file. However, I can't include that otherwise

@@ -7,11 +7,11 @@ PastaSim::PastaSim() :
 	v_noise(0,1.5)
 {
 	b_dldt = 0.001;
-	v_dldt = 0.002;
+	v_dldt = 0.003;
 	klin = 7;
 	//h = 13000;
 	h = 0;
-	l = .1;
+	l = .2;
 	freq = 20;
 	gen.seed(std::time(0));
 	//gen.seed(1);

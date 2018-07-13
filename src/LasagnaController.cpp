@@ -40,8 +40,11 @@ bool LasagnaController::update(Input input){
 void LasagnaController::innerLoop(float input_h){
   if(state.comp_ctr >= comp_freq*constants.freq){
     state.v_cmd = constants.k_h * (constants.h_cmd - input_h);
-    state.v_cmd = pasta_clamp(state.v_cmd,-(constants.k_h*constants.ss_error_thresh+constants.v_limit),(constants.k_h*constants.ss_error_thresh+constants.v_limit));
-    state.effort = constants.k_v * (state.v_cmd - state.fused_v);
+    state.v_cmd_clamped = pasta_clamp(state.v_cmd,-(constants.k_h*constants.ss_error_thresh+constants.v_limit),(constants.k_h*constants.ss_error_thresh+constants.v_limit));
+    state.effort = constants.k_v * (state.v_cmd_clamped - state.fused_v);
+    if((state.v_cmd_clamped - state.fused_v)*state.v_cmd_clamped < 0){
+      state.effort = 0;
+    }
     state.comp_ctr = 0;
   }
 

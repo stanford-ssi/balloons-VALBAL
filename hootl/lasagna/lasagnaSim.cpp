@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include "alias.h"
 #include "LasagnaController.h"
 #include "SpaghettiController2.h"
 #include "header.h"
@@ -52,7 +51,7 @@ int main ()
 		}
 		if(i%(FREQ*60*60) == 0){
 			float t = float(i)/FREQ/60/60;
-			printf("%f, %f, %f \n", t, sim.h, state.effort);
+			printf("%f, %f, %f \n", t, sim.h, state.v_cmd);
 		}
 	}
 }

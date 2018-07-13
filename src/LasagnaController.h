@@ -31,6 +31,7 @@ public:
     float effort               =   0;
     float effort_sum           =   0;
     float v_cmd                =   0;
+    float v_cmd_clamped        =   0;
     float v_dldt               =   0;
     Status status              =   PRELAUNCH;
   } State;

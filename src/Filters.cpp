@@ -72,6 +72,7 @@ void Filters::update_state(uint32_t time, float *pressures, DataFrame& data) {
     for(int i = 0; i<N_V_FILTERS; i++){
       v_filtered[i] = v_filters[i].update(v_raw);
     }
+    data.ASCENT_RATE = v_filtered[1];
   }
 }
 

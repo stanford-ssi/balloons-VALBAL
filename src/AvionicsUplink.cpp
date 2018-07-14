@@ -30,7 +30,7 @@ void Avionics::parseCommand(int16_t len) {
     if (index == CUTDOWN_INDEX && (strlen(CUTDOWN_COMMAND) == strlen(commandStrings[i])) && strncmp(commandStrings[i], CUTDOWN_COMMAND, strlen(commandStrings[i])) == 0) {
       data.SHOULD_CUTDOWN = true;
     }
-    if (index < 0 || index > 80) return;
+    if (index < 0 || index > 128) return;
     char* charAfterNumbers;
     float commandValue = (float) strtod(commandStrings[i], &charAfterNumbers);
     if (*charAfterNumbers) return;
@@ -142,6 +142,12 @@ void Avionics::updateConstant(uint8_t index, float value) {
       gpsModule.restart();
     }
   }
+  else if (index == 82) data.MAX_CONSENSUS_DEVIATION = value;
+  else if (index == 83) data.BMP_REJECTION_ENABLED = (bool)value;
+  else if (index == 84) data.MAX_TIME_WITHOUT_SENSORS = value*1000;
+  else if (index == 85) data.ERROR_REJECTION_VEL = value;
+  else if (index == 86) data.ERROR_REJECTION_STD = value;
+  else if (index == 87) data.ERROR_REJECTION_DT = value;
   else if (index == 90) data.BB_LAT1 = value;
   else if (index == 91) data.BB_LAT2 = value;
   else if (index == 92) data.BB_LON1 = value;

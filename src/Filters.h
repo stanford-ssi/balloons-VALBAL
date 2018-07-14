@@ -137,7 +137,7 @@ public:
   float last_pressure = 0;
 
   int consensus_check(float *pressures, float maxdev);
-  int velocity_check(uint32_t time, float *pressures);
+  int velocity_check(uint32_t time, float *pressures, const struct DataFrame &data);
 
   float incentive_noise;
 

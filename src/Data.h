@@ -86,6 +86,10 @@ struct DataFrame {
   float MAX_CONSENSUS_DEVIATION = 500;
   bool BMP_REJECTION_ENABLED = true;
   float ALTITUDE_PREFILT = 0;
+  uint32_t MAX_TIME_WITHOUT_SENSORS = 60000;
+  float ERROR_REJECTION_VEL = 10;
+  float ERROR_REJECTION_STD = 3.4;
+  float ERROR_REJECTION_DT = 0.6;
 
 /*****************************  TERTIARY DATA  ********************************/
   uint32_t   RB_INTERVAL                     =              RB_INTERVAL_DEFAULT;
@@ -137,8 +141,6 @@ struct DataFrame {
   float      CURRENT_MOTOR_VALVE             =                                0;
   float      CURRENT_MOTOR_BALLAST           =                                0;
   float      CURRENT_PAYLOAD                 =                                0;
-  float      VOLTAGE_SUPERCAP_MIN            =                              314;
-  float      VOLTAGE_PRIMARY_MIN             =                              314;
 
   uint32_t   GPS_LAST                        =                                0;
   uint32_t   RB_LAST                         =                                0;

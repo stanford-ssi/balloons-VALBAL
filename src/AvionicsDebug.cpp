@@ -54,11 +54,11 @@ void Avionics::printState() {
   Serial.print("Primary voltage: ");
   Serial.println(data.VOLTAGE_PRIMARY);
   Serial.print("Primary voltage min: ");
-  Serial.println(data.VOLTAGE_PRIMARY_MIN);
+  Serial.println(filter.voltage_primary.min);
   Serial.print("Supercap avg voltage: ");
   Serial.println(data.VOLTAGE_SUPERCAP_AVG);
   Serial.print("Supercap min voltage: ");
-  Serial.println(data.VOLTAGE_SUPERCAP_MIN);
+  Serial.println(filter.voltage_supercap.min);
   // Serial.print("System current: ");
   // Serial.println(data.CURRENT_TOTAL);
   Serial.print("System current: ");

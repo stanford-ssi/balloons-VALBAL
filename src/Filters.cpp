@@ -29,10 +29,16 @@ float Filters::calculate_altitude(float pressure) {
 
 void Filters::update_state(uint32_t time, float *pressures, DataFrame& data) {
   accepted_pressure = consensus_check(pressures, data.MAX_CONSENSUS_DEVIATION);
-  accepted_velocity = velocity_check(time, pressures);
+  accepted_velocity = velocity_check(time, pressures, data);
+
+  for (int i=0; i<N_SENSORS; i++) {
+    if (!bmps_enabled[i]) {
+      data.BMP_REJECTIONS[i]++;
+    }
+  }
 
   incentive_noise = 0;
-  bool force_accept = (accepted_velocity == 0) && ((time - last_sensor_time) > 60000);
+  bool force_accept = (accepted_velocity == 0) && ((time - last_sensor_time) > data.MAX_TIME_WITHOUT_SENSORS);
   if (!data.BMP_REJECTION_ENABLED || force_accept) { // fall back to whatever RB tells us
     last_pressure = 0;
     for (int i=0; i<N_SENSORS; i++) {
@@ -56,20 +62,20 @@ void Filters::update_state(uint32_t time, float *pressures, DataFrame& data) {
     last_sensor_time = time;
   }
   if (last_sensor_time == time) {
-  float h_prefiltered = calculate_altitude(last_pressure);
-  h_filtered = h_filter.update(h_prefiltered);
-  data.ALTITUDE_PREFILT = h_filtered;
-  data.ALTITUDE_BAROMETER = h_filtered;
+    float h_prefiltered = calculate_altitude(last_pressure);
+    h_filtered = h_filter.update(h_prefiltered);
+    data.ALTITUDE_PREFILT = h_prefiltered;
+    data.ALTITUDE_BAROMETER = h_filtered;
 
-  v_raw = (h_prefiltered - h_prefiltered_last)*freq;
+    v_raw = (h_prefiltered - h_prefiltered_last)*freq;
 
-  for(int i = 0; i<N_V_FILTERS; i++){
-    v_filtered[i] = v_filters[i].update(v_raw);
-  }
+    for(int i = 0; i<N_V_FILTERS; i++){
+      v_filtered[i] = v_filters[i].update(v_raw);
+    }
   }
 }
 
-int Filters::velocity_check(uint32_t time, float *pressures) {
+int Filters::velocity_check(uint32_t time, float *pressures, const struct DataFrame &data) {
   if (first) {
     first = false;
     for (int i=0; i<N_SENSORS; i++) {
@@ -82,9 +88,9 @@ int Filters::velocity_check(uint32_t time, float *pressures) {
   int accepted = 0;
   for (int i=0; i<N_SENSORS; i++) {
     float slope = 940.9411 * pow(last_filtered[i], -0.8097);
-    float ts = 0.6 + (time - last_accepted[i])/1000.;
-    float vel = slope*(pasta_abs(pressures[i] - last_filtered[i])-3.4*5)/ts;
-    if (vel <= 10 && bmps_enabled[i]) {
+    float ts = data.ERROR_REJECTION_DT + (time - last_accepted[i])/1000.;
+    float vel = slope*(pasta_abs(pressures[i] - last_filtered[i])-data.ERROR_REJECTION_STD*5)/ts;
+    if (vel <= data.ERROR_REJECTION_VEL && bmps_enabled[i]) {
       last_accepted[i] = time;
       if (vel_rejected[i]) {
         fast_filters[i].setSS(pressures[i]);

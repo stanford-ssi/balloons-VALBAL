@@ -89,6 +89,8 @@ static const uint32_t  VALVE_OPENING_DURATION_DEFAULT        =             2000;
 static const uint32_t  VALVE_CLOSING_DURATION_DEFAULT        =             3000;
 static const uint16_t  BALLAST_STALL_TIMEOUT                 =             3000;
 
+static const float      DLDT_SCALE_DEFAULT                   =              0.0;
+
 static const float     MAX_PRESURE                           =           107500;
 static const float     MIN_PRESURE                           =             1131;
 static const float     MAX_CONSENSUS_DEVIATION               =              150;

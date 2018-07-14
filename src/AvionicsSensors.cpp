@@ -100,6 +100,12 @@ bool Avionics::readGPS() {
   data.HEADING_GPS      = gpsModule.getCourse();
   data.SPEED_GPS        = gpsModule.getSpeed();
   data.NUM_SATS_GPS     = gpsModule.getSats();
+  data.GPS_TIME.year    = gpsModule.getYear();
+  data.GPS_TIME.month   = gpsModule.getMonth();
+  data.GPS_TIME.day     = gpsModule.getDay();
+  data.GPS_TIME.hour    = gpsModule.getHour();
+  data.GPS_TIME.minute  = gpsModule.getMinute();
+  data.GPS_TIME.second  = gpsModule.getSecond();
   data.GPS_LAST         = millis();
   Serial.println();Serial.println();Serial.println();Serial.println();
   return true;

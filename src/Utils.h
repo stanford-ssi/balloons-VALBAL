@@ -2,6 +2,7 @@
   Stanford Student Space Initiative
   Balloons | VALBAL | September 2017
   John Dean | deanjl@stanford.edu
+  Jonathan Zwiebel | jzwiebel@stanford.edu
 
   File: Utils.h
   --------------------------
@@ -101,12 +102,19 @@ private:
   float Fs;
 };
 
-
-
 class SunsetPredictor{
 public:
+  typedef struct __attribute__((packed)) {
+    int year      = 0;
+    int month     = 0;
+    int day       = 0;
+    int hour      = 0;
+    int minute    = 0;
+    int second    = 0;
+  } GPSTime;
+
   SunsetPredictor();
-  void calcValues(float lon, float lat, float gps_tow, float gps_week);
+  void calcValues(float lon, float lat, GPSTime gpsTime);
   spa_data spa;
   float solar_elevation;
   float dsedt;
@@ -116,6 +124,5 @@ public:
   static constexpr int n_data = 100;
   static constexpr float sunset_data[n_data] = {   0.00000,   0.00082,   0.00138,   0.00174,   0.00195,   0.00206,   0.00217,   0.00235,   0.00259,   0.00290,   0.00327,   0.00369,   0.00416,   0.00468,   0.00526,   0.00590,   0.00661,   0.00738,   0.00821,   0.00902,   0.00976,   0.01036,   0.01082,   0.01129,   0.01188,   0.01261,   0.01347,   0.01442,   0.01534,   0.01606,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01638,   0.01606,   0.01534,   0.01442,   0.01347,   0.01261,   0.01188,   0.01129,   0.01082,   0.01036,   0.00976,   0.00902,   0.00821,   0.00738,   0.00661,   0.00590,   0.00526,   0.00468,   0.00416,   0.00369,   0.00327,   0.00290,   0.00259,   0.00235,   0.00217,   0.00206,   0.00195,   0.00174,   0.00138,   0.00082,   0.00000};
 };
-
 
 #endif

@@ -2,6 +2,7 @@
   Stanford Student Space Initiative
   Balloons | VALBAL | September 2017
   John Dean | deanjl@stanford.edu
+  Jonathan Zwiebel | jzwiebel@stanford.edu
 
   File: Utils.cpp
   --------------------------
@@ -193,19 +194,19 @@ Biquad::Coeffs AdjustableLowpass::calcCoeffs(){
 
 
 SunsetPredictor::SunsetPredictor(){
-    // We don't use the date feilds so they are just some arbitrary day
-    spa.year          = 2003;
-    spa.month         = 10;
-    spa.day           = 17;
-    spa.hour          = 12;
+    // Default values set rather arbitrarily
+    spa.year          = 2018;
+    spa.month         = 7;
+    spa.day           = 14;
+    spa.hour          = 15;
     spa.minute        = 30;
-    spa.second        = 30;
-    spa.timezone      = -7.0;
+    spa.second        = 0;
+    spa.timezone      = 0;
 
     // Still not intirely sure what these should be TODO
     spa.delta_ut1     = 0;
     spa.delta_t       = 67;
-    
+
     // Stanford Cooridinates default
     spa.longitude     = -122.1697;
     spa.latitude      = 37.4275;
@@ -220,32 +221,37 @@ SunsetPredictor::SunsetPredictor(){
     spa.function      = SPA_ZA;
 }
 
-void SunsetPredictor::calcValues(float lon, float lat, float gps_tow, float gps_week) {
+void SunsetPredictor::calcValues(float lon, float lat, GPSTime gpsTime) {
     spa.longitude = lon;
     spa.latitude = lat;
-    spa.gps_tow = gps_tow;
-    spa.gps_week = gps_week - 1;
+    spa.year = gpsTime.year;
+    spa.month = gpsTime.month;
+    spa.day = gpsTime.day;
+    spa.hour = gpsTime.hour;
+    spa.minute = gpsTime.minute;
+    spa.second = gpsTime.second;
 
     spa_calculate(&spa);
-    solar_elevation = 90 - spa.zenith;  
+    solar_elevation = 90.0 - spa.zenith;
 
-   if(spa.gps_tow == 0){
-     spa.gps_tow++;
-     spa_calculate(&spa);
-     float next_se = 90 - spa.zenith;
-     dsedt = next_se - solar_elevation;
-   } else {
-     spa.gps_tow--;
-     spa_calculate(&spa);
-     float prev_se = 90 - spa.zenith;
-     dsedt = solar_elevation - prev_se;
-   }
-   if (dsedt < 0 && ang1 < solar_elevation && solar_elevation < ang2){
-    int tbl_idx = int((n_data-1)*(solar_elevation - ang2)/(ang2 - ang2));
-    float tbl_val = sunset_data[tbl_idx];
-    estimated_dldt = tbl_val*dsedt;
-   } else {
-    estimated_dldt = 0;
-   }
+    dsedt = 0;
+    if(spa.second == 0) {
+        spa.second += 1;
+        spa_calculate(&spa);
+        dsedt = (90.0 - spa.zenith) - solar_elevation;
+    }
+    else {
+      spa.second -= 1;
+      spa_calculate(&spa);
+      dsedt = solar_elevation - (90.0 - spa.zenith);
+    }
+    spa.second = gpsTime.second;
 
+    if (dsedt < 0 && ang1 < solar_elevation && solar_elevation < ang2){
+      int tbl_idx = int((n_data-1)*(solar_elevation - ang2)/(ang2 - ang2));
+      float tbl_val = sunset_data[tbl_idx];
+      estimated_dldt = tbl_val*dsedt;
+    } else {
+      estimated_dldt = 0;
+    }
 }

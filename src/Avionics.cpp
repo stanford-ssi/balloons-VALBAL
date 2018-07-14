@@ -65,6 +65,7 @@ void Avionics::init() {
 //   if(!HITL.init())                            alert("unable to initialize Simulations", true);
 // #endif
   if(!computer.init())                        alert("unable to initialize Flight Controller", true) ;
+  gpsModule.GPS_MODE = 1;
   if(!gpsModule.init(data.POWER_STATE_GPS))   alert("unable to initialize GPS", true);
   if(!superCap.init())                        alert("unable to initialize superCap", true);
   if(!setup5VLine())                          alert("unable to initialize 5V line", true);

@@ -223,7 +223,7 @@ void Avionics::logState() {
      uint32_t interval = data.RB_INTERVAL;
      if (data.DEBUG_STATE) interval = RB_DEBUG_INTERVAL;
      if (millis() > interval) {
-       data.RB_LAST = millis() - interval + 60000;
+       data.RB_LAST = millis() - interval + data.RB_COOLDOWN;
      } else {
        data.RB_LAST = millis();
      }

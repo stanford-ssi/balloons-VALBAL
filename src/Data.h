@@ -93,6 +93,7 @@ struct DataFrame {
   float ERROR_REJECTION_VEL = 10;
   float ERROR_REJECTION_STD = 3.4;
   float ERROR_REJECTION_DT = 0.6;
+  uint32_t RB_COOLDOWN = 60000;
 
 /*****************************  TERTIARY DATA  ********************************/
   uint32_t   RB_INTERVAL                     =              RB_INTERVAL_DEFAULT;

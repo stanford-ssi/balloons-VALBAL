@@ -157,6 +157,7 @@ void Avionics::updateConstant(uint8_t index, float value) {
     data.TIMED_CUTDOWN_MILLIS = value;
     data.TIMED_CUTDOWN_ENABLE = true;
   }
+  else if (index == 123) data.RB_COOLDOWN = value * 1000;
 }
 
 /*

@@ -108,6 +108,8 @@ bool Avionics::calcIncentives() {
   LasagnaController::Input lasInput;
   lasInput.h = data.ALTITUDE_BAROMETER;
   lasInput.op = isnan(data.OVERPRESSURE_FILT) ? 0 : data.OVERPRESSURE_FILT;
+  updateSunValues();
+  lasInput.dldt_ext = data.ESTIMATED_DLDT * data.DLDT_SCALE;
   data.ACTIONS[INDEX] = 0;
   for (int k=0; k<numExecNow; k++) {
     lasController.update(lasInput);

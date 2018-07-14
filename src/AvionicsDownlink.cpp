@@ -196,6 +196,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.SOLAR_ELEVATION,                    -90,      90,   8,  lengthBits);
     lengthBits += compressVariable(data.DSEDT,                              -1,       1,   16,  lengthBits); // TODO: fix units
     lengthBits += compressVariable(data.ESTIMATED_DLDT,                     -1,       1,   16,  lengthBits);
+    lengthBits += compressVariable(data.DLDT_SCALE,                       -1.5,     1.5,   16,  lengthBits);
 
   }
   lengthBits += 8 - (lengthBits % 8);

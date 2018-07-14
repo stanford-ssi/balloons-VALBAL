@@ -82,8 +82,11 @@ struct DataFrame {
   bool       FORCE_VALVE                     =                            false;
   bool       FORCE_BALLAST                   =                            false;
 
-  bool BMP_ENABLE[4];
+  bool BMP_ENABLE[4] = {true, true, true, true};
   uint32_t BMP_REJECTIONS[4];
+  float MAX_CONSENSUS_DEVIATION = 500;
+  bool BMP_REJECTION_ENABLED = true;
+  float ALTITUDE_PREFILT = 0;
 
 /*****************************  TERTIARY DATA  ********************************/
   uint32_t   RB_INTERVAL                     =              RB_INTERVAL_DEFAULT;

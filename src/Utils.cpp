@@ -144,24 +144,24 @@ AdjustableLowpass::AdjustableLowpass() {
   this->F0 = 1;
   this->Q = 0.5;
   this->Fs = 20;
-  biquad.setCoeffs(calcCoeffs()); 
+  biquad.setCoeffs(calcCoeffs());
 }
 
 AdjustableLowpass::AdjustableLowpass(float F0, float Q, float Fs) {
   this->F0 = F0;
   this->Q = Q;
   this->Fs = Fs;
-  biquad.setCoeffs(calcCoeffs()); 
+  biquad.setCoeffs(calcCoeffs());
 }
 
 void AdjustableLowpass::setQ(float Q){
   this->Q = Q;
-  biquad.setCoeffs(calcCoeffs()); 
+  biquad.setCoeffs(calcCoeffs());
 }
 
 void AdjustableLowpass::setCorner(float F0){
   this->F0 = F0;
-  biquad.setCoeffs(calcCoeffs()); 
+  biquad.setCoeffs(calcCoeffs());
 }
 
 void AdjustableLowpass::setSampleRate(float Fs){
@@ -171,6 +171,10 @@ void AdjustableLowpass::setSampleRate(float Fs){
 
 float AdjustableLowpass::update(float input){
   return biquad.update(input);
+}
+
+void AdjustableLowpass::setSS(float v){
+  biquad.setSS(v);
 }
 
 Biquad::Coeffs AdjustableLowpass::calcCoeffs(){

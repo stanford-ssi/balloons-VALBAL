@@ -97,7 +97,7 @@ class Filters {
 public:
   Filters();
   bool init();
-  void update_state(uint32_t time, float *pressures, const struct DataFrame &data);
+  void update_state(uint32_t time, float *pressures, struct DataFrame &data);
   float update_temperature(float *temperatures);
   float update_voltage_supercap(float);
   void update_current_motors(float, bool, bool);
@@ -126,7 +126,26 @@ public:
 
   AdjustableLowpass supercap_filter;
 
+  bool bmps_enabled[N_SENSORS];
+  uint32_t bmps_last[N_SENSORS] = {0};
+
+  AdjustableLowpass fast_filters[N_SENSORS];
+  float last_filtered[N_SENSORS];
+  uint32_t last_accepted[N_SENSORS];
+  bool vel_rejected[N_SENSORS];
+  uint32_t last_sensor_time = 0;
+  float last_pressure = 0;
+
+  int consensus_check(float *pressures, float maxdev);
+  int velocity_check(uint32_t time, float *pressures);
+
+  float incentive_noise;
+
+  int accepted_pressure, accepted_velocity;
+
+  bool first = true;
 private:
+  float calculate_altitude(float pressure);
 };
 
 #endif

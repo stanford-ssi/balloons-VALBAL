@@ -24,7 +24,7 @@ bool Avionics::processData() {
 
   filter.update_loop_time(data.LOOP_TIME);
 
-  data.INCENTIVE_NOISE            = filter.get_incentive_noise(data);
+  data.INCENTIVE_NOISE            = filter.incentive_noise;
 
   float overpressure = analogRead(OP_PIN) * 1.2 / ((double)pow(2, 12)) * 3.2;
   float vref = analogRead(VR_PIN) * 1.2 / ((double)pow(2, 12)) * 3.2;

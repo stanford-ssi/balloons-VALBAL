@@ -163,7 +163,7 @@ struct DataFrame {
   float SOLAR_ELEVATION                      =                                0;
   float DSEDT                                =                                0;
 
-  bool GEOFENCED_CUTDOWN_ENABLE = false;
+  bool GEOFENCED_CUTDOWN_ENABLE = true;
   bool IN_CUBA = false;
   uint32_t CUBA_TIMEOUT = 0;
   uint32_t CUBA_MAX_SECONDS = 3600;

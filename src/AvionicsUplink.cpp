@@ -153,6 +153,10 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 92) data.BB_LON1 = value;
   else if (index == 93) data.BB_LON2 = value;
   else if (index == 94) data.CUBA_MAX_SECONDS = value;
+  else if (index == 95) {
+    data.TIMED_CUTDOWN_MILLIS = value;
+    data.TIMED_CUTDOWN_ENABLE = true;
+  }
 }
 
 /*

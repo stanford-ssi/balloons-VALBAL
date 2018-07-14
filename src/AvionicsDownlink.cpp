@@ -81,6 +81,8 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.MANUAL_MODE,                           0,    1,       1,  lengthBits);
   lengthBits += compressVariable(data.REPORT_MODE,                           0,    2,       2,  lengthBits);
   lengthBits += compressVariable(data.SHOULD_REPORT,                         0,    1,       1,  lengthBits);
+  lengthBits += compressVariable(data.OVERPRESSURE_FILT,    -500,     500,   9, lengthBits);
+  lengthBits += compressVariable(data.OVERPRESSURE_VREF_FILT,    0,     3.84,   8, lengthBits);
   if (data.SHOULD_REPORT || data.REPORT_MODE != 0) {
     lengthBits += compressVariable(data.POWER_STATE_LED,                     0,    1,       1,  lengthBits); // LED Power state
     lengthBits += compressVariable(data.POWER_STATE_RB,                      0,    1,       1,  lengthBits); // RB Power State

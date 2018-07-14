@@ -12,12 +12,12 @@
 #include "Filters.h"
 
 
-Filters::Filters() : h_filter(H_FILTER_CORNER_DEFAULT, 0.5, 20),
-                     supercap_filter(SUPERCAP_FILTER_CORNER, 0.5, 20){
+Filters::Filters() : h_filter(H_FILTER_CORNER_DEFAULT, 0.5, 20) {
   for(int i = 0; i<N_V_FILTERS; i++){
     v_filters[i].setCorner(V_FILTERS_CORNER_DEFAULT[i]);
   }
   clear();
+  for (uint16_t i = 0; i < VOLTAGE_BUFFER_SIZE; i++) superCapVoltageBuffer[i] = 5.0;
 }
 
 float Filters::calculate_altitude(float pressure) {
@@ -149,7 +149,6 @@ void Filters::clear() {
   }
   current_ballast.clear();
   current_valve.clear();
-  voltage_supercap.clear();
 }
 
 float Filters::update_temperature(float *temps) {
@@ -165,7 +164,10 @@ float Filters::update_temperature(float *temps) {
 }
 
 float Filters::update_voltage_supercap(float v) {
-  float out = supercap_filter.update(v);
-  voltage_supercap.update(out);
-  return out;
+  superCapVoltageBuffer[superCapVoltageIndex] = v;
+  superCapVoltageIndex++;
+  superCapVoltageIndex %= VOLTAGE_BUFFER_SIZE;
+  float superCapVoltageTotal = 0;
+  for (uint16_t i = 0; i < VOLTAGE_BUFFER_SIZE; i++) superCapVoltageTotal += superCapVoltageBuffer[i];
+  return superCapVoltageTotal / VOLTAGE_BUFFER_SIZE;
 }

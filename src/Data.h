@@ -175,6 +175,8 @@ struct DataFrame {
   bool TIMED_CUTDOWN_ENABLE = false;
   uint32_t TIMED_CUTDOWN_MILLIS = 0;
 
+  float VOLTAGE_SUPERCAP_MIN = 314;
+
   bool       POWER_STATE_RADIO =                           !true;
 
   SpaghettiController::Constants SPAG_CONSTANTS;

@@ -61,7 +61,7 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.VOLTAGE_PRIMARY,                       0,    6,       9,  lengthBits);
   lengthBits += compressVariable(filter.voltage_primary.min,                 0,    6,       9,  lengthBits);
   lengthBits += compressVariable(data.VOLTAGE_SUPERCAP_AVG,                  0,    6,       9,  lengthBits);
-  lengthBits += compressVariable(filter.voltage_supercap.min,                0,    6,       9,  lengthBits);
+  lengthBits += compressVariable(data.VOLTAGE_SUPERCAP_MIN,                  0,    6,       9,  lengthBits);
   lengthBits += compressVariable(filter.current_total.avg,                   0,    4095,    12, lengthBits);
   lengthBits += compressVariable(filter.current_total.min,                   0,    4095,    12, lengthBits);
   lengthBits += compressVariable(filter.current_total.max,                   0,    4095,    12, lengthBits);

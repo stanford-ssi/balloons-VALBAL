@@ -301,6 +301,7 @@ void Avionics::clearVariables() {
   data.BALLAST_NUM_ATTEMPTS = 0;
   data.LOOP_TIME_MAX = 0;
   data.RB_RESTARTS = 0;
+  data.VOLTAGE_SUPERCAP_MIN = 314;
   int len = sizeof(data.ACTION_TIME_TOTALS)/sizeof(data.ACTION_TIME_TOTALS[0]);
   for(int i=0; i < len; i++){
     data.ACTION_TIME_TOTALS[i] = 0;

@@ -122,9 +122,9 @@ public:
 
   var_t current_ballast;
   var_t current_valve;
-  var_t voltage_supercap;
 
-  AdjustableLowpass supercap_filter;
+  float superCapVoltageBuffer[VOLTAGE_BUFFER_SIZE] = {0};
+  uint16_t superCapVoltageIndex = 0;
 
   bool bmps_enabled[N_SENSORS];
   uint32_t bmps_last[N_SENSORS] = {0};

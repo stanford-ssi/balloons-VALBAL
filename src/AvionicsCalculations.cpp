@@ -16,6 +16,7 @@ bool Avionics::processData() {
 
   filter.update_voltage_primary(data.VOLTAGE_PRIMARY);
   data.VOLTAGE_SUPERCAP_AVG = filter.update_voltage_supercap(data.VOLTAGE_SUPERCAP);
+  data.VOLTAGE_SUPERCAP_MIN = _min(data.VOLTAGE_SUPERCAP, data.VOLTAGE_SUPERCAP_MIN);
 
   filter.update_current_total(data.CURRENT_TOTAL);
   filter.update_current_rb(data.CURRENT_RB);

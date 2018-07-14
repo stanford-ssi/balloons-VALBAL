@@ -217,18 +217,25 @@ void SunsetPredictor::calcValues(float lon, float lat, float gps_tow, float gps_
     spa.gps_week = gps_week - 1;
 
     spa_calculate(&spa);
-    solar_elevation = 90.0 - spa.zenith;
+    solar_elevation = 90 - spa.zenith;  
 
-    spa.gps_week = gps_week - 1;
-    spa_calculate(&spa);
-    dsedt = solar_elevation - (90 - spa.zenith); // Leaves dsedt in units of deg/sec
+   if(spa.gps_tow == 0){
+     spa.gps_tow++;
+     spa_calculate(&spa);
+     float next_se = 90 - spa.zenith;
+     dsedt = next_se - solar_elevation;
+   } else {
+     spa.gps_tow--;
+     spa_calculate(&spa);
+     float prev_se = 90 - spa.zenith;
+     dsedt = solar_elevation - prev_se;
+   }
+   if (dsedt < 0 && ang1 < solar_elevation && solar_elevation < ang2){
+    int tbl_idx = int((n_data-1)*(solar_elevation - ang2)/(ang2 - ang2));
+    float tbl_val = sunset_data[tbl_idx];
+    estimated_dldt = tbl_val*dsedt;
+   } else {
+    estimated_dldt = 0;
+   }
 
-    if(dsedt > 0) {
-      estimated_dldt = 0;
-    }
-    else {
-      estimated_dldt = 0; // f(solar_elevation, dsedt): need lookup table
-    }
-
-    // spa.gps_week = gps_week;
 }

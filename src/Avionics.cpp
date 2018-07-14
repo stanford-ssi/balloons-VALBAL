@@ -64,7 +64,6 @@ void Avionics::init() {
 // #ifdef HITL_ENABLED_FLAG
 //   if(!HITL.init())                            alert("unable to initialize Simulations", true);
 // #endif
-  if(!filter.init())                          alert("unable to initialize Filters", true);
   if(!computer.init())                        alert("unable to initialize Flight Controller", true) ;
   if(!gpsModule.init(data.POWER_STATE_GPS))   alert("unable to initialize GPS", true);
   if(!superCap.init())                        alert("unable to initialize superCap", true);
@@ -223,7 +222,7 @@ void Avionics::logState() {
      uint32_t interval = data.RB_INTERVAL;
      if (data.DEBUG_STATE) interval = RB_DEBUG_INTERVAL;
      if (millis() > interval) {
-       data.RB_LAST = millis() - interval + 30000;
+       data.RB_LAST = millis() - interval + 60000;
      } else {
        data.RB_LAST = millis();
      }
@@ -292,7 +291,7 @@ bool Avionics::setup5VLine() {
  * a successfull transmission.
  */
 void Avionics::clearVariables() {
-  filter.clearCurrentValues();
+  filter.clear();
   actuator.clearBallastOverCurrents();
   data.VALVE_NUM_ACTIONS = 0;
   data.BALLAST_NUM_ACTIONS = 0;

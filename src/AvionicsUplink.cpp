@@ -175,10 +175,10 @@ void Avionics::parseReportCommand(uint8_t command) {
  * This function parses the active sensors.
  */
 void Avionics::parseSensorsCommand(uint8_t command) {
-  data.BMP_1_ENABLE = command & 0b0001;
-  data.BMP_2_ENABLE = command & 0b0010;
-  data.BMP_3_ENABLE = command & 0b0100;
-  data.BMP_4_ENABLE = command & 0b1000;
+  data.BMP_ENABLE[0] = command & 0b0001;
+  data.BMP_ENABLE[1] = command & 0b0010;
+  data.BMP_ENABLE[2] = command & 0b0100;
+  data.BMP_ENABLE[3] = command & 0b1000;
 }
 
 /*

@@ -22,7 +22,6 @@ struct DataFrame {
 /******************************  PRIMARY DATA  ********************************/
   uint32_t   TIME                            =                                0;
   uint32_t   LOOP_NUMBER                     =                                0; // Useful for checking data integrity
-  uint32_t CPU_SPEED = F_CPU;
   float      LAT_GPS                         =                                0;
   float      LONG_GPS                        =                                0;
   float      ALTITUDE_BAROMETER              =                                0;
@@ -51,18 +50,7 @@ struct DataFrame {
   float      JOULES_TOTAL                    =                                0;
   float      VOLTAGE_PRIMARY                 =                                0;
   float      VOLTAGE_SUPERCAP_AVG            =                                0;
-  float      CURRENT_TOTAL_AVG               =                                0;
-  float      CURRENT_TOTAL_MIN               =                                0;
-  float      CURRENT_TOTAL_MAX               =                                0;
-  float      CURRENT_RB_AVG                  =                                0;
-  float      CURRENT_RB_MAX                  =                                0;
   float      CURRENT_MOTORS                  =                                0;
-  float      CURRENT_MOTOR_VALVE_AVG         =                                0;
-  float      CURRENT_MOTOR_VALVE_MAX         =                                0;
-  float      CURRENT_MOTOR_BALLAST_AVG       =                                0;
-  float      CURRENT_MOTOR_BALLAST_MAX       =                                0;
-  float      CURRENT_PAYLOAD_AVG             =                                0;
-  float      CURRENT_PAYLOAD_MAX             =                                0;
   float      TEMP_EXT                        =                                0;
   uint32_t   LOOP_TIME_MAX                   =                                0;
   uint32_t   RB_SENT_COMMS                   =                                0;
@@ -93,14 +81,11 @@ struct DataFrame {
   bool       FORCE_VALVE                     =                            false;
   bool       FORCE_BALLAST                   =                            false;
 
-  bool       BMP_1_ENABLE                    =                             true;
-  bool       BMP_2_ENABLE                    =                             true;
-  bool       BMP_3_ENABLE                    =                             true;
-  bool       BMP_4_ENABLE                    =                             true;
-  uint32_t   BMP_1_REJECTIONS                =                                0;
-  uint32_t   BMP_2_REJECTIONS                =                                0;
-  uint32_t   BMP_3_REJECTIONS                =                                0;
-  uint32_t   BMP_4_REJECTIONS                =                                0;
+  bool BMP_ENABLE[4] = {true, true, true, true};
+  uint32_t BMP_REJECTIONS[4];
+  float MAX_CONSENSUS_DEVIATION = 500;
+  bool BMP_REJECTION_ENABLED = true;
+  float ALTITUDE_PREFILT = 0;
 
 /*****************************  TERTIARY DATA  ********************************/
   uint32_t   RB_INTERVAL                     =              RB_INTERVAL_DEFAULT;
@@ -146,7 +131,6 @@ struct DataFrame {
   float      RAW_PRESSURE_2                  =                                0;
   float      RAW_PRESSURE_3                  =                                0;
   float      RAW_PRESSURE_4                  =                                0;
-  float      PRESS                           =                                0;
   float      VOLTAGE_SUPERCAP                =                                0;
   float      CURRENT_TOTAL                   =                                0;
   float      CURRENT_RB                      =                                0;
@@ -202,5 +186,11 @@ struct DataFrame {
 #include <assert.h>
 
 static_assert(sizeof(DataFrame) >= 1024, "ohp dataframe too big");
+
+// template<int s> struct Wow;
+// struct foo {
+//     int a,b;
+// };
+// Wow<sizeof(DataFrame)> wow;
 
 #endif

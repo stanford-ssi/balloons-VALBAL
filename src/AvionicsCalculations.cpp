@@ -131,9 +131,7 @@ void Avionics::updateSunValues() {
       return;
     }
     lastSunsetUpdate = data.GPS_LAST;
-    // TODO: add values for gps_tow and gps_week
-    // TOOD: add scaling and shifting
-    sunsetPredictor.calcValues(data.LONG_GPS, data.LAT_GPS, 0, 0);
+    sunsetPredictor.calcValues(data.LONG_GPS, data.LAT_GPS, data.GPS_TIME);
     data.ESTIMATED_DLDT = sunsetPredictor.estimated_dldt;
     data.SOLAR_ELEVATION = sunsetPredictor.solar_elevation;
     data.DSEDT = sunsetPredictor.dsedt;

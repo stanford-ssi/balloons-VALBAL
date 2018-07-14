@@ -2,6 +2,7 @@
   Stanford Student Space Initiative
   Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
+  Jonathan Zwiebel | jzwiebel@stanford.edu
 
   File: data.h
   --------------------------
@@ -13,6 +14,7 @@
 
 #include "Config.h"
 #include "Heater.h"
+#include "Utils.h"
 #include "LasagnaController.h"
 #include "SpaghettiController.h"
 #include "SpaghettiController2.h"
@@ -69,6 +71,7 @@ struct DataFrame {
   uint8_t    NUM_SATS_GPS                    =                                0;
   float      SPEED_GPS                       =                                0;
   float      HEADING_GPS                     =                                0;
+  SunsetPredictor::GPSTime GPS_TIME;
 
   float      INCENTIVE_NOISE                 =          INCENTIVE_NOISE_DEFAULT;
   float      RE_ARM_CONSTANT                 =                   RE_ARM_DEFAULT;

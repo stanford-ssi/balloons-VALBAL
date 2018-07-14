@@ -45,7 +45,7 @@ bool Avionics::processData() {
  */
 bool Avionics::calcVitals() {
   if(!data.SHOULD_REPORT) data.SHOULD_REPORT = (data.ASCENT_RATE >= 10);
-  if(!data.MANUAL_MODE)   data.MANUAL_MODE   = (data.ASCENT_RATE >= 10);
+  if(!data.MANUAL_MODE && data.SWITCH_TO_MANUAL)   data.MANUAL_MODE   = (data.ASCENT_RATE >= 10);
   return true;
 }
 

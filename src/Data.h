@@ -72,6 +72,7 @@ struct DataFrame {
   float      SPEED_GPS                       =                                0;
   float      HEADING_GPS                     =                                0;
   SunsetPredictor::GPSTime GPS_TIME;
+  bool SWITCH_TO_MANUAL = false;
 
   float      INCENTIVE_NOISE                 =          INCENTIVE_NOISE_DEFAULT;
   float      RE_ARM_CONSTANT                 =                   RE_ARM_DEFAULT;

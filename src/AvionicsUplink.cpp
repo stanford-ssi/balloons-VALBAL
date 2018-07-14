@@ -159,6 +159,7 @@ void Avionics::updateConstant(uint8_t index, float value) {
   }
   else if (index == 96) data.DLDT_SCALE = value;
   else if (index == 123) data.RB_COOLDOWN = value * 1000;
+  else if (index == 124) data.SWITCH_TO_MANUAL = (bool)value;
 }
 
 /*

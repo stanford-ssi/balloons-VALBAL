@@ -11,7 +11,8 @@ bool LasagnaController::update(Input input){
   if(isnan(input.dldt_ext)){
     input.dldt_ext = 0; 
   } else {
-    input.dldt_ext = pasta_clamp(input.dldt_ext,-0.0001, 0.0001);
+    float limit = 0.0001;
+    input.dldt_ext = pasta_clamp(input.dldt_ext,-limit,limit);
   }
 
   switch(state.status){

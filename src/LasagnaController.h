@@ -39,7 +39,7 @@ public:
   typedef struct __attribute__((packed)) {
     float h  = 0;                  // altidude
     float op = 0;
-    float dldt_ext;
+    float dldt_ext = 0;
   } Input;
 
   typedef struct __attribute__((packed)) {

@@ -116,6 +116,9 @@ bool Avionics::readGPS() {
     data.GPS_TIME.minute  = gpsModule.getMinute();
     data.GPS_TIME.second  = gpsModule.getSecond();
     data.GPS_LAST_NEW     = millis();
+    if(data.GPS_MANUAL_MODE_OVERRIDE) {
+      data.GPS_MANUAL_MODE = true;
+    }
   }
   data.GPS_LAST         = millis();
   Serial.println();Serial.println();Serial.println();Serial.println();

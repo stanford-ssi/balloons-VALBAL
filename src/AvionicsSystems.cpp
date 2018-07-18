@@ -177,9 +177,9 @@ void Avionics::rumAndCoke() {
     data.IN_CUBA = true;
     data.CUBA_TIMEOUT = millis() + 1000*data.CUBA_MAX_SECONDS;
   }
-  Serial.print("Geofenced cutdown is enabled... ");
+  //Serial.print("Geofenced cutdown is enabled... ");
   if (data.IN_CUBA) { Serial.println("I think I'm in Cuba"); }
-  else { Serial.println("but I live in a free country"); }
+  else { /*Serial.println("but I live in a free country");*/ }
   /*if (in_cuba){
     Serial.println("CUBA WARNING");
     Serial.println(data.LOOP_TIME);

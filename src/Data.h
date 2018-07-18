@@ -100,6 +100,11 @@ struct DataFrame {
   uint32_t   RB_INTERVAL                     =              RB_INTERVAL_DEFAULT;
   uint32_t   GPS_INTERVAL                    =             GPS_INTERVAL_DEFAULT;
 
+  float      LAT_GPS_MANUAL                  =           LAT_GPS_MANUAL_DEFAULT;
+  float      LONG_GPS_MANUAL                 =          LONG_GPS_MANUAL_DEFAULT;
+  bool       GPS_MANUAL_MODE                 =          GPS_MANUAL_MODE_DEFAULT;
+  bool       GPS_MANUAL_MODE_OVERRIDE        = GPS_MANUAL_MODE_OVERRIDE_DEFAULT;
+
   float      PRESS_BASELINE                  =           PRESS_BASELINE_DEFAULT;
   float      INCENTIVE_THRESHOLD             =      INCENTIVE_THRESHOLD_DEFAULT;
   float      BALLAST_ARM_ALT                 =          BALLAST_ARM_ALT_DEFAULT;

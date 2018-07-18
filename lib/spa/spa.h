@@ -217,4 +217,7 @@ double topocentric_azimuth_angle(double azimuth_astro);
 //Calculate SPA output values (in structure) based on input values passed in structure
 int spa_calculate(spa_data *spa);
 
+// Convert into Julian time
+double julian_day (int year, int month, int day, int hour, int minute, double second, double dut1, double tz);
+
 #endif

@@ -151,6 +151,7 @@ struct DataFrame {
   float      CURRENT_PAYLOAD                 =                                0;
 
   uint32_t   GPS_LAST                        =                                0;
+  uint32_t   GPS_LAST_NEW                    =                                0;
   uint32_t   RB_LAST                         =                                0;
   uint32_t   DATAFILE_LAST                   =                                0;
   uint16_t   COMMS_LENGTH                    =                                0;

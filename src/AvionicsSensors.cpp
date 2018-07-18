@@ -94,18 +94,29 @@ bool Avionics::readGPS() {
   Serial.println();Serial.println();Serial.println();Serial.println();Serial.println();Serial.println();
   Serial.println("READ GPS CALLED");
   gpsModule.smartDelay(GPS_LOCK_TIMEOUT);
-  data.LAT_GPS          = gpsModule.getLatitude();
-  data.LONG_GPS         = gpsModule.getLongitude();
+  bool new_values = false;
+  float new_lat         = gpsModule.getLatitude();
+  float new_long        = gpsModule.getLongitude();
+  if(new_lat != data.LAT_GPS || new_long != data.LONG_GPS) {
+      new_values = true;
+  }
+  data.LAT_GPS = new_lat;
+  data.LONG_GPS = new_long;
   data.ALTITUDE_GPS     = gpsModule.getAltitude();
   data.HEADING_GPS      = gpsModule.getCourse();
   data.SPEED_GPS        = gpsModule.getSpeed();
   data.NUM_SATS_GPS     = gpsModule.getSats();
-  data.GPS_TIME.year    = gpsModule.getYear();
-  data.GPS_TIME.month   = gpsModule.getMonth();
-  data.GPS_TIME.day     = gpsModule.getDay();
-  data.GPS_TIME.hour    = gpsModule.getHour();
-  data.GPS_TIME.minute  = gpsModule.getMinute();
-  data.GPS_TIME.second  = gpsModule.getSecond();
+
+  if(new_values) {
+    Serial.println("Fresh GPS values coming in");
+    data.GPS_TIME.year    = gpsModule.getYear();
+    data.GPS_TIME.month   = gpsModule.getMonth();
+    data.GPS_TIME.day     = gpsModule.getDay();
+    data.GPS_TIME.hour    = gpsModule.getHour();
+    data.GPS_TIME.minute  = gpsModule.getMinute();
+    data.GPS_TIME.second  = gpsModule.getSecond();
+    data.GPS_LAST_NEW     = millis();
+  }
   data.GPS_LAST         = millis();
   Serial.println();Serial.println();Serial.println();Serial.println();
   return true;

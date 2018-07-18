@@ -1138,8 +1138,9 @@ int spa_calculate(spa_data *spa)
     {
 
         /* Commented out method of using year-month-day, to use gps time instead */
-        spa->jd = julian_day (spa->year,   spa->month,  spa->day,       spa->hour,
-			                  spa->minute, spa->second, spa->delta_ut1, spa->timezone);
+        /* Both commented out, jd is to be set directly by client */
+        // spa->jd = julian_day (spa->year,   spa->month,  spa->day,       spa->hour,
+			  //                 spa->minute, spa->second, spa->delta_ut1, spa->timezone);
 
         //spa->jd = (spa->gps_week + (spa->gps_tow-spa->utc_offset)/604800.0)*7.0 + TIMECONV_JULIAN_DATE_START_OF_GPS_TIME;
 

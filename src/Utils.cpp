@@ -11,8 +11,10 @@
 
 #include "Utils.h"
 #include "spa.h"
-//#include <iostream>
 
+#ifdef JOHNSIM
+  #include <iostream>
+#endif
 
 /*********************** BIQUAD ************************/
 
@@ -248,7 +250,8 @@ void SunsetPredictor::calcValues(float lon, float lat, GPSTime gpsTime) {
     spa.second = gpsTime.second;
 
     if (dsedt < 0 && ang1 < solar_elevation && solar_elevation < ang2){
-      int tbl_idx = int((n_data-1)*(solar_elevation - ang2)/(ang2 - ang1));
+      int tbl_idx = int((n_data-1)*(solar_elevation - ang1)/(ang2 - ang1));
+      printf("%f\n",ang2);
       float tbl_val = sunset_data[tbl_idx];
       estimated_dldt = tbl_val*dsedt;
     } else {

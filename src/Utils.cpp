@@ -12,6 +12,9 @@
 #include "Utils.h"
 #include "spa.h"
 
+//#include <iostream>
+
+
 #ifdef JOHNSIM
   #include <iostream>
 #endif
@@ -223,31 +226,21 @@ SunsetPredictor::SunsetPredictor(){
     spa.function      = SPA_ZA;
 }
 
-void SunsetPredictor::calcValues(float lon, float lat, GPSTime gpsTime) {
+void SunsetPredictor::calcValues(float lon, float lat, GPSTime gpsTime, double extra_seconds) {
     spa.longitude = lon;
     spa.latitude = lat;
-    spa.year = gpsTime.year;
-    spa.month = gpsTime.month;
-    spa.day = gpsTime.day;
-    spa.hour = gpsTime.hour;
-    spa.minute = gpsTime.minute;
-    spa.second = gpsTime.second;
+
+    double jd = julian_day(gpsTime.year, gpsTime.month, gpsTime.day, gpsTime.hour, gpsTime.minute, gpsTime.second, 0, 0);
+    jd += extra_seconds / SECONDS_PER_DAY;
+    spa.jd = jd;
 
     spa_calculate(&spa);
     solar_elevation = 90.0 - spa.zenith;
 
     dsedt = 0;
-    if(spa.second == 0) {
-        spa.second += 1;
-        spa_calculate(&spa);
-        dsedt = (90.0 - spa.zenith) - solar_elevation;
-    }
-    else {
-      spa.second -= 1;
-      spa_calculate(&spa);
-      dsedt = solar_elevation - (90.0 - spa.zenith);
-    }
-    spa.second = gpsTime.second;
+    spa.jd += DAYS_PER_SECOND;
+    spa_calculate(&spa);
+    dsedt = (90.0 - spa.zenith) - solar_elevation;
 
     if (dsedt < 0 && ang1 < solar_elevation && solar_elevation < ang2){
       int tbl_idx = int((n_data-1)*(solar_elevation - ang1)/(ang2 - ang1));

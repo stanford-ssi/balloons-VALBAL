@@ -2,6 +2,7 @@
   Stanford Student Space Initiative
   Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
+  Jonathan Zwiebel | jzwiebel@stanford.edu
 
   File: data.h
   --------------------------
@@ -12,6 +13,8 @@
 #define data_H
 
 #include "Config.h"
+#include "Heater.h"
+#include "Utils.h"
 #include "LasagnaController.h"
 #include "SpaghettiController.h"
 #include "SpaghettiController2.h"
@@ -21,7 +24,6 @@ struct DataFrame {
 /******************************  PRIMARY DATA  ********************************/
   uint32_t   TIME                            =                                0;
   uint32_t   LOOP_NUMBER                     =                                0; // Useful for checking data integrity
-  uint32_t CPU_SPEED = F_CPU;
   float      LAT_GPS                         =                                0;
   float      LONG_GPS                        =                                0;
   float      ALTITUDE_BAROMETER              =                                0;
@@ -32,6 +34,7 @@ struct DataFrame {
   float      BALLAST_INCENTIVE               =                                0;
   bool       VALVE_STATE                     =                            false;
   bool       BALLAST_STATE                   =                            false;
+  bool       BALLAST_DIRECTION               =                            false;
   uint32_t   VALVE_QUEUE                     =                                0;
   uint32_t   BALLAST_QUEUE                   =                                0;
   uint32_t   VALVE_TIME_TOTAL                =                                0;
@@ -49,21 +52,11 @@ struct DataFrame {
   float      JOULES_TOTAL                    =                                0;
   float      VOLTAGE_PRIMARY                 =                                0;
   float      VOLTAGE_SUPERCAP_AVG            =                                0;
-  float      CURRENT_TOTAL_AVG               =                                0;
-  float      CURRENT_TOTAL_MIN               =                                0;
-  float      CURRENT_TOTAL_MAX               =                                0;
-  float      CURRENT_RB_AVG                  =                                0;
-  float      CURRENT_RB_MAX                  =                                0;
   float      CURRENT_MOTORS                  =                                0;
-  float      CURRENT_MOTOR_VALVE_AVG         =                                0;
-  float      CURRENT_MOTOR_VALVE_MAX         =                                0;
-  float      CURRENT_MOTOR_BALLAST_AVG       =                                0;
-  float      CURRENT_MOTOR_BALLAST_MAX       =                                0;
-  float      CURRENT_PAYLOAD_AVG             =                                0;
-  float      CURRENT_PAYLOAD_MAX             =                                0;
   float      TEMP_EXT                        =                                0;
   uint32_t   LOOP_TIME_MAX                   =                                0;
   uint32_t   RB_SENT_COMMS                   =                                0;
+  uint8_t    RB_RESTARTS                     =                                0;
   uint8_t    RESISTOR_MODE                   =                                0;
 
   bool       MANUAL_MODE                     =              MANUAL_MODE_DEFAULT;
@@ -73,11 +66,13 @@ struct DataFrame {
 /*****************************  SECONDARY DATA  *******************************/
   bool       POWER_STATE_LED                 =                             true;
   bool       POWER_STATE_RB                  =                             true;
-  bool       POWER_STATE_GPS                 =                            !true;
+  bool       POWER_STATE_GPS                 =                             true;
   bool       POWER_STATE_PAYLOAD             =                            !true;
   uint8_t    NUM_SATS_GPS                    =                                0;
   float      SPEED_GPS                       =                                0;
   float      HEADING_GPS                     =                                0;
+  SunsetPredictor::GPSTime GPS_TIME;
+  bool SWITCH_TO_MANUAL = false;
 
   float      INCENTIVE_NOISE                 =          INCENTIVE_NOISE_DEFAULT;
   float      RE_ARM_CONSTANT                 =                   RE_ARM_DEFAULT;
@@ -90,14 +85,16 @@ struct DataFrame {
   bool       FORCE_VALVE                     =                            false;
   bool       FORCE_BALLAST                   =                            false;
 
-  bool       BMP_1_ENABLE                    =                             true;
-  bool       BMP_2_ENABLE                    =                             true;
-  bool       BMP_3_ENABLE                    =                             true;
-  bool       BMP_4_ENABLE                    =                             true;
-  uint32_t   BMP_1_REJECTIONS                =                                0;
-  uint32_t   BMP_2_REJECTIONS                =                                0;
-  uint32_t   BMP_3_REJECTIONS                =                                0;
-  uint32_t   BMP_4_REJECTIONS                =                                0;
+  bool BMP_ENABLE[4] = {true, true, true, true};
+  uint32_t BMP_REJECTIONS[4];
+  float MAX_CONSENSUS_DEVIATION = 500;
+  bool BMP_REJECTION_ENABLED = true;
+  float ALTITUDE_PREFILT = 0;
+  uint32_t MAX_TIME_WITHOUT_SENSORS = 60000;
+  float ERROR_REJECTION_VEL = 10;
+  float ERROR_REJECTION_STD = 3.4;
+  float ERROR_REJECTION_DT = 0.6;
+  uint32_t RB_COOLDOWN = 60000;
 
 /*****************************  TERTIARY DATA  ********************************/
   uint32_t   RB_INTERVAL                     =              RB_INTERVAL_DEFAULT;
@@ -129,6 +126,9 @@ struct DataFrame {
   float      BALLAST_ALTITUDE_DIFF_CONSTANT  =    BALLAST_ALTITUDE_DIFF_DEFAULT;
   float      BALLAST_LAST_ACTION_CONSTANT    =      BALLAST_LAST_ACTION_DEFAULT;
 
+  float     DLDT_SCALE                       =               DLDT_SCALE_DEFAULT;
+
+
 /*******************************  EXTRA DATA  *********************************/
   bool       SETUP_STATE                     =                             true;
   bool       SHOULD_CUTDOWN                  =                            false;
@@ -143,7 +143,6 @@ struct DataFrame {
   float      RAW_PRESSURE_2                  =                                0;
   float      RAW_PRESSURE_3                  =                                0;
   float      RAW_PRESSURE_4                  =                                0;
-  float      PRESS                           =                                0;
   float      VOLTAGE_SUPERCAP                =                                0;
   float      CURRENT_TOTAL                   =                                0;
   float      CURRENT_RB                      =                                0;
@@ -156,16 +155,29 @@ struct DataFrame {
   uint32_t   DATAFILE_LAST                   =                                0;
   uint16_t   COMMS_LENGTH                    =                                0;
 
-  float RB_HEAT_TEMP_THRESH                  =                              -40;
-  float RB_HEAT_TEMP_GAIN                    =                        0.1666;    // degrees c of temp to percent duty cycle
-  float RB_HEAT_COMM_GAIN                    =                         1;    // hours of comm to percent duty cycle
-  float RB_HEAT_CAP_GAIN                     =                                1;    // voltage drop to percent duty cycle
-  float RB_HEAT_CAP_NOMINAL                     =                            4.5;    // voltage drop to percent duty cycle
-  float RB_HEAT_MAX_DUTY                     =                              128;    // max duty cylce for heater in percent
-  float RB_HEAT_DUTY                         =                                0;
+  float      RB_HEAT_DUTY                    =                                0;
+
   int32_t ACTIONS[4] = {0};
 
-  int CUBA_NUMBER = 1973;
+  float ESTIMATED_DLDT                       =                                0;
+  float SOLAR_ELEVATION                      =                                0;
+  float DSEDT                                =                                0;
+
+  bool GEOFENCED_CUTDOWN_ENABLE = true;
+  bool IN_CUBA = false;
+  uint32_t CUBA_TIMEOUT = 0;
+  uint32_t CUBA_MAX_SECONDS = 3600;
+  float BB_LAT1 = 18.628752;
+  float BB_LAT2 = 24.152548;
+  float BB_LON1 = -87.282412;
+  float BB_LON2 = -71.779459;
+
+  bool TIMED_CUTDOWN_ENABLE = false;
+  uint32_t TIMED_CUTDOWN_MILLIS = 0;
+
+  float VOLTAGE_SUPERCAP_MIN = 314;
+
+  bool       POWER_STATE_RADIO =                           !true;
 
   SpaghettiController::Constants SPAG_CONSTANTS;
   SpaghettiController::State SPAG_STATE;
@@ -173,18 +185,24 @@ struct DataFrame {
   SpaghettiController2::State SPAG2_STATE;
   LasagnaController::Constants LAS_CONSTANTS;
   LasagnaController::State LAS_STATE;
+  Heater::Constants HEATER_CONSTANTS;
   uint32_t  ACTION_TIME_TOTALS[8]            =                               {0};
   float     OVERPRESSURE                     =                                 0;
   float     OVERPRESSURE_FILT                =                                 0;
   float     OVERPRESSURE_VREF                =                                 0;
   float     OVERPRESSURE_VREF_FILT           =                                 0;
   uint8_t stuff_to_make_sure_it_goes_above_1024[512];
-  bool       POWER_STATE_RADIO =                           !true;
 
 } __attribute__((packed));
 
 #include <assert.h>
 
 static_assert(sizeof(DataFrame) >= 1024, "ohp dataframe too big");
+
+// template<int s> struct Wow;
+// struct foo {
+//     int a,b;
+// };
+// Wow<sizeof(DataFrame)> wow;
 
 #endif

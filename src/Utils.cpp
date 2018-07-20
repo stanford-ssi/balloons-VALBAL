@@ -2,6 +2,7 @@
   Stanford Student Space Initiative
   Balloons | VALBAL | September 2017
   John Dean | deanjl@stanford.edu
+  Jonathan Zwiebel | jzwiebel@stanford.edu
 
   File: Utils.cpp
   --------------------------
@@ -9,6 +10,7 @@
 */
 
 #include "Utils.h"
+#include "spa.h"
 //#include <iostream>
 
 
@@ -133,4 +135,123 @@ void DBiquad::setSS(float val){
 void DBiquad::setCoeffs(Coeffs coeffs){
   this->coeffs = coeffs;
   setSS(y[0]);
+}
+
+
+/**********************************************/
+/************* AdjustableLowpass **************/
+/**********************************************/
+
+AdjustableLowpass::AdjustableLowpass() {
+  this->F0 = 1;
+  this->Q = 0.5;
+  this->Fs = 20;
+  biquad.setCoeffs(calcCoeffs());
+}
+
+AdjustableLowpass::AdjustableLowpass(float F0, float Q, float Fs) {
+  this->F0 = F0;
+  this->Q = Q;
+  this->Fs = Fs;
+  biquad.setCoeffs(calcCoeffs());
+}
+
+void AdjustableLowpass::setQ(float Q){
+  this->Q = Q;
+  biquad.setCoeffs(calcCoeffs());
+}
+
+void AdjustableLowpass::setCorner(float F0){
+  this->F0 = F0;
+  biquad.setCoeffs(calcCoeffs());
+}
+
+void AdjustableLowpass::setSampleRate(float Fs){
+  this->Fs = Fs;
+  biquad.setCoeffs(calcCoeffs());
+}
+
+float AdjustableLowpass::update(float input){
+  return biquad.update(input);
+}
+
+void AdjustableLowpass::setSS(float v){
+  biquad.setSS(v);
+}
+
+Biquad::Coeffs AdjustableLowpass::calcCoeffs(){
+  float w0 = 2 * pi * F0 / Fs;
+  float alpha = sin(w0)/(2*Q);
+  Biquad::Coeffs coeffs;
+  coeffs.a[0] = 1+alpha;
+  coeffs.a[1] = -2*cos(w0);
+  coeffs.a[2] = 1-alpha;
+  coeffs.b[0] = (1-cos(w0))/2;
+  coeffs.b[1] = 1-cos(w0);
+  coeffs.b[2] = (1-cos(w0))/2;
+  return coeffs;
+}
+
+
+SunsetPredictor::SunsetPredictor(){
+    // Default values set rather arbitrarily
+    spa.year          = 2018;
+    spa.month         = 7;
+    spa.day           = 14;
+    spa.hour          = 15;
+    spa.minute        = 30;
+    spa.second        = 0;
+    spa.timezone      = 0;
+
+    // Still not intirely sure what these should be TODO
+    spa.delta_ut1     = 0;
+    spa.delta_t       = 67;
+
+    // Stanford Cooridinates default
+    spa.longitude     = -122.1697;
+    spa.latitude      = 37.4275;
+
+    // Stuff that is way to detailed for what we need
+    spa.elevation     = 0;
+    spa.pressure      = 1000;
+    spa.temperature   = 0;
+    spa.slope         = 0;
+    spa.azm_rotation  = 0;
+    spa.atmos_refract = 0.5667;
+    spa.function      = SPA_ZA;
+}
+
+void SunsetPredictor::calcValues(float lon, float lat, GPSTime gpsTime) {
+    spa.longitude = lon;
+    spa.latitude = lat;
+    spa.year = gpsTime.year;
+    spa.month = gpsTime.month;
+    spa.day = gpsTime.day;
+    spa.hour = gpsTime.hour;
+    spa.minute = gpsTime.minute;
+    spa.second = gpsTime.second;
+
+    spa_calculate(&spa);
+    solar_elevation = 90.0 - spa.zenith;
+
+    dsedt = 0;
+    if(spa.second == 0) {
+        spa.second += 1;
+        spa_calculate(&spa);
+        dsedt = (90.0 - spa.zenith) - solar_elevation;
+    }
+    else {
+      spa.second -= 1;
+      spa_calculate(&spa);
+      dsedt = solar_elevation - (90.0 - spa.zenith);
+    }
+    spa.second = gpsTime.second;
+
+    if (dsedt < 0 && ang1 < solar_elevation && solar_elevation < ang2){
+      int tbl_idx = int((n_data-1)*(solar_elevation - ang2)/(ang2 - ang1));
+      float tbl_val = sunset_data[tbl_idx];
+      estimated_dldt = tbl_val*dsedt;
+    } else {
+      estimated_dldt = 0;
+    }
 }

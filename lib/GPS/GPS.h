@@ -3,6 +3,7 @@
   Balloons | VALBAL | June 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | atedjara@stanford.edu
+  Jonathan Zwiebel | jzwiebel@stanford.edu
 
   File: GPS.h
   --------------------------
@@ -37,10 +38,16 @@ public:
   float    getSpeed();
   float    getCourse();
   uint8_t  getSats();
+  int      getYear();
+  int      getMonth();
+  int      getDay();
+  int      getHour();
+  int      getMinute();
+  int      getSecond();
   void     smartDelay(uint32_t ms);
   void lowpower();
 
-  int GPS_MODE = 1;
+  int GPS_MODE = 0;
 
 private:
 /*********************************  HELPERS  **********************************/

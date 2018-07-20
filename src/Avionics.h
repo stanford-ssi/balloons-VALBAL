@@ -27,6 +27,7 @@
 #include "Actuators.h"
 #include "Controller.h"
 #include "Radio.h"
+#include "Heater.h"
 #include <GPS.h>
 #include <RockBLOCK.h>
 
@@ -38,6 +39,7 @@
 // #define SERIALSHITL
 #define SERIALMONITOR
 //#define SERIALSHITL_LEN 32
+
 
 
 // regualar min and max is not compatible with vector in std
@@ -60,7 +62,8 @@ public:
     RBModule(RB_GATE, RB_SLEEP, RB_BAUD, EEPROM_ROCKBLOCK),
     radio(PAYLOAD_GATE, PAYLOAD_GPIO_1, PAYLOAD_GPIO_2, PAYLOAD_DAC, EEPROM_PAYLOAD),
     op_filter({{1.0627905195293135L, -1.9960534568565431L, 0.9372094804706866L}, {0.0009866357858642205L, 0.001973271571728441L, 0.0009866357858642205L}}),
-    op_vref_filter({{1.0627905195293135L, -1.9960534568565431L, 0.9372094804706866L}, {0.0009866357858642205L, 0.001973271571728441L, 0.0009866357858642205L}})
+    op_vref_filter({{1.0627905195293135L, -1.9960534568565431L, 0.9372094804706866L}, {0.0009866357858642205L, 0.001973271571728441L, 0.0009866357858642205L}}),
+    sunsetPredictor()
     {
   }
   void    init();
@@ -112,7 +115,6 @@ private:
   void    parseRadioPowerCommand(bool command);
   void    parseRockBLOCKModeCommand(bool command);  bool    debugState();
   void    setupLog();
-  void    printHeader();
   void    logHeader();
   void    alert(const char*, bool fatal);
   void    clearVariables();
@@ -122,6 +124,7 @@ private:
   int16_t compressData();
   void    shitlUpdate();
   void    serialMonitorUpdate();
+  int     numExecReset();
 
 /*********************************  OBJECTS  **********************************/
 
@@ -152,11 +155,17 @@ private:
   SpaghettiController2 spag2Controller;
   LasagnaController lasController;
 
+  Heater heater;
+
+  uint32_t lastSunsetUpdate = 0;
+  SunsetPredictor sunsetPredictor;
+
   void runHeaters();
   void rumAndCoke();
   bool checkInCuba();
-  bool in_cuba = false;
-  uint32_t cuba_timeout = 0;
+  void timedCutdown();
+  void updateSunValues();
 };
+
 
 #endif

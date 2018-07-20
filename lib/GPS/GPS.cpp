@@ -3,6 +3,7 @@
   Balloons | VALBAL | September 2017
   Davy Ragland | dragland@stanford.edu
   Aria Tedjarati | atedjara@stanford.edu
+  Jonathan Zwiebel | jzwiebel@stanford.edu
 
   File: GPS.cpp
   --------------------------
@@ -135,6 +136,66 @@ float GPS::getCourse() {
  */
 uint8_t GPS::getSats() {
   return tinygps.satellites.value();
+}
+
+/*
+ * Function: getYear
+ * -------------------
+ * This function returns the GPS year.
+ * Returns 2000 with no lock
+ */
+int GPS::getYear() {
+  return tinygps.date.year();
+}
+
+/*
+ * Function: getMonth
+ * -------------------
+ * This function returns the GPS month.
+ * Returns 0 with no lock.
+ */
+int GPS::getMonth() {
+  return tinygps.date.month();
+}
+
+/*
+ * Function: getDay
+ * -------------------
+ * This function returns the GPS day.
+ * Returns 0 with no lock.
+ */
+int GPS::getDay() {
+  return tinygps.date.day();
+}
+
+/*
+ * Function: getHour
+ * -------------------
+ * This function returns the GPS hour.
+ * Returns 0 with no lock.
+ */
+int GPS::getHour() {
+  return tinygps.time.hour();
+}
+
+/*
+ * Function: getMinute
+ * -------------------
+ * This function returns the GPS minute.
+ * Returns 0 with no lock
+ */
+int GPS::getMinute() {
+  return tinygps.time.minute();
+}
+
+/*
+ * Function: getSecond
+ * -------------------
+ * This function returns the GPS second.
+ * Returns 0 with no lock
+ */
+int GPS::getSecond() {
+  return tinygps.time.second();
 }
 
 /*

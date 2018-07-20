@@ -4,6 +4,7 @@
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
   Keegan Mehall | kmehall@stanford.edu
+  Jonathan Zwiebel | jzwiebel@stanford.edu
 
   File: Actuators.cpp
   --------------------------
@@ -93,6 +94,14 @@ void Actuators::clearBallastQueue() {
   ballastQueueFake = 0;
 }
 
+void Actuators::pause () {
+  paused = true;
+}
+
+void Actuators::play() {
+  paused = false;
+}
+
 /*
  * Function: checkValve
  * -------------------
@@ -100,6 +109,7 @@ void Actuators::clearBallastQueue() {
  * Called every loop; updates and acts on the current state of the valve.
  */
 bool Actuators::checkValve(float current) {
+  if (paused) return valveState != CLOSED;
   // Serial.print("Called checkValve with ");
   // Serial.print(valveQueue);
   // Serial.println(" in valveQueue");
@@ -149,6 +159,7 @@ bool Actuators::checkValve(float current) {
  * Called every loop; updates and acts on the current state of the ballast.
  */
 bool Actuators::checkBallast(float current, uint32_t reverseTimeout, uint16_t stallCurrent) {
+  if (paused) return ballastState != CLOSED;
   // Serial.print("Called checkBallast with ");
   // Serial.print(ballastQueue);
   // Serial.print(" in ballastQueue and direction ");
@@ -228,6 +239,15 @@ uint32_t Actuators::getNumBallastOverCurrents() {
  */
 void Actuators::clearBallastOverCurrents() {
   numBallastOverCurrents = 0;
+}
+
+/*
+* Function: getBallastDirection
+* ---------------0
+* This function returns the current direction of the ballast motor.
+*/
+bool Actuators::getBallastDirection() {
+  return ballastDirection;
 }
 
 /*

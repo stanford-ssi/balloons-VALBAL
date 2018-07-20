@@ -57,7 +57,7 @@ void Charger::disable5VBoost() {
 void Charger::runChargerPID(uint8_t resistorMode, float temp) {
   uint8_t hex = 0x10;
   chargingLimit = resistorMode;
-  if (resistorMode == 1) hex = 0x7F;
+  if (resistorMode == 1) hex = 0x38;
   if (resistorMode == 2) hex = 0x23;
   if (resistorMode == 3) hex = 0x10;
   if (resistorMode == 4) hex = 0x08;
@@ -68,7 +68,7 @@ void Charger::runChargerPID(uint8_t resistorMode, float temp) {
       chargingLimit = 2;
     }
     if (temp <= CHARGER_TEMP_THRESH_LOW) {
-      hex = 0x7F;
+      hex = 0x38;
       chargingLimit = 1;
     }
   }

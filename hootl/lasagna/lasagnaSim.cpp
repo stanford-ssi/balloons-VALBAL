@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include "alias.h"
 #include "LasagnaController.h"
 #include "SpaghettiController2.h"
 #include "header.h"
@@ -32,7 +31,7 @@ int main ()
 	printf("%f %f \n",las.getConstants().freq,las.getConstants().kfuse);
 	miniframe data;
 	float v_cmd = 0;
-	int dur = 60*60*60*FREQ;
+	int dur = 60*60*10*FREQ;
 	int act_sum = 0;
 	for(int i = 0; i < 60*60*20*4; i++){
 		CONTROLLER::Input input;
@@ -52,7 +51,7 @@ int main ()
 		}
 		if(i%(FREQ*60*60) == 0){
 			float t = float(i)/FREQ/60/60;
-			printf("%f, %f, %f \n", t, sim.h, state.effort);
+			printf("%f, %f, %f \n", t, sim.h, state.v_cmd);
 		}
 	}
 }

@@ -1156,10 +1156,14 @@ int spa_calculate(spa_data *spa)
         spa->h_prime     = topocentric_local_hour_angle(spa->h, spa->del_alpha);
 
         spa->e0      = topocentric_elevation_angle(spa->latitude, spa->delta_prime, spa->h_prime);
-        spa->del_e   = atmospheric_refraction_correction(spa->pressure, spa->temperature,
-                                                         spa->atmos_refract, spa->e0);
-        spa->e       = topocentric_elevation_angle_corrected(spa->e0, spa->del_e);
+        
 
+        //dont use atmo refractions they suck
+        //spa->del_e   = atmospheric_refraction_correction(spa->pressure, spa->temperature,
+        //                                                 spa->atmos_refract, spa->e0);
+        //spa->e       = topocentric_elevation_angle_corrected(spa->e0, spa->del_e);
+        
+        spa->e = spa->e0;
         spa->zenith        = topocentric_zenith_angle(spa->e);
         spa->azimuth_astro = topocentric_azimuth_angle_astro(spa->h_prime, spa->latitude,
                                                                            spa->delta_prime);

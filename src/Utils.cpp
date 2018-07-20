@@ -237,13 +237,13 @@ void SunsetPredictor::calcValues(float lon, float lat, GPSTime gpsTime, double e
     solar_elevation = 90.0 - spa.zenith;
 
     dsedt = 0;
-    spa.jd += DAYS_PER_SECOND;
+    spa.jd += DAYS_PER_SECOND*100;
     spa_calculate(&spa);
-    dsedt = (90.0 - spa.zenith) - solar_elevation;
-
+    dsedt = ((90.0 - spa.zenith) - solar_elevation)/100;
+    dsedt = pasta_clamp(dsedt,-MAX_SUN_SPEED,MAX_SUN_SPEED);
     if (dsedt < 0 && ang1 < solar_elevation && solar_elevation < ang2){
-      int tbl_idx = int((n_data-1)*(solar_elevation - ang1)/(ang2 - ang1));
-      float tbl_val = sunset_data[tbl_idx];
+      float tbl_idx = (n_data-1)*(solar_elevation - ang1)/(ang2 - ang1);
+      float tbl_val = (tbl_idx - floor(tbl_idx))*sunset_data[int(ceil(tbl_idx))] + (ceil(tbl_idx)- tbl_idx)*sunset_data[int(floor(tbl_idx))];
       estimated_dldt = tbl_val*dsedt;
     } else {
       estimated_dldt = 0;

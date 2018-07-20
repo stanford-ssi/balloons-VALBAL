@@ -27,11 +27,13 @@ int main ()
 
 	CONTROLLER las;
 	CONTROLLER::Constants con;
+	con.k_v = con.k_v/2;
+	con.k_h = con.k_h/2;
 	las.updateConstants(con);
 	printf("%f %f \n",las.getConstants().freq,las.getConstants().kfuse);
 	miniframe data;
 	float v_cmd = 0;
-	int dur = 60*60*10*FREQ;
+	int dur = 60*60*48*FREQ;
 	int act_sum = 0;
 	for(int i = 0; i < 60*60*20*4; i++){
 		CONTROLLER::Input input;

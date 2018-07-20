@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-I ../../src/ -I ../../lib/spa -I ../ -std=c++17 -D JOHNSIM
 _SRCF = Utils LasagnaController SpaghettiController2
 SRCF = $(addprefix ../../src/, $(addsuffix .cpp, $(_SRCF)))
-LIBF = ../../lib/spa/spa.c 
+LIBF = ../../lib/spa/spa.cpp
 
 all: build run
 

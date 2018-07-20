@@ -9,9 +9,9 @@ PastaSim::PastaSim() :
 	b_dldt = 0.001;
 	v_dldt = 0.003;
 	klin = 7;
-	//h = 13000;
-	h = 0;
-	l = .2;
+	h = 13000;
+	//h = 0;
+	l = 0;
 	freq = 20;
 	gen.seed(std::time(0));
 	//gen.seed(1);

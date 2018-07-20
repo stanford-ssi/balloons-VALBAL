@@ -8,7 +8,8 @@ void Avionics::serialMonitorUpdate(){
   char* b = (char*)(&t);
   Serial.write(b,4);
   int j = 0;
-  // DO NOT REMOVE THE LINE BELOW, OR COPY IT ELSEWHERE IN THE CODE, ITS ACTUALLY IMPORTANT I SWEAR. -john bean (the python script looks it to start parsing variable names we need in shitl)
+  // DO NOT REMOVE THE LINE BELOW, OR COPY IT ELSEWHERE IN THE FILE, ITS ACTUALLY IMPORTANT I SWEAR. -john bean
+  // (the python script looks for that word to start parsing variable names we want to focus on)
   //diddlybop
   float report[30];
   report[j] = data.ALTITUDE_BAROMETER;  j++;

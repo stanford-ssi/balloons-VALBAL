@@ -16,144 +16,90 @@
 
 
 </style>
-    
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
 
+<!-- literally just for some highlighting -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <script type="text/javascript">
 
- // set up the chart
 $(document).ready(function() {
 
     console.log("I'm running the thing");
     var first = true;
-    let EXTRA_START = ";";
+    let EXTRA_START = ";"; // this is a (ascii) character that signals the beginning of a message that holds extra info we don't put at the top of the screen
 
+    // set up the server side events
+    var source = new EventSource('/stream');                                                           
+    source.onopen = function (event) {
+        console.log("The connection is open");
+        console.log(source.readyState);
+        first = true;
+    };
 
+    // what we do when there's an error
+    source.onerror = function (event) {
+        console.log("ERROR in EventSource!");
+    };
+    
+    // what we do when we get a message
+    source.addEventListener('message', function (event) {
 
+        var msg = event.data
 
-            var ctx = document.getElementById('myChart').getContext('2d');
+        // Check if this message is from the extra logging information (misc print statements throughout the code)
+        if (msg.charAt(0) == EXTRA_START) { 
 
-            var chart = new Chart(ctx, {
-                // The type of chart we want to create
-                type: 'line',
+            // remove the start character from the beginning of the string
+            msg = msg.substring(1, msg.length) + "<br>";
 
-                // The data for our dataset
-                data: {
-                    //labels: ["January", "February", "March", "April", "May", "June", "July"],
-                    labels:[],
-                    datasets: [{
-                        label: "Time",
-                        backgroundColor: 'rgb(255, 99, 132)',
-                        borderColor: 'rgb(255, 99, 132)',
-                        //data: [0, 10, 5, 2, 20, 30, 45],
-                        data: [],
-                        fill: false,
-                    }]
-                },
+            extra_div = document.getElementById("extra-txt");
 
-                // Configuration options go here -- all to make plotting more efficient
-                options: {
-                    responsive: false,
-                    animation: {
-                        duration: 0,
-                    },
-                    hover: {
-                        duration: 0,
-                    },
-                    responsiveAnimationDuration: 0,
-                    elements: {
-                        line: {
-                            tension: 0, // disables bezier curves
-                        }
-                    },
-                    datasetFill: false,
-                }
-            });
-
-
-
-        // set up the server side events
-        var source = new EventSource('/stream');                                                           
-        source.onopen = function (event) {
-            console.log("The connection is open");
-            console.log(source.readyState);
-            first = true;
-        };
-                                                                          
-        source.onerror = function (event) {
-            console.log("ERROR in EventSource!");
-        };
-                                                                          
-        source.addEventListener('message', function (event) {
-            //console.log("I got a message");
-
-            var msg = event.data
-
-            if (msg.charAt(0) == EXTRA_START) {
-                // This message is from the extra logging information (misc print statements throughout the code)
-
-                msg = msg.substring(1, msg.length) + "<br>"; // remove the start character from the beginning of the string
-                extra_div = document.getElementById("extra-txt");
-
-
-                // handle the scrolling: only auto-scroll if you're toward the bottom of the screen
-                if (extra_div.scrollTop >= extra_div.scrollHeight - extra_div.clientHeight - 400) {
-                    extra_div.innerHTML += msg;
-                    extra_div.scrollTop = extra_div.scrollHeight;
-                } else {
-                    extra_div.innerHTML += msg;
-                }
+            // handle the scrolling: only auto-scroll if you're toward the bottom of the screen
+            if (extra_div.scrollTop >= extra_div.scrollHeight - extra_div.clientHeight - 400) {
+                extra_div.innerHTML += msg;
+                extra_div.scrollTop = extra_div.scrollHeight;
             } else {
-                // This message is from the SHITL Logging: Put it in the top part of the screen
-                stat_elem = document.getElementById("status-txt")
-                //stat_elem.innerHTML = "";
-                msg_arr = msg.split(";");
-                if (first) {
-                    for (var i= 0; i < msg_arr.length; i++) {
-                        // this is so ugly...
-                        new_div = document.createElement('div');
-                        new_div.setAttribute("class", "status");
-                        new_div.setAttribute("id", "status-"+i);
-                        new_div.innerHTML = msg_arr[i]+"<br>";
-                        new_div.addEventListener('click', function(e) {
-                            //console.log("clicked the thing!");
-                            $(this).toggleClass("highlight");
-                        });
-                        stat_elem.appendChild(new_div);
-                        //stat_elem.innerHTML += "<div id=\"satus-"+i+"\" class=\"status\">" + msg_arr[i] + "<br></div>";
-                    }
-                    first = false;
-                } else {
-
-                    for (var i = 0; i < msg_arr.length; i++) {
-                        document.getElementById("status-"+i).innerHTML = msg_arr[i];
-
-                    }
-
-                    // update the chart with the time
-                    chart.data.labels.push(".");
-                    chart.data.datasets.forEach((dataset) => {
-
-                        dataset.data.push(parseFloat(msg_arr[0].split(":")[1]));
-                        if (dataset.data.length > 10) {
-                            dataset.data.shift();
-                            chart.data.labels.shift();
-                        } 
-
-                    });
-                    chart.update();
-                }
-                //msg = msg.replace(/;/g, "<br>");
-                //document.getElementById("status-txt").innerHTML = msg;
+                extra_div.innerHTML += msg;
             }
 
-        });
+        // This message is from the SHITL Logging: Put it in the top part of the screen   
+        } else {
+            
+            stat_elem = document.getElementById("status-txt")
 
+            // values are semi-colon separated
+            msg_arr = msg.split(";");
 
-                                                                      
-     });   
+            // on the first pass, create a new div (with a unique id) for each variable we care about
+            // (means you CANNOT add variables to serialmonitor.cpp and re-upload without restarting serialmonitor.py)
+            if (first) {
+                for (var i= 0; i < msg_arr.length; i++) {
+                    // this is so ugly...
+                    new_div = document.createElement('div');
+                    new_div.setAttribute("class", "status");
+                    new_div.setAttribute("id", "status-"+i);
+                    new_div.innerHTML = msg_arr[i]+"<br>";
+
+                    // for funsies
+                    new_div.addEventListener('click', function(e) {
+                        $(this).toggleClass("highlight");
+                    });
+                    stat_elem.appendChild(new_div);
+                }
+                first = false;
+
+            // now we can just update the divs we created
+            } else {
+
+                for (var i = 0; i < msg_arr.length; i++) {
+                    document.getElementById("status-"+i).innerHTML = msg_arr[i];
+                }
+            }
+        }
+
+    });
+                                                                    
+});   
     </script>
     
 </head>
@@ -162,7 +108,6 @@ $(document).ready(function() {
     <h1> Serial Monitor! </h1>
     <h2> SHITL Variables </h2>
     <p id="status-txt" style="class:pre;"> {{ status }}</p>
-    <canvas id="myChart" width="200" height="200"></canvas>
     <hr>
     <h2> Other Print Statements </h2>
     <p id="extra-txt" class="scroll-box"></p>

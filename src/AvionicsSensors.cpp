@@ -73,6 +73,9 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_3             = p;
   data.RAW_PRESSURE_4             = p;
   #endif
+  #ifdef SERIALMONITOR
+  serialMonitorUpdate();
+  #endif
   data.RAW_TEMP_1 = (isnan(data.RAW_TEMP_1) ? 0 : data.RAW_TEMP_1);
   data.RAW_TEMP_2 = (isnan(data.RAW_TEMP_2) ? 0 : data.RAW_TEMP_2);
   data.RAW_TEMP_3 = (isnan(data.RAW_TEMP_3) ? 0 : data.RAW_TEMP_3);

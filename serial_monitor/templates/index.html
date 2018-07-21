@@ -26,7 +26,7 @@ $(document).ready(function() {
 
     console.log("I'm running the thing");
     var first = true;
-    let EXTRA_START = ";"; // this is a (ascii) character that signals the beginning of a message that holds extra info we don't put at the top of the screen
+    let EXTRA_START = "~"; // this is a (ascii) character that signals the beginning of a message that holds extra info we don't put at the top of the screen
 
     // set up the server side events
     var source = new EventSource('/stream');                                                           

@@ -33,7 +33,7 @@ int main ()
 	printf("%f %f \n",las.getConstants().freq,las.getConstants().kfuse);
 	miniframe data;
 	float v_cmd = 0;
-	int dur = 60*60*48*FREQ;
+	int dur = 60*60*24*4*FREQ;
 	int act_sum = 0;
 	for(int i = 0; i < 60*60*20*4; i++){
 		CONTROLLER::Input input;
@@ -43,6 +43,7 @@ int main ()
 	for(int i = 0; i < dur; i++){
 		CONTROLLER::Input input;
 		input.h = sim.evolve(double(las.getAction()));
+		//input.dldt_ext = sim.sunset_dldt;
 		las.update(input);
 		CONTROLLER::State state = las.getState();
 		act_sum += state.action;

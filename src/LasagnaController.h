@@ -44,16 +44,16 @@ public:
 
   typedef struct __attribute__((packed)) {
     float freq                 =   20;        // control freqency
-    float k_v                  =  .5*1e-3;      // velocity gain
-    float k_h                  =  .5*1.5e-3;    // altitude gain
-    float b_dldt               =   0.0002;    // balast dl/dt (kg/s)
+    float k_v                  =   1*.375e-3;      // velocity gain
+    float k_h                  =   1*.375e-3;    // altitude gain
+    float b_dldt               =   0.0008;    // balast dl/dt (kg/s)
     float v_dldt_a             =   0;
     float v_dldt_b             =   0.0030;    // valve dl/dt (kg/s))
     float b_tmin               =   2;         // minimum ballast event time
     float v_tmin               =   3;         // minimum valve event time
     float h_cmd                =   13500;     // altidute comand
-    float kfuse                =   7;
-    float kfuse_val            =   0.5;
+    float kfuse                =   6;
+    float kfuse_val            =   0.75;
     float ss_error_thresh      =   750;
     float v_limit              =   0.5;
     float equil_h_thresh       =   10000;      //altitude where controller transitions to normal mode

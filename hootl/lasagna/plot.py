@@ -23,7 +23,7 @@ ax1.plot(t,D('alt'),label='alt')
 ax1.set_ylabel('altitude (m)')
 
 for i in np.nonzero(np.diff(D('act')) > 0)[0]:
-	ax1.axvline(t[i], c='b',alpha=0.2)
+	ax1.axvline(t[i], c='b',alpha=0.01)
 for i in np.nonzero(np.diff(D('act')) < 0)[0]:
 	ax1.axvline(t[i], c='g',alpha=0.2)
 

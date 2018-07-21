@@ -43,7 +43,7 @@ int main ()
 	for(int i = 0; i < dur; i++){
 		CONTROLLER::Input input;
 		input.h = sim.evolve(double(las.getAction()));
-		//input.dldt_ext = sim.sunset_dldt;
+		input.dldt_ext = sim.sunset_dldt*0.5;
 		las.update(input);
 		CONTROLLER::State state = las.getState();
 		act_sum += state.action;

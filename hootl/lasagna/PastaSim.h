@@ -8,9 +8,9 @@ class PastaSim
 public:
 	typedef struct {
 		bool nightfall = 1;
-		double klin = 7;
+		double klin = 6;
 		double v_dldt = 0.003;
-		double b_dldt = 0.001;
+		double b_dldt = 0.0008;
 		double freq = 20;
 		double lon = -122.1697;
 		double lat = 37.4275;

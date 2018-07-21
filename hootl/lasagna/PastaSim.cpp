@@ -32,7 +32,7 @@ double PastaSim::evolve(double action){
 	action = action/1000;
 	double dldt = action > 0 ? action*conf.b_dldt : action*conf.v_dldt;
 
-	l += dldt + 1*l_noise(gen)/conf.freq + 2*sunset_dldt/conf.freq; 
+	l += dldt + 1*l_noise(gen)/conf.freq + 1*sunset_dldt/conf.freq; 
 	v = conf.klin*l + 1*v_noise(gen)/conf.freq;
 
 	h += v/conf.freq;

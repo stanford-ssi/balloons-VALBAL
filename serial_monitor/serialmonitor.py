@@ -91,7 +91,7 @@ def get_vars(srcname):
         if re.search('diddlybop', line): # this is why that comment matters
             num_report = int(re.findall(r"\[(.*?)\]",lines[i+1])[0])
             names = [re.findall(r"\= (.*?)\;",k)[0] for k in lines[i+2:i+2+num_report]]
-            print(names)
+            if DEBUG: print(names)
             break
     f.close()
     names.insert(0,'time')
@@ -122,7 +122,7 @@ def run_serial(teensy, names, num_report):
 
 
     # Read teensy data
-    print('reading data')
+    if DEBUG: print('reading data')
     while(1):
         if READ_LOG: py_time.sleep(0.001)
         

@@ -125,16 +125,20 @@ bool Avionics::calcIncentives() {
 }
 
 /*
- * Function: calculateSunDldt
+ * Function: updateSunValues()
  * -------------------
- * This function calcualtes an approximate dldt caused by the big fireball in the sky
+ * This function updates dldt, solar_elevation, and dsedt values
  */
 void Avionics::updateSunValues() {
-    if(lastSunsetUpdate == data.GPS_LAST) {
-      return;
+    double extra_seconds = (millis() - data.GPS_LAST_NEW) / 1000.;
+
+    float lat_val = data.LAT_GPS, long_val = data.LONG_GPS;
+    if(data.GPS_MANUAL_MODE) {
+        long_val = data.LONG_GPS_MANUAL;
+        lat_val = data.LAT_GPS_MANUAL;
     }
-    lastSunsetUpdate = data.GPS_LAST;
-    sunsetPredictor.calcValues(data.LONG_GPS, data.LAT_GPS, data.GPS_TIME);
+
+    sunsetPredictor.calcValues(long_val, lat_val, data.GPS_TIME, extra_seconds);
     data.ESTIMATED_DLDT = sunsetPredictor.estimated_dldt;
     data.SOLAR_ELEVATION = sunsetPredictor.solar_elevation;
     data.DSEDT = sunsetPredictor.dsedt;

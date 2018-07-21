@@ -13,5 +13,5 @@ shitl/**/*.h5
 shitl/test-outputs/*
 hootl/**/*.bin
 hootl/**/*.h5
-
+hootl/**/ut
 .idea

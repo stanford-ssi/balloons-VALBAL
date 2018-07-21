@@ -17,6 +17,9 @@
 #include "spa.h"
 
 #define pi 3.14159
+#define SECONDS_PER_DAY (86400.)
+#define DAYS_PER_SECOND (0.0000115741)
+#define MAX_SUN_SPEED (360.0F/(60.0F*60.0F*24.0F))
 
 /*
 Custom functions define here so they can be compiled on both x64 and ARM
@@ -114,7 +117,7 @@ public:
   } GPSTime;
 
   SunsetPredictor();
-  void calcValues(float lon, float lat, GPSTime gpsTime);
+  void calcValues(float lon, float lat, GPSTime gpsTime, double extraSeconds);
   spa_data spa;
   float solar_elevation;
   float dsedt;

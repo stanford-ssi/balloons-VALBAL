@@ -1138,8 +1138,9 @@ int spa_calculate(spa_data *spa)
     {
 
         /* Commented out method of using year-month-day, to use gps time instead */
-        spa->jd = julian_day (spa->year,   spa->month,  spa->day,       spa->hour,
-			                  spa->minute, spa->second, spa->delta_ut1, spa->timezone);
+        /* Both commented out, jd is to be set directly by client */
+        // spa->jd = julian_day (spa->year,   spa->month,  spa->day,       spa->hour,
+			  //                 spa->minute, spa->second, spa->delta_ut1, spa->timezone);
 
         //spa->jd = (spa->gps_week + (spa->gps_tow-spa->utc_offset)/604800.0)*7.0 + TIMECONV_JULIAN_DATE_START_OF_GPS_TIME;
 
@@ -1155,10 +1156,14 @@ int spa_calculate(spa_data *spa)
         spa->h_prime     = topocentric_local_hour_angle(spa->h, spa->del_alpha);
 
         spa->e0      = topocentric_elevation_angle(spa->latitude, spa->delta_prime, spa->h_prime);
-        spa->del_e   = atmospheric_refraction_correction(spa->pressure, spa->temperature,
-                                                         spa->atmos_refract, spa->e0);
-        spa->e       = topocentric_elevation_angle_corrected(spa->e0, spa->del_e);
+        
 
+        //dont use atmo refractions they suck
+        //spa->del_e   = atmospheric_refraction_correction(spa->pressure, spa->temperature,
+        //                                                 spa->atmos_refract, spa->e0);
+        //spa->e       = topocentric_elevation_angle_corrected(spa->e0, spa->del_e);
+        
+        spa->e = spa->e0;
         spa->zenith        = topocentric_zenith_angle(spa->e);
         spa->azimuth_astro = topocentric_azimuth_angle_astro(spa->h_prime, spa->latitude,
                                                                            spa->delta_prime);

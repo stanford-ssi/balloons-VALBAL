@@ -8,7 +8,6 @@ import argparse
 import re
 
 from flask import Flask, render_template, Response, stream_with_context
-from flask_socketio import SocketIO
 import queue
 import _thread
 

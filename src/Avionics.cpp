@@ -80,7 +80,7 @@ void Avionics::init() {
   data.TIME = millis();
   data.SETUP_STATE = false;
 
-  #ifdef SERIALSHITL
+  #if defined(SERIALSHITL) | defined(SERIALMONITOR)
   //holds until connection with PC is established
   while(true){
     Serial.write(FSTART);
@@ -92,6 +92,7 @@ void Avionics::init() {
     }
   }
   #endif
+
 
   sixtyScoreRevolutionsPerMinute.begin(rpmCounter, 50000);
 }

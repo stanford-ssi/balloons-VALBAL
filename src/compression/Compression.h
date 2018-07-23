@@ -13,7 +13,6 @@ using namespace std;
 
 //#define TIMING
 
-#include "freqs.h"
 #include "arith.h"
 
 //#define DEBUG

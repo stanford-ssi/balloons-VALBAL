@@ -64,7 +64,12 @@ void Avionics::init() {
   uint32_t input_n = 0;
   uint32_t output_time = 0;
   uint32_t output_n = 0;
-  for (int i=0; i<100; i++) {
+  int n = sizeof(alts)/sizeof(float);
+  Serial.println("n is actually");
+  Serial.println("big boy coming");
+  delay(1000);
+  Serial.println(n);
+  for (int i=0; i<4000; i++) {
     float base = alts[i];
     for (int j=0; j<100; j++) {
       float alt = base + (random(10)-5);
@@ -75,18 +80,20 @@ void Avionics::init() {
       tt += 50;
       if (random(5) == 4) tt += 4;
     }
-    if (i == 55 || i == 98) {
+    if (i == 3900) { //55 || i == 98) {
       uint8_t buf[60] = {0};
       uint32_t t0 = micros();
       comp.output(buf, 20, base);
       output_time += (micros() - t0);
       output_n++;
     }
-    if (i == 57) comp.comm_success();
+    if (i == 3910) comp.comm_success();
   }
+  Serial.println("n is actually");
+  Serial.println(n);
   Serial.print("input time: ");
   Serial.println(((double)input_time)/input_n);
-  Serial.print("input time: ");
+  Serial.print("output time: ");
   Serial.println(((double)output_time)/output_n);
 
   if(!setupSDCard())                          alert("unable to initialize SD Card", true);

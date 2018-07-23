@@ -1,6 +1,7 @@
 #include "Compression.h"
 #include "arith.h"
 #include "dct.h"
+#include "freqs.h"
 
 int Jankompress::next(int idx) {
 	if (idx == N-1)

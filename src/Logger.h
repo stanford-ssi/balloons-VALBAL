@@ -18,7 +18,7 @@
 
 //#define DEBUG_CACHE
 
-const int CACHE_SIZE = 120;
+const int CACHE_SIZE = 100;
 const uint32_t MAX_LOG_TIME = 15000; // microseconds
 
 class Logger {

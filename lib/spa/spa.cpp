@@ -770,10 +770,10 @@ double ascending_longitude_moon(double jce)
     return third_order_polynomial(1.0/450000.0, 0.0020708, -1934.136261, 125.04452, jce);
 }
 
-double xy_term_summation(int i, double x[TERM_X_COUNT])
+float xy_term_summation(int i, float x[TERM_X_COUNT])
 {
     int j;
-    double sum=0;
+    float sum=0;
 
     for (j = 0; j < TERM_Y_COUNT; j++)
         sum += x[j]*Y_TERMS[i][j];
@@ -781,11 +781,11 @@ double xy_term_summation(int i, double x[TERM_X_COUNT])
     return sum;
 }
 
-void nutation_longitude_and_obliquity(double jce, double x[TERM_X_COUNT], double *del_psi,
-                                                                          double *del_epsilon)
+void nutation_longitude_and_obliquity(float jce, float x[TERM_X_COUNT], float *del_psi,
+                                                                          float *del_epsilon)
 {
     int i;
-    double xy_term_sum, sum_psi=0, sum_epsilon=0;
+    float xy_term_sum, sum_psi=0, sum_epsilon=0;
 
     for (i = 0; i < Y_COUNT; i++) {
         xy_term_sum  = deg2rad(xy_term_summation(i, x));
@@ -1016,7 +1016,7 @@ double sun_rise_and_set(double *m_rts,   double *h_rts,   double *delta_prime, d
 ////////////////////////////////////////////////////////////////////////////////////////////////
 void calculate_geocentric_sun_right_ascension_and_declination(spa_data *spa)
 {
-    double x[TERM_X_COUNT];
+    float x[TERM_X_COUNT];
 
     spa->jc = julian_century(spa->jd);
 

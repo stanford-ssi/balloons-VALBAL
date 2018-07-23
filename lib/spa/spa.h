@@ -151,8 +151,8 @@ typedef struct
     double x3;          //argument latitude (moon) [degrees]
     double x4;          //ascending longitude (moon) [degrees]
 
-    double del_psi;     //nutation longitude [degrees]
-    double del_epsilon; //nutation obliquity [degrees]
+    float del_psi;     //nutation longitude [degrees]
+    float del_epsilon; //nutation obliquity [degrees]
     double epsilon0;    //ecliptic mean obliquity [arc seconds]
     double epsilon;     //ecliptic true obliquity  [degrees]
 

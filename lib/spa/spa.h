@@ -197,7 +197,7 @@ typedef struct
 float deg2rad(float degrees);
 float rad2deg(float radians);
 double limit_degrees(double degrees);
-double third_order_polynomial(double a, double b, double c, double d, double x);
+float third_order_polynomial(float a, float b, float c, float d, float x);
 double geocentric_right_ascension(double lamda, double epsilon, double beta);
 double geocentric_declination(double beta, double epsilon, double lamda);
 double observer_hour_angle(double nu, double longitude, double alpha_deg);

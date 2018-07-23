@@ -328,7 +328,7 @@ double dayfrac_to_local_hr(double dayfrac, double timezone)
     return 24.0*limit_zero2one(dayfrac + timezone/24.0);
 }
 
-double third_order_polynomial(double a, double b, double c, double d, double x)
+float third_order_polynomial(float a, float b, float c, float d, float x)
 {
     return ((a*x + b)*x + c)*x + d;
 }

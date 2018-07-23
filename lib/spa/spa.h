@@ -136,7 +136,7 @@ typedef struct
 
     double jde;         //Julian ephemeris day
     double jce;         //Julian ephemeris century
-    double jme;         //Julian ephemeris millennium
+    float jme;         //Julian ephemeris millennium
 
     double l;           //earth heliocentric longitude [degrees]
     double b;           //earth heliocentric latitude [degrees]
@@ -194,8 +194,8 @@ typedef struct
 } spa_data;
 
 //-------------- Utility functions for other applications (such as NREL's SAMPA) --------------
-double deg2rad(double degrees);
-double rad2deg(double radians);
+float deg2rad(float degrees);
+float rad2deg(float radians);
 double limit_degrees(double degrees);
 double third_order_polynomial(double a, double b, double c, double d, double x);
 double geocentric_right_ascension(double lamda, double epsilon, double beta);

@@ -159,7 +159,7 @@ private:
 
   uint32_t lastSunsetUpdate = 0;
   SunsetPredictor sunsetPredictor;
-
+  unsigned int sun_ctr = 0;
   void runHeaters();
   void rumAndCoke();
   bool checkInCuba();

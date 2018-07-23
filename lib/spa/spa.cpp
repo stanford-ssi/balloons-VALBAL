@@ -671,10 +671,10 @@ double julian_ephemeris_millennium(double jce)
     return (jce/10.0);
 }
 
-double earth_periodic_term_summation(const float terms[][TERM_COUNT], int count, float jme)
+float earth_periodic_term_summation(const float terms[][TERM_COUNT], int count, float jme)
 {
     int i;
-    double sum=0;
+    float sum=0;
 
     for (i = 0; i < count; i++)
         sum += terms[i][TERM_A]*cosf(terms[i][TERM_B]+terms[i][TERM_C]*jme);
@@ -682,13 +682,13 @@ double earth_periodic_term_summation(const float terms[][TERM_COUNT], int count,
     return sum;
 }
 
-double earth_values(double term_sum[], int count, float jme)
+double earth_values(float term_sum[], int count, float jme)
 {
     int i;
-    double sum=0;
+    float sum=0;
 
     for (i = 0; i < count; i++)
-        sum += term_sum[i]*pow(jme, i);
+        sum += term_sum[i]*powf(jme, i);
 
     sum /= 1.0e8;
 
@@ -697,7 +697,7 @@ double earth_values(double term_sum[], int count, float jme)
 
 double earth_heliocentric_longitude(float jme)
 {
-    double sum[L_COUNT];
+    float sum[L_COUNT];
     int i;
 
     for (i = 0; i < L_COUNT; i++)
@@ -709,7 +709,7 @@ double earth_heliocentric_longitude(float jme)
 
 double earth_heliocentric_latitude(float jme)
 {
-    double sum[B_COUNT];
+    float sum[B_COUNT];
     int i;
 
     for (i = 0; i < B_COUNT; i++)
@@ -721,7 +721,7 @@ double earth_heliocentric_latitude(float jme)
 
 double earth_radius_vector(float jme)
 {
-    double sum[R_COUNT];
+    float sum[R_COUNT];
     int i;
 
     for (i = 0; i < R_COUNT; i++)

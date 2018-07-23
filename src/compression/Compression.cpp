@@ -1,5 +1,6 @@
 #include "Compression.h"
 #include "arith.h"
+#include "dct.h"
 
 int Jankompress::next(int idx) {
 	if (idx == N-1)
@@ -93,7 +94,9 @@ int Jankompress::output(uint8_t* arr, int max, float alt0) {
   if (buff.bitidx != 7) buff.byteidx++;
   uint16_t t = last - dt - (1 << i)*dt/2.;
   memcpy(buf, &t, 2);
-  buf[2] = round(255 * log10(scale) / 4.);;
+  float lscale = log10(scale);
+  if (lscale > 4) lscale = 4;
+  buf[2] = round(255 * lscale / 4.);;
 
   memcpy(arr, buf, buff.byteidx);
 

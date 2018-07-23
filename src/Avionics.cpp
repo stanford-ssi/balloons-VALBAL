@@ -17,6 +17,9 @@
 
 #include "Avionics.h"
 
+#include "compression/data.h"
+#include "compression/Compression.h"
+
 //#define Serial Serial2
 
 int numExecutions = 0;
@@ -54,6 +57,37 @@ void Avionics::init() {
 
   pinMode(57, OUTPUT);
   digitalWrite(57, LOW);
+  Jankompress comp;
+  int N = 24406;
+  uint32_t tt = 1234;
+  uint32_t input_time = 0;
+  uint32_t input_n = 0;
+  uint32_t output_time = 0;
+  uint32_t output_n = 0;
+  for (int i=0; i<100; i++) {
+    float base = alts[i];
+    for (int j=0; j<100; j++) {
+      float alt = base + (random(10)-5);
+      uint32_t t0 = micros();
+      comp.input(tt, alt);
+      input_time += (micros() - t0);
+      input_n++;
+      tt += 50;
+      if (random(5) == 4) tt += 4;
+    }
+    if (i == 55 || i == 98) {
+      uint8_t buf[60] = {0};
+      uint32_t t0 = micros();
+      comp.output(buf, 20, base);
+      output_time += (micros() - t0);
+      output_n++;
+    }
+    if (i == 57) comp.comm_success();
+  }
+  Serial.print("input time: ");
+  Serial.println(((double)input_time)/input_n);
+  Serial.print("input time: ");
+  Serial.println(((double)output_time)/output_n);
 
   if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   if(!readHistory())                          alert("unable to initialize EEPROM", true);

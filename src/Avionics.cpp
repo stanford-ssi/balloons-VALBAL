@@ -84,7 +84,7 @@ void Avionics::init() {
   //holds until connection with PC is established
   while(true){
     Serial.write(FSTART);
-    delay(100);
+    delay(200);
     if(Serial.available()){
       if(Serial.read() == FSTART){
         break;

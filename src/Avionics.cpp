@@ -82,9 +82,9 @@ void Avionics::init() {
 
   #if defined(SERIALSHITL) | defined(SERIALMONITOR)
   //holds until connection with PC is established
+  Serial.write(FSTART);
   while(true){
-    Serial.write(FSTART);
-    delay(200);
+    delay(50);
     if(Serial.available()){
       if(Serial.read() == FSTART){
         break;

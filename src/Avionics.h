@@ -133,6 +133,8 @@ private:
   //Biquad tempsim;
   #endif
 
+  int numExecNow = 0;
+
   char COMMS_BUFFER[COMMS_BUFFER_SIZE];
   DataFrame data;
   Logger log;

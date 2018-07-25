@@ -9,8 +9,10 @@ bool Avionics::processData() {
   bool success = true;
 
   float pressures[] = {data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4};
-  filter.update_state(data.TIME, pressures, data);
-
+  
+  for (int k=0; k<numExecNow; k++) {
+    filter.update_state(data.TIME, pressures, data);
+  }
   float temperatures[] = {data.RAW_TEMP_1, data.RAW_TEMP_2, data.RAW_TEMP_3, data.RAW_TEMP_4};
   data.TEMP_INT = filter.update_temperature(temperatures);
 
@@ -66,7 +68,7 @@ bool Avionics::calcDebug() {
  * This function gets the updated incentives from the flight computer.
  */
 bool Avionics::calcIncentives() {
-  int numExecNow = numExecReset();
+  numExecNow = numExecReset();
   bool success = true;
   computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);

@@ -36,8 +36,8 @@
 #include "Utils.h"
 
 // #define JANKSHITL
-// #define SERIALSHITL
-#define SERIALMONITOR
+#define SERIALSHITL
+//#define SERIALMONITOR
 //#define SERIALSHITL_LEN 32
 
 

@@ -45,7 +45,12 @@ void Avionics::printState() {
   //     Serial.print(" ");
   //     //Serial.print(data.CURRENT_MOTOR_BALLAST_AVG);
   //     Serial.println();
-      //return;
+  
+  Serial.print("Altitude: ");
+  Serial.println(data.ALTITUDE_BAROMETER);
+  Serial.print("LOOP_TIME: ");
+  Serial.println(filter.loop_time.avg);
+  return;
   Serial.print("!!!!!!manual mode ");
   Serial.println(data.MANUAL_MODE);
   //return;

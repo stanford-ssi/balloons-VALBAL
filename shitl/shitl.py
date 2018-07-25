@@ -32,7 +32,7 @@ f.write(", ".join(names)+"\n")
 f.close()
 fbin = open(binfile,"wb")
 dat = np.load('ssi63bmp10hr.npy')
-teensy = serial.Serial('/dev/ttyACM0')
+teensy = serial.Serial('/dev/ttyACM0',baudrate=115200)
 
 #WAIT FOR TEENSY TO BEGIN TESTING
 while(1):

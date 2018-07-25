@@ -112,8 +112,14 @@ bool Avionics::calcIncentives() {
   
   sun_ctr++;
   if(sun_ctr == 60*1000/LOOP_INTERVAL){
+    Serial.print("doing sun calc...");
+    unsigned int t1 = micros();
     sun_ctr = 0;
     updateSunValues();
+    unsigned int t2 = micros();
+  Serial.print(" took ");
+  Serial.print(t2-t1);
+  Serial.println("us");
   }
   
   lasInput.dldt_ext = data.ESTIMATED_DLDT * data.DLDT_SCALE;

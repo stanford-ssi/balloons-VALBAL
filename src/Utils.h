@@ -108,9 +108,9 @@ private:
 class SunsetPredictor{
 public:
   typedef struct __attribute__((packed)) {
-    int year      = 0;
-    int month     = 0;
-    int day       = 0;
+    int year      = 2018;
+    int month     = 1;
+    int day       = 1;
     int hour      = 0;
     int minute    = 0;
     int second    = 0;

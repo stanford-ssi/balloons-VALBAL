@@ -78,6 +78,8 @@ while(1):
 			cmd_ready=False;
 			print('>>> Sent Command',index,value)
 
+		teensy.flush()
+
 		## DO NON-TIME-CRITICAL THINGS
 		dat = dat[idx:,:]
 		sta = teensy.read(num_report*4)

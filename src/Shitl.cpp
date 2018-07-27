@@ -1,15 +1,21 @@
 #include "Avionics.h"
 #include "Arduino.h"
+
+float shitlavg = 0;
+int shitln = 0;
+
 void Avionics::shitlUpdate(){
   elapsedMicros te = 0;
   Serial.write(FSTART);
+  Serial.flush();
   uint32_t t = data.TIME;
   char* b = (char*)(&t);
   Serial.write(b,4);
+  Serial.flush();
   int j = 0;
   // DO NOT REMOVE THE LINE BELOW, OR COPY IT ELSEWHERE IN THE CODE, ITS ACTUALLY IMPORTANT I SWEAR. -john bean
   //diddlybop
-  float report[30];
+  float report[46];
   report[j] = data.ALTITUDE_BAROMETER;  j++;
   report[j] = data.ASCENT_RATE;  j++;
   report[j] = data.ACTIONS[LAS_CONTROLLER_INDEX];  j++;
@@ -40,8 +46,25 @@ void Avionics::shitlUpdate(){
   report[j] = data.LAS_CONSTANTS.v_limit;  j++;
   report[j] = data.LAS_CONSTANTS.equil_h_thresh;  j++;
   report[j] = data.LAS_CONSTANTS.launch_h_thresh;  j++;
+  report[j] = data.ESTIMATED_DLDT; j++;
+  report[j] = data.SOLAR_ELEVATION; j++;
+  report[j] = data.DSEDT; j++;
+  report[j] = filter.v_filtered[0]; j++;
+  report[j] = filter.v_filtered[1]; j++;
+  report[j] = filter.v_filtered[2]; j++;
+  report[j] = filter.v_filtered[3]; j++;
+  report[j] = filter.v_filtered[4]; j++;
+  report[j] = data.LAT_GPS_MANUAL; j++;
+  report[j] = data.LONG_GPS_MANUAL; j++;
+  report[j] = data.GPS_MANUAL_MODE; j++;
+  report[j] = data.GPS_MANUAL_MODE_OVERRIDE; j++;
+  report[j] = data.GPS_LAST_NEW; j++;
+  report[j] = sunsetPredictor.spa.jc; j++;
+  report[j] = sunsetPredictor.spa.latitude; j++;
+  report[j] = sunsetPredictor.spa.longitude; j++;
   b = (char*)(&report);
   Serial.write(b, sizeof(report));
+  Serial.flush();
   const int len = sizeof(float)*8;
   char bytes[len];
   char flags;
@@ -86,4 +109,8 @@ void Avionics::shitlUpdate(){
   data.RAW_PRESSURE_4 = (isnan(vals[7]) ? data.RAW_PRESSURE_4: vals[7]);
   Serial.print("SHITL TIME: ");
   Serial.println(te);
+  shitlavg += te;
+  shitln++;
+  Serial.print("SHITL AVG: ");
+  Serial.println(shitlavg/shitln);
 }

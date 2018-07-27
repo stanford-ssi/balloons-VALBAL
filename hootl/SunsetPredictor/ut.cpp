@@ -11,8 +11,22 @@ int main (int argc, char *argv[])
 {
     fstream o ("output.bin", std::fstream::out | std::fstream::binary);
     SunsetPredictor::GPSTime gtime;
+    float lat = 37.4275398254395;
+    float lon = 122.174461364746;
+    SunsetPredictor sunpred;
+    for(int s = 1; s<60*10*60; s++){
+        sunpred.calcValues(lon, lat, gtime, s);
+        //printf("%f, %f, %f \n",sunpred.solar_elevation,sunpred.dsedt,sunpred.estimated_dldt);
+        printf("%f \n",sunpred.spa.jd);
+        double buf[3] = {sunpred.solar_elevation,sunpred.dsedt,sunpred.estimated_dldt};
+        o.write((char*)buf,sizeof(buf));
+    }
+    return 1;
+
+
 
     //at stanford
+    /*
     float lon = -122.1697;
     float lat = 37.4275;
     gtime.year = 2018;
@@ -22,7 +36,7 @@ int main (int argc, char *argv[])
     gtime.minute = 0;
     gtime.second = 0;
     SunsetPredictor sunpred;
-
+    */
     for(int s = 1; s<60*6*60; s++){
         sunpred.calcValues(lon, lat, gtime, s);
         //printf("%f, %f, %f \n",sunpred.solar_elevation,sunpred.dsedt,sunpred.estimated_dldt);

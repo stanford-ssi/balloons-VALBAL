@@ -18,23 +18,23 @@ bool LasagnaController::update(Input input){
   switch(state.status){
     case PRELAUNCH:
       if(launch_h > constants.equil_h_thresh){        // this is the first time lasagna is called on startup
-        if(input.h > constants.equil_h_thresh){       // looks like we are already in flight ohp
+        if(input.h_rel > constants.equil_h_thresh){       // looks like we are already in flight ohp
           launch_h = 0;
           state.status = EQUIL;
         } else {
-        launch_h = input.h;
+        launch_h = input.h_rel;
         }
-      } else if(input.h - launch_h > constants.launch_h_thresh) state.status = ASCENT;
+      } else if(input.h_rel - launch_h > constants.launch_h_thresh) state.status = ASCENT;
       break;
     case ASCENT:
-      if(input.h > constants.equil_h_thresh) state.status = EQUIL;
+      if(input.h_rel > constants.equil_h_thresh) state.status = EQUIL;
       break;
     case EQUIL:
       break;
   }
   state.v_dldt = input.op*constants.v_dldt_a + constants.v_dldt_b; 
-  state.v1 = v1_filter.update(input.h);
-  state.v2 = v2_filter.update(input.h);
+  state.v1 = v1_filter.update(input.h_rel);
+  state.v2 = v2_filter.update(input.h_rel);
   state.v = (state.status==EQUIL) ? state.v1 : state.v2;
   float dldt_total = 0;
   if(state.status==EQUIL){
@@ -42,7 +42,7 @@ bool LasagnaController::update(Input input){
     dldt_total = act_dldt + input.dldt_ext;
   }
   state.fused_v = state.v + action_filter.update(dldt_total);
-  innerLoop(input.h);
+  innerLoop(input.h_abs);
   if(state.status==PRELAUNCH) state.action = 0;
   return true;
 }

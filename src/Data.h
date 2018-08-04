@@ -28,6 +28,7 @@ struct DataFrame {
   float      LONG_GPS                        =                                0;
   float      ALTITUDE_BAROMETER              =                                0;
   float      ALTITUDE_GPS                    =                                0;
+  float      ALTITUDE_CORRECTED              =                                0;
   float      ASCENT_RATE                     =                                0;
   int32_t    ACTION                          =                                0;
   float      VALVE_INCENTIVE                 =                                0;
@@ -73,6 +74,8 @@ struct DataFrame {
   float      HEADING_GPS                     =                                0;
   SunsetPredictor::GPSTime GPS_TIME;
   bool SWITCH_TO_MANUAL = false;
+  float      ALTITUDE_OFFSET                 =                                0;
+  float      ALTITUDE_OFFSET_GAIN            =                             4e-5;
 
   float      INCENTIVE_NOISE                 =          INCENTIVE_NOISE_DEFAULT;
   float      RE_ARM_CONSTANT                 =                   RE_ARM_DEFAULT;

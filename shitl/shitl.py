@@ -69,7 +69,7 @@ while(1):
 		idx = np.searchsorted(dat[:,0], time, side="left")
 		print('>>> Returned Time:',dat[idx,0])
 		data = np.flip(dat[idx,1:],axis=0)       #whoops had to flip it cause temp is first
-		fetch = struct.pack('ffffffff',*data)
+		fetch = struct.pack('fffffffffffffB',*data)
 		teensy.write(fetch)	
 		
 		## SEND ADDITIONAL DATA

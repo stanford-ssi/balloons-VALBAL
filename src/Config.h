@@ -170,5 +170,7 @@ static const bool      USING_CHANNEL_DIFF_14_15              =            true;
 /***************************** SHITL stuff ************************************/
 #define FSTART 0xAA
 
+/************************* Serial Monitor stuff *******************************/
+#define FSTART_SM 0xAB
 
 #endif

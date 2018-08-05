@@ -18,7 +18,7 @@ TEENSY_ADR = '/dev/tty.usbmodem144121'#'/dev/ttyACM0'
 srcname = "../src/SerialMonitor.cpp"
 log_file_path = "sample_shitl.txt"
 log_file_write_path = "sample_shitl_copy.txt"
-FSTART = b'\xaa'
+FSTART = b'\xab'
 EXTRA_START = '~'
 
 # flags - false by default

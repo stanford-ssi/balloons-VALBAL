@@ -10,7 +10,7 @@ import time
 import re
 import os
 
-USE_SM = True
+USE_SM = False
 if USE_SM:
     # This is not ideal...
     sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'serial_monitor'))
@@ -40,9 +40,8 @@ f= open(logfile,"w+")
 f.write(", ".join(names)+"\n")
 f.close()
 fbin = open(binfile,"wb")
-dat = np.load('ssi63bmp10hr.npy')
+dat = np.load('ssi63shitl10hr.npy')
 teensy = serial.Serial('/dev/ttyACM0',baudrate=115200)
-
 #WAIT FOR TEENSY TO BEGIN TESTING
 while(1):
 	read = teensy.read(1)
@@ -52,7 +51,7 @@ while(1):
 		break
 	else:
 		try:
-            if USE_SM: shitl_socket.write(read)
+                        #if USE_SM: shitl_socket.write(read)
 			print(read.decode("utf-8"),end='')
 		except:
 			pass
@@ -78,10 +77,11 @@ while(1):
 		print('>>> Request Time:',time)
 		idx = np.searchsorted(dat[:,0], time, side="left")
 		print('>>> Returned Time:',dat[idx,0])
-		data = np.flip(dat[idx,1:],axis=0)       #whoops had to flip it cause temp is first
-		fetch = struct.pack('fffffffffffffB',*data)
+		data = dat[idx,1:]
+		fetch = struct.pack('fffffffffffff',*(data[:-1]))
+		print(data[-1])
+		fetch += struct.pack('B',int(data[-1]))
 		teensy.write(fetch)
-
 		## SEND ADDITIONAL DATA
 		if cmd_ready:
 			teensy.write(cmd_msg)
@@ -119,7 +119,8 @@ while(1):
 
 	else:
 		try:
-			if USE_SM: shitl_socket.write(read)
+			if USE_SM:
+                            shitl_socket.write(read)
 			print(read.decode("utf-8"),end='')
 		except:
 			pass

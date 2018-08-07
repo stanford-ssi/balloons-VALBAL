@@ -18,7 +18,8 @@ TEENSY_ADR = '/dev/tty.usbmodem144121'#'/dev/ttyACM0'
 srcname = "../src/SerialMonitor.cpp"
 log_file_path = "sample_shitl.txt"
 log_file_write_path = "sample_shitl_copy.txt"
-FSTART = b'\xab'
+FSTART = b'\xaa' # used when making connection to serial if running by itself
+FSTART_SM = b'\xab'
 EXTRA_START = '~'
 
 # flags - false by default
@@ -114,23 +115,25 @@ def run_serial(teensy, names, num_report):
     # Await teensy response to make sure we can talk
     # But only do this if it's the first time reading in serial
     buf = ""
-    using_extra = False
-    while (1):
-        read = teensy.read(1)
 
-        if WILL_LOG: log_file.write(read)
+    # This section is used for establishing a serial connection with the teensy. We only have to do this when the serial monitor is running straight off valbal
+    if not READ_LOG and not SHITL:
+        while (1):
+            read = teensy.read(1)
 
-        # teensy will send FSTART when it's ready
-        if read == FSTART:
-            if DEBUG: print('>>> VALBAL found ready to monitor serial')
+            if WILL_LOG: log_file.write(read)
 
-            #if not READ_LOG: teensy.write(FSTART) # if the serial monitor is re-run, it will send an FSTART regardless of if the Teensy is expecting it, 
-                                 # so make sure FSTARTs are dealt with on the teensy side in an appropriate manner
-            #print("free", read)
-            break
-        else:
-            pass
-            #print("Got it", read)
+            # teensy will send FSTART when it's ready
+            if read == FSTART:
+                if DEBUG: print('>>> VALBAL found ready to monitor serial')
+
+                teensy.write(FSTART) # if the serial monitor is re-run, it will send an FSTART_SM regardless of if the Teensy is expecting it, 
+                                     # so make sure FSTART_SMs are dealt with on the teensy side in an appropriate manner
+                #print("free", read)
+                break
+            else:
+                pass
+                #print("Got it", read)
 
 
     # Read teensy data
@@ -143,8 +146,8 @@ def run_serial(teensy, names, num_report):
 
         if WILL_LOG: log_file.write(read)
         #print("In main loop: ", read)
-        # now and FSTART signals that the variables we want to display are coming next
-        if read == FSTART:
+        # now and FSTART_SM signals that the variables we want to display are coming next
+        if read == FSTART_SM:
             if DEBUG: print('>>> Ready to read VALBAL data')
 
             # read the time first

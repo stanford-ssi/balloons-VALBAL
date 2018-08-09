@@ -103,7 +103,7 @@ public:
   void update_current_motors(float, bool, bool);
   float get_incentive_noise(const struct DataFrame &data);
   void clear();
-
+  void correctAltitude(struct DataFrame &data);
   static const int start = __LINE__;
   RB_FILTERED(voltage_primary)
   RB_FILTERED(current_total)

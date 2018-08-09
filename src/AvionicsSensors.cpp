@@ -58,20 +58,7 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_2             = sensors.getRawPressure(2);
   data.RAW_PRESSURE_3             = sensors.getRawPressure(3);
   data.RAW_PRESSURE_4             = sensors.getRawPressure(4);
-  #endif
-  #ifdef JANKSHITL
-  float v;
-  if (Slift >= 0) {
-    v = 5*sqrt(Slift);
-  } else {
-    v = -5*sqrt(-Slift);
-  }
-  Salt += v*data.LOOP_TIME/1000.;
-  float p = 3.86651e-20 * pow(44330-Salt,5.255);
-  data.RAW_PRESSURE_1             = p;
-  data.RAW_PRESSURE_2             = p;
-  data.RAW_PRESSURE_3             = p;
-  data.RAW_PRESSURE_4             = p;
+  if (data.POWER_STATE_GPS && ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) && (!data.VALVE_STATE)) readGPS();
   #endif
   #ifdef SERIALMONITOR
   serialMonitorUpdate();
@@ -84,7 +71,6 @@ bool Avionics::readData() {
   data.RAW_PRESSURE_2 = (isnan(data.RAW_PRESSURE_2) ? 0 : data.RAW_PRESSURE_2);
   data.RAW_PRESSURE_3 = (isnan(data.RAW_PRESSURE_3) ? 0 : data.RAW_PRESSURE_3);
   data.RAW_PRESSURE_4 = (isnan(data.RAW_PRESSURE_4) ? 0 : data.RAW_PRESSURE_4);
-  if (data.POWER_STATE_GPS && ((millis() - data.GPS_LAST) >= data.GPS_INTERVAL) && (!data.VALVE_STATE)) readGPS();
   return true;
 }
 

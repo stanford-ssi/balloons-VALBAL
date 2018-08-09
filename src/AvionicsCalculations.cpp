@@ -109,7 +109,8 @@ bool Avionics::calcIncentives() {
   INDEX = LAS_CONTROLLER_INDEX;
   lasController.updateConstants(data.LAS_CONSTANTS);
   LasagnaController::Input lasInput;
-  lasInput.h = data.ALTITUDE_BAROMETER;
+  lasInput.h_rel = data.ALTITUDE_BAROMETER;
+  lasInput.h_abs = data.ALTITUDE_CORRECTED;
   lasInput.op = isnan(data.OVERPRESSURE_FILT) ? 0 : data.OVERPRESSURE_FILT;
   
   sun_ctr++;

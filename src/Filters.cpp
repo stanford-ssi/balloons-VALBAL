@@ -66,7 +66,7 @@ void Filters::update_state(uint32_t time, float *pressures, DataFrame& data) {
     h_filtered = h_filter.update(h_prefiltered);
     data.ALTITUDE_PREFILT = h_prefiltered;
     data.ALTITUDE_BAROMETER = h_filtered;
-
+    correctAltitude(data);
     v_raw = (h_prefiltered - h_prefiltered_last)*freq;
 
     for(int i = 0; i<N_V_FILTERS; i++){
@@ -173,3 +173,10 @@ float Filters::update_voltage_supercap(float v) {
   for (uint16_t i = 0; i < VOLTAGE_BUFFER_SIZE; i++) superCapVoltageTotal += superCapVoltageBuffer[i];
   return superCapVoltageTotal / VOLTAGE_BUFFER_SIZE;
 }
+
+void Filters::correctAltitude(struct DataFrame &data){
+  if(data.NUM_SATS_GPS >= 6){
+    data.ALTITUDE_OFFSET = data.ALTITUDE_OFFSET*(1-data.ALTITUDE_OFFSET_GAIN) + (data.ALTITUDE_GPS - data.ALTITUDE_BAROMETER)*data.ALTITUDE_OFFSET_GAIN;
+  }
+  data.ALTITUDE_CORRECTED = data.ALTITUDE_BAROMETER + data.ALTITUDE_OFFSET;
+} 

@@ -3,7 +3,7 @@
 #include "Arduino.h"
 void Avionics::serialMonitorUpdate(){
   elapsedMicros te = 0;
-  Serial.write(FSTART);
+  Serial.write(FSTART_SM);
   uint32_t t = data.TIME;
   char* b = (char*)(&t);
   Serial.write(b,4);

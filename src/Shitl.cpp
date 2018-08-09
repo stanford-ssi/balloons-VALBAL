@@ -1,6 +1,8 @@
 #include "Avionics.h"
 #include "Arduino.h"
 
+#define NUM_FLOATS_SHITLED 13
+
 float shitlavg = 0;
 int shitln = 0;
 
@@ -15,12 +17,18 @@ void Avionics::shitlUpdate(){
   int j = 0;
   // DO NOT REMOVE THE LINE BELOW, OR COPY IT ELSEWHERE IN THE CODE, ITS ACTUALLY IMPORTANT I SWEAR. -john bean
   //diddlybop
-  float report[46];
+  float report[52];
   report[j] = data.ALTITUDE_BAROMETER;  j++;
   report[j] = data.ASCENT_RATE;  j++;
   report[j] = data.ACTIONS[LAS_CONTROLLER_INDEX];  j++;
   report[j] = data.VALVE_QUEUE;  j++;
   report[j] = data.BALLAST_QUEUE;  j++;
+  report[j] = data.LAT_GPS     ;  j++;
+  report[j] = data.LONG_GPS    ;  j++;
+  report[j] = data.ALTITUDE_GPS;  j++;
+  report[j] = data.HEADING_GPS ;  j++;
+  report[j] = data.SPEED_GPS   ;  j++;
+  report[j] = data.NUM_SATS_GPS   ;  j++;
   report[j] = data.LAS_STATE.comp_ctr;  j++;
   report[j] = data.LAS_STATE.action;  j++;
   report[j] = data.LAS_STATE.v;  j++;
@@ -65,23 +73,28 @@ void Avionics::shitlUpdate(){
   b = (char*)(&report);
   Serial.write(b, sizeof(report));
   Serial.flush();
-  const int len = sizeof(float)*8;
+  const int len = sizeof(float)*NUM_FLOATS_SHITLED;
   char bytes[len];
   char flags;
-  float vals[8];
+  float vals[NUM_FLOATS_SHITLED];
+  /* 
+   * 1 byte of flags, followed by NUM_FLOATS_SHITLED
+   * followed by 1 byte for num_sats_gps.
+  */
   while(true){
-    if(Serial.available() == len+1){
+    if(Serial.available() == len+2){
       flags = Serial.read();
       for(int i = 0;i < len; i++){
         bytes[i]= Serial.read();
         //Serial.printf("%x,",bytes[i]);
       }
       memcpy(vals,bytes,len);
+      data.NUM_SATS_GPS = (uint8_t)Serial.read();
       break;
     }
   }
   if(flags & (1<<0)){
-    Serial.println("OOO FLAG");
+    Serial.println("FLAG");
     int index;
     float value;
     while(true){
@@ -99,14 +112,19 @@ void Avionics::shitlUpdate(){
     }
     updateConstant(index,value);
   }
-  data.RAW_TEMP_1 = (isnan(vals[0]) ? data.RAW_TEMP_1 : vals[0]);
-  data.RAW_TEMP_2 = (isnan(vals[1]) ? data.RAW_TEMP_2 : vals[1]);
-  data.RAW_TEMP_3 = (isnan(vals[2]) ? data.RAW_TEMP_3 : vals[2]);
-  data.RAW_TEMP_4 = (isnan(vals[3]) ? data.RAW_TEMP_4 : vals[3]);
-  data.RAW_PRESSURE_1 = (isnan(vals[4]) ? data.RAW_PRESSURE_1: vals[4]);
-  data.RAW_PRESSURE_2 = (isnan(vals[5]) ? data.RAW_PRESSURE_2: vals[5]);
-  data.RAW_PRESSURE_3 = (isnan(vals[6]) ? data.RAW_PRESSURE_3: vals[6]);
-  data.RAW_PRESSURE_4 = (isnan(vals[7]) ? data.RAW_PRESSURE_4: vals[7]);
+  data.RAW_TEMP_1 = (isnan(vals[4]) ? data.RAW_TEMP_1 : vals[4]);
+  data.RAW_TEMP_2 = (isnan(vals[5]) ? data.RAW_TEMP_2 : vals[5]);
+  data.RAW_TEMP_3 = (isnan(vals[6]) ? data.RAW_TEMP_3 : vals[6]);
+  data.RAW_TEMP_4 = (isnan(vals[7]) ? data.RAW_TEMP_4 : vals[7]);
+  data.RAW_PRESSURE_1 = (isnan(vals[0]) ? data.RAW_PRESSURE_1: vals[0]);
+  data.RAW_PRESSURE_2 = (isnan(vals[1]) ? data.RAW_PRESSURE_2: vals[1]);
+  data.RAW_PRESSURE_3 = (isnan(vals[2]) ? data.RAW_PRESSURE_3: vals[2]);
+  data.RAW_PRESSURE_4 = (isnan(vals[3]) ? data.RAW_PRESSURE_4: vals[3]);
+  data.LAT_GPS          = vals[8];  
+  data.LONG_GPS         = vals[9];
+  data.ALTITUDE_GPS     = vals[10];
+  data.HEADING_GPS      = vals[11];
+  data.SPEED_GPS        = vals[12];
   Serial.print("SHITL TIME: ");
   Serial.println(te);
   shitlavg += te;

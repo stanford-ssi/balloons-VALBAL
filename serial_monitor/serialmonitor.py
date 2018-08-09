@@ -1,11 +1,13 @@
 import serial
 import struct
 import time as py_time
-import sys
 import numpy as np
 from sys import argv, exit
 import argparse
 import re
+import pty
+import os
+from shitl2sm import SerialMonitorSocket
 
 from flask import Flask, render_template, Response, stream_with_context
 import queue
@@ -16,7 +18,8 @@ TEENSY_ADR = '/dev/tty.usbmodem144121'#'/dev/ttyACM0'
 srcname = "../src/SerialMonitor.cpp"
 log_file_path = "sample_shitl.txt"
 log_file_write_path = "sample_shitl_copy.txt"
-FSTART = b'\xaa'
+FSTART = b'\xaa' # used when making connection to serial if running by itself
+FSTART_SM = b'\xab'
 EXTRA_START = '~'
 
 # flags - false by default
@@ -37,8 +40,12 @@ parser.add_argument('--read', '-r', help="specifiy a file to read saved serial d
 parser.add_argument('--teensy', '-t', help="specify the path to the teensy to read from", type=str)
 parser.add_argument('--write', '-w', help="specify a file where you want to save all of the serial data that was read. Used for creating sample serial data files", type=str)
 parser.add_argument('--debug', '-d', help="debug flag", action="store_true")
+parser.add_argument('--shitl', '-s', help="shitl flag. Will be expecting data sent over a socket from shitl.py", action="store_true")
 args = parser.parse_args()
-if (args.read is None and args.teensy is None) or (args.read is not None and args.teensy is not None):
+
+SHITL = args.shitl
+
+if ((args.read is None and args.teensy is None) or (args.read is not None and args.teensy is not None)) and not SHITL:
     print(">>> ERROR: You must specify a file to read serial data from (-r) [exclusive] OR a path to the teensy (something like '/dev/tty.usbmodem144121') ")
     exit(1)
 
@@ -58,13 +65,13 @@ if (args.teensy is not None):
     READ_LOG = False
     TEENSY_ADR = args.teensy
 
+
 DEBUG = args.debug
-#exit(0)
+
 
 # setup log file stuff
 if WILL_LOG: log_file = open(log_file_path, 'ab')
 if READ_LOG: log_file = open(log_file_path, 'rb')
-
 
 
 
@@ -78,6 +85,8 @@ if READ_LOG: log_file = open(log_file_path, 'rb')
 def get_teensy():
     if READ_LOG:
         return log_file
+    elif SHITL:
+        return SerialMonitorSocket()
     else:
         return serial.Serial(TEENSY_ADR)
 
@@ -106,19 +115,25 @@ def run_serial(teensy, names, num_report):
     # Await teensy response to make sure we can talk
     # But only do this if it's the first time reading in serial
     buf = ""
-    using_extra = False
-    while (1):
-        read = teensy.read(1)
 
-        if WILL_LOG: log_file.write(read)
+    # This section is used for establishing a serial connection with the teensy. We only have to do this when the serial monitor is running straight off valbal
+    if not READ_LOG and not SHITL:
+        while (1):
+            read = teensy.read(1)
 
-        # teensy will send FSTART when it's ready
-        if read == FSTART:
-            if DEBUG: print('>>> VALBAL found ready to monitor serial')
+            if WILL_LOG: log_file.write(read)
 
-            if not READ_LOG: teensy.write(FSTART) # if the serial monitor is re-run, it will send an FSTART regardless of if the Teensy is expecting it, 
-                                 # so make sure FSTARTs are dealt with on the teensy side in an appropriate manner
-            break
+            # teensy will send FSTART when it's ready
+            if read == FSTART:
+                if DEBUG: print('>>> VALBAL found ready to monitor serial')
+
+                teensy.write(FSTART) # if the serial monitor is re-run, it will send an FSTART_SM regardless of if the Teensy is expecting it, 
+                                     # so make sure FSTART_SMs are dealt with on the teensy side in an appropriate manner
+                #print("free", read)
+                break
+            else:
+                pass
+                #print("Got it", read)
 
 
     # Read teensy data
@@ -126,14 +141,15 @@ def run_serial(teensy, names, num_report):
     while(1):
         if READ_LOG: py_time.sleep(0.001)
         
+        py_time.sleep(0.001)
         read = teensy.read(1)
 
         if WILL_LOG: log_file.write(read)
-
-        # now and FSTART signals that the variables we want to display are coming next
-        if read == FSTART:
+        #print("In main loop: ", read)
+        # now and FSTART_SM signals that the variables we want to display are coming next
+        if read == FSTART_SM:
             if DEBUG: print('>>> Ready to read VALBAL data')
-            
+
             # read the time first
             request = teensy.read(4) # takes number of bytes read
             time = struct.unpack('I', request)[0]/1000 # the 'I' means treat the bytes we read as an integer representing # of millis so convert to seconds
@@ -184,6 +200,8 @@ def run_serial(teensy, names, num_report):
 
             except:
                 if DEBUG: print("Couldn't decode something with unicode in message: %s" %buf)
+                #  print("got an exception")
+            #print("we don't care")
                 
 
 
@@ -216,5 +234,7 @@ def hello():
 if __name__ == "__main__":
     teensy = get_teensy()
     names, num_report = get_vars(srcname)
-    _thread.start_new_thread(run_serial, (teensy, names, num_report, ) )
-    app.run(debug=True, threaded=True)
+    #run_serial(teensy, names, num_report)
+    print(_thread.start_new_thread(run_serial, (teensy, names, num_report, ) ) )
+    app.run(debug=True, threaded=True, use_reloader=False)
+

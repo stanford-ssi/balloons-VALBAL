@@ -37,7 +37,8 @@ public:
   } State;
 
   typedef struct __attribute__((packed)) {
-    float h  = 0;                  // altidude
+    float h_abs = 0;               
+    float h_rel = 0;                  
     float op = 0;
     float dldt_ext = 0;
   } Input;

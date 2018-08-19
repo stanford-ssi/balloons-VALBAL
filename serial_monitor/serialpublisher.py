@@ -57,84 +57,122 @@ def setup():
 # for communication between the reading and writing threads
 read_write_queue = queue.Queue()
 
+# for fast sockets maybe?
+context = zmq.Context()
+
 class SerialReader:
 	
 	def __init__(self, garbage_fn):
 		self.garbage = garbage_fn
-
-		# socket stuff
-		context = zmq.Context()
-		self.pub_socket = context.socket(zmq.PUB)
-		self.pub_socket.bind("ipc:///tmp/ser_pub.pipe")
+		self.has_listeners = False
 	
+		self.pub_queue = queue.Queue()
+
 		# start thread to watch read_write_queue
 		watch_thread = threading.Thread(name='watch_queue_thread', target = self.watch_queue)
 		watch_thread.start()
 
+		# start thread to watch pub_queue
+		publish_thread = threading.Thread(name='publish_thread', target = self.publish)
+		publish_thread.start()
+
 	def read(self):
 		garbage_buff = b''
+
 		while(True):
 			print('trying to read')
 			byte = teensy.read() # blocking
 			print('read something')
 			if byte == FSTART:
-				print("OH MY GOD I GOT IT")
-			if byte in signal_chars:
-				si = signal_chars_map[byte]
+				print("OH MY GOD I GOT FSTART")
 
-				# put start char in buffer
-				publish_buffer = byte
-				# read the time
-				publish_buffer += teensy.read(4)
-				# read the rest of data
-				publish_buffer += teensy.read(4*si.var_count)
+			if self.has_listeners: # don't want to send the first FSTART...
+				if byte in signal_chars:
+					si = signal_chars_map[byte]
 
-				# publish the data read
-				print('publishing to socket')
-				self.pub_socket.send(si.process_topic + b' ' + publish_buffer)
-				print('published to socket')
-			else:
-				#garbage_buff += byte
-				self.garbage(byte)
+					# put start char in buffer
+					publish_buffer = byte
+					# read the time
+					publish_buffer += teensy.read(4)
+					# read the rest of data
+					publish_buffer += teensy.read(4*si.var_count)
+
+					# publish the data read
+					print('publishing', publish_buffer,  'to socket with topic', si.process_topic)
+					self.pub_queue.put(si.process_topic + b' ' + publish_buffer)
+					print('published to socket')
+				else:
+					#garbage_buff += byte
+					print("serialpublisher.py read: garbage stuff")
+					self.garbage(byte)
+
+
+	def publish(self):
+		# socket stuff - in same thread
+		pub_socket = context.socket(zmq.PUB)
+		pub_socket.bind("ipc:///tmp/ser_pub.pipe")
+		#pub_socket.bind("tcp://*:5556")
+
+		while(True):
+			msg = self.pub_queue.get()
+			pub_socket.send(msg)
+
 
 
 	def watch_queue(self):
+		
 		# check if theres anything in read_write_queue
 		while(True):
 			#if not read_write_queue.empty():
 			code, msg = read_write_queue.get() # blocking
 			if code == 1: # change garbage function
-				print("watch_queue: changing garbage function")
+				print("serialpublisher.py watch_queue: changing garbage function")
 				self.garbage = msg
 			if code == 2: # send fstart to new subscriber, msg is the topic
-				print("watch_queue: registering topic")
-				self.pub_socket.send(msg + b' ' + FSTART)
+				print("serialpublisher.py watch_queue: registering topic", msg)
+				# has to be own publisher in thread...
+				self.has_listeners = True
+				self.pub_queue.put(msg + b' ' + FSTART)
 
 
 
 class SerialWriter:
 	def __init__(self):
-		# socket stuff
-		context = zmq.Context()
-		self.pull_socket = context.socket(zmq.PULL)
-		self.pull_socket.bind("ipc:///tmp/ser_pull.pipe")
+		self.first_write = True
 
 	def write(self):
+		# socket stuff - in same thread
+		sub_socket = context.socket(zmq.SUB)
+		sub_socket.bind("ipc:///tmp/ser_pull.pipe")
+		sub_socket.setsockopt(zmq.SUBSCRIBE, b'w') # w for 'write'
 		while(True):
 			# pull information from socket
-			recv_msg = self.pull_socket.recv()
+			print("serialpublisher.py write: Waiting for messsage")
+			recv_msg = sub_socket.recv()
 			# check if should write it or edit something
-			flag = recv_msg[0]
-			msg = recv_msg[1:]
+			print("serialpublisher.py write: Just read message",recv_msg)
+			flag = recv_msg[2] # first byte after 'topic' and space
+			msg = recv_msg[3:] # rest of message
+			print("serialpublisher.py write: flag =", flag)
+			print("serialpublisher.py write: msg =", msg)
 
-			if flag == b'\x00':
+			if flag == 0x0:
 				# write to serial
-				teensy.write(msg)
-			elif flag == b'\x01':
+				print("serialpublisher.py write: writing to the teensy")
+
+				# check to make sure what you're only writing FSTART if it's the first time you're writing
+				if msg != FSTART or self.first_write: # NOT (msg = FSTART and not self.first_write)
+					teensy.write(msg)
+					self.first_write = False
+				else:
+					print("serialpublisher.py write: didn't write to teensy")
+
+			elif flag == 0x1:
 				# update garbage function
 				read_write_queue.put((1, msg))
-			elif flag == b'\x02':
+			elif flag == 0x2:
 				# register new subscriber
+				print("serialpublisher.py write: registering new subscriber")
 				read_write_queue.put((2, msg))
 
 
@@ -149,6 +187,7 @@ def read_serial():
 def write_serial():
 	serial_writer = SerialWriter()
 	write_thread = threading.Thread(name='write_thread', target = serial_writer.write)
+	write_thread.start()
 
 if __name__=='__main__':
 	setup()

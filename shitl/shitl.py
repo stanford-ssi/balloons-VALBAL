@@ -10,14 +10,6 @@ import time
 import re
 import os
 
-USE_SM = False
-if USE_SM:
-    # This is not ideal...
-    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'serial_monitor'))
-    from shitl2sm import ShitlSocket
-    # set up socket to forward info if needed
-    shitl_socket = ShitlSocket()
-
 FSTART      = b'\xaa'
 cmdtime = os.path.getmtime('commands.txt')
 cmd_ready=False
@@ -41,7 +33,19 @@ f.write(", ".join(names)+"\n")
 f.close()
 fbin = open(binfile,"wb")
 dat = np.load('ssi63shitl10hr.npy')
-teensy = serial.Serial('/dev/ttyACM0',baudrate=115200)
+
+# I'm thinking you run shitl with the -s flag for serial, just like you would the serial monitor
+if len(sys.argv) >= 2:
+    print("Using Consumer Socket")
+    # This is not ideal...
+    sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'serial_monitor'))
+    from serial_interface import ConsumerSocket
+    teensy = ConsumerSocket(b"shitl") # this is the "topic". Must be this exact binary string - associated with start bit in serialmonitor/serialpublisher.py
+else:
+    print("normie")
+    teensy = serial.Serial('/dev/ttyACM0',baudrate=115200)
+
+
 #WAIT FOR TEENSY TO BEGIN TESTING
 while(1):
 	read = teensy.read(1)
@@ -51,7 +55,6 @@ while(1):
 		break
 	else:
 		try:
-                        #if USE_SM: shitl_socket.write(read)
 			print(read.decode("utf-8"),end='')
 		except:
 			pass
@@ -119,8 +122,6 @@ while(1):
 
 	else:
 		try:
-			if USE_SM:
-                            shitl_socket.write(read)
 			print(read.decode("utf-8"),end='')
 		except:
 			pass

@@ -7,7 +7,8 @@ import argparse
 import re
 import pty
 import os
-from shitl2sm import SerialMonitorSocket
+#from shitl2sm import SerialMonitorSocket
+from serial_interface import ConsumerSocket
 
 from flask import Flask, render_template, Response, stream_with_context
 import queue
@@ -86,7 +87,7 @@ def get_teensy():
     if READ_LOG:
         return log_file
     elif SHITL:
-        return SerialMonitorSocket()
+        return ConsumerSocket(b"serial-monitor") # this string is the "topic" and must be exactly this string
     else:
         return serial.Serial(TEENSY_ADR)
 
@@ -117,7 +118,7 @@ def run_serial(teensy, names, num_report):
     buf = ""
 
     # This section is used for establishing a serial connection with the teensy. We only have to do this when the serial monitor is running straight off valbal
-    if not READ_LOG and not SHITL:
+    if not READ_LOG:
         while (1):
             read = teensy.read(1)
 

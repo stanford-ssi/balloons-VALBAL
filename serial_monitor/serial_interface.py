@@ -3,11 +3,10 @@ import threading
 import queue
 import sys
 import zmq
+import atexit
+import time
 
-#port = 5556
-#address = ('localhost', 6000)
-#temp_addr = '/tmp/serialpipe'
-
+DEBUG = False
 
 close_bytes = b'~~close~~'
 
@@ -30,12 +29,18 @@ class ConsumerSocket:
 		self.consumer_sender = context.socket(zmq.PUB)
 		self.consumer_sender.connect(send_addr)
 
+		# wait for connection to hold
+		time.sleep(0.1)
+
 		listen_thread = threading.Thread(name='listen_thread', target = self._listen)
 		listen_thread.start()
 
 		# register new listener with the publisher
-		print("serial_interface.py __init__: Registering new listener with publisher")
+		if DEBUG: print("serial_interface.py __init__: Registering new listener with publisher")
 		self.write(self.topic, b'\x02')
+
+		# register exit function for when program exits
+		atexit.register(self._cleanup)
 
 
 
@@ -47,14 +52,14 @@ class ConsumerSocket:
 		consumer_receiver = context.socket(zmq.SUB)
 		consumer_receiver.connect(receive_addr)
 
-		print("serial_interface.py _listen: Looking for topic", self.topic)
+		if DEBUG: print("serial_interface.py _listen: Looking for topic", self.topic)
 		consumer_receiver.setsockopt(zmq.SUBSCRIBE, self.topic)
 		
 		while(True):
 
-			print("serial_interface.py _listen: Waiting for message")
+			if DEBUG: print("serial_interface.py _listen: Waiting for message")
 			full_msg = consumer_receiver.recv() # blocking
-			print("serial_interface.py _listen: Got a message: ", full_msg)
+			if DEBUG: print("serial_interface.py _listen: Got a message: ", full_msg)
 			topic, msg = full_msg.split(b" ", 1)
 			
 
@@ -68,6 +73,9 @@ class ConsumerSocket:
 					consumer_receiver.close()
 					print("Socket Closed")
 					break
+
+	def _cleanup(self):
+		self.write(self.topic, b'\x03')
 
 	def read(self, num_bytes=1):
 		# read a number of bytes from the socket stream
@@ -86,7 +94,7 @@ class ConsumerSocket:
 			#self.client_conn.send(self.write_msg)
 			#self.client_conn.send(data)
 		else:
-			print("serial_interface.py write: sending message over ipc: ", msg, "with code", code)
+			if DEBUG: print("serial_interface.py write: sending message over ipc: ", msg, "with code", code)
 			self.consumer_sender.send(b'w ' + code + msg) # w is the topic for 'write'
 
 			# self.write_msg += data

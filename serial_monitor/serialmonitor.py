@@ -237,5 +237,5 @@ if __name__ == "__main__":
     names, num_report = get_vars(srcname)
     #run_serial(teensy, names, num_report)
     print(_thread.start_new_thread(run_serial, (teensy, names, num_report, ) ) )
-    app.run(debug=True, threaded=True, use_reloader=False)
+    app.run(host="0.0.0.0", port=443, debug=True, threaded=True, use_reloader=False)
 

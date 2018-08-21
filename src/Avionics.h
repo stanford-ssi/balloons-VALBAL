@@ -37,7 +37,7 @@
 
 // #define JANKSHITL
 #define SERIALSHITL
-//#define SERIALMONITOR
+#define SERIALMONITOR
 //#define SERIALSHITL_LEN 32
 
 

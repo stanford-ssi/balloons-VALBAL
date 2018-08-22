@@ -104,7 +104,7 @@ class ConsumerSocket:
                         #       self.write_msg = b""
         
         def flush(self):
-            pass
+            self.write("flush", b'\x04')
 
 
 

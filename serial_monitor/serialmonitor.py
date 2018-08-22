@@ -142,7 +142,6 @@ def run_serial(teensy, names, num_report):
     while(1):
         if READ_LOG: py_time.sleep(0.001)
         
-        py_time.sleep(0.001)
         read = teensy.read(1)
 
         if WILL_LOG: log_file.write(read)
@@ -157,7 +156,6 @@ def run_serial(teensy, names, num_report):
 
             if DEBUG: print('>>> Request Time:',time)
             if WILL_LOG: log_file.write(request)
-            
             # read the rest of the data: (num_report floats)
             data = teensy.read(4*num_report)
 
@@ -222,7 +220,9 @@ def index():
 # function hello, which flask handles for us
 def getDataStream():
     while True:
+        #start_time = py_time.time()
         msg = serial_queue.get(True) # blocking if/when queue is empty
+        #print("elapsed time:", (py_time.time() - start_time)*1000)
         yield "data: %s\n\n"%(msg)
 
 # push the each message that is yielded 
@@ -237,5 +237,6 @@ if __name__ == "__main__":
     names, num_report = get_vars(srcname)
     #run_serial(teensy, names, num_report)
     print(_thread.start_new_thread(run_serial, (teensy, names, num_report, ) ) )
-    app.run(host="0.0.0.0", port=443, debug=True, threaded=True, use_reloader=False)
+    #app.run(host="0.0.0.0", port=443, debug=True, threaded=True, use_reloader=False)
+    app.run(debug=True, threaded=True, use_reloader=False)
 

@@ -195,9 +195,9 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.LAS_CONSTANTS.launch_h_thresh,       0,     2000,  12,  lengthBits);
 
     lengthBits += compressVariable(data.SOLAR_ELEVATION,                    -90,      90,   8,  lengthBits);
-    lengthBits += compressVariable(data.DSEDT,                               -1,       1,   16,  lengthBits); // TODO: fix units
-    lengthBits += compressVariable(data.ESTIMATED_DLDT,                      -1,       1,   16,  lengthBits);
-    lengthBits += compressVariable(data.DLDT_SCALE,                        -1.5,     1.5,   16,  lengthBits);
+    lengthBits += compressVariable(data.DSEDT,                              -0.00416,    0.00416,   8,  lengthBits); 
+    lengthBits += compressVariable(data.ESTIMATED_DLDT,                  -6.8141e-05, 6.8141e-05,   9,  lengthBits);
+    lengthBits += compressVariable(data.DLDT_SCALE,                        -1.5,     1.5,   8,  lengthBits);
 
     lengthBits += compressVariable(data.LAT_GPS_MANUAL,                     -90,     90,   21,  lengthBits);
     lengthBits += compressVariable(data.LONG_GPS_MANUAL,                   -180,     180,  22,  lengthBits);

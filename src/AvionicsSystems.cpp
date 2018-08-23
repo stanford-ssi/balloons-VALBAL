@@ -134,11 +134,15 @@ bool Avionics::runBallast() {
  */
 bool Avionics::runCutdown() {
   //Serial.println("Avionics.runCutdown called");
+  if ((millis() - data.TIME_LAST_CUTDOWN) < 60000) {
+    return true;
+  }
   if(data.SHOULD_CUTDOWN) {
     Serial.println("data.SHOULD_CUTDOWN was true");
     actuator.cutDown();
     data.SHOULD_CUTDOWN = false;
     data.CUTDOWN_STATE = true;
+    data.TIME_LAST_CUTDOWN = millis();
     alert("completed cutdown", false);
   }
   return true;
@@ -193,6 +197,16 @@ void Avionics::rumAndCoke() {
     //actuator.queueValve(1000000, true);
   }
 
+}
+
+void Avionics::runDeadMansSwitch() {
+  if (!data.DEADMAN_ENABLED) return;
+
+  /* Note: it will be repeatedly called, but runCutdown() runs at most once per minute. */
+  if ((millis() - data.TIME_LAST_COMM) > data.DEADMAN_TIME) {
+    data.SHOULD_CUTDOWN = true;
+    runCutdown();
+  }
 }
 
 /*

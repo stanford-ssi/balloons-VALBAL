@@ -184,6 +184,12 @@ struct DataFrame {
   bool TIMED_CUTDOWN_ENABLE = false;
   uint32_t TIMED_CUTDOWN_MILLIS = 0;
 
+  bool DEADMAN_ENABLED = true;
+  uint32_t DEADMAN_TIME = 50400000;
+  uint32_t TIME_LAST_COMM = 0;
+
+  uint32_t TIME_LAST_CUTDOWN = 0;
+
   float VOLTAGE_SUPERCAP_MIN = 314;
 
   bool       POWER_STATE_RADIO =                           !true;

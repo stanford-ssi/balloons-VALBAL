@@ -133,6 +133,9 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.CUBA_TIMEOUT,                        0,    4000000,       10,  lengthBits);
     lengthBits += compressVariable(data.TIMED_CUTDOWN_ENABLE,            0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.GEOFENCED_CUTDOWN_ENABLE,            0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.DEADMAN_ENABLED,            0,    1,       1,  lengthBits);
+    float delta_hours = (millis() - data.TIME_LAST_COMM)/3600000.;
+    lengthBits += compressVariable(delta_hours,            0,    15,       4,  lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval

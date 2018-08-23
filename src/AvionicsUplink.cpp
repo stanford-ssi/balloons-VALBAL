@@ -162,6 +162,8 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 98) data.LONG_GPS_MANUAL = value;
   else if (index == 99) data.GPS_MANUAL_MODE = value;
   else if (index == 100) data.GPS_MANUAL_MODE_OVERRIDE = value;
+  else if (index == 101) data.DEADMAN_ENABLED = (bool)value;
+  else if (index == 102) data.DEADMAN_TIME = value * 1000. * 60 * 60; // hours
   else if (index == 123) data.RB_COOLDOWN = value * 1000;
   else if (index == 124) data.SWITCH_TO_MANUAL = (bool)value;
 }

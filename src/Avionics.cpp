@@ -181,6 +181,7 @@ void Avionics::actuateState() {
   runHeaters();
   rumAndCoke();
   timedCutdown();
+  runDeadMansSwitch();
   if(!runRadio()) alert("Unable to run payload", true);
 }
 
@@ -229,7 +230,10 @@ void Avionics::logState() {
        data.RB_LAST = millis();
      }
    }
-   else data.RB_LAST = millis();
+   else {
+      data.RB_LAST = millis();
+      data.TIME_LAST_COMM = millis();
+   }
  #endif
  }
 

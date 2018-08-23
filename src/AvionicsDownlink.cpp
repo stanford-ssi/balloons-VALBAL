@@ -133,6 +133,9 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.CUBA_TIMEOUT,                        0,    4000000,       10,  lengthBits);
     lengthBits += compressVariable(data.TIMED_CUTDOWN_ENABLE,            0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.GEOFENCED_CUTDOWN_ENABLE,            0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.DEADMAN_ENABLED,            0,    1,       1,  lengthBits);
+    float delta_hours = (millis() - data.TIME_LAST_COMM)/3600000.;
+    lengthBits += compressVariable(delta_hours,            0,    15,       4,  lengthBits);
     lengthBits += compressVariable(data.SOLAR_ELEVATION,                    -90,      90,   8,  lengthBits);
     lengthBits += compressVariable(data.DSEDT,                              -0.00416,    0.00416,   8,  lengthBits); 
     lengthBits += compressVariable(data.ESTIMATED_DLDT,                  -6.8141e-05, 6.8141e-05,   9,  lengthBits);

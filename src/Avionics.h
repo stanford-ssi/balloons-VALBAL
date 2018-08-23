@@ -166,6 +166,7 @@ private:
   void rumAndCoke();
   bool checkInCuba();
   void timedCutdown();
+  void runDeadMansSwitch();
   void updateSunValues();
 };
 

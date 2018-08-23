@@ -5,9 +5,7 @@ import numpy as np
 from sys import argv, exit
 import argparse
 import re
-import pty
 import os
-#from shitl2sm import SerialMonitorSocket
 from serial_interface import ConsumerSocket
 
 from flask import Flask, render_template, Response, stream_with_context
@@ -20,7 +18,7 @@ srcname = "../src/SerialMonitor.cpp"
 log_file_path = "sample_shitl.txt"
 log_file_write_path = "sample_shitl_copy.txt"
 FSTART = b'\xaa' # used when making connection to serial if running by itself
-FSTART_SM = b'\xab'
+FSTART_SM = b'\xab' # used to mark the beginning of section of serial monitor variables
 EXTRA_START = '~'
 
 # flags - false by default

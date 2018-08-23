@@ -28,6 +28,10 @@ $(document).ready(function() {
     var first = true;
     let EXTRA_START = "~"; // this is a (ascii) character that signals the beginning of a message that holds extra info we don't put at the top of the screen
     var capture_other = false;
+    var node_count = 0;
+
+    var msg_buf = ""
+    var msg_buf_count = 0;
 
     // cache the divs where text goes
     var stat_elem = document.getElementById("status-txt");
@@ -68,16 +72,31 @@ $(document).ready(function() {
         // Check if this message is from the extra logging information (misc print statements throughout the code)
         if (msg.charAt(0) == EXTRA_START) { 
 
-            // remove the start character from the beginning of the string
-            msg = msg.substring(1, msg.length) + "\n";
+            
 
             // handle the scrolling: only auto-scroll if you're toward the bottom of the screen
             if (capture_other) {
-                msg_node = document.createTextNode(msg);
-                extra_div.appendChild(msg_node);
-                if (extra_div.scrollTop >= extra_div.scrollHeight - extra_div.clientHeight - 400) {
-                    extra_div.scrollTop = extra_div.scrollHeight;
+
+                // remove the start character from the beginning of the string
+                msg_buf = msg.substring(1, msg.length) + "\n" + msg_buf;
+                msg_buf_count++;
+
+                if (msg_buf_count > 30) {
+                    msg_node = document.createTextNode(msg_buf);
+                    //extra_div.appendChild(msg_node);
+                    extra_div.prepend(msg_node);
+                    // if (extra_div.scrollTop >= extra_div.scrollHeight - extra_div.clientHeight - 400) {
+                    //     extra_div.scrollTop = extra_div.scrollHeight;
+                    // }
+                    node_count++;
+                    if (node_count > 500) {
+                        extra_div.normalize();
+                        node_count = 1;
+                    }
+                    msg_buf_count = 0;
+                    msg_buf = "";
                 }
+                
             }
 
         // This message is from the SHITL Logging: Put it in the top part of the screen   

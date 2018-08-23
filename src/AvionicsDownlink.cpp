@@ -133,6 +133,9 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.CUBA_TIMEOUT,                        0,    4000000,       10,  lengthBits);
     lengthBits += compressVariable(data.TIMED_CUTDOWN_ENABLE,            0,    1,       1,  lengthBits);
     lengthBits += compressVariable(data.GEOFENCED_CUTDOWN_ENABLE,            0,    1,       1,  lengthBits);
+    lengthBits += compressVariable(data.SOLAR_ELEVATION,                    -90,      90,   8,  lengthBits);
+    lengthBits += compressVariable(data.DSEDT,                              -0.00416,    0.00416,   8,  lengthBits); 
+    lengthBits += compressVariable(data.ESTIMATED_DLDT,                  -6.8141e-05, 6.8141e-05,   9,  lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval
@@ -194,11 +197,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.LAS_CONSTANTS.equil_h_thresh,        0,    20000,  16,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.launch_h_thresh,       0,     2000,  12,  lengthBits);
 
-    lengthBits += compressVariable(data.SOLAR_ELEVATION,                    -90,      90,   8,  lengthBits);
-    lengthBits += compressVariable(data.DSEDT,                              -0.00416,    0.00416,   8,  lengthBits); 
-    lengthBits += compressVariable(data.ESTIMATED_DLDT,                  -6.8141e-05, 6.8141e-05,   9,  lengthBits);
     lengthBits += compressVariable(data.DLDT_SCALE,                        -1.5,     1.5,   8,  lengthBits);
-
     lengthBits += compressVariable(data.LAT_GPS_MANUAL,                     -90,     90,   21,  lengthBits);
     lengthBits += compressVariable(data.LONG_GPS_MANUAL,                   -180,     180,  22,  lengthBits);
     lengthBits += compressVariable(data.GPS_MANUAL_MODE,                      0,       1,   1,  lengthBits);

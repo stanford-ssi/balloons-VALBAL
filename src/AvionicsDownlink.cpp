@@ -139,6 +139,10 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.SOLAR_ELEVATION,                    -90,      90,   8,  lengthBits);
     lengthBits += compressVariable(data.DSEDT,                              -0.00416,    0.00416,   8,  lengthBits); 
     lengthBits += compressVariable(data.ESTIMATED_DLDT,                  -6.8141e-05, 6.8141e-05,   9,  lengthBits);
+    lengthBits += compressVariable(data.ALTITUDE_CORRECTED, 0, 25000,  15,  lengthBits);
+    lengthBits += compressVariable(filter.v_filtered[0], -5, 5,  8,  lengthBits);
+    lengthBits += compressVariable(filter.v_filtered[3], -5, 5,  8,  lengthBits);
+    lengthBits += compressVariable(filter.v_filtered[4], -5, 5,  8,  lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval

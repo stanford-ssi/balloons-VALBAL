@@ -8,10 +8,6 @@
 #include <iostream>
 #endif
 
-#define HUGE_VALF 2000000000.0
-
-
-
 class LasagnaController
 {
 public:

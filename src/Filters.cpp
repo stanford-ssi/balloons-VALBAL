@@ -175,7 +175,7 @@ float Filters::update_voltage_supercap(float v) {
 }
 
 void Filters::correctAltitude(struct DataFrame &data){
-  if(data.NUM_SATS_GPS >= 6){
+  if( (data.NUM_SATS_GPS >= 6) && (data.TIME - data.GPS_LAST_NEW < 1000*60*5) && (fabs(data.ALTITUDE_GPS - data.ALTITUDE_BAROMETER) < 1000)) {
     data.ALTITUDE_OFFSET = data.ALTITUDE_OFFSET*(1-data.ALTITUDE_OFFSET_GAIN) + (data.ALTITUDE_GPS - data.ALTITUDE_BAROMETER)*data.ALTITUDE_OFFSET_GAIN;
   }
   data.ALTITUDE_CORRECTED = data.ALTITUDE_BAROMETER + data.ALTITUDE_OFFSET;

@@ -135,6 +135,7 @@ struct DataFrame {
   float      BALLAST_LAST_ACTION_CONSTANT    =      BALLAST_LAST_ACTION_DEFAULT;
 
   float     DLDT_SCALE                       =               DLDT_SCALE_DEFAULT;
+  bool      USE_ALTITUDE_CORRECTED           =                             true;
 
 
 /*******************************  EXTRA DATA  *********************************/

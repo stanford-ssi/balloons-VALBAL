@@ -8,30 +8,30 @@ class PastaSim
 public:
 	typedef struct {
 		bool nightfall = 1;
-		double klin = 6;
-		double v_dldt = 0.003;
-		double b_dldt = 0.0008;
-		double freq = 20;
-		double lon = -122.1697;
-		double lat = 37.4275;
+		float klin = 6;
+		float v_dldt = 0.003;
+		float b_dldt = 0.0008;
+		float freq = 20;
+		int sun_calc_interval = 60;
+		float lon = -122.1697;
+		float lat = 37.4275;
 		SunsetPredictor::GPSTime gtime;
 	} Config;
 	Config conf;
+	PastaSim(int seed);
 	PastaSim();
-	double evolve(double action);
-	double h;
-	double sunset_dldt = 0;
-	double time = 0;
-
+	float evolve(float action);
+	float h;
+	float sunset_dldt = 0;
+	unsigned int time = 0;
 	SunsetPredictor sunpred;
+	float v;
+	float l;
 private:
-	double v;
-	double l;
-	int ctr = 0;
+	void init();
 	std::default_random_engine gen;
-	std::normal_distribution<double> l_noise;
-	std::normal_distribution<double> v_noise;
-
+	std::normal_distribution<float> l_noise;
+	std::normal_distribution<float> v_noise;
 };
 
 

@@ -184,8 +184,8 @@ void AdjustableLowpass::setSS(float v){
 }
 
 Biquad::Coeffs AdjustableLowpass::calcCoeffs(){
-  float w0 = 2 * pi * F0 / Fs;
-  float alpha = sin(w0)/(2*Q);
+  double w0 = 2 * pi * F0 / Fs;
+  double alpha = sin(w0)/(2*Q);
   Biquad::Coeffs coeffs;
   coeffs.a[0] = 1+alpha;
   coeffs.a[1] = -2*cos(w0);

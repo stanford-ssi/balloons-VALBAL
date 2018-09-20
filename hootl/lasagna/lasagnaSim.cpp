@@ -18,17 +18,14 @@ CONTROLLER::Constants getDefaultConstants();
 CONTROLLER::Constants DefaultConstants();
 
 
-int main ()
-{
+void equil20Hz(){
 	fstream f ("data.bin", std::fstream::in | std::fstream::binary);
 	fstream o ("output.bin", std::fstream::out | std::fstream::binary);
-	
-	PastaSim sim;
-
+	PastaSim sim(1);
+	sim.h = 0;
+	sim.l = 0.1;
 	CONTROLLER las;
 	CONTROLLER::Constants con;
-	con.k_v = con.k_v/2;
-	con.k_h = con.k_h/2;
 	las.updateConstants(con);
 	printf("%f %f \n",las.getConstants().freq,las.getConstants().kfuse);
 	miniframe data;
@@ -37,13 +34,60 @@ int main ()
 	int act_sum = 0;
 	for(int i = 0; i < 60*60*20*4; i++){
 		CONTROLLER::Input input;
-		input.h = sim.h;		
+		input.h_rel = sim.h;
+		input.h_abs = sim.h;		
 		las.update(input);
 	}
 	for(int i = 0; i < dur; i++){
 		CONTROLLER::Input input;
-		input.h = sim.evolve(double(las.getAction()));
-		input.dldt_ext = sim.sunset_dldt*0.5;
+		float h = sim.evolve(double(las.getAction()));
+		input.h_rel = h;
+		input.h_abs = h;
+		input.dldt_ext = sim.sunset_dldt*0;
+		las.update(input);
+		CONTROLLER::State state = las.getState();
+		act_sum += state.action;
+		if(i%(FREQ) == 0){
+			float buf[6] = {sim.h, v_cmd,state.effort, state.effort_sum, state.fused_v, state.v};
+			o.write((char*)&buf, sizeof(float)*6);
+			o.write((char*)&act_sum,sizeof(act_sum));
+		}
+		if(i%(FREQ*60*60) == 0){
+			float t = float(i)/FREQ/60/60;
+			printf("%f, %f, %f \n", t, sim.h, state.v1);
+		}
+	}
+}
+
+void equilfreqtesting(){
+	fstream f ("data.bin", std::fstream::in | std::fstream::binary);
+	fstream o ("output.bin", std::fstream::out | std::fstream::binary);
+	
+	PastaSim::Config conf;
+	conf.freq = 1;
+	PastaSim sim(1);
+	sim.h = 0;
+	sim.l = 0.1;
+	CONTROLLER las;
+	CONTROLLER::Constants con;
+	las.updateConstants(con);
+	printf("%f %f \n",las.getConstants().freq,las.getConstants().kfuse);
+	miniframe data;
+	float v_cmd = 0;
+	int dur = 60*60*24*4*FREQ;
+	int act_sum = 0;
+	for(int i = 0; i < 60*60*20*4; i++){
+		CONTROLLER::Input input;
+		input.h_rel = sim.h;
+		input.h_abs = sim.h;		
+		las.update(input);
+	}
+	for(int i = 0; i < dur; i++){
+		CONTROLLER::Input input;
+		float h = sim.evolve(double(las.getAction()));
+		input.h_rel = h;
+		input.h_abs = h;
+		input.dldt_ext = sim.sunset_dldt*0;
 		las.update(input);
 		CONTROLLER::State state = las.getState();
 		act_sum += state.action;
@@ -59,3 +103,8 @@ int main ()
 	}
 }
 
+
+int main ()
+{
+	equil20Hz();
+}

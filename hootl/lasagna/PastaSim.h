@@ -27,11 +27,11 @@ public:
 	SunsetPredictor sunpred;
 	float v;
 	float l;
+	int sun_pred_ctr = 0;
 private:
 	void init();
 	std::default_random_engine gen;
 	std::normal_distribution<float> l_noise;
-	std::normal_distribution<float> v_noise;
 };
 
 

@@ -1,29 +1,51 @@
 #include "LasagnaController.h"
 
 LasagnaController::LasagnaController() :
-  v1_filter({{1.0003141592601912L, -1.9999999013039569L, 0.99968584073980871L}, {4.93480216e-07L,   4.93480216e-07L,  -4.93480216e-07L,  -4.93480216e-07L}}),
-  v2_filter({{1.0007479981811036L, -1.9999994404986428L, 0.9992520018188963L}, {2.79750679e-06L,  2.79750679e-06L, -2.79750679e-06L, -2.79750679e-06L}}),
-  action_filter({{1L, -0.99994L, 0.0L}, {0.5L, 0.5L, -0.0L}})
+  v1_filter(1./60./16., 0.5, 20.),
+  v2_filter(1./60./7.,  0.5, 20.),
+  action_filter(1./60./16., 0.5, 20.)
 {}
+
+LasagnaController::LasagnaController(float freq) : 
+  v1_filter(1./60./16., 0.5, freq),
+  v2_filter(1./60./7.,  0.5, freq),
+  action_filter(1./60./16., 0.5, freq) 
+{
+  constants.freq = freq;
+}
 
 bool LasagnaController::update(Input input){ 
 
+  /**
+   * Input protection for dtdl_ext
+   */
   if(isnan(input.dldt_ext)){
     input.dldt_ext = 0; 
   } else {
-    float limit = 0.0001;
+    float limit = 0.0001*4;
     input.dldt_ext = pasta_clamp(input.dldt_ext,-limit,limit);
   }
 
+  /**
+   * Update both filtered velocities
+   */
+  if(!is_first_call){ 
+    state.v1 = v1_filter.update((input.h_rel-state.h_rel_last)*constants.freq);
+    state.v2 = v2_filter.update((input.h_rel-state.h_rel_last)*constants.freq);
+  }
+  /**
+   * Cases and transistions for various flight states
+   */
   switch(state.status){
     case PRELAUNCH:
-      if(launch_h > constants.equil_h_thresh){        // this is the first time lasagna is called on startup
+      if(is_first_call){        // this is the first time lasagna is called on startup
         if(input.h_rel > constants.equil_h_thresh){       // looks like we are already in flight ohp
           launch_h = 0;
           state.status = EQUIL;
         } else {
         launch_h = input.h_rel;
         }
+        is_first_call = false;
       } else if(input.h_rel - launch_h > constants.launch_h_thresh) state.status = ASCENT;
       break;
     case ASCENT:
@@ -33,17 +55,19 @@ bool LasagnaController::update(Input input){
       break;
   }
   state.v_dldt = input.op*constants.v_dldt_a + constants.v_dldt_b; 
-  state.v1 = v1_filter.update(input.h_rel);
-  state.v2 = v2_filter.update(input.h_rel);
   state.v = (state.status==EQUIL) ? state.v1 : state.v2;
-  float dldt_total = 0;
+
+  float dv_pred = 0;
   if(state.status==EQUIL){
-    float act_dldt = state.action > 0 ? float(state.action)*constants.kfuse*constants.b_dldt : float(state.action)*constants.kfuse*state.v_dldt*constants.kfuse_val;
-    dldt_total = act_dldt + input.dldt_ext;
+    float act_dldt = state.action > 0 ? float(state.action)*constants.b_dldt : float(state.action)*state.v_dldt*constants.kfuse_val;
+    dv_pred = constants.kfuse*(act_dldt + input.dldt_ext/constants.freq);
   }
-  state.fused_v = state.v + action_filter.update(dldt_total);
+  state.dv_sum += dv_pred;  
+  state.fused_v = state.v + state.dv_sum - action_filter.update(state.dv_sum);
   innerLoop(input.h_abs);
   if(state.status==PRELAUNCH) state.action = 0;
+
+  state.h_rel_last = input.h_rel;
   return true;
 }
 
@@ -70,11 +94,11 @@ void LasagnaController::innerLoop(float input_h){
   //if(state.v<-constants.v_limit) deadband_effort = max(deadband_effort,float(0));
   state.effort_sum += deadband_effort/constants.freq;
   if(state.effort_sum >= constants.b_tmin*constants.b_dldt){
-    state.action = constants.b_tmin;
-    state.effort_sum -= constants.b_tmin*constants.b_dldt;
+    state.action = constants.b_tmin*int(state.effort_sum/(constants.b_tmin*constants.b_dldt));
+    state.effort_sum -= constants.b_tmin*constants.b_dldt*int(state.effort_sum/(constants.b_tmin*constants.b_dldt));
   } else if(-state.effort_sum >= constants.v_tmin*state.v_dldt){
-    state.action = -constants.v_tmin;
-    state.effort_sum -= -constants.v_tmin*state.v_dldt;
+    state.action = constants.v_tmin*int(state.effort_sum/(constants.v_tmin*state.v_dldt));
+    state.effort_sum -= constants.v_tmin*state.v_dldt*int(state.effort_sum/(constants.v_tmin*state.v_dldt));
   } else {
     state.action = 0;
   }

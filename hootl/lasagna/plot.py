@@ -22,7 +22,7 @@ fig, ax1 = plt.subplots()
 ax1.plot(t,D('alt'),label='alt')
 ax1.set_ylabel('altitude (m)')
 
-if 0:
+if 1:
 	for i in np.nonzero(np.diff(D('act')) > 0)[0]:
 		ax1.axvline(t[i], c='b',alpha=0.01)
 	for i in np.nonzero(np.diff(D('act')) < 0)[0]:
@@ -34,12 +34,15 @@ ax1.axhline(12750,c='gray',alpha=0.4)
 print(np.sum(np.abs(np.diff(D('act')))))
 
 ax2 = ax1.twinx()
-ax2.plot(t,D('fuse'),'red',label='velocity')
-ax2.plot(t,D('v'),'orange',label='fused velocity')
-#ax2.set_ylabel('velocity')
+
+ax2.plot(t,D('v'),'red',label='velocity')
+ax2.plot(t,D('fuse'),'orange',label='fused estimate')
+ax2.plot(t,D('fuse') - D('v'),'pink',label='difference')
+ax2.set_ylabel('velocity (m/s)')
+plt.legend()
 #ax1.set_title(np.sum(np.abs(np.diff(D('act')))))
 #ax3 = ax1.twinx()
-#ax3.plot(t,D('ef'),'pink',label='effort')
+#ax2.plot(t[:-1],np.diff(D('act')),'pink',label='action',alpha=0.2)
 formatter = matplotlib.ticker.FuncFormatter(lambda s, x: time.strftime('%d:%H:%M:%S', time.gmtime(s // 1)))
 ax1.xaxis.set_major_formatter(formatter)
 lines, labels = ax1.get_legend_handles_labels()

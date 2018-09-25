@@ -24,11 +24,13 @@ public:
     float v1                   =   0;        
     float v2                   =   0;
     float fused_v              =   0;
-    float effort               =   0;
-    float effort_sum           =   0;
     float v_cmd                =   0;
     float v_cmd_clamped        =   0;
+    float dv_sum               =   0;
+    float effort               =   0;
+    float effort_sum           =   0;
     float v_dldt               =   0;
+    float h_rel_last           =   0;
     Status status              =   PRELAUNCH;
   } State;
 
@@ -58,6 +60,7 @@ public:
   } Constants;
 
   LasagnaController();
+  LasagnaController(float freq);
   bool update(Input input);
   void updateConstants(Constants constants);
   int getAction();
@@ -67,12 +70,13 @@ private:
   void outerLoop();
   void innerLoop(float input_h);
   Constants constants;
-  DBiquad v1_filter;
-  DBiquad v2_filter;
-  Biquad action_filter;
+  AdjustableLowpass v1_filter;
+  AdjustableLowpass v2_filter;
+  AdjustableLowpass action_filter;
   State state;
   unsigned int comp_freq = 1;
-  float launch_h = 20000;     //starting altitude (yes this looks skect ik)
+  float launch_h = 0;     
+  bool is_first_call = true;
 };
 
 #endif

@@ -63,7 +63,7 @@ void equilfreqtesting(){
 	fstream f ("data.bin", std::fstream::in | std::fstream::binary);
 	fstream o ("output.bin", std::fstream::out | std::fstream::binary);
 	PastaSim sim(1);
-	sim.h = 0;
+	sim.h = 12000;
 	sim.l = 0.1;
 	sim.conf.freq = freq;
 	CONTROLLER las(freq);
@@ -83,7 +83,7 @@ void equilfreqtesting(){
 		float h = sim.evolve(double(las.getAction()));
 		input.h_rel = h;
 		input.h_abs = h;
-		input.dldt_ext = sim.sunset_dldt*1;
+		input.dldt_ext = sim.sunset_dldt*3;
 		las.update(input);
 		CONTROLLER::State state = las.getState();
 		act_sum += state.action;

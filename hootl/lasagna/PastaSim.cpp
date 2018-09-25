@@ -3,14 +3,14 @@
 
 
 PastaSim::PastaSim(int seed) : 
-	l_noise(0,0.003/4.4721)
+	l_noise(0,0.000670)
 {
 	gen.seed(seed);
 	init();
 }
 
 PastaSim::PastaSim() : 
-	l_noise(0,0.003/4.4721)
+	l_noise(0,0.000670)
 {
 	gen.seed(std::time(0));
 	init();
@@ -28,7 +28,7 @@ void PastaSim::init(){
 
 float PastaSim::evolve(float  action){
 	time += 1000/conf.freq;
-	if(time/(conf.sun_calc_interval*1000) >= sun_pred_ctr){
+	if(time/conf.sun_calc_interval >= sun_pred_ctr){
 		sunpred.calcValues(conf.lon, conf.lat, conf.gtime, time/1000);
 		sunset_dldt = sunpred.estimated_dldt;
 		sun_pred_ctr++;

@@ -12,7 +12,7 @@ public:
 		float v_dldt = 0.003;
 		float b_dldt = 0.0008;
 		float freq = 20;
-		unsigned int sun_calc_interval = 60; 
+		unsigned int sun_calc_interval = 60000; // interval for how often sun posisition is calculated, in ms
 		float lon = -122.1697;
 		float lat = 37.4275;
 		SunsetPredictor::GPSTime gtime;
@@ -21,12 +21,12 @@ public:
 	PastaSim(int seed);
 	PastaSim();
 	float evolve(float action);
-	float h;
+	float h;							// sim altitude in m
 	float sunset_dldt = 0;
-	unsigned int time = 0;
+	unsigned int time = 0;				// sim time in ms
 	SunsetPredictor sunpred;
-	float v;
-	float l;
+	float v;							// sim velocity in m/s
+	float l;							// sim balloon lift in kg 
 	unsigned int sun_pred_ctr = 0;
 private:
 	void init();

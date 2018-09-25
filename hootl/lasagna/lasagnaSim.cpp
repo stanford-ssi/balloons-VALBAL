@@ -6,7 +6,6 @@
 #include "header.h"
 #include "PastaSim.h"
 
-#define FREQ 1
 #define CONTROLLER LasagnaController
 #define LAS LasagnaController
 #define SPAG SpaghettiController2

@@ -44,7 +44,7 @@ bool LasagnaController::update(Input input){
           launch_h = 0;
           state.status = EQUIL;
         } else {
-        launch_h = input.h_rel;
+          launch_h = input.h_rel;
         }
         is_first_call = false;
       } else if(input.h_rel - launch_h > constants.launch_h_thresh) state.status = ASCENT;

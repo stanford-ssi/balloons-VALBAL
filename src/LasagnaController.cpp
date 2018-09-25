@@ -62,7 +62,7 @@ bool LasagnaController::update(Input input){
   /**
    * Predict changes in velocity from external dldt and dldt from actions. This is only done after the
    * balloon has equilibrated. We then sum all these delta v's (state.dv_sum). We add this sum to the 
-   * fused_v, however we also substract the dv_sum passed through the action_filter. This is becuase the 
+   * fused_v; however we also subtract the dv_sum passed through the action_filter. This is because the
    * action filter has the same constants of the velocity filter, so it reflects the component of the predicted
    * dv_sum that should already be observed in the filtered velocity.
    */

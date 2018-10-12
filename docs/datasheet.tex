@@ -1,0 +1,107 @@
+\documentclass[12pt, twocolumn]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+%\usepackage[notmath]{sansmathfonts}
+\usepackage{garamondx}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{classico}
+\usepackage{gensymb} 
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumitem}
+%\usepackage{FiraSans}
+\usepackage[english]{babel}
+\usepackage[pangram]{blindtext}
+\usepackage{wrapfig}
+
+
+\usepackage[top=2.5in,left=0.62in,right=0.62in,bottom=0.62in]{geometry}
+
+
+\makeatletter
+\def\parsecomma#1,#2\endparsecomma{\def\page@x{#1}\def\page@y{#2}}
+\tikzdeclarecoordinatesystem{page}{
+    \parsecomma#1\endparsecomma
+    \pgfpointanchor{current page}{north east}
+    % Save the upper right corner
+    \pgf@xc=\pgf@x%
+    \pgf@yc=\pgf@y%
+    % save the lower left corner
+    \pgfpointanchor{current page}{south west}
+    \pgf@xb=\pgf@x%
+    \pgf@yb=\pgf@y%
+    % Transform to the correct placement
+    \pgfmathparse{(\pgf@xc-\pgf@xb)/2.*\page@x+(\pgf@xc+\pgf@xb)/2.}
+    \expandafter\pgf@x\expandafter=\pgfmathresult pt
+    \pgfmathparse{(\pgf@yc-\pgf@yb)/2.*\page@y+(\pgf@yc+\pgf@yb)/2.}
+    \expandafter\pgf@y\expandafter=\pgfmathresult pt
+}
+\makeatother
+
+\newcommand{\specialcell}[2][c]{%
+  \begin{tabular}[#1]{@{}l@{}}#2\end{tabular}}
+\newcommand{\specialcellr}[2][r]{%
+  \begin{tabular}[#1]{@{}r@{}}#2\end{tabular}}
+
+\usepackage{titlesec}
+
+\titlespacing*{\section}
+{0pt}{0ex plus 0.2ex minus .2ex}{0.5ex plus .2ex}
+
+\usepackage{booktabs}
+\usepackage{lipsum}
+\def\labelitemi{--}
+
+\begin{document}
+\thispagestyle{empty}\sffamily
+
+\noindent ValBal is SSI's in-house developed HAB platform, designed to facilitate a broad range of high altitude research through highly dynamic altitude control. ValBal can extend the endurance of a latex balloon from a few hours to a record-breaking 5 days, and can maintain and dynamically transition between altitudes all the way from ground level to it flight ceiling. These capabilities, along with its low cost, make it ideally suited for a variety of previously challenging mission profiles.
+
+\begin{tikzpicture}[remember picture,overlay]
+\fill[fill={rgb:red,190;green,30;blue,45}] (page cs:-1,1) rectangle (page cs:1,0.6);
+\node (myfirstpic) at (page cs:-0.7,0.8) {\includegraphics[height=0.2\textheight]{ssilogo.png}};
+\node[color=white,anchor=west] (datasheet) at (page cs:-0.45,0.913) {\sffamily\fontsize{16}{20}\selectfont \textsc{Stanford Student Space Initiative}};
+\node[color=white,anchor=west] (datasheet) at (page cs:-0.45,0.76) {\sffamily\fontsize{35}{40}\selectfont ValBal};
+\node[color=white,anchor=west] (datasheet) at (page cs:-0.45,0.683) {\sffamily\fontsize{16}{20}\selectfont Altitude controlled latex high altitude balloon system};
+\end{tikzpicture}
+
+%\textbf{ValBal} is a high-altitude balloon platform that 
+
+\section*{\sffamily Key specifications}
+\vspace{1ex}
+\def\power#1#2#3{\emph{Above $-$#1 \textdegree C:} #2~#3}
+\begin{center}
+\begin{tabular}{rl}
+\toprule
+\textbf{Altitude range} & \specialcell[t]{\emph{Standard:} 12.25--17 km\\\emph{Extended:} 0--23 km}\\\midrule
+%\textbf{Peak power} & \specialcell[t]{\power{10}{3}{W}\\\power{40}{500}{mW}\\\power{60}{100}{mW}\\\power{70}{---}{}}\\\midrule
+%\specialcellr[t]{\textbf{Cumulative}\\\textbf{energy}} & \specialcell[t]{\emph{24~hours:} 68~Wh\\\emph{48~hours:} 56~Wh\\\emph{72~hours:} 44~Wh}\\\midrule
+\textbf{Endurance} & \specialcell[t]{\emph{No payload:} 5~days\\\emph{1~kg payload:} 3~days\\\emph{5~kg payload:} 1~day}\\\midrule
+\textbf{Communications} & \specialcell[t]{  \begin{minipage}[t]{0.5\linewidth}
+    \begin{itemize}[topsep=0pt,itemsep=-1ex,partopsep=1ex,parsep=1ex,leftmargin=2ex]
+    \item Iridium, 8\textcent/50 byte.
+    \item Custom 433~MHz radio, ~5~kBps line-of-sight.
+    \end{itemize}\end{minipage}\vspace{1mm} }\\\bottomrule
+\end{tabular}
+\end{center}
+{\footnotesize \textbf{\small Notes:}
+\begin{itemize}[parsep=1ex,itemsep=-1ex]
+\item Many of the design parameters are flexible, and can be customized on a per mission basis.
+%\item In particular, energy can be easily increased at a density of 300~Wh/kg, at the cost of payload; similarly for peak power.%; peak power at 
+\item An endurance of five days was demonstrated with zero payload. This reflects our current best mission, but we believe that longer missions are feasible with the system.
+\end{itemize}
+
+\section*{\sffamily Highlights}
+\begin{wrapfigure}{r}{0.5\linewidth}
+\includegraphics[width=\linewidth]{render.jpg}
+\end{wrapfigure}
+\paragraph{\sffamily Ease of assembly:} Valbal's incredible lorem ipsum makes it \Blindtext[1][5]
+
+\paragraph{\sffamily Range of applications:} \Blindtext[1][5]
+}
+
+
+\end{document}

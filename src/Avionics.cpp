@@ -46,27 +46,28 @@ void Avionics::init() {
   delay(500);
   Serial.println("setting payload high");
 
-
+/*
   // here be heaters
   pinMode(36, OUTPUT);
   pinMode(OP_PIN, INPUT);
   pinMode(VR_PIN, INPUT);
 
   pinMode(57, OUTPUT);
-  digitalWrite(57, LOW);
+  digitalWrite(57, LOW);*/
 
   if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   if(!readHistory())                          alert("unable to initialize EEPROM", true);
   if(!sensors.init())                         alert("unable to initialize Sensors", true);
+
   delay(2000);
   Serial.println("Serial has been init");
-  if(!currentSensor.init(CURRENT_MONITOR_CS)) alert("unable to initialize Current Sensor", true);
+  //if(!currentSensor.init(CURRENT_MONITOR_CS)) alert("unable to initialize Current Sensor", true);
 // #ifdef HITL_ENABLED_FLAG
 //   if(!HITL.init())                            alert("unable to initialize Simulations", true);
 // #endif
   if(!computer.init())                        alert("unable to initialize Flight Controller", true) ;
-  gpsModule.GPS_MODE = 1;
-  if(!gpsModule.init(data.POWER_STATE_GPS))   alert("unable to initialize GPS", true);
+  //gpsModule.GPS_MODE = 1;
+  if(!gpsModule.init(true))   alert("unable to initialize GPS", true);
   if(!superCap.init())                        alert("unable to initialize superCap", true);
   if(!setup5VLine())                          alert("unable to initialize 5V line", true);
   // pinMode(49, OUTPUT);
@@ -74,9 +75,9 @@ void Avionics::init() {
   // pinMode(56, OUTPUT);
   // digitalWrite(56, HIGH);
 #ifndef RB_DISABLED_FLAG
-  if(!RBModule.init(false))     alert("unable to initialize RockBlock", true);
+  //if(!RBModule.init(false))     alert("unable to initialize RockBlock", true);
 #endif
-  if(!radio.init(data.POWER_STATE_RADIO)) alert("unable to initialize Payload", true);
+  //if(!radio.init(data.POWER_STATE_RADIO)) alert("unable to initialize Payload", true);
   data.TIME = millis();
   data.SETUP_STATE = false;
 

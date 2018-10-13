@@ -45,7 +45,29 @@ void Avionics::printState() {
   //     Serial.print(" ");
   //     //Serial.print(data.CURRENT_MOTOR_BALLAST_AVG);
   //     Serial.println();
-  
+
+	Serial.println();
+	Serial.println();
+
+  Serial.print(" RAW_PRESSURE_1:");
+  Serial.print(data.RAW_PRESSURE_1);
+  Serial.print(',');
+  Serial.print(" RAW_PRESSURE_2:");
+  Serial.print(data.RAW_PRESSURE_2);
+  Serial.print(',');
+  Serial.print(" RAW_PRESSURE_3:");
+  Serial.print(data.RAW_PRESSURE_3);
+  Serial.print(',');
+  Serial.print(" RAW_PRESSURE_4:");
+  Serial.print(data.RAW_PRESSURE_4);
+	Serial.println();
+  Serial.println(sensors.bmp1.readPressure());
+  Serial.println(sensors.bmp2.readPressure());
+Serial.println();
+Serial.print(sensors.getVoltageSuperCap());
+Serial.println(" Volts.");
+Serial.println();
+	return;
   Serial.print("Altitude: ");
   Serial.println(data.ALTITUDE_BAROMETER);
   Serial.print("LOOP_TIME: ");
@@ -94,17 +116,17 @@ void Avionics::printState() {
   // Serial.print(" RAW_TEMP_4:");
   // Serial.print(data.RAW_TEMP_4);
   // Serial.print(',');
-  /*Serial.print("RAW_PRESSURE_1: ");
+  Serial.print("RAW_PRESSURE_1: ");
   Serial.println(data.RAW_PRESSURE_1);
-  //Serial.print(',');
+  Serial.print(',');
   Serial.print("RAW_PRESSURE_2: ");
   Serial.println(data.RAW_PRESSURE_2);
-  //Serial.print(',');
+  Serial.print(',');
   Serial.print("RAW_PRESSURE_3: ");
   Serial.println(data.RAW_PRESSURE_3);
-  //Serial.print(',');
+  Serial.print(',');
   Serial.print("RAW_PRESSURE_4: ");
-  Serial.println(data.RAW_PRESSURE_4);*/
+  Serial.println(data.RAW_PRESSURE_4);
   Serial.println();
   //return;
 

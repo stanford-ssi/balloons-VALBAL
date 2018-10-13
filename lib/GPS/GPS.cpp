@@ -25,7 +25,7 @@ bool GPS::init(bool shouldStartup) {
   Serial.println("low");
   Serial.println(shouldStartup);
   delay(2000);
-  Serial1.begin(GPS_BAUD);
+  Serial6.begin(GPS_BAUD);
   if (shouldStartup) {
     success = restart();
   }
@@ -45,8 +45,8 @@ bool GPS::restart() {
   Serial.println("bootup");
   uint32_t t0 = millis();
   while (millis()-t0 < 1000) {
-    if (Serial1.available()) {
-      Serial.print((char)Serial1.read());
+    if (Serial6.available()) {
+      Serial.print((char)Serial6.read());
     }
   }
   Serial.println();
@@ -54,7 +54,7 @@ bool GPS::restart() {
   delay(1000);
   EEPROM.write(EEPROMAddress, true);
   delay(1000);
-  while (Serial1.available()) Serial1.read();
+  while (Serial6.available()) Serial6.read();
   if (GPS_MODE == 1) success = setGPSMode(gpsonly, sizeof(gpsonly)/sizeof(uint8_t), GPS_LOCK_TIME);
   success = setGPSMode(flightMode, sizeof(flightMode)/sizeof(uint8_t), GPS_LOCK_TIME);
   return success;
@@ -70,7 +70,7 @@ void GPS::lowpower() {
  * This function hotstarts the GPS.
  */
 void GPS::hotstart() {
-  Serial1.println("$PUBX,00*33");
+  Serial6.println("$PUBX,00*33");
   delay(1000);
 }
 
@@ -207,8 +207,8 @@ int GPS::getSecond() {
 void GPS::smartDelay(uint32_t ms) {
   uint32_t startt = millis();
   do {
-    while (Serial1.available()) {
-      char c = Serial1.read();
+    while (Serial6.available()) {
+      char c = Serial6.read();
       Serial.print(c);
       tinygps.encode(c);
     }
@@ -237,10 +237,10 @@ bool GPS::setGPSMode(uint8_t* MSG, uint8_t len, uint16_t GPS_LOCK_TIME){
 void GPS::sendUBX(uint8_t* MSG, uint8_t len) {
   Serial.println("Sending UBX");
   for(int i = 0; i < len; i++) {
-    Serial1.write(MSG[i]);
+    Serial6.write(MSG[i]);
     Serial.print(MSG[i], HEX);
   }
-  Serial1.println();
+  Serial6.println();
 }
 
 /*
@@ -276,8 +276,8 @@ bool GPS::getUBX_ACK(uint8_t* MSG) {
       Serial.println(" (SUCCESS!)");
       return true;
     }
-    if (Serial1.available()) {
-      b = Serial1.read();
+    if (Serial6.available()) {
+      b = Serial6.read();
       if (b == ackPacket[ackByteID]) {
         ackByteID++;
         Serial.print(b, HEX);

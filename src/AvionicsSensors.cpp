@@ -37,15 +37,15 @@ bool Avionics::readData() {
   data.TIME                       = millis();
   data.VOLTAGE_PRIMARY            = sensors.getVoltagePrimary();
   data.VOLTAGE_SUPERCAP           = sensors.getVoltageSuperCap();
-  data.CURRENT_TOTAL              = -2*currentSensor.average_voltage_readings(DIFF_10_11, CURRENT_NUM_SAMPLES);
+  //data.CURRENT_TOTAL              = -2*currentSensor.average_voltage_readings(DIFF_10_11, CURRENT_NUM_SAMPLES);
   data.JOULES_TOTAL               += data.LOOP_TIME/1000.*data.VOLTAGE_PRIMARY*data.CURRENT_TOTAL/1000.;
-  data.CURRENT_RB                 = -currentSensor.average_voltage_readings(DIFF_14_15, CURRENT_NUM_SAMPLES);
+  //data.CURRENT_RB                 = -currentSensor.average_voltage_readings(DIFF_14_15, CURRENT_NUM_SAMPLES);
   data.MAX_CURRENT_CHARGING_LIMIT = superCap.getChargingLimit();
-  float motcur = currentSensor.average_voltage_readings(DIFF_8_9, CURRENT_NUM_SAMPLES);
-  data.CURRENT_MOTOR_VALVE        = (data.VALVE_STATE ? motcur : 0);
-  data.CURRENT_MOTOR_BALLAST      = (data.BALLAST_STATE ? motcur : 0);
-  data.CURRENT_MOTORS             = motcur;
-  data.CURRENT_PAYLOAD            = -currentSensor.average_voltage_readings(DIFF_12_13, CURRENT_NUM_SAMPLES);
+  //float motcur = currentSensor.average_voltage_readings(DIFF_8_9, CURRENT_NUM_SAMPLES);
+  //data.CURRENT_MOTOR_VALVE        = (data.VALVE_STATE ? motcur : 0);
+  //data.CURRENT_MOTOR_BALLAST      = (data.BALLAST_STATE ? motcur : 0);
+  //data.CURRENT_MOTORS             = motcur;
+  //data.CURRENT_PAYLOAD            = -currentSensor.average_voltage_readings(DIFF_12_13, CURRENT_NUM_SAMPLES);
   data.TEMP_EXT                   = sensors.getDerivedTemp(EXT_TEMP_SENSOR);
   #ifdef SERIALSHITL
   shitlUpdate();

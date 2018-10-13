@@ -16,6 +16,7 @@
 #include "Config.h"
 #include <SPI.h>
 #include <Adafruit_BMP280.h>
+#include <DFRobot_BMP388.h>
 #include <LTC2991.h>
 
 class Sensors {
@@ -26,7 +27,9 @@ public:
     bme1(BMP_CS_ONE),
     bme2(BMP_CS_TWO),
     bme3(BMP_CS_THREE),
-    bme4(BMP_CS_FOUR) {
+    bme4(BMP_CS_FOUR),
+    bmp1(BMPX_CS_ONE),
+    bmp2(BMPX_CS_ONE) {
   }
   bool  init();
 
@@ -40,17 +43,19 @@ public:
   float getRawTemp(uint8_t sensor);
   float getRawPressure(uint8_t sensor);
 
-private:
 /*********************************  OBJECTS  **********************************/
   Adafruit_BMP280 bme1;
   Adafruit_BMP280 bme2;
   Adafruit_BMP280 bme3;
   Adafruit_BMP280 bme4;
+	DFRobot_BMP388 bmp1;
+	DFRobot_BMP388 bmp2;
   uint32_t lastJoulesCall = 0;
   float internalCurrentMonitor = 0;
   float voltageSuperCap = 0;
   float voltagePrimary = 0;
   float joules = 0;
+	private:
 };
 
 #endif

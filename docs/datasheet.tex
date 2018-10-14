@@ -17,8 +17,7 @@
 \usepackage[pangram]{blindtext}
 \usepackage{wrapfig}
 
-
-\usepackage[top=2.5in,left=0.62in,right=0.62in,bottom=0.62in]{geometry}
+\usepackage[top=2.6in,left=0.62in,right=0.62in,bottom=0.62in]{geometry} 
 
 
 \makeatletter
@@ -45,7 +44,7 @@
   \begin{tabular}[#1]{@{}l@{}}#2\end{tabular}}
 \newcommand{\specialcellr}[2][r]{%
   \begin{tabular}[#1]{@{}r@{}}#2\end{tabular}}
-
+%\addtolength{\skip\footins}{0pc plus 2pt}
 \usepackage{titlesec}
 
 \titlespacing*{\subsection}
@@ -79,32 +78,36 @@
 \textbf{Altitude range} & \specialcell[t]{\emph{Standard:} 12.25--17 km\\\emph{Extended:} 0--23 km}\\\midrule
 %\textbf{Peak power} & \specialcell[t]{\power{10}{3}{W}\\\power{40}{500}{mW}\\\power{60}{100}{mW}\\\power{70}{---}{}}\\\midrule
 %\specialcellr[t]{\textbf{Cumulative}\\\textbf{energy}} & \specialcell[t]{\emph{24~hours:} 68~Wh\\\emph{48~hours:} 56~Wh\\\emph{72~hours:} 44~Wh}\\\midrule
-\textbf{Endurance} & \specialcell[t]{\emph{No payload:} 5~days\\\emph{1~kg payload:} 3~days\\\emph{5~kg payload:} 1~day}\\\midrule
+\textbf{Endurance\footnotemark} & \specialcell[t]{\emph{No payload:} 5~days\\\emph{1~kg payload:} 3~days\\\emph{5~kg payload:} 1~day}\\\midrule
 \textbf{Communications} & \specialcell[t]{  \begin{minipage}[t]{0.5\linewidth}
     \begin{itemize}[topsep=0pt,itemsep=-1ex,partopsep=1ex,parsep=1ex,leftmargin=2ex]
-    \item Iridium, 8CASH/50 byte.
+    \item Iridium, 8c/50 byte.
     \item Custom 433~MHz radio, ~5~kBps line-of-sight.
-    \end{itemize}\end{minipage}\vspace{1mm} }\\\midrule
-    \multicolumn{2}{c}{\footnotesize\begin{minipage}[t]{0.9\linewidth}\textbf{\small Notes:}
-\begin{itemize}[parsep=1ex,itemsep=-1ex]
-\item Many of the design parameters are flexible, and can be customized on a per mission basis.
+    \end{itemize}\end{minipage}\vspace{1mm} }
+%\\\midrule    \multicolumn{2}{c}{\footnotesize\begin{minipage}[t]{0.9\linewidth}\textbf{\small Notes:}
+%\begin{itemize}[parsep=1ex,itemsep=-1ex]
+%\item Many of the design parameters are flexible, and can be customized on a per mission basis.
 %\item In particular, energy can be easily increased at a density of 300~Wh/kg, at the cost of payload; similarly for peak power.%; peak power at 
-\item An endurance of five days was demonstrated with zero payload. This reflects our current best mission, but we believe that longer missions are feasible with the system.
-\end{itemize}\end{minipage}\vspace{1mm}}\\\bottomrule
+%\item An endurance of five days was demonstrated with zero payload. This reflects our current best mission, but we believe that longer missions are feasible with the system.
+%\end{itemize}\end{minipage}\vspace{1mm}}
+\\\bottomrule
 \end{tabular}
+\footnotetext{\sffamily An endurance of five days was demonstrated with zero payload. This reflects our current best mission, but we believe that longer missions are feasible with the system.}
 \end{center}
 {\footnotesize 
 
 \paragraph{\sffamily Some stuff:} Some stuff indeed \Blindtext[1][3]
 
 %\section*{\sffamily Highlights}
+
+\begin{minipage}{\linewidth}
+\vspace*{\fill}
 \begin{center}\includegraphics[width=0.5\linewidth,trim={0cm 13cm 0cm 5cm},clip]{render.jpg}\includegraphics[width=0.5\linewidth,trim={12cm 2cm 25cm 12cm},clip]{vbpic.jpg}\end{center}
-\paragraph{\sffamily Ease of assembly:} ValBal requires only six custom components and can be assembled in under 2 hours. No manual machining, cutting, gluing, or soldering is required. 
+\paragraph{\sffamily Ease of assembly:} ValBal requires only six custom components and can be assembled in under 2 hours. No manual machining, cutting, gluing, or soldering is required.
 
 \begin{center}\includegraphics[width=\linewidth,trim={1cm 0.3cm 2cm 1.5cm},clip]{trajfig.png}\end{center}
-
 \paragraph{\sffamily Control capabilities:} Plot of possible 5-day flightpaths for a given launch time through monte carlo simulation with NOAA data. Red: altitude-bounded flight plans with no objective. Blue: flight plans optimized for distance.
-
+\end{minipage}
 }
 
 

@@ -32,9 +32,10 @@ static const uint8_t   PAYLOAD_CURRENT                       =                4;
 static const uint8_t   EXT_TEMP_SENSOR                       =               36;
 static const uint8_t   CUTDOWN_POWER                         =               27;
 static const uint8_t   CUTDOWN_SIGNAL                        =               27;
-static const uint8_t   CUTDOWN_FWD                        =               6;
-static const uint8_t   CUTDOWN_REV                        =               2;
-
+static const uint8_t   CUTDOWN_FWD                           =                6;
+static const uint8_t   CUTDOWN_REV                           =                2;
+static const uint8_t   LED_PIN                               =               25;
+  static const uint8_t NUM_LEDS                              =                1;
 static const uint8_t   CURRENT_SENSOR_CS                     =                1;
 
 

@@ -24,6 +24,8 @@ void Hardware::init() {
   Serial.println("initializing Wire");
   Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_100);
   Wire.setDefaultTimeout(10000);
+//  pixels = Adafruit_NeoPixel(1, 25, NEO_GRB + NEO_KHZ800); // NUM_LEDS, LED_PIN
+  pixels.begin();
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -33,13 +35,13 @@ void Hardware::init() {
  * This function turns the LED on or off.
  */
 void Hardware::runLED(bool on) {
-  // if (on) {
-  //   pinMode(LED_PIN, OUTPUT);
-  //   digitalWrite(LED_PIN, LOW);
-  // }
-  // else {
-  //   pinMode(LED_PIN, INPUT);
-  // }
+  if (on) {
+    pixels.setPixelColor(0, pixels.Color(0,255,0));
+  }
+  else {
+    pixels.setPixelColor(0, pixels.Color(0,0,0));
+  }
+  pixels.show(); // This sends the updated pixel color to the hardware.
 }
 
 /*

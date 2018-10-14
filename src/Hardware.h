@@ -15,6 +15,7 @@
 #include "Config.h"
 #include <EEPROM.h>
 #include <i2c_t3.h>
+#include <Adafruit_NeoPixel.h>
 
 class Hardware {
 public:
@@ -28,6 +29,7 @@ public:
   static int32_t  EEPROMReadlong(uint8_t address);
 
 private:
+  Adafruit_NeoPixel pixels = Adafruit_NeoPixel(1, 25, NEO_GRB + NEO_KHZ800); // NUM_LEDS, LED_PIN
 };
 
 #endif

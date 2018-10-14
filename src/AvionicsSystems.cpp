@@ -215,8 +215,14 @@ void Avionics::runDeadMansSwitch() {
  * This function blinks the 1HZ LED required by the FAA.
  */
 bool Avionics::runLED() {
-  if (data.POWER_STATE_LED && (uint32_t(millis() / 1000.0) % 2 == 1)) PCB.runLED(true);
-  else PCB.runLED(false);
+  digitalWrite(25, HIGH);
+  // if (data.POWER_STATE_LED && (uint32_t(millis() / 1000.0) % 2 == 1)){
+  //   PCB.runLED(true);
+  //   Serial.println("beep");
+  // }else{
+  //   PCB.runLED(false);
+  //   Serial.println("boop");
+  // }
   return true;
 }
 

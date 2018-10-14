@@ -59,6 +59,7 @@ void Avionics::init() {
   if(!readHistory())                          alert("unable to initialize EEPROM", true);
   if(!sensors.init())                         alert("unable to initialize Sensors", true);
 
+
   delay(2000);
   Serial.println("Serial has been init");
   //if(!currentSensor.init(CURRENT_MONITOR_CS)) alert("unable to initialize Current Sensor", true);

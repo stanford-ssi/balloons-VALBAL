@@ -35,21 +35,26 @@ bool Avionics::readHistory() {
 bool Avionics::readData() {
   data.LOOP_TIME                  = millis() - data.TIME;
   data.TIME                       = millis();
-  data.VOLTAGE_PRIMARY            = sensors.getVoltagePrimary();
-  data.VOLTAGE_SUPERCAP           = sensors.getVoltageSuperCap();
-  //data.CURRENT_TOTAL              = -2*currentSensor.average_voltage_readings(DIFF_10_11, CURRENT_NUM_SAMPLES);
-  data.JOULES_TOTAL               += data.LOOP_TIME/1000.*data.VOLTAGE_PRIMARY*data.CURRENT_TOTAL/1000.;
-  //data.CURRENT_RB                 = -currentSensor.average_voltage_readings(DIFF_14_15, CURRENT_NUM_SAMPLES);
-  data.MAX_CURRENT_CHARGING_LIMIT = superCap.getChargingLimit();
-  //float motcur = currentSensor.average_voltage_readings(DIFF_8_9, CURRENT_NUM_SAMPLES);
-  //data.CURRENT_MOTOR_VALVE        = (data.VALVE_STATE ? motcur : 0);
-  //data.CURRENT_MOTOR_BALLAST      = (data.BALLAST_STATE ? motcur : 0);
-  //data.CURRENT_MOTORS             = motcur;
-  //data.CURRENT_PAYLOAD            = -currentSensor.average_voltage_readings(DIFF_12_13, CURRENT_NUM_SAMPLES);
-  data.TEMP_EXT                   = sensors.getDerivedTemp(EXT_TEMP_SENSOR);
+	noInterrupts();
+  data.VOLTAGE_PRIMARY            = sensors.getSensor(SENSOR_VMAIN);
+  data.VOLTAGE_SUPERCAP           = sensors.getSensor(SENSOR_VCAP);
+  data.CURRENT_TOTAL              = sensors.getSensor(SENSOR_IMAIN);
+  data.CURRENT_RB                 = sensors.getSensor(SENSOR_IRB);
+  data.CURRENT_MOTORS             = sensors.getSensor(SENSOR_IMOT);
+  data.CURRENT_PAYLOAD            = sensors.getSensor(SENSOR_IPLD);
+	data.CURRENT_SD = sensors.getSensor(SENSOR_ISD);
+	data.CURRENT_GPS = sensors.getSensor(SENSOR_IGPS);
+	data.SENSOR_TIME = sensors.getTime();
+	sensors.reset();
+	interrupts();
+  //data.TEMP_EXT                   = sensors.getDerivedTemp(EXT_TEMP_SENSOR);
   #ifdef SERIALSHITL
   shitlUpdate();
   #else
+  data.MAX_CURRENT_CHARGING_LIMIT = superCap.getChargingLimit();
+  data.CURRENT_MOTOR_VALVE        = (data.VALVE_STATE ? data.CURRENT_MOTORS : 0);
+  data.CURRENT_MOTOR_BALLAST      = (data.BALLAST_STATE ? data.CURRENT_MOTORS : 0);
+  data.JOULES_TOTAL               += data.LOOP_TIME/1000.*data.VOLTAGE_PRIMARY*data.CURRENT_TOTAL/1000.;
   data.RAW_TEMP_1                 = sensors.getRawTemp(1);
   data.RAW_TEMP_2                 = sensors.getRawTemp(2);
   data.RAW_TEMP_3                 = sensors.getRawTemp(3);
@@ -80,8 +85,8 @@ bool Avionics::readData() {
  * This function reads data from the GPS module.
  */
 bool Avionics::readGPS() {
-  Serial.println();Serial.println();Serial.println();Serial.println();Serial.println();Serial.println();
-  Serial.println("READ GPS CALLED");
+  //Serial.println();Serial.println();Serial.println();Serial.println();Serial.println();Serial.println();
+  //Serial.println("READ GPS CALLED");
   gpsModule.smartDelay(GPS_LOCK_TIMEOUT);
   bool new_values = false;
   float new_lat         = gpsModule.getLatitude();

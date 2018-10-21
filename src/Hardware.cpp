@@ -21,9 +21,11 @@
 void Hardware::init() {
   analogReference(INTERNAL);
   analogReadResolution(12);
-  Serial.println("initializing Wire");
-  Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_100);
-  Wire.setDefaultTimeout(10000);
+	pinMode(PAYLOAD_GATE, OUTPUT);
+	digitalWrite(PAYLOAD_GATE, LOW);
+  Serial.println("initializing Wire, not");
+  //Wire.begin(I2C_MASTER, 0x00, I2C_PINS_18_19, I2C_PULLUP_EXT, I2C_RATE_100);
+  //Wire.setDefaultTimeout(10000);
 }
 
 /********************************  FUNCTIONS  *********************************/

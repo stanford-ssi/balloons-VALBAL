@@ -31,7 +31,7 @@ void user_delay_ms(uint32_t num){
 int8_t user_spi_write(uint8_t dev_id, uint8_t reg_addr,uint8_t *data, uint16_t len){
   SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
   uint8_t i = 0;
-  digitalWrite(nCS , LOW); 
+  digitalWrite(nCS , LOW);
   SPI.transfer(reg_addr);
   for(i = 0; i < len; i++){
     SPI.transfer(*data);
@@ -44,14 +44,14 @@ int8_t user_spi_write(uint8_t dev_id, uint8_t reg_addr,uint8_t *data, uint16_t l
 
 int8_t user_spi_read(uint8_t dev_id, uint8_t reg_addr,uint8_t *data, uint16_t len){
   SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0));
-  fflushthefuck();
+  //fflushthefuck();
   int i = 0;
-  digitalWrite(nCS , LOW); 
+  digitalWrite(nCS , LOW);
   SPI.transfer(reg_addr);
   for(i = 0; i < len; i++){
     data[i] = SPI.transfer(0x00);
   }
-  digitalWrite(nCS ,HIGH); 
+  digitalWrite(nCS ,HIGH);
   return 0;
 }
 
@@ -179,7 +179,7 @@ int8_t DFRobot_BMP388::bmp3_set_regs(uint8_t *reg_addr, const uint8_t *reg_data,
   uint16_t temp_len;
   uint8_t reg_addr_cnt;
 
-  // Check for arguments validity 
+  // Check for arguments validity
   if ((reg_addr != NULL) && (reg_data != NULL) && (len != 0)) {
     temp_buff[0] = reg_data[0];
     if (dev.intf == BMP3_SPI_INTF) {
@@ -323,7 +323,7 @@ int8_t DFRobot_BMP388::get_calib_data()
   uint8_t reg_addr = BMP3_CALIB_DATA_ADDR;
   /* Array to store calibration data */
   uint8_t calib_data[BMP3_CALIB_DATA_LEN] = {0};
-  
+
   /* Read the calibration data from the sensor */
   DBG();
   rslt = bmp3_get_regs(reg_addr, calib_data, BMP3_CALIB_DATA_LEN);
@@ -525,21 +525,21 @@ double DFRobot_BMP388::compensate_pressure(const struct bmp3_uncomp_data *uncomp
   double partial_data4;
   double partial_out1;
   double partial_out2;
-  
+
   partial_data1 = quantized_calib_data->par_p6 * quantized_calib_data->t_lin;
   partial_data2 = quantized_calib_data->par_p7 * bmp3_pow(quantized_calib_data->t_lin, 2);
   partial_data3 = quantized_calib_data->par_p8 * bmp3_pow(quantized_calib_data->t_lin, 3);
   partial_out1 = quantized_calib_data->par_p5 + partial_data1 + partial_data2 + partial_data3;
-  
-  
+
+
   partial_data1 = quantized_calib_data->par_p2 * quantized_calib_data->t_lin;
   partial_data2 = quantized_calib_data->par_p3 * bmp3_pow(quantized_calib_data->t_lin, 2);
   partial_data3 = quantized_calib_data->par_p4 * bmp3_pow(quantized_calib_data->t_lin, 3);
   partial_out2 = uncomp_data->pressure *
       (quantized_calib_data->par_p1 + partial_data1 + partial_data2 + partial_data3);
-      
-  
-  
+
+
+
   partial_data1 = bmp3_pow((double)uncomp_data->pressure, 2);
   partial_data2 = quantized_calib_data->par_p9 + quantized_calib_data->par_p10 * quantized_calib_data->t_lin;
   partial_data3 = partial_data1 * partial_data2;

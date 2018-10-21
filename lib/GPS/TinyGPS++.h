@@ -241,6 +241,8 @@ public:
   uint32_t failedChecksum()   const { return failedChecksumCount; }
   uint32_t passedChecksum()   const { return passedChecksumCount; }
 
+	bool isYeet = false;
+
 private:
   enum {GPS_SENTENCE_GPGGA, GPS_SENTENCE_GPRMC, GPS_SENTENCE_OTHER};
 

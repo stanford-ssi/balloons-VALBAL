@@ -158,6 +158,9 @@ struct DataFrame {
   float      CURRENT_MOTOR_VALVE             =                                0;
   float      CURRENT_MOTOR_BALLAST           =                                0;
   float      CURRENT_PAYLOAD                 =                                0;
+  float      CURRENT_SD                 =                                0;
+  float      CURRENT_GPS                 =                                0;
+	float SENSOR_TIME = 0;
 
   uint32_t   GPS_LAST                        =                                0;
   uint32_t   GPS_LAST_NEW                    =                                0;

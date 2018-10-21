@@ -55,10 +55,11 @@ void Avionics::init() {
   pinMode(57, OUTPUT);
   digitalWrite(57, LOW);*/
 
-  if(!setupSDCard())                          alert("unable to initialize SD Card", true);
+  //if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   if(!readHistory())                          alert("unable to initialize EEPROM", true);
   if(!sensors.init())                         alert("unable to initialize Sensors", true);
 
+	//return;
   delay(2000);
   Serial.println("Serial has been init");
   //if(!currentSensor.init(CURRENT_MONITOR_CS)) alert("unable to initialize Current Sensor", true);
@@ -68,8 +69,8 @@ void Avionics::init() {
   if(!computer.init())                        alert("unable to initialize Flight Controller", true) ;
   //gpsModule.GPS_MODE = 1;
   if(!gpsModule.init(true))   alert("unable to initialize GPS", true);
-  if(!superCap.init())                        alert("unable to initialize superCap", true);
-  if(!setup5VLine())                          alert("unable to initialize 5V line", true);
+  //if(!superCap.init())                        alert("unable to initialize superCap", true);
+  //if(!setup5VLine())                          alert("unable to initialize 5V line", true);
   // pinMode(49, OUTPUT);
   // digitalWrite(49, HIGH);
   // pinMode(56, OUTPUT);
@@ -106,8 +107,8 @@ void Avionics::init() {
 void Avionics::test() {
   alert("Initializing test...", true);
 
-    actuator.queueBallast(5000, true);
-      actuator.queueValve(5000, true);
+  //actuator.queueBallast(5000, true);
+  //actuator.queueValve(5000, true);
   //actuator.queueValve(30000, true)
   //data.SHOULD_CUTDOWN = true;
   //actuator.cutDown();
@@ -115,8 +116,8 @@ void Avionics::test() {
 
 void Avionics::runHeaters() {
   if (!data.POWER_STATE_LED) {
-    analogWrite(36, 0);
-    data.RB_HEAT_DUTY = 0;
+    //analogWrite(36, 0);
+    //data.RB_HEAT_DUTY = 0;
     return;
   }
   heater.updateConstants(data.HEATER_CONSTANTS);
@@ -144,10 +145,13 @@ void Avionics::updateState() {
 //   if(!simulateData()) alert("unable to simulate Data", true);
 // #endif
   if(!processData())  alert("unable to process Data", true);
-
-  /*if (data.TIME > 40000 && data.TIME < 40050) {
-    actuator.queueBallast(30000, true);
-  }*/
+/*
+	  if (data.TIME > 30000 && data.TIME < 30050) {
+	    actuator.queueBallast(10000, true);
+	  }
+		  if (data.TIME > 40000 && data.TIME < 40050) {
+		    actuator.queueValve(10000, true);
+		  }*/
   //currentSensor.read_voltage(DIFF_12_13);
   //Serial.print("avg voltage: ");
   //uint32_t t0 = micros();
@@ -179,11 +183,12 @@ void Avionics::actuateState() {
   if(!runBallast()) alert("unable to run ballast", true);
   if(!runCutdown()) alert("unable to run cutdown", true);
   if(!runLED())     alert("unable to run LED", true);
-  runHeaters();
+  /*runHeaters();
   rumAndCoke();
   timedCutdown();
-  runDeadMansSwitch();
-  if(!runRadio()) alert("Unable to run payload", true);
+  runDeadMansSwitch();*/
+  //if(!runRadio()) alert("Unable to run payload", true);
+
 }
 
 /*
@@ -194,7 +199,7 @@ void Avionics::actuateState() {
 void Avionics::logState() {
   uint32_t t0 = millis();
   //Serial.println("begin");
-  if(!log.log(&data, 1024)) alert("unable to log Data", true);
+  //if(!log.log(&data, 1024)) alert("unable to log Data", true);
   //Serial.println("end");
   data.LOG_TIME = millis() - t0;
   if(!debugState())   alert("unable to debug state", true);

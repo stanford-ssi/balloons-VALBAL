@@ -62,7 +62,7 @@ bool AD5246::setResistance(uint8_t hex) {
     delayMicroseconds(3);
     int stuff = digitalReadFast(18);
     if (stuff != 0) {
-      Serial.println("NACK");
+      //Serial.println("NACK");
     }
     pinMode(18, OUTPUT);
     delayMicroseconds(7);
@@ -83,7 +83,7 @@ bool AD5246::setResistance(uint8_t hex) {
     delayMicroseconds(3);
     int stuff2 = digitalReadFast(18);
     if (stuff2 != 0) {
-      Serial.println("NACK2");
+      //Serial.println("NACK2");
     }
     pinMode(18, OUTPUT);
     delayMicroseconds(7);

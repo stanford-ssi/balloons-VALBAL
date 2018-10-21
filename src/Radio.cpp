@@ -44,6 +44,18 @@ bool Radio::send_message(vb_rf_message* msg) {
 
 void Radio::restart() {
   Serial.println("turning on that boi");
+	  Serial.println("turning on that boi");
+		  Serial.println("turning on that boi");
+			  Serial.println("turning on that boi");
+				  Serial.println("turning on that boi");
+					  Serial.println("turning on that boi");
+						  Serial.println("turning on that boi");
+							  Serial.println("turning on that boi");
+								  Serial.println("turning on that boi");
+									  Serial.println("turning on that boi");
+										  Serial.println("turning on that boi");
+											  Serial.println("turning on that boi");
+												  Serial.println("turning on that boi");
   pinMode(35, OUTPUT);
   digitalWrite(35, HIGH);
   Serial6.begin(VBRF_BAUD_RATE);

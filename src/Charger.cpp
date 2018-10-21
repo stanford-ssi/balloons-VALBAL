@@ -9,6 +9,8 @@
   Implimentation of Charger.h
 */
 
+#include <SPI.h>
+
 #include "Charger.h"
 
 /**********************************  SETUP  ***********************************/
@@ -23,6 +25,8 @@ bool Charger::init() {
   //digitalWrite(SUPER_CAP_ENABLE, LOW);
 	digitalWrite(SUPER_CAP_ENABLE, HIGH);
   digitalWrite(FIVE_VOLT_ENABLE, LOW);
+	pinMode(POT_CS, OUTPUT);
+	SPI.begin();
   /*if (resistor.init()){
     chargingLimit = 3;
     digitalWrite(SUPER_CAP_ENABLE, HIGH);
@@ -73,7 +77,11 @@ void Charger::runChargerPID(uint8_t resistorMode, float temp) {
       chargingLimit = 1;
     }
   }
-  resistor.setResistance(hex);
+	digitalWrite(POT_CS, LOW);
+	SPI.transfer(0);
+	SPI.transfer((int)(2*hex));
+	digitalWrite(POT_CS, HIGH);
+  //resistor.setResistance(hex);
 }
 
 /*

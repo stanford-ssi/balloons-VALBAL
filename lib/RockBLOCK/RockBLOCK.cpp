@@ -30,9 +30,9 @@ bool RockBLOCK::init(bool shouldStartup) {
   pinMode(RB_GATE, OUTPUT);
   digitalWrite(RB_GATE, LOW);
   delay(2500);
-
+	Serial.println("beginning rockblock");
   isbd.setPowerProfile(IridiumSBD::USB_POWER_PROFILE);
-  Serial3.begin(RB_BAUD);
+  Serial1.begin(RB_BAUD);
   if (shouldStartup) {
     restart();
     success = true;
@@ -62,7 +62,7 @@ void RockBLOCK::restart() {
 
   digitalWrite(RB_GATE, HIGH);
 
-  Serial3.begin(RB_BAUD);
+  Serial1.begin(RB_BAUD);
 
   wake();
   delay(1000);

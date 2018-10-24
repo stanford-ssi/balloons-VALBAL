@@ -32,7 +32,7 @@ bool Charger::init() {
     digitalWrite(SUPER_CAP_ENABLE, HIGH);
     return true;
   }*/
-  return false;
+  return true;
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -79,7 +79,7 @@ void Charger::runChargerPID(uint8_t resistorMode, float temp) {
   }
 	digitalWrite(POT_CS, LOW);
 	SPI.transfer(0);
-	SPI.transfer((int)(2*hex));
+	SPI.transfer((int)(hex));
 	digitalWrite(POT_CS, HIGH);
   //resistor.setResistance(hex);
 }

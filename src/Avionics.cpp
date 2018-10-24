@@ -68,19 +68,26 @@ void Avionics::init() {
 // #endif
   if(!computer.init())                        alert("unable to initialize Flight Controller", true) ;
   //gpsModule.GPS_MODE = 1;
-  if(!gpsModule.init(true))   alert("unable to initialize GPS", true);
-  //if(!superCap.init())                        alert("unable to initialize superCap", true);
-  //if(!setup5VLine())                          alert("unable to initialize 5V line", true);
+  if(!gpsModule.init(false))   alert("unable to initialize GPS", true);
+  if(!superCap.init())                        alert("unable to initialize superCap", true);
+  if(!setup5VLine())                          alert("unable to initialize 5V line", true);
   // pinMode(49, OUTPUT);
   // digitalWrite(49, HIGH);
   // pinMode(56, OUTPUT);
   // digitalWrite(56, HIGH);
 #ifndef RB_DISABLED_FLAG
-  //if(!RBModule.init(false))     alert("unable to initialize RockBlock", true);
+  if(!RBModule.init(true))     alert("unable to initialize RockBlock", true);
 #endif
   //if(!radio.init(data.POWER_STATE_RADIO)) alert("unable to initialize Payload", true);
+	delay(1000);
+
+/*
+  pinMode(RB_GATE, OUTPUT);
+  digitalWrite(RB_GATE, LOW);
+	*/
   data.TIME = millis();
   data.SETUP_STATE = false;
+
 
   #if defined(SERIALSHITL) | defined(SERIALMONITOR)
   //holds until connection with PC is established
@@ -199,7 +206,8 @@ void Avionics::actuateState() {
 void Avionics::logState() {
   uint32_t t0 = millis();
   //Serial.println("begin");
-  //if(!log.log(&data, 1024)) alert("unable to log Data", true);
+	data.NATURAL_NUMBERS++;
+  //if(!log.log(&data, sizeof(data))) alert("unable to log Data", true);
   //Serial.println("end");
   data.LOG_TIME = millis() - t0;
   if(!debugState())   alert("unable to debug state", true);
@@ -217,7 +225,7 @@ void Avionics::logState() {
      RBModule.restart();
      data.POWER_STATE_RB = true;
    }
-   Serial.println((millis()-data.RB_LAST)/RB_DEBUG_INTERVAL);
+   //Serial.println((millis()-data.RB_LAST)/RB_DEBUG_INTERVAL);
    if(data.DEBUG_STATE && ((millis() - data.RB_LAST) < RB_DEBUG_INTERVAL)) return;
    if(!data.DEBUG_STATE && ((millis() - data.RB_LAST) < data.RB_INTERVAL)) return;
    if (!data.POWER_STATE_RB) {

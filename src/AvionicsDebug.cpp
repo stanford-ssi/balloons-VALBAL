@@ -50,14 +50,14 @@ void Avionics::printState() {
   //     Serial.print(" ");
   //     //Serial.print(data.CURRENT_MOTOR_BALLAST_AVG);
   //     Serial.println();
-	if (millis() > 2.5*60*1000 && !aaa) {
+	if (millis() > 2.95*60*1000 && !aaa) {
 		avgPower = 0;
 		nPower = 0;
 		aaa = true;
 	}
 		avgPower += data.CURRENT_GPS*3.3;
 		nPower++;
-	if (kk++ % 20 == 0) {
+	if (kk++ % 1 == 0) {
 		Serial.print(" vprim ");
 		Serial.print(data.VOLTAGE_PRIMARY);
 		Serial.print(" vcap ");
@@ -76,8 +76,11 @@ void Avionics::printState() {
 		Serial.print(data.CURRENT_GPS);
 		Serial.print(" time ");
 		Serial.println(data.SENSOR_TIME);
-		Serial.print(" gpspow ");
-		Serial.println(avgPower/nPower);/*
+		//Serial.print(" gpspow ");
+		//Serial.println(avgPower/nPower);
+		Serial.print("SD power ");
+		Serial.println(data.SD_ENERGY/(millis()/1000.));
+		/*
 		  Serial.print(" p1:");
 		  Serial.print(data.RAW_PRESSURE_1);
 		  Serial.print(',');

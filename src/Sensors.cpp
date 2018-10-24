@@ -27,6 +27,10 @@ void read_sensors() {
 	}
 	sensor_accum[num_sensors] += (micros()-t0);
 	sensor_n++;
+	/*Serial.print(sensor_accum[0]/sensor_n);
+	Serial.print(" mA  ");
+	Serial.print(sensor_accum[7]/sensor_n);
+	Serial.println(" V");*/
 }
 
 /**********************************  SETUP  ***********************************/
@@ -46,7 +50,7 @@ bool Sensors::init() {
 		sensor_accum[i] = 0;
 	}
 	sensor_n = 0;
-	sensorTimer.begin(read_sensors, 10000);
+	//sensorTimer.begin(read_sensors, 1000);
 	sensorTimer.priority(128);
 
   //pinMode(EXT_TEMP_SENSOR,        INPUT);

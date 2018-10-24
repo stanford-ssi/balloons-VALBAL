@@ -43,6 +43,7 @@ bool Avionics::readData() {
   data.CURRENT_MOTORS             = sensors.getSensor(SENSOR_IMOT);
   data.CURRENT_PAYLOAD            = sensors.getSensor(SENSOR_IPLD);
 	data.CURRENT_SD = sensors.getSensor(SENSOR_ISD);
+	data.SD_ENERGY += data.CURRENT_SD * 3.3 * data.LOOP_TIME/1000.;
 	data.CURRENT_GPS = sensors.getSensor(SENSOR_IGPS);
 	data.SENSOR_TIME = sensors.getTime();
 	sensors.reset();

@@ -229,7 +229,7 @@ int GPS::getSecond() {
  * This function pauses the main thread while
  * still communicating with the comms interface.
  */
-uint32_t nextSleepyTime = 1*60*1000;
+uint32_t nextSleepyTime = 3*60*1000;
 void GPS::smartDelay(uint32_t ms) {
   uint32_t startt = millis();
   do {

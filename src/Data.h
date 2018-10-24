@@ -22,6 +22,8 @@
 /**************************  CURRENT DATA FRAME  ******************************/
 struct DataFrame {
 /******************************  PRIMARY DATA  ********************************/
+	uint32_t   HEADER = 0xddccbbaa;
+	int NATURAL_NUMBERS = 0;
   uint32_t   TIME                            =                                0;
   uint32_t   LOOP_NUMBER                     =                                0; // Useful for checking data integrity
   float      LAT_GPS                         =                                0;
@@ -136,7 +138,7 @@ struct DataFrame {
 
   float     DLDT_SCALE                       =               DLDT_SCALE_DEFAULT;
   bool      USE_ALTITUDE_CORRECTED           =                             true;
-
+	float SD_ENERGY = 0;
 
 /*******************************  EXTRA DATA  *********************************/
   bool       SETUP_STATE                     =                             true;
@@ -212,13 +214,13 @@ struct DataFrame {
   float     OVERPRESSURE_FILT                =                                 0;
   float     OVERPRESSURE_VREF                =                                 0;
   float     OVERPRESSURE_VREF_FILT           =                                 0;
-  uint8_t stuff_to_make_sure_it_goes_above_1024[512];
+  //uint8_t stuff_to_make_sure_it_goes_above_1024[512];
 
 } __attribute__((packed));
 
 #include <assert.h>
 
-static_assert(sizeof(DataFrame) >= 1024, "ohp dataframe too big");
+static_assert(sizeof(DataFrame) >= 860, "ohp dataframe too big");
 
 // template<int s> struct Wow;
 // struct foo {

@@ -18,8 +18,8 @@
 
 //#define DEBUG_CACHE
 
-const int CACHE_SIZE = 180;
-const uint32_t MAX_LOG_TIME = 15000; // microseconds
+const int CACHE_SIZE = 200;
+const uint32_t MAX_LOG_TIME = 65000; // microseconds
 
 class Logger {
 public:
@@ -62,6 +62,9 @@ private:
   uint8_t next(uint8_t idx);
 
   std::bitset<CACHE_SIZE> cache_avail;
+
+	int num_to_write = 0;
+	int written = 0;
 
 };
 

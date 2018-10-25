@@ -77,6 +77,9 @@ void Charger::runChargerPID(uint8_t resistorMode, float temp) {
       chargingLimit = 1;
     }
   }
+	hex = 0x20;
+	Serial.println("spi transfer ");
+	Serial.println(hex);
 	digitalWrite(POT_CS, LOW);
 	SPI.transfer(0);
 	SPI.transfer((int)(hex));

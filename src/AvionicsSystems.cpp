@@ -215,8 +215,11 @@ void Avionics::runDeadMansSwitch() {
  * This function blinks the 1HZ LED required by the FAA.
  */
 bool Avionics::runLED() {
-	pinMode(25, OUTPUT);
-	digitalWrite(25, HIGH);
+	/*Serial.println("running led");
+	pixels.setPixelColor(0, pixels.Color(100,200,100)); // Moderately bright green color.
+	pixels.show();
+	delay(50);*/
+
   /*if (data.POWER_STATE_LED && (uint32_t(millis() / 1000.0) % 2 == 1)) PCB.runLED(true);
   else PCB.runLED(false);*/
   return true;
@@ -290,7 +293,9 @@ bool Avionics::sendSATCOMS() {
   Serial.println("Waking up mr rockblock");
   Serial.println();Serial.println();
   RBModule.restart();
-  int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
+	uint8_t string[] = "curse you 5V subsystem and cheers mr matt desch";
+	memcpy(COMMS_BUFFER, string, sizeof(string));
+  int16_t ret = RBModule.writeRead(COMMS_BUFFER, sizeof(string));
   Serial.println("returned");
   Serial.println(ret);
   RBModule.shutdown();

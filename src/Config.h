@@ -38,10 +38,10 @@ static const uint16_t  GPS_LOCK_TIMEOUT                      =              500;
 static const uint16_t  GPS_QUIT_TIMEOUT                      =            10000;
 
 static const uint32_t  GPS_INTERVAL_DEFAULT                  =            15000;
-static const uint32_t  RB_INTERVAL_DEFAULT                   =           120000;
+static const uint32_t  RB_INTERVAL_DEFAULT                   =            90000;
 static const uint32_t  RB_RESTART_INTERVAL                   =          1800000;
-static const uint32_t  RB_DEBUG_INTERVAL                     =            60000;
-static const uint16_t  LOOP_INTERVAL                         =              100;
+static const uint32_t  RB_DEBUG_INTERVAL                     =            90000;
+static const uint16_t  LOOP_INTERVAL                         =               50;
 
 static const uint16_t  DEBUG_ALT                             =             2000;
 static const uint16_t  COMMS_BUFFER_SIZE                     =              200;

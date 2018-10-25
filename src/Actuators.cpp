@@ -29,9 +29,9 @@ void Actuators::init() {
   pinMode(BALLAST_FORWARD,  OUTPUT);
   pinMode(BALLAST_REVERSE,  OUTPUT);
   pinMode(CUTDOWN_POWER,    OUTPUT);
-  pinMode(CUTDOWN_SIGNAL,   OUTPUT);
+  //pinMode(CUTDOWN_SIGNAL,   OUTPUT);
   digitalWrite(CUTDOWN_POWER, LOW);
-  digitalWrite(CUTDOWN_SIGNAL, LOW);
+  //digitalWrite(CUTDOWN_SIGNAL, LOW);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -260,10 +260,10 @@ void Actuators::cutDown() {
   clearValveQueue();
   clearBallastQueue();
   digitalWrite(CUTDOWN_POWER, HIGH);
-  digitalWrite(CUTDOWN_SIGNAL, HIGH);
+  //digitalWrite(CUTDOWN_SIGNAL, HIGH);
   delay(CUTDOWN_DURATION);
   digitalWrite(CUTDOWN_POWER, LOW);
-  digitalWrite(CUTDOWN_SIGNAL, LOW);
+  //digitalWrite(CUTDOWN_SIGNAL, LOW);
   Serial.println("cutdown completed.");
 }
 

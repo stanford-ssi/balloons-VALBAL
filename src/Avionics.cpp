@@ -40,7 +40,7 @@ void Avionics::init() {
   //tempsim.setSS(0);
   #endif
   Serial.begin(CONSOLE_BAUD);
-  delay(3000);
+  delay(2000);
   PCB.init();
   actuator.init();
   delay(500);
@@ -55,12 +55,12 @@ void Avionics::init() {
   pinMode(57, OUTPUT);
   digitalWrite(57, LOW);*/
 
-  //if(!setupSDCard())                          alert("unable to initialize SD Card", true);
+  if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   if(!readHistory())                          alert("unable to initialize EEPROM", true);
   if(!sensors.init())                         alert("unable to initialize Sensors", true);
 
 	//return;
-  delay(2000);
+  //delay(2000);
   Serial.println("Serial has been init");
   //if(!currentSensor.init(CURRENT_MONITOR_CS)) alert("unable to initialize Current Sensor", true);
 // #ifdef HITL_ENABLED_FLAG
@@ -68,7 +68,7 @@ void Avionics::init() {
 // #endif
   if(!computer.init())                        alert("unable to initialize Flight Controller", true) ;
   //gpsModule.GPS_MODE = 1;
-  if(!gpsModule.init(false))   alert("unable to initialize GPS", true);
+  if(!gpsModule.init(true))   alert("unable to initialize GPS", true);
   if(!superCap.init())                        alert("unable to initialize superCap", true);
   if(!setup5VLine())                          alert("unable to initialize 5V line", true);
   // pinMode(49, OUTPUT);
@@ -76,7 +76,17 @@ void Avionics::init() {
   // pinMode(56, OUTPUT);
   // digitalWrite(56, HIGH);
 #ifndef RB_DISABLED_FLAG
-  if(!RBModule.init(true))     alert("unable to initialize RockBlock", true);
+/*pinMode(RB_GATE, OUTPUT);
+digitalWrite(RB_GATE, LOW);
+delay(2500);
+Serial.println("setting RB gate high");
+digitalWrite(RB_GATE, HIGH);
+delay(1000);*/
+//Serial1.begin(19200);
+	/*while(millis() < 60000) {
+		Serial1.write(0xaa);
+	}*/
+  if(!RBModule.init(false))     alert("unable to initialize RockBlock", true);
 #endif
   //if(!radio.init(data.POWER_STATE_RADIO)) alert("unable to initialize Payload", true);
 	delay(1000);
@@ -102,7 +112,9 @@ void Avionics::init() {
   }
   #endif
 
-
+	/*pixels.begin();
+  pixels.setBrightness(128);
+  pixels.show();*/
   sixtyScoreRevolutionsPerMinute.begin(rpmCounter, 50000);
 }
 
@@ -114,11 +126,12 @@ void Avionics::init() {
 void Avionics::test() {
   alert("Initializing test...", true);
 
-  //actuator.queueBallast(5000, true);
-  //actuator.queueValve(5000, true);
+  actuator.queueBallast(10000, true);
+  actuator.queueValve(10000, true);
   //actuator.queueValve(30000, true)
-  //data.SHOULD_CUTDOWN = true;
-  //actuator.cutDown();
+  /*data.SHOULD_CUTDOWN = true;
+  actuator.cutDown();
+  data.SHOULD_CUTDOWN = false;*/
 }
 
 void Avionics::runHeaters() {
@@ -207,7 +220,7 @@ void Avionics::logState() {
   uint32_t t0 = millis();
   //Serial.println("begin");
 	data.NATURAL_NUMBERS++;
-  //if(!log.log(&data, sizeof(data))) alert("unable to log Data", true);
+  if(!log.log(&data, sizeof(data))) alert("unable to log Data", true);
   //Serial.println("end");
   data.LOG_TIME = millis() - t0;
   if(!debugState())   alert("unable to debug state", true);

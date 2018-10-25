@@ -50,7 +50,7 @@ bool Sensors::init() {
 		sensor_accum[i] = 0;
 	}
 	sensor_n = 0;
-	//sensorTimer.begin(read_sensors, 1000);
+	sensorTimer.begin(read_sensors, 10000);
 	sensorTimer.priority(128);
 
   //pinMode(EXT_TEMP_SENSOR,        INPUT);

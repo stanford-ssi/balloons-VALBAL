@@ -80,6 +80,8 @@ void Avionics::printState() {
 		//Serial.println(avgPower/nPower);
 		Serial.print("SD power ");
 		Serial.println(data.SD_ENERGY/(millis()/1000.));
+		Serial.print("minCapV ");
+		Serial.println(data.VOLTAGE_SUPERCAP_MIN);
 		/*
 		  Serial.print(" p1:");
 		  Serial.print(data.RAW_PRESSURE_1);

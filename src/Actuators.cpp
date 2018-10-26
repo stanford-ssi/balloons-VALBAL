@@ -17,6 +17,43 @@
 
 //extern float Slift;
 
+
+
+#define analogWrite(VALVE_FORWARD, HIGH); val_fwd=0;
+#define analogWrite(VALVE_REVERSE, HIGH); val_rev=0;
+#define analogWrite(BALLAST_FORWARD, HIGH); bal_fwd=0;
+#define analogWrite(BALLAST_REVERSE, HIGH); bal_rev=0;
+#define analogWrite(VALVE_FORWARD, LOW); val_fwd=0;
+#define analogWrite(VALVE_REVERSE, LOW); val_rev=0;
+#define analogWrite(BALLAST_FORWARD, LOW); bal_fwd=0;
+#define analogWrite(BALLAST_REVERSE, LOW); bal_rev=0;
+#define analogWrite(VALVE_FORWARD, valveMotorSpeed); val_fwd=0;
+#define analogWrite(VALVE_REVERSE, valveMotorSpeed); val_rev=0;
+#define analogWrite(BALLAST_FORWARD, ballastMotorSpeed); bal_fwd=2;
+#define analogWrite(BALLAST_REVERSE, ballastMotorSpeed); bal_rev=2;
+
+static IntervalTimer sw_pwm;
+static const int n_cts = 10;
+static const int val_duty = 5;
+static const int bal_duty = 5;
+static int val_ctr = 0;
+static int bal_ctr = 0;
+// 0 is off, 1 is high, 2 is pwm
+static int val_fwd = 0;
+static int val_rev = 0;
+static int bal_fwd = 0;
+static int bal_rev = 0;
+
+auto pwm_fn = [&](){
+val_ctr++; val_ctr = val_ctr % n_cts;
+bal_ctr++; bal_ctr = bal_ctr % n_cts;
+digitalWriteFast(VALVE_FORWARD,(val_fwd==1)||((val_fwd==2)&&(val_ctr<val_duty)));
+digitalWriteFast(VALVE_REVERSE,(val_rev==1)||((val_rev==2)&&(val_ctr<val_duty)));
+digitalWriteFast(BALLAST_FORWARD,(bal_fwd==1)||((bal_fwd==2)&&(bal_ctr<bal_duty)));
+digitalWriteFast(BALLAST_REVERSE,(bal_rev==1)||((bal_rev==2)&&(bal_ctr<bal_duty)));
+};
+
+
 /**********************************  SETUP  ***********************************/
 /*
  * Function: init
@@ -32,6 +69,8 @@ void Actuators::init() {
   //pinMode(CUTDOWN_SIGNAL,   OUTPUT);
   digitalWrite(CUTDOWN_POWER, LOW);
   //digitalWrite(CUTDOWN_SIGNAL, LOW);
+  sw_pwm.priority(64);
+  sw_pwm.begin(pwm_fn,162);
 }
 
 /********************************  FUNCTIONS  *********************************/

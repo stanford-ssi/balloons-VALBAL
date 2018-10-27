@@ -27,14 +27,16 @@
 #define analogWrite(VALVE_REVERSE, LOW); val_rev=0;
 #define analogWrite(BALLAST_FORWARD, LOW); bal_fwd=0;
 #define analogWrite(BALLAST_REVERSE, LOW); bal_rev=0;
-#define analogWrite(VALVE_FORWARD, valveMotorSpeed); val_fwd=0;
-#define analogWrite(VALVE_REVERSE, valveMotorSpeed); val_rev=0;
+#define analogWrite(VALVE_FORWARD, valveMotorSpeedOpenValve); val_fwd=2;
+#define analogWrite(VALVE_REVERSE, valveMotorSpeedOpenValve); val_rev=2;
+#define analogWrite(VALVE_FORWARD, valveMotorSpeedCloseValve); val_fwd=2;
+#define analogWrite(VALVE_REVERSE, valveMotorSpeedCloseValve); val_rev=2;
 #define analogWrite(BALLAST_FORWARD, ballastMotorSpeed); bal_fwd=2;
 #define analogWrite(BALLAST_REVERSE, ballastMotorSpeed); bal_rev=2;
 
 static IntervalTimer sw_pwm;
 static const int n_cts = 10;
-static const int val_duty = 5;
+static const int val_duty = 10;
 static const int bal_duty = 5;
 static int val_ctr = 0;
 static int bal_ctr = 0;
@@ -313,8 +315,8 @@ void Actuators::cutDown() {
  */
 void Actuators::stopValve() {
   Serial.println("--- STOPPING VALVE ---");
-  analogWrite(VALVE_FORWARD, HIGH);
-  analogWrite(VALVE_REVERSE, HIGH);
+  val_fwd = 0;
+  val_rev = 0;
 }
 
 /*********************************  HELPERS  **********************************/
@@ -325,8 +327,8 @@ void Actuators::stopValve() {
  */
 void Actuators::openValve() {
   Serial.println("--- OPEN VALVE ---");
-  analogWrite(VALVE_FORWARD, LOW);
-  analogWrite(VALVE_REVERSE, valveMotorSpeedOpen);
+  val_fwd = 2;
+  val_rev = 0;
 }
 
 /*
@@ -336,8 +338,8 @@ void Actuators::openValve() {
  */
 void Actuators::closeValve() {
   Serial.println("--- CLOSE VALVE ---");
-  analogWrite(VALVE_FORWARD, valveMotorSpeedClose);
-  analogWrite(VALVE_REVERSE, LOW);
+  val_fwd = 0;
+  val_rev = 2;
 }
 
 /*
@@ -346,8 +348,8 @@ void Actuators::closeValve() {
  * This function stops the ballast.
  */
 void Actuators::stopBallast() {
-  analogWrite(BALLAST_FORWARD, LOW);
-  analogWrite(BALLAST_REVERSE, LOW);
+  bal_fwd = 0;
+  bal_rev = 0;
 }
 
 /*
@@ -357,10 +359,10 @@ void Actuators::stopBallast() {
  */
 void Actuators::dropBallast(bool direction) {
   if (direction) {
-    analogWrite(BALLAST_FORWARD, ballastMotorSpeed);
-    analogWrite(BALLAST_REVERSE, LOW);
+    bal_fwd = 2;
+    bal_rev = 0;
   } else {
-    analogWrite(BALLAST_FORWARD, LOW);
-    analogWrite(BALLAST_REVERSE, ballastMotorSpeed);
+    bal_fwd = 0;
+    bal_rev = 2;
   }
 }

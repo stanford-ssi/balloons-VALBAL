@@ -57,7 +57,7 @@ void Avionics::printState() {
 	}
 		avgPower += data.CURRENT_GPS*3.3;
 		nPower++;
-	if (kk++ % 1 == 0) {
+	if (kk++ % 20 == 0) {
 		Serial.print(" vprim ");
 		Serial.print(data.VOLTAGE_PRIMARY);
 		Serial.print(" vcap ");
@@ -105,6 +105,34 @@ void Avionics::printState() {
 	Serial.print(data.LONG_GPS, 6);
 	pinMode(21, INPUT);
 	Serial.println(digitalRead(21) ? " LNA on" : " LNA off");
+	  Serial.print(" RAW_PRESSURE_1:");
+	  Serial.print(data.RAW_PRESSURE_1);
+	  Serial.print(',');
+	  Serial.print(" RAW_PRESSURE_2:");
+	  Serial.print(data.RAW_PRESSURE_2);
+	  Serial.print(',');
+	  Serial.print(" RAW_PRESSURE_3:");
+	  Serial.print(data.RAW_PRESSURE_3);
+	  Serial.print(',');
+	  Serial.print(" RAW_PRESSURE_4:");
+	  Serial.print(data.RAW_PRESSURE_4);
+		Serial.println();
+
+		  Serial.print(" RAW_TEMP_1:");
+		  Serial.print(data.RAW_TEMP_1);
+		  Serial.print(',');
+		  Serial.print(" RAW_TEMP_2:");
+		  Serial.print(data.RAW_TEMP_2);
+		  Serial.print(',');
+		  Serial.print(" RAW_TEMP_3:");
+		  Serial.print(data.RAW_TEMP_3);
+		  Serial.print(',');
+		  Serial.print(" RAW_TEMP_4:");
+		  Serial.print(data.RAW_TEMP_4);
+		  Serial.print(',');
+			Serial.print(" TEMP_INT:");
+			Serial.print(data.TEMP_INT);
+			Serial.println();
 	//Serial.println();
 	return;
 }
@@ -126,6 +154,10 @@ void Avionics::printState() {
 	Serial.println();
   Serial.println(sensors.bmp1.readPressure());
   Serial.println(sensors.bmp2.readPressure());
+Serial.println();
+Serial.print(',');
+Serial.print(" TEMP_INT:");
+Serial.print(data.TEMP_INT);
 Serial.println();
 Serial.print(sensors.getVoltageSuperCap());
 Serial.println(" Volts.");

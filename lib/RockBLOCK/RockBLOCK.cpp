@@ -124,6 +124,31 @@ int16_t RockBLOCK::writeRead(char* buff, uint16_t len) {
   if(len < 0) return -1;
   size_t  bufferSize = sizeof(rxBuffer);
   write(buff, len);
+	Serial.println("debug1");
+	for (int16_t i = 0; i < len; i++) {
+		uint8_t byte = buff[i];
+		(byte & 0x80 ? Serial.print('1') : Serial.print('0'));
+		(byte & 0x40 ? Serial.print('1') : Serial.print('0'));
+		(byte & 0x20 ? Serial.print('1') : Serial.print('0'));
+		(byte & 0x10 ? Serial.print('1') : Serial.print('0'));
+		(byte & 0x08 ? Serial.print('1') : Serial.print('0'));
+		(byte & 0x04 ? Serial.print('1') : Serial.print('0'));
+		(byte & 0x02 ? Serial.print('1') : Serial.print('0'));
+		(byte & 0x01 ? Serial.print('1') : Serial.print('0'));
+	}
+	Serial.println("debug2");
+	for (int16_t i = 0; i < len; i++) {
+		uint8_t byte = rxBuffer[i];
+		(byte & 0x80 ? Serial.print('1') : Serial.print('0'));
+		(byte & 0x40 ? Serial.print('1') : Serial.print('0'));
+		(byte & 0x20 ? Serial.print('1') : Serial.print('0'));
+		(byte & 0x10 ? Serial.print('1') : Serial.print('0'));
+		(byte & 0x08 ? Serial.print('1') : Serial.print('0'));
+		(byte & 0x04 ? Serial.print('1') : Serial.print('0'));
+		(byte & 0x02 ? Serial.print('1') : Serial.print('0'));
+		(byte & 0x01 ? Serial.print('1') : Serial.print('0'));
+	}
+	Serial.print('\n');
   Serial.println("time to like send stuff");
   int weAlwaysCheckReturnCodes = isbd.sendReceiveSBDBinary(rxBuffer, len, rxBuffer, bufferSize);
   Serial.println();

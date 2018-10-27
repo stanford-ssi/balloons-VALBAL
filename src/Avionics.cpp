@@ -68,7 +68,7 @@ void Avionics::init() {
 // #endif
   if(!computer.init())                        alert("unable to initialize Flight Controller", true) ;
   //gpsModule.GPS_MODE = 1;
-  if(!gpsModule.init(true))   alert("unable to initialize GPS", true);
+  if(!gpsModule.init(false))   alert("unable to initialize GPS", true);
   if(!superCap.init())                        alert("unable to initialize superCap", true);
   if(!setup5VLine())                          alert("unable to initialize 5V line", true);
   // pinMode(49, OUTPUT);
@@ -112,6 +112,7 @@ delay(1000);*/
   }
   #endif
 
+	pinMode(25, OUTPUT);
 	/*pixels.begin();
   pixels.setBrightness(128);
   pixels.show();*/
@@ -126,8 +127,8 @@ delay(1000);*/
 void Avionics::test() {
   alert("Initializing test...", true);
 
-  actuator.queueBallast(10000, true);
-  actuator.queueValve(10000, true);
+  actuator.queueBallast(100000, true);
+  //actuator.queueValve(10000, true);
   //actuator.queueValve(30000, true)
   /*data.SHOULD_CUTDOWN = true;
   actuator.cutDown();

@@ -179,4 +179,4 @@ void Filters::correctAltitude(struct DataFrame &data){
     data.ALTITUDE_OFFSET = data.ALTITUDE_OFFSET*(1-data.ALTITUDE_OFFSET_GAIN) + (data.ALTITUDE_GPS - data.ALTITUDE_BAROMETER)*data.ALTITUDE_OFFSET_GAIN;
   }
   data.ALTITUDE_CORRECTED = data.ALTITUDE_BAROMETER + data.ALTITUDE_OFFSET;
-} 
+}

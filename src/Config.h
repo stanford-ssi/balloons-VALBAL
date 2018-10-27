@@ -38,9 +38,9 @@ static const uint16_t  GPS_LOCK_TIMEOUT                      =              500;
 static const uint16_t  GPS_QUIT_TIMEOUT                      =            10000;
 
 static const uint32_t  GPS_INTERVAL_DEFAULT                  =            15000;
-static const uint32_t  RB_INTERVAL_DEFAULT                   =            90000;
+static const uint32_t  RB_INTERVAL_DEFAULT                   =            60000;
 static const uint32_t  RB_RESTART_INTERVAL                   =          1800000;
-static const uint32_t  RB_DEBUG_INTERVAL                     =            90000;
+static const uint32_t  RB_DEBUG_INTERVAL                     =            60000;
 static const uint16_t  LOOP_INTERVAL                         =               50;
 
 static const uint16_t  DEBUG_ALT                             =             2000;
@@ -67,7 +67,7 @@ static const float     RE_ARM_DEFAULT                        =                0;
 static const float     BALLAST_ARM_ALT_DEFAULT               =          13250.0;
 static const float     BALLAST_ALT_LAST_FILLER               =          14000.0;
 static const uint32_t  BALLAST_REVERSE_INTERVAL_DEFAULT      =           300000;
-static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              120;
+static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              200;
 
 static const float     VALVE_SETPOINT_DEFAULT                =          14500.0;
 static const uint32_t  VALVE_VENT_DURATION_DEFAULT           =            20000;
@@ -86,8 +86,8 @@ static const float     BALLAST_LAST_ACTION_DEFAULT           =     1.0 / 1500.0;
 static const uint16_t  VALVE_MOTOR_SPEED_OPEN_DEFAULT        =              255;
 static const uint16_t  VALVE_MOTOR_SPEED_CLOSE_DEFAULT       =              255;
 static const uint16_t  BALLAST_MOTOR_SPEED_DEFAULT           =              255;
-static const uint32_t  VALVE_OPENING_DURATION_DEFAULT        =             2000;
-static const uint32_t  VALVE_CLOSING_DURATION_DEFAULT        =             3000;
+static const uint32_t  VALVE_OPENING_DURATION_DEFAULT        =             1500;
+static const uint32_t  VALVE_CLOSING_DURATION_DEFAULT        =             2000;
 static const uint16_t  BALLAST_STALL_TIMEOUT                 =             3000;
 
 static const float     DLDT_SCALE_DEFAULT                    =             0.0;

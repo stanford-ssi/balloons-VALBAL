@@ -209,12 +209,89 @@ void Avionics::runDeadMansSwitch() {
   }
 }
 
+__always_inline void shortDelay() {
+	asm volatile(
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+	);
+}
+
+__always_inline void longDelay() {
+	asm volatile(
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+									"nop" "\n\t"
+									"nop" "\n\t"
+									"nop" "\n\t"
+									"nop" "\n\t"
+									"nop" "\n\t"
+									"nop" "\n\t"
+									"nop" "\n\t"
+									"nop" "\n\t"
+													"nop" "\n\t"
+													"nop" "\n\t"
+													"nop" "\n\t"
+													"nop" "\n\t"
+													"nop" "\n\t"
+													"nop" "\n\t"
+													"nop" "\n\t"
+	);
+}
+
+__always_inline void mkzero() {
+	digitalWriteFast(25, HIGH);
+	shortDelay();
+	digitalWriteFast(25, LOW);
+	longDelay();
+}
+__always_inline void mkone() {
+	digitalWriteFast(25, HIGH);
+	longDelay();
+	digitalWriteFast(25, LOW);
+	shortDelay();
+}
+
+void mkled() {
+	noInterrupts();
+	pinMode(25, OUTPUT);
+	digitalWriteFast(25, LOW);
+	delayMicroseconds(100);
+
+	for (int i=0; i<3; i++) {
+		//mkzero(); mkone(); mkone(); mkzero(); mkone(); mkzero(); mkone(); mkone();
+		mkone();mkone();mkone();mkone();mkone();mkone();mkone();mkone();
+	}
+
+	//for (int i=0; i<24; i++) {
+
+
+	//}
+	delayMicroseconds(100);
+	interrupts();
+}
+
 /*
  * Function: runLED
  * -------------------
  * This function blinks the 1HZ LED required by the FAA.
  */
 bool Avionics::runLED() {
+	//Serial.println("running led");
+		return true;
+	mkled();
 	/*Serial.println("running led");
 	pixels.setPixelColor(0, pixels.Color(100,200,100)); // Moderately bright green color.
 	pixels.show();
@@ -233,6 +310,7 @@ uint32_t last_received = 0;
  * This function interfaces with the payload.
  */
 bool Avionics::runRadio() {
+	return true;
   if (!data.POWER_STATE_RADIO) return true;
   radio.readyDataFrame();
   radio.addVariable(data.ALTITUDE_BAROMETER, -100, 25000, 16);
@@ -293,9 +371,9 @@ bool Avionics::sendSATCOMS() {
   Serial.println("Waking up mr rockblock");
   Serial.println();Serial.println();
   RBModule.restart();
-	uint8_t string[] = "curse you 5V subsystem and cheers mr matt desch";
-	memcpy(COMMS_BUFFER, string, sizeof(string));
-  int16_t ret = RBModule.writeRead(COMMS_BUFFER, sizeof(string));
+	//uint8_t string[] = "curse you 5V subsystem and cheers mr matt desch";
+	//memcpy(COMMS_BUFFER, string, sizeof(string));
+  int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
   Serial.println("returned");
   Serial.println(ret);
   RBModule.shutdown();

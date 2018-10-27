@@ -27,8 +27,8 @@
 #define analogWrite(VALVE_REVERSE, LOW); val_rev=0;
 #define analogWrite(BALLAST_FORWARD, LOW); bal_fwd=0;
 #define analogWrite(BALLAST_REVERSE, LOW); bal_rev=0;
-#define analogWrite(VALVE_FORWARD, valveMotorSpeed); val_fwd=0;
-#define analogWrite(VALVE_REVERSE, valveMotorSpeed); val_rev=0;
+#define analogWrite(VALVE_FORWARD, valveMotorSpeedOpen); val_fwd=2;
+#define analogWrite(VALVE_REVERSE, valveMotorSpeedOpen); val_rev=2;
 #define analogWrite(BALLAST_FORWARD, ballastMotorSpeed); bal_fwd=2;
 #define analogWrite(BALLAST_REVERSE, ballastMotorSpeed); bal_rev=2;
 
@@ -336,7 +336,7 @@ void Actuators::openValve() {
  */
 void Actuators::closeValve() {
   Serial.println("--- CLOSE VALVE ---");
-  analogWrite(VALVE_FORWARD, valveMotorSpeedClose);
+  analogWrite(VALVE_FORWARD, valveMotorSpeedOpen);
   analogWrite(VALVE_REVERSE, LOW);
 }
 

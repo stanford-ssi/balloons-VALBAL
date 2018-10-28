@@ -115,7 +115,7 @@ bool Avionics::calcIncentives() {
   lasInput.op = isnan(data.OVERPRESSURE_FILT) ? 0 : data.OVERPRESSURE_FILT;
 
   sun_ctr++;
-  if(sun_ctr == 1*1000/LOOP_INTERVAL){
+  if(sun_ctr == 60*1000/LOOP_INTERVAL){
     Serial.print("doing sun calc...");
     unsigned int t1 = micros();
     sun_ctr = 0;
@@ -153,22 +153,6 @@ void Avionics::updateSunValues() {
         long_val = data.LONG_GPS_MANUAL;
         lat_val = data.LAT_GPS_MANUAL;
     }
-		Serial.println("day ");
-		Serial.println(data.GPS_TIME.year);
-		Serial.println(data.GPS_TIME.month);
-		Serial.println(data.GPS_TIME.day);
-		Serial.println(data.GPS_TIME.day);
-		Serial.println(data.GPS_TIME.hour);
-		Serial.println(data.GPS_TIME.minute);
-		Serial.println(data.GPS_TIME.second);
-		Serial.print("SUN INPUTS: ");
-Serial.print(long_val);
-Serial.print(", ");
-Serial.print(lat_val);
-Serial.print(", ");
-Serial.print(extra_seconds);
-Serial.print(", ");
-Serial.println();
     sunsetPredictor.calcValues(long_val, lat_val, data.GPS_TIME, extra_seconds);
     data.ESTIMATED_DLDT = sunsetPredictor.estimated_dldt;
     data.SOLAR_ELEVATION = sunsetPredictor.solar_elevation;

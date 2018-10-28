@@ -231,10 +231,7 @@ void SunsetPredictor::calcValues(float lon, float lat, GPSTime gpsTime, double e
     spa.latitude = lat;
 
     double jd = julian_day(gpsTime.year, gpsTime.month, gpsTime.day, gpsTime.hour, gpsTime.minute, gpsTime.second, 0, 0);
-		Serial.println("julian day");
-		Serial.println(jd, 10);
 		jd += extra_seconds / SECONDS_PER_DAY;
-		Serial.println(jd, 10);
     spa.jd = jd;
 
     spa_calculate(&spa);

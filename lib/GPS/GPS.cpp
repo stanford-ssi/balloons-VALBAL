@@ -64,19 +64,25 @@ bool GPS::restart() {
   EEPROM.write(EEPROMAddress, true);
   delay(1000);
   while (GPSSerial.available()) GPSSerial.read();
-	GPS_MODE = 1;
-  if (GPS_MODE == 1) success = setGPSMode(gpsonly, sizeof(gpsonly)/sizeof(uint8_t), GPS_LOCK_TIME);
-	success = setGPSMode(ante, sizeof(ante)/sizeof(uint8_t), GPS_LOCK_TIME);
-	success = setGPSMode(sbasoff, sizeof(sbasoff)/sizeof(uint8_t), GPS_LOCK_TIME);
-	Serial.println("setting on off");
-	//success = setGPSMode(pms, sizeof(pms)/sizeof(uint8_t), GPS_LOCK_TIME);
-	success = setGPSMode(rate, sizeof(rate)/sizeof(uint8_t), GPS_LOCK_TIME);
-	//success = setGPSMode(onoff, sizeof(onoff)/sizeof(uint8_t), GPS_LOCK_TIME);
-	success = setGPSMode(interval, sizeof(interval)/sizeof(uint8_t), GPS_LOCK_TIME);
-	Serial.println("set on off");
-  success = setGPSMode(flightMode, sizeof(flightMode)/sizeof(uint8_t), GPS_LOCK_TIME);
+	//GPS_MODE = 1;
+  if (GPS_MODE == 1) {
+		success = setGPSMode(gpsonly, sizeof(gpsonly)/sizeof(uint8_t), GPS_LOCK_TIME);
+		success = setGPSMode(ante, sizeof(ante)/sizeof(uint8_t), GPS_LOCK_TIME);
+		success = setGPSMode(sbasoff, sizeof(sbasoff)/sizeof(uint8_t), GPS_LOCK_TIME);
+		Serial.println("setting on off");
+		//success = setGPSMode(pms, sizeof(pms)/sizeof(uint8_t), GPS_LOCK_TIME);
+		success = setGPSMode(rate, sizeof(rate)/sizeof(uint8_t), GPS_LOCK_TIME);
+		//success = setGPSMode(onoff, sizeof(onoff)/sizeof(uint8_t), GPS_LOCK_TIME);
+		success = setGPSMode(interval, sizeof(interval)/sizeof(uint8_t), GPS_LOCK_TIME);
+		Serial.println("set on off");
 
-	success = setGPSMode(savetobb, sizeof(savetobb)/sizeof(uint8_t), GPS_LOCK_TIME);
+	}
+	
+	success = setGPSMode(flightMode, sizeof(flightMode)/sizeof(uint8_t), GPS_LOCK_TIME);
+
+	if (GPS_MODE == 1) {
+				success = setGPSMode(savetobb, sizeof(savetobb)/sizeof(uint8_t), GPS_LOCK_TIME);
+	}
 	//uint8_t fuse[] = {0xB5, 0x62, 0x06, 0x41, 0x0C, 0x00, 0x00, 0x00, 0x03, 0x1F, 0x90, 0x47, 0x4F, 0xB1, 0xFF, 0xFF, 0xEA, 0xFF, 0x33, 0x98};
   //success = setGPSMode(fuse, sizeof(fuse)/sizeof(uint8_t), GPS_LOCK_TIME);
 	Serial.println("yay blew fuse");
@@ -229,17 +235,19 @@ int GPS::getSecond() {
  * This function pauses the main thread while
  * still communicating with the comms interface.
  */
-uint32_t nextSleepyTime = 3*60*1000;
+uint32_t nextSleepyTime = 5*60*1000;
 void GPS::smartDelay(uint32_t ms) {
   uint32_t startt = millis();
   do {
-		if (millis() > nextSleepyTime && tinygps.isYeet) {
-			Serial.println("going to sleep!");
-			sendUBX(forcesleep, sizeof(forcesleep)/sizeof(uint8_t));
-			while (GPSSerial.available()) GPSSerial.read();
-			nextSleepyTime = nextSleepyTime + 60*1000;
-			tinygps.isYeet = false;
-			Serial.println("setting isyeet false :(((");
+		if (GPS_MODE == 1) {
+			if (millis() > nextSleepyTime && tinygps.isYeet) {
+				Serial.println("going to sleep!");
+				sendUBX(forcesleep, sizeof(forcesleep)/sizeof(uint8_t));
+				while (GPSSerial.available()) GPSSerial.read();
+				nextSleepyTime = nextSleepyTime + 60*1000;
+				tinygps.isYeet = false;
+				Serial.println("setting isyeet false :(((");
+			}
 		}
     while (GPSSerial.available()) {
       char c = GPSSerial.read();

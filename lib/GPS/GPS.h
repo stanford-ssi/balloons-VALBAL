@@ -47,7 +47,7 @@ public:
   void     smartDelay(uint32_t ms);
   void lowpower();
 
-  int GPS_MODE = 0;
+  int GPS_MODE = 1;
 
 private:
 /*********************************  HELPERS  **********************************/

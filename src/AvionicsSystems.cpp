@@ -373,6 +373,7 @@ bool Avionics::sendSATCOMS() {
   RBModule.restart();
 	//uint8_t string[] = "curse you 5V subsystem and cheers mr matt desch";
 	//memcpy(COMMS_BUFFER, string, sizeof(string));
+  compressData();
   int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
   Serial.println("returned");
   Serial.println(ret);

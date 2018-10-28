@@ -47,7 +47,7 @@ bool LasagnaController::update(Input input){
           launch_h = input.h_rel;
         }
         is_first_call = false;
-      } else if(input.h_rel - launch_h > constants.launch_h_thresh) state.status = ASCENT;
+      } else if(pasta_abs(input.h_rel - launch_h) > constants.launch_h_thresh) state.status = ASCENT;
       break;
     case ASCENT:
       if(input.h_rel > constants.equil_h_thresh) state.status = EQUIL;
@@ -106,7 +106,7 @@ void LasagnaController::innerLoop(float input_h){
    */
   float deadband_effort = 0;
   float thresh = constants.k_v*constants.k_h*constants.ss_error_thresh;
-  if(jankabs(state.effort)-thresh > 0){
+  if(pasta_abs(state.effort)-thresh > 0){
     deadband_effort = state.effort + ((state.effort<0)-(state.effort>0))*thresh;
   }
   deadband_effort = pasta_clamp(deadband_effort,-state.v_dldt,constants.b_dldt);

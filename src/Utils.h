@@ -24,11 +24,11 @@
 /*
 Custom functions define here so they can be compiled on both x64 and ARM
 */
-#define jankabs(x) ((x>0)-(x<0))*x
+#define jankabs(x) (((x)>0)-((x)<0))*(x)
 
 template<class T> const T pasta_abs(const T x)
 {
-    return ((x>0)-(x<0))*x;
+    return (((x)>0)-((x)<0))*(x);
 }
 
 template<class T> const T pasta_max(const T a, const T b)

@@ -9,7 +9,7 @@ bool Avionics::processData() {
   bool success = true;
 
   float pressures[] = {data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4};
-  
+
   numExecNow = numExecReset();
   for (int k=0; k<numExecNow; k++) {
     filter.update_state(data.TIME, pressures, data);
@@ -113,9 +113,9 @@ bool Avionics::calcIncentives() {
   float las_h_abs = data.USE_ALTITUDE_CORRECTED ? data.ALTITUDE_CORRECTED : data.ALTITUDE_BAROMETER;
   lasInput.h_abs = las_h_abs;
   lasInput.op = isnan(data.OVERPRESSURE_FILT) ? 0 : data.OVERPRESSURE_FILT;
-  
+
   sun_ctr++;
-  if(sun_ctr == 60*1000/LOOP_INTERVAL){
+  if(sun_ctr == 1*1000/LOOP_INTERVAL){
     Serial.print("doing sun calc...");
     unsigned int t1 = micros();
     sun_ctr = 0;
@@ -125,7 +125,7 @@ bool Avionics::calcIncentives() {
   Serial.print(t2-t1);
   Serial.println("us");
   }
-  
+
   lasInput.dldt_ext = data.ESTIMATED_DLDT * data.DLDT_SCALE;
   data.ACTIONS[INDEX] = 0;
   for (int k=0; k<numExecNow; k++) {
@@ -153,9 +153,26 @@ void Avionics::updateSunValues() {
         long_val = data.LONG_GPS_MANUAL;
         lat_val = data.LAT_GPS_MANUAL;
     }
-
+		Serial.println("day ");
+		Serial.println(data.GPS_TIME.year);
+		Serial.println(data.GPS_TIME.month);
+		Serial.println(data.GPS_TIME.day);
+		Serial.println(data.GPS_TIME.day);
+		Serial.println(data.GPS_TIME.hour);
+		Serial.println(data.GPS_TIME.minute);
+		Serial.println(data.GPS_TIME.second);
+		Serial.print("SUN INPUTS: ");
+Serial.print(long_val);
+Serial.print(", ");
+Serial.print(lat_val);
+Serial.print(", ");
+Serial.print(extra_seconds);
+Serial.print(", ");
+Serial.println();
     sunsetPredictor.calcValues(long_val, lat_val, data.GPS_TIME, extra_seconds);
     data.ESTIMATED_DLDT = sunsetPredictor.estimated_dldt;
     data.SOLAR_ELEVATION = sunsetPredictor.solar_elevation;
+		Serial.println("solar elevation");
+		Serial.println(data.SOLAR_ELEVATION);
     data.DSEDT = sunsetPredictor.dsedt;
 }

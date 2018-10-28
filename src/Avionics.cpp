@@ -128,7 +128,7 @@ delay(1000);*/
 void Avionics::test() {
   alert("Initializing test...", true);
 
-  actuator.queueBallast(100000, true);
+  //actuator.queueBallast(40000, true);
   //actuator.queueValve(10000, true);
   //actuator.queueValve(30000, true)
   /*data.SHOULD_CUTDOWN = true;
@@ -205,10 +205,10 @@ void Avionics::actuateState() {
   if(!runBallast()) alert("unable to run ballast", true);
   if(!runCutdown()) alert("unable to run cutdown", true);
   if(!runLED())     alert("unable to run LED", true);
-  /*runHeaters();
+  //runHeaters();
   rumAndCoke();
   timedCutdown();
-  runDeadMansSwitch();*/
+  runDeadMansSwitch();
   //if(!runRadio()) alert("Unable to run payload", true);
 
 }

@@ -93,7 +93,7 @@ static const uint16_t  BALLAST_STALL_TIMEOUT                 =             3000;
 static const float     DLDT_SCALE_DEFAULT                    =             0.0;
 
 static const float     GPS_MANUAL_MODE_DEFAULT               =             true;
-static const float     GPS_MANUAL_MODE_OVERRIDE_DEFAULT      =             true;
+static const float     GPS_MANUAL_MODE_OVERRIDE_DEFAULT      =             false;
 static const float     LAT_GPS_MANUAL_DEFAULT                =        37.427538;
 static const float     LONG_GPS_MANUAL_DEFAULT               =       122.174461;
 

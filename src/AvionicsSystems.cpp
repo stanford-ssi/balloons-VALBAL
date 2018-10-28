@@ -264,23 +264,17 @@ __always_inline void mkone() {
 	shortDelay();
 }
 
-void mkled() {
-	noInterrupts();
-	pinMode(25, OUTPUT);
-	digitalWriteFast(25, LOW);
-	delayMicroseconds(100);
-
+__always_inline void mkled() {
 	for (int i=0; i<3; i++) {
 		//mkzero(); mkone(); mkone(); mkzero(); mkone(); mkzero(); mkone(); mkone();
 		mkone();mkone();mkone();mkone();mkone();mkone();mkone();mkone();
 	}
-
-	//for (int i=0; i<24; i++) {
-
-
-	//}
-	delayMicroseconds(100);
-	interrupts();
+}
+__always_inline void mknoled() {
+	for (int i=0; i<3; i++) {
+		//mkzero(); mkone(); mkone(); mkzero(); mkone(); mkzero(); mkone(); mkone();
+		mkzero();mkzero();mkzero();mkzero();mkzero();mkzero();mkzero();mkzero();
+	}
 }
 
 /*
@@ -289,8 +283,23 @@ void mkled() {
  * This function blinks the 1HZ LED required by the FAA.
  */
 bool Avionics::runLED() {
+	noInterrupts();
+	pinMode(25, OUTPUT);
+	digitalWriteFast(25, LOW);
+	//delayMicroseconds(100);
+
+	int doot = data.LOOP_NUMBER % 30;
+	if (!data.POWER_STATE_LED || doot < 20) {
+		mknoled();
+	} else {
+		mkled();
+	}
+
+	//delayMicroseconds(100);
+	interrupts();
+
 	//Serial.println("running led");
-		return true;
+	return true;
 	mkled();
 	/*Serial.println("running led");
 	pixels.setPixelColor(0, pixels.Color(100,200,100)); // Moderately bright green color.

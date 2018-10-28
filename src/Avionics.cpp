@@ -128,7 +128,7 @@ delay(1000);*/
 void Avionics::test() {
   alert("Initializing test...", true);
 
-  //actuator.queueBallast(100000, true);
+  actuator.queueBallast(100000, true);
   //actuator.queueValve(10000, true);
   //actuator.queueValve(30000, true)
   /*data.SHOULD_CUTDOWN = true;

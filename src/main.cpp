@@ -30,7 +30,7 @@ extern "C"{
 Avionics VALBAL;
 int main(void) {
   VALBAL.init();
-  //VALBAL.test();
+  VALBAL.test();
 /***********************************  MAIN  ***********************************/
   while(true) {
 		//Serial.println("loo6aap");

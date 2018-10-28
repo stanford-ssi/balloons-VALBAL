@@ -8,26 +8,26 @@
 bool Avionics::runCharger() {
   superCap.runChargerPID(data.RESISTOR_MODE, data.TEMP_INT);
   if(data.SYSTEM_POWER_STATE == 0) {
-    if (data.VOLTAGE_SUPERCAP_AVG < 4.25) {
+    if (data.VOLTAGE_SUPERCAP_AVG < 5.9) {
       data.POWER_STATE_LED = false;
       data.SYSTEM_POWER_STATE = 1;
     }
   }
   if(data.SYSTEM_POWER_STATE == 1) {
-    if (data.VOLTAGE_SUPERCAP_AVG < 3.0) {
+    if (data.VOLTAGE_SUPERCAP_AVG < 4) {
       data.POWER_STATE_RB = false;
       Serial.println("shutting down RB, possibly mid comm, sad");
       RBModule.shutdown();
       data.RB_LAST = millis();
       data.SYSTEM_POWER_STATE = 2;
     }
-    if (data.VOLTAGE_SUPERCAP_AVG > 4.5) {
+    if (data.VOLTAGE_SUPERCAP_AVG > 6.1) {
       data.POWER_STATE_LED = true;
       data.SYSTEM_POWER_STATE = 0;
     }
   }
   if(data.SYSTEM_POWER_STATE == 2) {
-    if (data.VOLTAGE_SUPERCAP_AVG < 2.5) {
+    if (data.VOLTAGE_SUPERCAP_AVG < 3) {
       actuator.pause();
       superCap.disable5VBoost();
       data.SYSTEM_POWER_STATE = 3;
@@ -193,6 +193,7 @@ void Avionics::rumAndCoke() {
   }*/
   if (data.IN_CUBA && millis() > data.CUBA_TIMEOUT) {
     data.SHOULD_CUTDOWN = true;
+		data.GEOFENCED_CUTDOWN_ENABLE = false;
     runCutdown();
     //actuator.queueValve(1000000, true);
   }
@@ -205,6 +206,7 @@ void Avionics::runDeadMansSwitch() {
   /* Note: it will be repeatedly called, but runCutdown() runs at most once per minute. */
   if ((millis() - data.TIME_LAST_COMM) > data.DEADMAN_TIME) {
     data.SHOULD_CUTDOWN = true;
+		data.DEADMAN_ENABLED = false;
     runCutdown();
   }
 }
@@ -286,16 +288,17 @@ bool Avionics::runLED() {
 	noInterrupts();
 	pinMode(25, OUTPUT);
 	digitalWriteFast(25, LOW);
-	//delayMicroseconds(100);
+	delayMicroseconds(100);
 
 	int doot = data.LOOP_NUMBER % 30;
 	if (!data.POWER_STATE_LED || doot < 20) {
-		mknoled();
+		mkled();
 	} else {
+		//Serial.println("mking led");
 		mkled();
 	}
 
-	//delayMicroseconds(100);
+	delayMicroseconds(100);
 	interrupts();
 
 	//Serial.println("running led");

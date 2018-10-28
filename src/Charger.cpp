@@ -64,6 +64,7 @@ void Charger::runChargerPID(uint8_t resistorMode, float temp) {
   chargingLimit = resistorMode;
   if (resistorMode == 1) hex = 0x38;
   if (resistorMode == 2) hex = 0x23;
+  if (resistorMode == 22) hex = 0x20;
   if (resistorMode == 3) hex = 0x10;
   if (resistorMode == 4) hex = 0x08;
   if (resistorMode == 0) {
@@ -77,7 +78,7 @@ void Charger::runChargerPID(uint8_t resistorMode, float temp) {
       chargingLimit = 1;
     }
   }
-	hex = 0x10;
+	//hex = 0x10;
 	//Serial.println("spi transfer ");
 	//Serial.println(hex);
 	digitalWrite(POT_CS, LOW);

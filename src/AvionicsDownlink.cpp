@@ -60,8 +60,8 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(data.JOULES_TOTAL,                          0,    864000,  17, lengthBits);
   lengthBits += compressVariable(data.VOLTAGE_PRIMARY,                       0,    6,       9,  lengthBits);
   lengthBits += compressVariable(filter.voltage_primary.min,                 0,    6,       9,  lengthBits);
-  lengthBits += compressVariable(data.VOLTAGE_SUPERCAP_AVG,                  0,    6,       9,  lengthBits);
-  lengthBits += compressVariable(data.VOLTAGE_SUPERCAP_MIN,                  0,    6,       9,  lengthBits);
+  lengthBits += compressVariable(data.VOLTAGE_SUPERCAP_AVG,                  0,    8,       9,  lengthBits);
+  lengthBits += compressVariable(data.VOLTAGE_SUPERCAP_MIN,                  0,    8,       9,  lengthBits);
   lengthBits += compressVariable(filter.current_total.avg,                   0,    511,    8, lengthBits);
   lengthBits += compressVariable(filter.current_total.min,                   0,    255,    7, lengthBits);
   lengthBits += compressVariable(filter.current_total.max,                   0,    4095,    8, lengthBits);
@@ -137,7 +137,7 @@ int16_t Avionics::compressData() {
     float delta_hours = (millis() - data.TIME_LAST_COMM)/3600000.;
     lengthBits += compressVariable(delta_hours,            0,    15,       4,  lengthBits);
     lengthBits += compressVariable(data.SOLAR_ELEVATION,                    -90,      90,   8,  lengthBits);
-    lengthBits += compressVariable(data.DSEDT,                              -0.00416,    0.00416,   8,  lengthBits); 
+    lengthBits += compressVariable(data.DSEDT,                              -0.00416,    0.00416,   8,  lengthBits);
     lengthBits += compressVariable(data.ESTIMATED_DLDT,                  -6.8141e-05, 6.8141e-05,   9,  lengthBits);
     lengthBits += compressVariable(data.ALTITUDE_CORRECTED, 0, 25000,  15,  lengthBits);
     lengthBits += compressVariable(filter.v_filtered[0], -5, 5,  8,  lengthBits);

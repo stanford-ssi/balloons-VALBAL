@@ -36,8 +36,8 @@
 
 static IntervalTimer sw_pwm;
 static const int n_cts = 10;
-static const int val_duty = 10;
-static const int bal_duty = 9;
+int val_duty = 10;
+int bal_duty = 9;
 static int val_ctr = 0;
 static int bal_ctr = 0;
 // 0 is off, 1 is high, 2 is pwm

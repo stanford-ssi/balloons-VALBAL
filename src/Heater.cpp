@@ -23,7 +23,7 @@ float Heater::update(Input input) {
 
   int dutyint = duty * constants.max_duty;
 
-  analogWrite(36, dutyint);
+  //analogWrite(36, dutyint);
   return dutyint;
 }
 

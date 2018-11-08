@@ -33,36 +33,43 @@ bool Logger::log(void *data, int nbytes, bool retry) {
   bool added = add_to_cache(data, nbytes);
   if (!added) Serial.println("DID NOT FIT :siren:");
   int dist = (to_insert-to_write+CACHE_SIZE) % CACHE_SIZE;
-  if (dist > 2) {
+  /*if (dist > 2) {
     Serial.print("Distance: ");
     Serial.println(dist);
-  }
+  }*/
   uint32_t t0 = micros();
 
   bool result;
   bool done = false;
 
+	bool should_write = 4*dist > 3*CACHE_SIZE;
+	/*Serial.print(dist);
+	Serial.print(" ");
+	Serial.println(CACHE_SIZE);*/
+
+	if (should_write && mode == SDMode::Idle) {
+		Serial.println("time to git going");
+		limit_block = (cur_block + MAX_SDHC_COUNT) & ~RU_MASK;
+		if (!card.writeStart(cur_block, limit_block - cur_block)) {
+			Serial.println("[SD ERROR] writeStart failed");
+			return false;
+		}
+		mode = SDMode::Writing;
+		num_to_write = dist;
+		written = 0;
+	}
+
   while ((micros() - t0) < MAX_LOG_TIME) {
     switch (mode) {
     case SDMode::Idle:
-      if (prev != SDMode::Idle) {
-        if (!card.writeStop()) {
-          Serial.println("[SD ERROR] spooky writeStop failed");
-
-        }
-      }
-      limit_block = (cur_block + MAX_SDHC_COUNT) & ~RU_MASK;
-      Serial.println("limit is");
-      Serial.println(limit_block);
-      if (!card.writeStart(cur_block, limit_block - cur_block)) {
-        Serial.println("[SD ERROR] writeStart failed");
-        return false;
-      }
-      mode = SDMode::Writing;
+      done = true;
       break;
     case SDMode::Writing:
       if (cache_avail[to_write]) {
         done = true;
+				Serial.println("Should never reach here");
+				mode = SDMode::Idle;
+				card.writeStop();
         break;
       }
       if (!card.writeDataStart((const uint8_t*)&cache[to_write])) {
@@ -76,17 +83,20 @@ bool Logger::log(void *data, int nbytes, bool retry) {
       break;
     case SDMode::BusyWait:
       if (card.checkWriteComplete(result)) {
-        //Serial.print("Took us ");
-        //Serial.println(micros()-entered);
         if (!result) {
           Serial.println("[SD ERROR] Block write failed!");
           return false;
         } else {
-          //Serial.println("[SD INFO] Block write successful!");
-          //Serial.println(cur_block);
-        }
-        if (cur_block >= limit_block) {
-          mode = SDMode::Idle;
+					//Serial.println("aye wrote");
+					written++;
+				}
+        if (cur_block >= limit_block || written == num_to_write) {
+	        if (!card.writeStop()) {
+	          Serial.println("[SD ERROR] spooky writeStop failed");
+	        } else {
+						Serial.println("should go to lower power now!");
+					}
+					mode = SDMode::Idle;
         } else {
           mode = SDMode::Writing;
         }

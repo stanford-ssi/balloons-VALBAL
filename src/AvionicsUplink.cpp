@@ -45,6 +45,10 @@ void Avionics::parseCommand(int16_t len) {
  * This function updates the state appropriate state variable
  * based on the command index.
  */
+
+  extern int bal_duty;
+	 extern int val_duty;
+
 void Avionics::updateConstant(uint8_t index, float value) {
   Serial.print("UPDATE COSNTANTS CALLED: ");
   Serial.print(index);
@@ -67,9 +71,9 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 14) data.PRESS_BASELINE = value; // Pressure baseline | Pascals
   else if (index == 15) data.BALLAST_REVERSE_INTERVAL = value * 1000; // Ballast reverse timeout | seconds
   else if (index == 16) data.BALLAST_STALL_CURRENT = value; // Ballast stall current | milliamps
-  else if (index == 17) data.VALVE_MOTOR_SPEED_OPEN = value; // Valve motor speed open | Between 0 and 255
-  else if (index == 18) data.VALVE_MOTOR_SPEED_CLOSE = value; // Valve motor speed close | Between 0 and 255
-  else if (index == 19) data.BALLAST_MOTOR_SPEED = value; // Ballast motor speed | Between 0 and 255
+  else if (index == 17) val_duty = value; // Valve motor speed open | Between 0 and 255
+  else if (index == 18) val_duty = value; // Valve motor speed close | Between 0 and 255
+  else if (index == 19) bal_duty = value; // Ballast motor speed | Between 0 and 255
   else if (index == 20) data.VALVE_OPENING_DURATION = value * 1000; // Valve opening timeout | seconds
   else if (index == 21) data.VALVE_CLOSING_DURATION = value * 1000; // Valve closing timeout | seconds
   else if (index == 22) data.POWER_STATE_LED = value; // LED Power State | bool (0 or 1)
@@ -157,7 +161,7 @@ void Avionics::updateConstant(uint8_t index, float value) {
     data.TIMED_CUTDOWN_MILLIS = value;
     data.TIMED_CUTDOWN_ENABLE = true;
   }
-  else if (index == 96) data.DLDT_SCALE = value;                          // Scalar factor on predicted DLDT for sunset 
+  else if (index == 96) data.DLDT_SCALE = value;                          // Scalar factor on predicted DLDT for sunset
   else if (index == 97) data.LAT_GPS_MANUAL = value;                      // Manual Latitude for sunset prediction
   else if (index == 98) data.LONG_GPS_MANUAL = value;                     // Manual Longitude for sunset precitions
   else if (index == 99) data.GPS_MANUAL_MODE = value;                     // Toggels if manual input or gps-recieved coords are used for sunset prediction

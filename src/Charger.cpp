@@ -9,6 +9,8 @@
   Implimentation of Charger.h
 */
 
+#include <SPI.h>
+
 #include "Charger.h"
 
 /**********************************  SETUP  ***********************************/
@@ -20,14 +22,17 @@
 bool Charger::init() {
   pinMode(SUPER_CAP_ENABLE, OUTPUT);
   pinMode(FIVE_VOLT_ENABLE, OUTPUT);
-  digitalWrite(SUPER_CAP_ENABLE, LOW);
+  //digitalWrite(SUPER_CAP_ENABLE, LOW);
+	digitalWrite(SUPER_CAP_ENABLE, HIGH);
   digitalWrite(FIVE_VOLT_ENABLE, LOW);
-  if (resistor.init()){
+	pinMode(POT_CS, OUTPUT);
+	SPI.begin();
+  /*if (resistor.init()){
     chargingLimit = 3;
     digitalWrite(SUPER_CAP_ENABLE, HIGH);
     return true;
-  }
-  return false;
+  }*/
+  return true;
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -59,6 +64,7 @@ void Charger::runChargerPID(uint8_t resistorMode, float temp) {
   chargingLimit = resistorMode;
   if (resistorMode == 1) hex = 0x38;
   if (resistorMode == 2) hex = 0x23;
+  if (resistorMode == 22) hex = 0x20;
   if (resistorMode == 3) hex = 0x10;
   if (resistorMode == 4) hex = 0x08;
   if (resistorMode == 0) {
@@ -72,7 +78,14 @@ void Charger::runChargerPID(uint8_t resistorMode, float temp) {
       chargingLimit = 1;
     }
   }
-  resistor.setResistance(hex);
+	//hex = 0x10;
+	//Serial.println("spi transfer ");
+	//Serial.println(hex);
+	digitalWrite(POT_CS, LOW);
+	SPI.transfer(0);
+	SPI.transfer((int)(hex));
+	digitalWrite(POT_CS, HIGH);
+  //resistor.setResistance(hex);
 }
 
 /*

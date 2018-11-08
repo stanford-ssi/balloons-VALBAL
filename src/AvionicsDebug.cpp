@@ -27,11 +27,16 @@ void Avionics::alert(const char* debug, bool fatal) {
   Serial.print("...\n");
 }
 
+float avgPower = 0;
+int nPower = 0;
+
 /*
  * Function: printState
  * -------------------
  * This function prints the current avionics state.
  */
+ int kk = 0;
+ bool aaa = false;
 void Avionics::printState() {
   //if (data.LOOP_NUMBER % 500 != 0) return;
   // Serial.print("CURRENT MOTORS: ");
@@ -45,7 +50,119 @@ void Avionics::printState() {
   //     Serial.print(" ");
   //     //Serial.print(data.CURRENT_MOTOR_BALLAST_AVG);
   //     Serial.println();
-  
+	if (millis() > 2.95*60*1000 && !aaa) {
+		avgPower = 0;
+		nPower = 0;
+		aaa = true;
+	}
+		avgPower += data.CURRENT_GPS*3.3;
+		nPower++;
+	if (kk++ % 20 == 0) {
+		Serial.print(" vprim ");
+		Serial.print(data.VOLTAGE_PRIMARY);
+		Serial.print(" vcap ");
+		Serial.print(data.VOLTAGE_SUPERCAP);
+		Serial.print(" main ");
+		Serial.print(data.CURRENT_TOTAL);
+		Serial.print(" rb ");
+		Serial.print(data.CURRENT_RB);
+		Serial.print(" mot ");
+		Serial.print(data.CURRENT_MOTORS);
+		Serial.print(" sd ");
+		Serial.print(data.CURRENT_SD);
+		Serial.print(" pld ");
+		Serial.print(data.CURRENT_PAYLOAD);
+		Serial.print(" gps ");
+		Serial.print(data.CURRENT_GPS);
+		Serial.print(" time ");
+		Serial.println(data.SENSOR_TIME);
+		//Serial.print(" gpspow ");
+		//Serial.println(avgPower/nPower);
+		Serial.print("SD power ");
+		Serial.println(data.SD_ENERGY/(millis()/1000.));
+		Serial.print("minCapV ");
+		Serial.println(data.VOLTAGE_SUPERCAP_MIN);
+		/*
+		  Serial.print(" p1:");
+		  Serial.print(data.RAW_PRESSURE_1);
+		  Serial.print(',');
+		  Serial.print(" p2:");
+		  Serial.print(data.RAW_PRESSURE_2);
+		  Serial.print(',');
+		  Serial.print(" p3:");
+		  Serial.print(data.RAW_PRESSURE_3);
+		  Serial.print(',');
+		  Serial.print(" p4:");
+		  Serial.print(data.RAW_PRESSURE_4);
+			Serial.println();
+		  Serial.println(sensors.bmp1.readPressure());
+		  Serial.println(sensors.bmp2.readPressure());*/
+		//Serial.println();
+	Serial.print(" LAT_GPS:");
+	Serial.print(data.LAT_GPS, 6);
+	Serial.print(',');
+	Serial.print(" LONG_GPS:");
+	Serial.print(data.LONG_GPS, 6);
+	pinMode(21, INPUT);
+	Serial.println(digitalRead(21) ? " LNA on" : " LNA off");
+	  Serial.print(" RAW_PRESSURE_1:");
+	  Serial.print(data.RAW_PRESSURE_1);
+	  Serial.print(',');
+	  Serial.print(" RAW_PRESSURE_2:");
+	  Serial.print(data.RAW_PRESSURE_2);
+	  Serial.print(',');
+	  Serial.print(" RAW_PRESSURE_3:");
+	  Serial.print(data.RAW_PRESSURE_3);
+	  Serial.print(',');
+	  Serial.print(" RAW_PRESSURE_4:");
+	  Serial.print(data.RAW_PRESSURE_4);
+		Serial.println();
+
+		  Serial.print(" RAW_TEMP_1:");
+		  Serial.print(data.RAW_TEMP_1);
+		  Serial.print(',');
+		  Serial.print(" RAW_TEMP_2:");
+		  Serial.print(data.RAW_TEMP_2);
+		  Serial.print(',');
+		  Serial.print(" RAW_TEMP_3:");
+		  Serial.print(data.RAW_TEMP_3);
+		  Serial.print(',');
+		  Serial.print(" RAW_TEMP_4:");
+		  Serial.print(data.RAW_TEMP_4);
+		  Serial.print(',');
+			Serial.print(" TEMP_INT:");
+			Serial.print(data.TEMP_INT);
+			Serial.println();
+	//Serial.println();
+	return;
+}
+	return;
+	Serial.println();
+	Serial.println();
+
+  Serial.print(" RAW_PRESSURE_1:");
+  Serial.print(data.RAW_PRESSURE_1);
+  Serial.print(',');
+  Serial.print(" RAW_PRESSURE_2:");
+  Serial.print(data.RAW_PRESSURE_2);
+  Serial.print(',');
+  Serial.print(" RAW_PRESSURE_3:");
+  Serial.print(data.RAW_PRESSURE_3);
+  Serial.print(',');
+  Serial.print(" RAW_PRESSURE_4:");
+  Serial.print(data.RAW_PRESSURE_4);
+	Serial.println();
+  Serial.println(sensors.bmp1.readPressure());
+  Serial.println(sensors.bmp2.readPressure());
+Serial.println();
+Serial.print(',');
+Serial.print(" TEMP_INT:");
+Serial.print(data.TEMP_INT);
+Serial.println();
+Serial.print(sensors.getVoltageSuperCap());
+Serial.println(" Volts.");
+Serial.println();
+	return;
   Serial.print("Altitude: ");
   Serial.println(data.ALTITUDE_BAROMETER);
   Serial.print("LOOP_TIME: ");
@@ -94,17 +211,17 @@ void Avionics::printState() {
   // Serial.print(" RAW_TEMP_4:");
   // Serial.print(data.RAW_TEMP_4);
   // Serial.print(',');
-  /*Serial.print("RAW_PRESSURE_1: ");
+  Serial.print("RAW_PRESSURE_1: ");
   Serial.println(data.RAW_PRESSURE_1);
-  //Serial.print(',');
+  Serial.print(',');
   Serial.print("RAW_PRESSURE_2: ");
   Serial.println(data.RAW_PRESSURE_2);
-  //Serial.print(',');
+  Serial.print(',');
   Serial.print("RAW_PRESSURE_3: ");
   Serial.println(data.RAW_PRESSURE_3);
-  //Serial.print(',');
+  Serial.print(',');
   Serial.print("RAW_PRESSURE_4: ");
-  Serial.println(data.RAW_PRESSURE_4);*/
+  Serial.println(data.RAW_PRESSURE_4);
   Serial.println();
   //return;
 

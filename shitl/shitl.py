@@ -40,7 +40,8 @@ f= open(logfile,"w+")
 f.write(", ".join(names)+"\n")
 f.close()
 fbin = open(binfile,"wb")
-dat = np.load('ssi63shitl10hr.npy')
+dat = np.load('ssi71shitl10hr.npy')
+print("Data loaded")
 teensy = serial.Serial('/dev/ttyACM0',baudrate=115200)
 #WAIT FOR TEENSY TO BEGIN TESTING
 while(1):

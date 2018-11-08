@@ -20,7 +20,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
- 
+
 #include "TinyGPS++.h"
 
 #include <string.h>
@@ -28,8 +28,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include <stdlib.h>
 
 #define _GPRMCterm   "GPRMC"
-// #define _GPGGAterm   "GPGGA"
-#define _GPGGAterm   "GNGGA"
+#define _GPGGAterm   "GPGGA"
+//#define _GPGGAterm   "GNGGA"
 
 TinyGPSPlus::TinyGPSPlus()
   :  parity(0)
@@ -54,6 +54,7 @@ TinyGPSPlus::TinyGPSPlus()
 
 bool TinyGPSPlus::encode(char c)
 {
+	Serial.print(c);
   ++encodedCharCount;
 
   switch(c)
@@ -174,6 +175,10 @@ bool TinyGPSPlus::endOfTermHandler()
         time.commit();
         if (sentenceHasFix)
         {
+					 /*isYeet = true;
+					 Serial.println("setting isyeet true");
+					 Serial.println("with location");
+					 Serial.println(location.lat());*/
            location.commit();
            speed.commit();
            course.commit();
@@ -183,6 +188,8 @@ bool TinyGPSPlus::endOfTermHandler()
         time.commit();
         if (sentenceHasFix)
         {
+				Serial.println("setting isyeet true!");
+					isYeet = true;
           location.commit();
           altitude.commit();
         }

@@ -12,6 +12,12 @@
 
 #include "GPS.h"
 
+#include <SoftwareSerial.h>
+
+//SoftwareSerial GPSSerial = SoftwareSerial(48, 47);
+
+#define GPSSerial Serial6
+
 /**********************************  SETUP  ***********************************/
 /*
  * Function: init
@@ -25,7 +31,6 @@ bool GPS::init(bool shouldStartup) {
   Serial.println("low");
   Serial.println(shouldStartup);
   delay(2000);
-  Serial1.begin(GPS_BAUD);
   if (shouldStartup) {
     success = restart();
   }
@@ -41,12 +46,16 @@ bool GPS::init(bool shouldStartup) {
 bool GPS::restart() {
   bool success = false;
   EEPROM.write(EEPROMAddress, false);
+	pinMode(21, INPUT);
   digitalWrite(GPS_ENABLE_PIN, HIGH);
   Serial.println("bootup");
+  Serial.println(GPS_ENABLE_PIN);
+	delay(50);
+  GPSSerial.begin(GPS_BAUD);
   uint32_t t0 = millis();
   while (millis()-t0 < 1000) {
-    if (Serial1.available()) {
-      Serial.print((char)Serial1.read());
+    if (GPSSerial.available()) {
+      Serial.print((char)GPSSerial.read());
     }
   }
   Serial.println();
@@ -54,14 +63,35 @@ bool GPS::restart() {
   delay(1000);
   EEPROM.write(EEPROMAddress, true);
   delay(1000);
-  while (Serial1.available()) Serial1.read();
-  if (GPS_MODE == 1) success = setGPSMode(gpsonly, sizeof(gpsonly)/sizeof(uint8_t), GPS_LOCK_TIME);
-  success = setGPSMode(flightMode, sizeof(flightMode)/sizeof(uint8_t), GPS_LOCK_TIME);
+  while (GPSSerial.available()) GPSSerial.read();
+	//GPS_MODE = 1;
+  if (GPS_MODE == 1) {
+		success = setGPSMode(gpsonly, sizeof(gpsonly)/sizeof(uint8_t), GPS_LOCK_TIME);
+		success = setGPSMode(ante, sizeof(ante)/sizeof(uint8_t), GPS_LOCK_TIME);
+		success = setGPSMode(sbasoff, sizeof(sbasoff)/sizeof(uint8_t), GPS_LOCK_TIME);
+		Serial.println("setting on off");
+		//success = setGPSMode(pms, sizeof(pms)/sizeof(uint8_t), GPS_LOCK_TIME);
+		success = setGPSMode(rate, sizeof(rate)/sizeof(uint8_t), GPS_LOCK_TIME);
+		//success = setGPSMode(onoff, sizeof(onoff)/sizeof(uint8_t), GPS_LOCK_TIME);
+		success = setGPSMode(interval, sizeof(interval)/sizeof(uint8_t), GPS_LOCK_TIME);
+		Serial.println("set on off");
+
+	}
+	
+	success = setGPSMode(flightMode, sizeof(flightMode)/sizeof(uint8_t), GPS_LOCK_TIME);
+
+	if (GPS_MODE == 1) {
+				success = setGPSMode(savetobb, sizeof(savetobb)/sizeof(uint8_t), GPS_LOCK_TIME);
+	}
+	//uint8_t fuse[] = {0xB5, 0x62, 0x06, 0x41, 0x0C, 0x00, 0x00, 0x00, 0x03, 0x1F, 0x90, 0x47, 0x4F, 0xB1, 0xFF, 0xFF, 0xEA, 0xFF, 0x33, 0x98};
+  //success = setGPSMode(fuse, sizeof(fuse)/sizeof(uint8_t), GPS_LOCK_TIME);
+	Serial.println("yay blew fuse");
+	//success = setGPSMode(interval, sizeof(interval)/sizeof(uint8_t), GPS_LOCK_TIME);
   return success;
 }
 
 void GPS::lowpower() {
-  if (GPS_MODE == 1) setGPSMode(pms, sizeof(pms)/sizeof(uint8_t), GPS_LOCK_TIME);
+  //if (GPS_MODE == 1) setGPSMode(pms, sizeof(pms)/sizeof(uint8_t), GPS_LOCK_TIME);
 }
 
 /*
@@ -70,7 +100,7 @@ void GPS::lowpower() {
  * This function hotstarts the GPS.
  */
 void GPS::hotstart() {
-  Serial1.println("$PUBX,00*33");
+  GPSSerial.println("$PUBX,00*33");
   delay(1000);
 }
 
@@ -80,6 +110,7 @@ void GPS::hotstart() {
  * This function shutsdown the GPS.
  */
 void GPS::shutdown() {
+	Serial.println("shutting down gps?");
   digitalWrite(GPS_ENABLE_PIN, LOW);
   EEPROM.write(EEPROMAddress, false);
 }
@@ -204,12 +235,23 @@ int GPS::getSecond() {
  * This function pauses the main thread while
  * still communicating with the comms interface.
  */
+uint32_t nextSleepyTime = 5*60*1000;
 void GPS::smartDelay(uint32_t ms) {
   uint32_t startt = millis();
   do {
-    while (Serial1.available()) {
-      char c = Serial1.read();
-      Serial.print(c);
+		if (GPS_MODE == 1) {
+			if (millis() > nextSleepyTime && tinygps.isYeet) {
+				Serial.println("going to sleep!");
+				sendUBX(forcesleep, sizeof(forcesleep)/sizeof(uint8_t));
+				while (GPSSerial.available()) GPSSerial.read();
+				nextSleepyTime = nextSleepyTime + 60*1000;
+				tinygps.isYeet = false;
+				Serial.println("setting isyeet false :(((");
+			}
+		}
+    while (GPSSerial.available()) {
+      char c = GPSSerial.read();
+      //Serial.print(c);
       tinygps.encode(c);
     }
   } while (millis() - startt < ms);
@@ -237,10 +279,10 @@ bool GPS::setGPSMode(uint8_t* MSG, uint8_t len, uint16_t GPS_LOCK_TIME){
 void GPS::sendUBX(uint8_t* MSG, uint8_t len) {
   Serial.println("Sending UBX");
   for(int i = 0; i < len; i++) {
-    Serial1.write(MSG[i]);
+    GPSSerial.write(MSG[i]);
     Serial.print(MSG[i], HEX);
   }
-  Serial1.println();
+  GPSSerial.println();
 }
 
 /*
@@ -276,8 +318,8 @@ bool GPS::getUBX_ACK(uint8_t* MSG) {
       Serial.println(" (SUCCESS!)");
       return true;
     }
-    if (Serial1.available()) {
-      b = Serial1.read();
+    if (GPSSerial.available()) {
+      b = GPSSerial.read();
       if (b == ackPacket[ackByteID]) {
         ackByteID++;
         Serial.print(b, HEX);
@@ -291,5 +333,6 @@ bool GPS::getUBX_ACK(uint8_t* MSG) {
     }
   }
   Serial.println(" (FAILED!)");
+	delay(500);
   return false;
 }

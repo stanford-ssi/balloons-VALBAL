@@ -8,26 +8,26 @@
 bool Avionics::runCharger() {
   superCap.runChargerPID(data.RESISTOR_MODE, data.TEMP_INT);
   if(data.SYSTEM_POWER_STATE == 0) {
-    if (data.VOLTAGE_SUPERCAP_AVG < 4.25) {
+    if (data.VOLTAGE_SUPERCAP_AVG < 5.9) {
       data.POWER_STATE_LED = false;
       data.SYSTEM_POWER_STATE = 1;
     }
   }
   if(data.SYSTEM_POWER_STATE == 1) {
-    if (data.VOLTAGE_SUPERCAP_AVG < 3.0) {
+    if (data.VOLTAGE_SUPERCAP_AVG < 4) {
       data.POWER_STATE_RB = false;
       Serial.println("shutting down RB, possibly mid comm, sad");
       RBModule.shutdown();
       data.RB_LAST = millis();
       data.SYSTEM_POWER_STATE = 2;
     }
-    if (data.VOLTAGE_SUPERCAP_AVG > 4.5) {
+    if (data.VOLTAGE_SUPERCAP_AVG > 6.1) {
       data.POWER_STATE_LED = true;
       data.SYSTEM_POWER_STATE = 0;
     }
   }
   if(data.SYSTEM_POWER_STATE == 2) {
-    if (data.VOLTAGE_SUPERCAP_AVG < 2.5) {
+    if (data.VOLTAGE_SUPERCAP_AVG < 3) {
       actuator.pause();
       superCap.disable5VBoost();
       data.SYSTEM_POWER_STATE = 3;
@@ -193,6 +193,7 @@ void Avionics::rumAndCoke() {
   }*/
   if (data.IN_CUBA && millis() > data.CUBA_TIMEOUT) {
     data.SHOULD_CUTDOWN = true;
+		data.GEOFENCED_CUTDOWN_ENABLE = false;
     runCutdown();
     //actuator.queueValve(1000000, true);
   }
@@ -205,8 +206,77 @@ void Avionics::runDeadMansSwitch() {
   /* Note: it will be repeatedly called, but runCutdown() runs at most once per minute. */
   if ((millis() - data.TIME_LAST_COMM) > data.DEADMAN_TIME) {
     data.SHOULD_CUTDOWN = true;
+		data.DEADMAN_ENABLED = false;
     runCutdown();
   }
+}
+
+__always_inline void shortDelay() {
+	asm volatile(
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+	);
+}
+
+__always_inline void longDelay() {
+	asm volatile(
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+					"nop" "\n\t"
+									"nop" "\n\t"
+									"nop" "\n\t"
+									"nop" "\n\t"
+									"nop" "\n\t"
+									"nop" "\n\t"
+									"nop" "\n\t"
+									"nop" "\n\t"
+									"nop" "\n\t"
+													"nop" "\n\t"
+													"nop" "\n\t"
+													"nop" "\n\t"
+													"nop" "\n\t"
+													"nop" "\n\t"
+													"nop" "\n\t"
+													"nop" "\n\t"
+	);
+}
+
+__always_inline void mkzero() {
+	digitalWriteFast(25, HIGH);
+	shortDelay();
+	digitalWriteFast(25, LOW);
+	longDelay();
+}
+__always_inline void mkone() {
+	digitalWriteFast(25, HIGH);
+	longDelay();
+	digitalWriteFast(25, LOW);
+	shortDelay();
+}
+
+__always_inline void mkled() {
+	for (int i=0; i<3; i++) {
+		//mkzero(); mkone(); mkone(); mkzero(); mkone(); mkzero(); mkone(); mkone();
+		mkone();mkone();mkone();mkone();mkone();mkone();mkone();mkone();
+	}
+}
+__always_inline void mknoled() {
+	for (int i=0; i<3; i++) {
+		//mkzero(); mkone(); mkone(); mkzero(); mkone(); mkzero(); mkone(); mkone();
+		mkzero();mkzero();mkzero();mkzero();mkzero();mkzero();mkzero();mkzero();
+	}
 }
 
 /*
@@ -215,8 +285,32 @@ void Avionics::runDeadMansSwitch() {
  * This function blinks the 1HZ LED required by the FAA.
  */
 bool Avionics::runLED() {
-  if (data.POWER_STATE_LED && (uint32_t(millis() / 1000.0) % 2 == 1)) PCB.runLED(true);
-  else PCB.runLED(false);
+	noInterrupts();
+	pinMode(25, OUTPUT);
+	digitalWriteFast(25, LOW);
+	delayMicroseconds(100);
+
+	int doot = data.LOOP_NUMBER % 30;
+	if (!data.POWER_STATE_LED || doot < 20) {
+		mkled();
+	} else {
+		//Serial.println("mking led");
+		mkled();
+	}
+
+	delayMicroseconds(100);
+	interrupts();
+
+	//Serial.println("running led");
+	return true;
+	mkled();
+	/*Serial.println("running led");
+	pixels.setPixelColor(0, pixels.Color(100,200,100)); // Moderately bright green color.
+	pixels.show();
+	delay(50);*/
+
+  /*if (data.POWER_STATE_LED && (uint32_t(millis() / 1000.0) % 2 == 1)) PCB.runLED(true);
+  else PCB.runLED(false);*/
   return true;
 }
 
@@ -228,6 +322,7 @@ uint32_t last_received = 0;
  * This function interfaces with the payload.
  */
 bool Avionics::runRadio() {
+	return true;
   if (!data.POWER_STATE_RADIO) return true;
   radio.readyDataFrame();
   radio.addVariable(data.ALTITUDE_BAROMETER, -100, 25000, 16);
@@ -288,6 +383,9 @@ bool Avionics::sendSATCOMS() {
   Serial.println("Waking up mr rockblock");
   Serial.println();Serial.println();
   RBModule.restart();
+	//uint8_t string[] = "curse you 5V subsystem and cheers mr matt desch";
+	//memcpy(COMMS_BUFFER, string, sizeof(string));
+  compressData();
   int16_t ret = RBModule.writeRead(COMMS_BUFFER, data.COMMS_LENGTH);
   Serial.println("returned");
   Serial.println(ret);

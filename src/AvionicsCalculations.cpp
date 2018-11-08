@@ -9,7 +9,8 @@ bool Avionics::processData() {
   bool success = true;
 
   float pressures[] = {data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4};
-  
+
+  numExecNow = numExecReset();
   for (int k=0; k<numExecNow; k++) {
     filter.update_state(data.TIME, pressures, data);
   }
@@ -68,7 +69,6 @@ bool Avionics::calcDebug() {
  * This function gets the updated incentives from the flight computer.
  */
 bool Avionics::calcIncentives() {
-  numExecNow = numExecReset();
   bool success = true;
   computer.updateValveConstants(data.VALVE_SETPOINT, data.VALVE_VELOCITY_CONSTANT, data.VALVE_ALTITUDE_DIFF_CONSTANT, data.VALVE_LAST_ACTION_CONSTANT);
   computer.updateBallastConstants(data.BALLAST_SETPOINT, data.BALLAST_VELOCITY_CONSTANT, data.BALLAST_ALTITUDE_DIFF_CONSTANT, data.BALLAST_LAST_ACTION_CONSTANT);
@@ -113,7 +113,7 @@ bool Avionics::calcIncentives() {
   float las_h_abs = data.USE_ALTITUDE_CORRECTED ? data.ALTITUDE_CORRECTED : data.ALTITUDE_BAROMETER;
   lasInput.h_abs = las_h_abs;
   lasInput.op = isnan(data.OVERPRESSURE_FILT) ? 0 : data.OVERPRESSURE_FILT;
-  
+
   sun_ctr++;
   if(sun_ctr == 60*1000/LOOP_INTERVAL){
     Serial.print("doing sun calc...");
@@ -125,7 +125,7 @@ bool Avionics::calcIncentives() {
   Serial.print(t2-t1);
   Serial.println("us");
   }
-  
+
   lasInput.dldt_ext = data.ESTIMATED_DLDT * data.DLDT_SCALE;
   data.ACTIONS[INDEX] = 0;
   for (int k=0; k<numExecNow; k++) {
@@ -153,9 +153,10 @@ void Avionics::updateSunValues() {
         long_val = data.LONG_GPS_MANUAL;
         lat_val = data.LAT_GPS_MANUAL;
     }
-
     sunsetPredictor.calcValues(long_val, lat_val, data.GPS_TIME, extra_seconds);
     data.ESTIMATED_DLDT = sunsetPredictor.estimated_dldt;
     data.SOLAR_ELEVATION = sunsetPredictor.solar_elevation;
+		Serial.println("solar elevation");
+		Serial.println(data.SOLAR_ELEVATION);
     data.DSEDT = sunsetPredictor.dsedt;
 }

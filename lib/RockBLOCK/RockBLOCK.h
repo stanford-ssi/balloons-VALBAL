@@ -22,7 +22,7 @@ public:
     RB_GATE(RB_GatePinNum),
     RB_BAUD(RB_BaudVal),
     EEPROMAddress(EEPROMAddressVal),
-    isbd(Serial3, RB_SleepPinNum) {
+    isbd(Serial1, RB_SleepPinNum) {
   }
   bool     init(bool shouldStartup);
 

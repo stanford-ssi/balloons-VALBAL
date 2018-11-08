@@ -17,6 +17,45 @@
 
 //extern float Slift;
 
+
+
+#define analogWrite(VALVE_FORWARD, HIGH); val_fwd=0;
+#define analogWrite(VALVE_REVERSE, HIGH); val_rev=0;
+#define analogWrite(BALLAST_FORWARD, HIGH); bal_fwd=0;
+#define analogWrite(BALLAST_REVERSE, HIGH); bal_rev=0;
+#define analogWrite(VALVE_FORWARD, LOW); val_fwd=0;
+#define analogWrite(VALVE_REVERSE, LOW); val_rev=0;
+#define analogWrite(BALLAST_FORWARD, LOW); bal_fwd=0;
+#define analogWrite(BALLAST_REVERSE, LOW); bal_rev=0;
+#define analogWrite(VALVE_FORWARD, valveMotorSpeedOpenValve); val_fwd=2;
+#define analogWrite(VALVE_REVERSE, valveMotorSpeedOpenValve); val_rev=2;
+#define analogWrite(VALVE_FORWARD, valveMotorSpeedCloseValve); val_fwd=2;
+#define analogWrite(VALVE_REVERSE, valveMotorSpeedCloseValve); val_rev=2;
+#define analogWrite(BALLAST_FORWARD, ballastMotorSpeed); bal_fwd=2;
+#define analogWrite(BALLAST_REVERSE, ballastMotorSpeed); bal_rev=2;
+
+static IntervalTimer sw_pwm;
+static const int n_cts = 10;
+int val_duty = 10;
+int bal_duty = 9;
+static int val_ctr = 0;
+static int bal_ctr = 0;
+// 0 is off, 1 is high, 2 is pwm
+static int val_fwd = 0;
+static int val_rev = 0;
+static int bal_fwd = 0;
+static int bal_rev = 0;
+
+auto pwm_fn = [&](){
+val_ctr++; val_ctr = val_ctr % n_cts;
+bal_ctr++; bal_ctr = bal_ctr % n_cts;
+digitalWriteFast(VALVE_FORWARD,(val_fwd==1)||((val_fwd==2)&&(val_ctr<val_duty)));
+digitalWriteFast(VALVE_REVERSE,(val_rev==1)||((val_rev==2)&&(val_ctr<val_duty)));
+digitalWriteFast(BALLAST_FORWARD,(bal_fwd==1)||((bal_fwd==2)&&(bal_ctr<bal_duty)));
+digitalWriteFast(BALLAST_REVERSE,(bal_rev==1)||((bal_rev==2)&&(bal_ctr<bal_duty)));
+};
+
+
 /**********************************  SETUP  ***********************************/
 /*
  * Function: init
@@ -29,9 +68,11 @@ void Actuators::init() {
   pinMode(BALLAST_FORWARD,  OUTPUT);
   pinMode(BALLAST_REVERSE,  OUTPUT);
   pinMode(CUTDOWN_POWER,    OUTPUT);
-  pinMode(CUTDOWN_SIGNAL,   OUTPUT);
+  //pinMode(CUTDOWN_SIGNAL,   OUTPUT);
   digitalWrite(CUTDOWN_POWER, LOW);
-  digitalWrite(CUTDOWN_SIGNAL, LOW);
+  //digitalWrite(CUTDOWN_SIGNAL, LOW);
+  sw_pwm.priority(64);
+  sw_pwm.begin(pwm_fn,162);
 }
 
 /********************************  FUNCTIONS  *********************************/
@@ -260,10 +301,10 @@ void Actuators::cutDown() {
   clearValveQueue();
   clearBallastQueue();
   digitalWrite(CUTDOWN_POWER, HIGH);
-  digitalWrite(CUTDOWN_SIGNAL, HIGH);
+  //digitalWrite(CUTDOWN_SIGNAL, HIGH);
   delay(CUTDOWN_DURATION);
   digitalWrite(CUTDOWN_POWER, LOW);
-  digitalWrite(CUTDOWN_SIGNAL, LOW);
+  //digitalWrite(CUTDOWN_SIGNAL, LOW);
   Serial.println("cutdown completed.");
 }
 
@@ -274,8 +315,8 @@ void Actuators::cutDown() {
  */
 void Actuators::stopValve() {
   Serial.println("--- STOPPING VALVE ---");
-  analogWrite(VALVE_FORWARD, HIGH);
-  analogWrite(VALVE_REVERSE, HIGH);
+  val_fwd = 0;
+  val_rev = 0;
 }
 
 /*********************************  HELPERS  **********************************/
@@ -286,8 +327,8 @@ void Actuators::stopValve() {
  */
 void Actuators::openValve() {
   Serial.println("--- OPEN VALVE ---");
-  analogWrite(VALVE_FORWARD, LOW);
-  analogWrite(VALVE_REVERSE, valveMotorSpeedOpen);
+  val_fwd = 2;
+  val_rev = 0;
 }
 
 /*
@@ -297,8 +338,8 @@ void Actuators::openValve() {
  */
 void Actuators::closeValve() {
   Serial.println("--- CLOSE VALVE ---");
-  analogWrite(VALVE_FORWARD, valveMotorSpeedClose);
-  analogWrite(VALVE_REVERSE, LOW);
+  val_fwd = 0;
+  val_rev = 2;
 }
 
 /*
@@ -307,8 +348,8 @@ void Actuators::closeValve() {
  * This function stops the ballast.
  */
 void Actuators::stopBallast() {
-  analogWrite(BALLAST_FORWARD, LOW);
-  analogWrite(BALLAST_REVERSE, LOW);
+  bal_fwd = 0;
+  bal_rev = 0;
 }
 
 /*
@@ -318,10 +359,10 @@ void Actuators::stopBallast() {
  */
 void Actuators::dropBallast(bool direction) {
   if (direction) {
-    analogWrite(BALLAST_FORWARD, ballastMotorSpeed);
-    analogWrite(BALLAST_REVERSE, LOW);
+    bal_fwd = 2;
+    bal_rev = 0;
   } else {
-    analogWrite(BALLAST_FORWARD, LOW);
-    analogWrite(BALLAST_REVERSE, ballastMotorSpeed);
+    bal_fwd = 0;
+    bal_rev = 2;
   }
 }

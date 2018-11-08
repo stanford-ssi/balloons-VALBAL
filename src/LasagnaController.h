@@ -21,7 +21,7 @@ public:
     unsigned int comp_ctr      =   0;
     int action                 =   0;               // action command
     float v                    =   0;
-    float v1                   =   0;        
+    float v1                   =   0;
     float v2                   =   0;
     float fused_v              =   0;
     float v_cmd                =   0;
@@ -35,8 +35,8 @@ public:
   } State;
 
   typedef struct __attribute__((packed)) {
-    float h_abs = 0;               
-    float h_rel = 0;                  
+    float h_abs = 0;
+    float h_rel = 0;
     float op = 0;
     float dldt_ext = 0;
   } Input;
@@ -45,7 +45,7 @@ public:
     float freq                 =   20;        // control freqency
     float k_v                  =   1*.375e-3;      // velocity gain
     float k_h                  =   1*.375e-3;    // altitude gain
-    float b_dldt               =   0.0008;    // balast dl/dt (kg/s)
+    float b_dldt               =   0.000666;    // balast dl/dt (kg/s)
     float v_dldt_a             =   0;
     float v_dldt_b             =   0.0030;    // valve dl/dt (kg/s))
     float b_tmin               =   2;         // minimum ballast event time
@@ -75,7 +75,7 @@ private:
   AdjustableLowpass action_filter;
   State state;
   unsigned int comp_freq = 1;
-  float launch_h = 0;     
+  float launch_h = 0;
   bool is_first_call = true;
 };
 

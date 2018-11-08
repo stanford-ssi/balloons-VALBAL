@@ -98,8 +98,64 @@ void equilfreqtesting(){
 	}
 }
 
+/**
+ * This function demonstrates how to use the altitude controller simulator.
+ */
+void exampleSim(){ 
+
+	const float freq = 20; //frequency of the simulation will be 20hz
+	const float n_hours = 20; //number of hours to sim for
+	const float n_steps = n_hours*60*60*freq; //number of steps to sim for
+	
+	fstream o("output.bin", std::fstream::out | std::fstream::binary); //Declare object to write files
+	PastaSim sim(1); //Declare a simulation object and give it a seed of 1
+
+	sim.h = 13500; //initialize altitude to 13.5km
+	sim.l = 0; //initialize valbal with 0 free lift
+	sim.conf.freq = freq;
+	sim.conf.nightfall = false; //disable effects of nighfall
+
+	/*******************************************************
+	* 
+	* Declare any values you need to store between loops here
+	* 
+	********************************************************/
+
+	printf("Starting Simulation\n Time (hr), Altitude (km), Velocity (m/s)\n");
+	for(int i = 0; i<n_steps; i++){
+
+		float action = 0;
+		float h = sim.h;
+
+		/***************************************************************************************
+		* 
+		* Your code here. You may only use the varable "h" as the input to the control algorithm
+		* You will set the variable action with the number of seconds to vent or ballast. 
+		* (negative means to vent, positive means to ballast) 
+		*
+		***************************************************************************************/
+
+		sim.evolve(action);
+
+		/**
+		 * log simulation varaibles ever second of simulation time
+		 */
+		if(i%(int(ceil(freq))) == 0){
+			float buf[3] = {sim.h, sim.v, (float)sim.time};
+			o.write((char*)&buf, sizeof(buf));
+		}
+		/**
+		 * print simulation variables every 10 minutes of simulation
+		 */
+		if(i%int(ceil(freq*60*10)) == 0){
+			printf("%10.2f,%14.1f,%15.1f \n", sim.time/1000./60./60., sim.h/1000., sim.v);
+		}
+	}
+	printf("DONE\n");
+}
 
 int main ()
 {
-	equilfreqtesting();
+	exampleSim();
+	//equilfreqtesting();
 }

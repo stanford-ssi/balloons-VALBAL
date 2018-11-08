@@ -33,6 +33,8 @@ int main(void) {
   VALBAL.test();
 /***********************************  MAIN  ***********************************/
   while(true) {
+		//Serial.println("loo6aap");
+		//delay(1000);
     VALBAL.updateState();
     VALBAL.evaluateState();
     VALBAL.actuateState();

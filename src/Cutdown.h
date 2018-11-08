@@ -14,6 +14,6 @@
 #include <stdint.h>
 
 /****************************  EDITABLE CONSTANTS  ****************************/
-static const char CUTDOWN_COMMAND[] = "HaHaJoanHasThePasswordNow"; //InvasionDeLaBahiaDeCochinos
+static const char CUTDOWN_COMMAND[] = "IHateLifeAndWantToDie"; //InvasionDeLaBahiaDeCochinos
 
 #endif

@@ -9,7 +9,7 @@
   Implementation of Utils.h
 */
 
-#include "Arduino.h"
+//#include "Arduino.h"
 #include "Utils.h"
 #include "spa.h"
 //#include <iostream>
@@ -236,8 +236,6 @@ void SunsetPredictor::calcValues(float lon, float lat, GPSTime gpsTime, double e
 
     spa_calculate(&spa);
     solar_elevation = 90.0 - spa.zenith;
-		Serial.println("solar elevationnnnnnnnn");
-		Serial.println(solar_elevation);
 
     dsedt = 0;
     spa.jd += DAYS_PER_SECOND*100;

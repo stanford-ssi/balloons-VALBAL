@@ -87,30 +87,7 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 30) parseRockBLOCKPowerCommand(value); // RB Power State | 0: shutdown; 1: restart
   else if (index == 31) parseGPSPowerCommand(value); // GPS Power State | 0: shutdown; 1: restart; 2: hot start
   else if (index == 32) parsePayloadPowerCommand(value); // Payload Power State | 0: shutdown; 1: restart
-  else if (index == 33) data.CURRENT_CONTROLLER_INDEX = value; // Controller Index | 0: Legacy; 1: Spaghetti; 2: Spaghetti2; 3: Lasagna
-  else if (index == 34) data.SPAG_CONSTANTS.freq      = value; // Spaghetti Frequency
-  else if (index == 35) data.SPAG_CONSTANTS.k         = value; // Spaghetti K Value
-  else if (index == 36) data.SPAG_CONSTANTS.b_dldt    = value; // Spaghetti B DLDT
-  else if (index == 37) data.SPAG_CONSTANTS.v_dldt    = value; // Spaghetti V DLDT
-  else if (index == 38) data.SPAG_CONSTANTS.rate_min  = value; // Spaghetti Rate Min
-  else if (index == 39) data.SPAG_CONSTANTS.rate_max  = value; // Spaghetti Rate Max
-  else if (index == 40) data.SPAG_CONSTANTS.b_tmin    = value; // Spaghetti B TMIN
-  else if (index == 41) data.SPAG_CONSTANTS.v_tmin    = value; // Spaghetti V TMIN
-  else if (index == 42) data.SPAG_CONSTANTS.h_cmd     = value; // Spaghetti H CMD
-  else if (index == 43) data.SPAG2_CONSTANTS.freq               = value; // Spaghetti2 FREQ
-  else if (index == 44) data.SPAG2_CONSTANTS.k                  = value; // Spaghetti2 K
-  else if (index == 45) data.SPAG2_CONSTANTS.b_dldt             = value; // Spaghetti2 B DLDT
-  else if (index == 46) data.SPAG2_CONSTANTS.v_dldt             = value; // Spaghetti2 V DLDT
-  else if (index == 47) data.SPAG2_CONSTANTS.rate_min           = value; // Spaghetti2 RATE MIN
-  else if (index == 48) data.SPAG2_CONSTANTS.rate_max           = value; // Spaghetti2 RATE MAX
-  else if (index == 49) data.SPAG2_CONSTANTS.b_tmin             = value; // Spaghetti2 B TMIN
-  else if (index == 50) data.SPAG2_CONSTANTS.v_tmin             = value; // Spaghetti2 V TMIN
-  else if (index == 51) data.SPAG2_CONSTANTS.h_cmd              = value; // Spaghetti2 H CMD
-  else if (index == 52) data.SPAG2_CONSTANTS.v_ss_error_thresh  = value; // Spaghetti2 V SS ERROR THRESH
-  else if (index == 53) data.SPAG2_CONSTANTS.b_ss_error_thresh  = value; // Spaghetti2 B SS ERROR THRESH
-  else if (index == 54) data.SPAG2_CONSTANTS.ascent_rate_thresh = value; // Spaghetti2 ASCENT RATE THRESH
-  else if (index == 55) data.SPAG2_CONSTANTS.kfuse              = value; // Spaghetti2 KFUSE
-  else if (index == 56) data.SPAG2_CONSTANTS.kfuse_v            = value; // Spaghetti2 KFUSE V
+  else if (index == 33) data.CURRENT_CONTROLLER_INDEX = value; // Controller Index | 0: Legacy; 1: Lasagna
   else if (index == 57) data.LAS_CONSTANTS.freq            = value; // Lasagna FREQ
   else if (index == 58) data.LAS_CONSTANTS.k_v             = value; // Lasagna K V
   else if (index == 59) data.LAS_CONSTANTS.k_h             = value; // Lasagna K H

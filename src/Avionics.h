@@ -31,9 +31,6 @@
 #include <GPS.h>
 #include <RockBLOCK.h>
 #include <Adafruit_NeoPixel.h>
-
-#include "SpaghettiController.h"
-#include "SpaghettiController2.h"
 #include "Utils.h"
 
 // #define JANKSHITL
@@ -155,8 +152,6 @@ private:
   Biquad op_filter;
   Biquad op_vref_filter;
 
-  SpaghettiController spagController;
-  SpaghettiController2 spag2Controller;
   LasagnaController lasController;
 
   Heater heater;

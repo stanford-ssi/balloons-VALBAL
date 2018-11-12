@@ -110,8 +110,6 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.RE_ARM_CONSTANT,             0,    4,        8,  lengthBits);
     lengthBits += compressVariable(data.VALVE_ALT_LAST,             -2000, 50000,    11, lengthBits);
     lengthBits += compressVariable(data.BALLAST_ALT_LAST,           -2000, 50000,    11, lengthBits);
-    lengthBits += compressVariable(data.SPAG_STATE.effort*1000,            -2, 2, 12, lengthBits);
-    lengthBits += compressVariable(data.SPAG2_STATE.effort*1000,           -2, 2, 12, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.v,           -10,     10,   11, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.fused_v,     -10,     10,   11, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.effort,                  -2,       2,  11, lengthBits);
@@ -166,29 +164,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.BALLAST_VELOCITY_CONSTANT,           0,    5,       8,  lengthBits); // Ballast Speed Constant
     lengthBits += compressVariable(1.0 / data.BALLAST_ALTITUDE_DIFF_CONSTANT,0,    4095,    8,  lengthBits); // Ballast Altitude Difference Constant
     lengthBits += compressVariable(1.0 / data.BALLAST_LAST_ACTION_CONSTANT,  0,    4095,    8,  lengthBits); // Ballast last action constant
-    // spaghetti readback
-    lengthBits += compressVariable(data.SPAG_CONSTANTS.k,                      0,      2,    6,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_CONSTANTS.b_dldt*1000,            0,      100,    8,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_CONSTANTS.v_dldt*1000,            0,      100,    8,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_CONSTANTS.rate_min*1000,          0,      0.2,    8,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_CONSTANTS.rate_max*1000,          0,      2,    8,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_CONSTANTS.b_tmin,                 0,      31,    5,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_CONSTANTS.v_tmin,                 0,      31,    5,  lengthBits);
-    lengthBits += compressVariable(data.SPAG_CONSTANTS.h_cmd,                  -2000,    40000,    11,  lengthBits);
-    lengthBits += compressVariable(data.SPAG2_CONSTANTS.k,                     0,      2,    6,      lengthBits);
-    lengthBits += compressVariable(data.SPAG2_CONSTANTS.b_dldt*1000,           0,      100,    8,    lengthBits);
-    lengthBits += compressVariable(data.SPAG2_CONSTANTS.v_dldt*1000,           0,      100,    8,    lengthBits);
-    lengthBits += compressVariable(data.SPAG2_CONSTANTS.rate_min*1000,         0,      0.2,    8,    lengthBits);
-    lengthBits += compressVariable(data.SPAG2_CONSTANTS.rate_max*1000,         0,      2,    8,    lengthBits);
-    lengthBits += compressVariable(data.SPAG2_CONSTANTS.b_tmin,                0,      31,    5,   lengthBits);
-    lengthBits += compressVariable(data.SPAG2_CONSTANTS.v_tmin,                0,      31,    5,   lengthBits);
-    lengthBits += compressVariable(data.SPAG2_CONSTANTS.h_cmd,                 -2000,    40000,    11,  lengthBits);
-    lengthBits += compressVariable(data.SPAG2_CONSTANTS.v_ss_error_thresh,     0,      3000,    8,  lengthBits);
-    lengthBits += compressVariable(data.SPAG2_CONSTANTS.b_ss_error_thresh,     0,      3000,    8,  lengthBits);
-    lengthBits += compressVariable(data.SPAG2_CONSTANTS.ascent_rate_thresh,    0,      10,    8,  lengthBits);
-    lengthBits += compressVariable(data.SPAG2_CONSTANTS.kfuse,                 0,      30,    6,  lengthBits);
-    lengthBits += compressVariable(data.SPAG2_CONSTANTS.kfuse_v,               0,      1,    4,  lengthBits);
-
+    // lasagna readback
     lengthBits += compressVariable(data.LAS_CONSTANTS.k_v,                   0,      .01,   8,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.k_h,                   0,      .01,   8,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.b_dldt*1000,           0,      100,   8,  lengthBits);

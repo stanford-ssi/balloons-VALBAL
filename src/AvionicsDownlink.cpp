@@ -112,7 +112,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.BALLAST_ALT_LAST,           -2000, 50000,    11, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.v,           -10,     10,   11, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.fused_v,     -10,     10,   11, lengthBits);
-    lengthBits += compressVariable(data.LAS_STATE.effort,                  -2,       2,  11, lengthBits);
+    lengthBits += compressVariable(data.LAS_STATE.effort_ratio,                  -3,       3,  11, lengthBits);
     lengthBits += compressVariable(data.LAS_STATE.v_cmd,                 -10,      10,   8, lengthBits);
     lengthBits += compressVariable(data.ACTION_TIME_TOTALS[2]/1000,        0,     600,   8, lengthBits);
     lengthBits += compressVariable(data.ACTION_TIME_TOTALS[3]/1000,        0,     600,   8, lengthBits);
@@ -165,17 +165,17 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(1.0 / data.BALLAST_ALTITUDE_DIFF_CONSTANT,0,    4095,    8,  lengthBits); // Ballast Altitude Difference Constant
     lengthBits += compressVariable(1.0 / data.BALLAST_LAST_ACTION_CONSTANT,  0,    4095,    8,  lengthBits); // Ballast last action constant
     // lasagna readback
-    lengthBits += compressVariable(data.LAS_CONSTANTS.k_v,                   0,      .01,   8,  lengthBits);
-    lengthBits += compressVariable(data.LAS_CONSTANTS.k_h,                   0,      .01,   8,  lengthBits);
-    lengthBits += compressVariable(data.LAS_CONSTANTS.b_dldt*1000,           0,      100,   8,  lengthBits);
-    lengthBits += compressVariable(data.LAS_CONSTANTS.v_dldt_a*1000,           0,      100,   8,  lengthBits);
-    lengthBits += compressVariable(data.LAS_CONSTANTS.v_dldt_b*1000,           0,      100,   8,  lengthBits);
-    lengthBits += compressVariable(data.LAS_CONSTANTS.b_tmin,                0,       20,   4,  lengthBits);
-    lengthBits += compressVariable(data.LAS_CONSTANTS.v_tmin,                0,       20,   4,  lengthBits);
-    lengthBits += compressVariable(data.LAS_CONSTANTS.h_cmd,                 0,    20000,   8,  lengthBits);
-    lengthBits += compressVariable(data.LAS_CONSTANTS.kfuse,                 0,        30,  6,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.v_gain,                   0,      .01,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.h_gain,                   0,      .01,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.bal_dldt,           0,      100,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.val_dldt_a,           0,      100,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.val_dldt_b,           0,      100,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.bal_tmin,                0,       20,   4,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.val_tmin,                0,       20,   4,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.setpoint,                 0,    20000,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.k_drag,                 0,        30,  6,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.kfuse_val,             0,        1,   4,  lengthBits);
-    lengthBits += compressVariable(data.LAS_CONSTANTS.ss_error_thresh,       0,     3000,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.tolerance,             0,     3000,   8,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.v_limit,               0,        2,   6,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.equil_h_thresh,        0,    20000,  16,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.launch_h_thresh,       0,     2000,  12,  lengthBits);

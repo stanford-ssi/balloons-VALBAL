@@ -21,7 +21,7 @@ void equil20Hz(){
 	fstream o ("output.bin", std::fstream::out | std::fstream::binary);
 	PastaSim sim(1);
 	sim.h = 0;
-	sim.l = 0.1;
+	sim.l = 100;
 	CONTROLLER las;
 	printf("%f %f \n",las.getConstants().freq,las.getConstants().k_drag);
 	miniframe data;

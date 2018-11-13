@@ -28,7 +28,7 @@ bool LasagnaController::update(Input input){
   if(std::isnan(input.dldt_ext)){
     input.dldt_ext = 0; 
   } else {
-    float limit = 0.0001*4;
+    float limit = 0.6; // limit on what the max value for sunset dldt can be, in grams/s
     input.dldt_ext = pasta_clamp(input.dldt_ext,-limit,limit);
   }
 

@@ -2,13 +2,11 @@
 #include <fstream>
 #include <iomanip>
 #include "LasagnaController.h"
-#include "SpaghettiController2.h"
 #include "header.h"
 #include "PastaSim.h"
 
 #define CONTROLLER LasagnaController
 #define LAS LasagnaController
-#define SPAG SpaghettiController2
 
 using namespace std;
 
@@ -25,7 +23,7 @@ void equil20Hz(){
 	sim.h = 0;
 	sim.l = 0.1;
 	CONTROLLER las;
-	printf("%f %f \n",las.getConstants().freq,las.getConstants().kfuse);
+	printf("%f %f \n",las.getConstants().freq,las.getConstants().k_drag);
 	miniframe data;
 	float v_cmd = 0;
 	int dur = 60*60*24*4*freq;
@@ -41,7 +39,7 @@ void equil20Hz(){
 		float h = sim.evolve(double(las.getAction()));
 		input.h_rel = h;
 		input.h_abs = h;
-		input.dldt_ext = sim.sunset_dldt;
+		input.dldt_ext = 4*sim.sunset_dldt;
 		las.update(input);
 		CONTROLLER::State state = las.getState();
 		act_sum += state.action;
@@ -66,7 +64,7 @@ void equilfreqtesting(){
 	sim.l = 0.1;
 	sim.conf.freq = freq;
 	CONTROLLER las(freq);
-	printf("%f %f \n",las.getConstants().freq,las.getConstants().kfuse);
+	printf("%f %f \n",las.getConstants().freq,las.getConstants().k_drag);
 	miniframe data;
 	float v_cmd = 0;
 	int dur = 60*60*24*4*freq;
@@ -156,6 +154,6 @@ void exampleSim(){
 
 int main ()
 {
-	exampleSim();
-	//equilfreqtesting();
+	//exampleSim();
+	equil20Hz();
 }

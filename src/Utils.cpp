@@ -245,7 +245,7 @@ void SunsetPredictor::calcValues(float lon, float lat, GPSTime gpsTime, double e
     if (dsedt < 0 && ang1 < solar_elevation && solar_elevation < ang2){
       float tbl_idx = (n_data-1)*(solar_elevation - ang1)/(ang2 - ang1);
       float tbl_val = (tbl_idx - floor(tbl_idx))*sunset_data[int(ceil(tbl_idx))] + (ceil(tbl_idx)- tbl_idx)*sunset_data[int(floor(tbl_idx))];
-      estimated_dldt = tbl_val*dsedt;
+      estimated_dldt = tbl_val*dsedt*1000.; // we mutliply by 1000 as the table is in kg, but we want lift in grams now ;
     } else {
       estimated_dldt = 0;
     }

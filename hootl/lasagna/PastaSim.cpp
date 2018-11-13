@@ -34,10 +34,10 @@ float PastaSim::evolve(float  action){
 		sun_pred_ctr++;
 	}
 	action = action/1000;
-	float dldt = action > 0 ? action*conf.b_dldt : action*conf.v_dldt;
+	float dldt = action > 0 ? action*conf.bal_dldt : action*conf.val_dldt;
 
-	l += dldt + 1*l_noise(gen)/sqrt(conf.freq) + 1*sunset_dldt/conf.freq; 
-	v = conf.klin*l;
+	l += dldt + 1*l_noise(gen)*1000./sqrt(conf.freq) + 1*sunset_dldt/conf.freq; 
+	v = conf.k_drag*l;
 
 	h += v/conf.freq;
 	//l -= v/freq*5e-5;

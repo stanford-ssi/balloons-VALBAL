@@ -139,12 +139,12 @@ void LasagnaController::innerLoop(float input_h){
 }
 
 void LasagnaController::updateConstants(Constants constants){
-  bool calc_gains = false;
-  if((this->constants.gain != constants.gain) || (this->constants.damping != constants.damping)){
-    calc_gains = true;
-  }
+  //bool calc_gains = false;
+  //if((this->constants.gain != constants.gain) || (this->constants.damping != constants.damping)){
+  //  calc_gains = true;
+  //}
   this->constants = constants;
-  if(calc_gains) calcGains();
+  calcGains();
 }
 
 int LasagnaController::getAction(){

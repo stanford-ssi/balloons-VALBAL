@@ -43,7 +43,6 @@ public:
   } Input;
 
   typedef struct __attribute__((packed)) {
-    float freq                 =   20;          // Control Freqency (Hz)
     float gain                 =   0.14/1000;   // Total gain magnititude (g / m)
     float damping              =   1.2;         // damping ratio (unitless)
     float v_gain               =   0;           // velocity gain (g/s / m/s) 
@@ -70,6 +69,7 @@ public:
   State getState();
   Constants getConstants();
 private:
+  float freq = 20;          // Control Freqency (Hz)
   void calcGains();
   void outerLoop();
   void innerLoop(float input_h);

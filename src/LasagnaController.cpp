@@ -14,7 +14,7 @@ LasagnaController::LasagnaController(float freq) :
   v2_filter(1./60./7.,  0.5, freq),
   action_filter(1./60./16., 0.5, freq) 
 {
-  constants.freq = freq;
+  this->freq = freq;
   calcGains();
 }
 
@@ -36,8 +36,8 @@ bool LasagnaController::update(Input input){
    * Update both filtered velocities
    */
   if(!is_first_call){ 
-    state.v1 = v1_filter.update((input.h_rel-state.h_rel_last)*constants.freq);
-    state.v2 = v2_filter.update((input.h_rel-state.h_rel_last)*constants.freq);
+    state.v1 = v1_filter.update((input.h_rel-state.h_rel_last)*freq);
+    state.v2 = v2_filter.update((input.h_rel-state.h_rel_last)*freq);
   }
 
   /**
@@ -75,7 +75,7 @@ bool LasagnaController::update(Input input){
   float dv_pred = 0;
   if(state.status==EQUIL){
     float act_dldt = state.action > 0 ? float(state.action)*constants.bal_dldt : float(state.action)*state.val_dldt*constants.kfuse_val;
-    dv_pred = constants.k_drag*(act_dldt + input.dldt_ext/constants.freq);
+    dv_pred = constants.k_drag*(act_dldt + input.dldt_ext/freq);
   }
   state.dv_sum += dv_pred;  
   state.fused_v = state.v + state.dv_sum - action_filter.update(state.dv_sum);
@@ -97,7 +97,7 @@ void LasagnaController::innerLoop(float input_h){
   /**
    * compute effort pre-deadband
    */
-  if(state.comp_ctr >= comp_freq*constants.freq){
+  if(state.comp_ctr >= comp_freq*freq){
     state.v_cmd = constants.h_gain * (constants.setpoint - input_h);
     state.v_cmd_clamped = pasta_clamp(state.v_cmd,-(constants.h_gain*constants.tolerance+constants.v_limit),(constants.h_gain*constants.tolerance+constants.v_limit));
     state.effort = constants.v_gain * (state.v_cmd_clamped - state.fused_v);
@@ -125,7 +125,7 @@ void LasagnaController::innerLoop(float input_h){
    * vent would happen. At 20Hz, there would never be multiple events in one control cycle, but at very low 
    * frequencies, it could happen.
    */
-  state.effort_sum += deadband_effort/constants.freq;
+  state.effort_sum += deadband_effort/freq;
   if(state.effort_sum >= constants.bal_tmin*constants.bal_dldt){
     state.action = constants.bal_tmin*int(state.effort_sum/(constants.bal_tmin*constants.bal_dldt));
     state.effort_sum -= constants.bal_tmin*constants.bal_dldt*int(state.effort_sum/(constants.bal_tmin*constants.bal_dldt));

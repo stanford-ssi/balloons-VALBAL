@@ -164,6 +164,6 @@ void exampleSim(){
 
 int main ()
 {
-	//exampleSim();
-	equil20Hz();
+	exampleSim();
+	//equil20Hz();
 }

@@ -32,7 +32,7 @@ public:
 	unsigned int time = 0;				// sim time in ms
 	float h;							// sim altitude in m
 	float v;							// sim velocity in m/s
-	float l;							// sim balloon lift in kg 
+	float l;							// sim balloon lift in g 
 	unsigned int sun_pred_ctr = 0;
 private:
 	void init();

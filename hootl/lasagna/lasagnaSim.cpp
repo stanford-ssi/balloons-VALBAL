@@ -2,13 +2,11 @@
 #include <fstream>
 #include <iomanip>
 #include "LasagnaController.h"
-#include "SpaghettiController2.h"
 #include "header.h"
 #include "PastaSim.h"
 
 #define CONTROLLER LasagnaController
 #define LAS LasagnaController
-#define SPAG SpaghettiController2
 
 using namespace std;
 
@@ -18,18 +16,24 @@ CONTROLLER::Constants DefaultConstants();
 
 
 void equil20Hz(){
-	const int freq = 20;
+	const float freq = 1;
 	fstream f ("data.bin", std::fstream::in | std::fstream::binary);
 	fstream o ("output.bin", std::fstream::out | std::fstream::binary);
-	PastaSim sim(1);
+	PastaSim sim;
+	sim.conf.nightfall = true;
+	sim.conf.freq = freq;
 	sim.h = 0;
-	sim.l = 0.1;
-	CONTROLLER las;
-	printf("%f %f \n",las.getConstants().freq,las.getConstants().kfuse);
+	sim.l = 100;
+	CONTROLLER las(freq);
+	LasagnaController::Constants c;
+	c.tolerance = 1000;
+	las.updateConstants(c);
+	printf("%f %f \n",las.getConstants().h_gain,las.getConstants().k_drag);
 	miniframe data;
 	float v_cmd = 0;
-	int dur = 60*60*24*4*freq;
+	int dur = 60*60*24*100*freq;
 	int act_sum = 0;
+	float bal_sum = 0;
 	for(int i = 0; i < 60*60*20*4; i++){
 		CONTROLLER::Input input;
 		input.h_rel = sim.h;
@@ -39,22 +43,26 @@ void equil20Hz(){
 	for(int i = 0; i < dur; i++){
 		CONTROLLER::Input input;
 		float h = sim.evolve(double(las.getAction()));
+		float bal = (las.getAction() > 0)*las.getAction()/1000.*sim.conf.bal_dldt;
+		bal_sum += bal;
 		input.h_rel = h;
 		input.h_abs = h;
-		input.dldt_ext = sim.sunset_dldt;
+		input.dldt_ext = 4*sim.sunset_dldt;
 		las.update(input);
 		CONTROLLER::State state = las.getState();
 		act_sum += state.action;
-		if(i%(freq) == 0){
+
+		if(i%(int(ceil(freq))) == 0){
 			float buf[6] = {sim.h, v_cmd,state.effort, state.effort_sum, state.fused_v, state.v};
 			o.write((char*)&buf, sizeof(float)*6);
 			o.write((char*)&act_sum,sizeof(act_sum));
 		}
-		if(i%(freq*60*60) == 0){
+		if(i%int(freq*60*60) == 0){
 			float t = float(i)/freq/60/60;
 			printf("%f, %f, %f \n", t, sim.h, state.v1);
 		}
 	}
+	printf("%f day flight, %f g ballast used \n",dur/60./60./24./freq,bal_sum);
 }
 
 void equilfreqtesting(){
@@ -66,7 +74,7 @@ void equilfreqtesting(){
 	sim.l = 0.1;
 	sim.conf.freq = freq;
 	CONTROLLER las(freq);
-	printf("%f %f \n",las.getConstants().freq,las.getConstants().kfuse);
+	printf("%f %f \n",1.0,las.getConstants().k_drag);
 	miniframe data;
 	float v_cmd = 0;
 	int dur = 60*60*24*4*freq;
@@ -157,5 +165,5 @@ void exampleSim(){
 int main ()
 {
 	exampleSim();
-	//equilfreqtesting();
+	//equil20Hz();
 }

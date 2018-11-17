@@ -3,14 +3,14 @@
 
 
 PastaSim::PastaSim(int seed) : 
-	l_noise(0,0.000670)
+	l_noise(0,0.0014)
 {
 	gen.seed(seed);
 	init();
 }
 
 PastaSim::PastaSim() : 
-	l_noise(0,0.000670)
+	l_noise(0,0.0014)
 {
 	gen.seed(std::time(0));
 	init();
@@ -28,16 +28,16 @@ void PastaSim::init(){
 
 float PastaSim::evolve(float  action){
 	time += 1000/conf.freq;
-	if(time/conf.sun_calc_interval >= sun_pred_ctr){
+	if((time/conf.sun_calc_interval >= sun_pred_ctr) && conf.nightfall){
 		sunpred.calcValues(conf.lon, conf.lat, conf.gtime, time/1000);
 		sunset_dldt = sunpred.estimated_dldt;
 		sun_pred_ctr++;
 	}
 	action = action/1000;
-	float dldt = action > 0 ? action*conf.b_dldt : action*conf.v_dldt;
+	float dldt = action > 0 ? action*conf.bal_dldt : action*conf.val_dldt;
 
-	l += dldt + 1*l_noise(gen)/sqrt(conf.freq) + 1*sunset_dldt/conf.freq; 
-	v = conf.klin*l;
+	l += dldt + 1*l_noise(gen)*1000./sqrt(conf.freq) + conf.nightfall*sunset_dldt/conf.freq; 
+	v = conf.k_drag*l;
 
 	h += v/conf.freq;
 	//l -= v/freq*5e-5;

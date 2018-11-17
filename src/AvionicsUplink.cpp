@@ -87,45 +87,24 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 30) parseRockBLOCKPowerCommand(value); // RB Power State | 0: shutdown; 1: restart
   else if (index == 31) parseGPSPowerCommand(value); // GPS Power State | 0: shutdown; 1: restart; 2: hot start
   else if (index == 32) parsePayloadPowerCommand(value); // Payload Power State | 0: shutdown; 1: restart
-  else if (index == 33) data.CURRENT_CONTROLLER_INDEX = value; // Controller Index | 0: Legacy; 1: Spaghetti; 2: Spaghetti2; 3: Lasagna
-  else if (index == 34) data.SPAG_CONSTANTS.freq      = value; // Spaghetti Frequency
-  else if (index == 35) data.SPAG_CONSTANTS.k         = value; // Spaghetti K Value
-  else if (index == 36) data.SPAG_CONSTANTS.b_dldt    = value; // Spaghetti B DLDT
-  else if (index == 37) data.SPAG_CONSTANTS.v_dldt    = value; // Spaghetti V DLDT
-  else if (index == 38) data.SPAG_CONSTANTS.rate_min  = value; // Spaghetti Rate Min
-  else if (index == 39) data.SPAG_CONSTANTS.rate_max  = value; // Spaghetti Rate Max
-  else if (index == 40) data.SPAG_CONSTANTS.b_tmin    = value; // Spaghetti B TMIN
-  else if (index == 41) data.SPAG_CONSTANTS.v_tmin    = value; // Spaghetti V TMIN
-  else if (index == 42) data.SPAG_CONSTANTS.h_cmd     = value; // Spaghetti H CMD
-  else if (index == 43) data.SPAG2_CONSTANTS.freq               = value; // Spaghetti2 FREQ
-  else if (index == 44) data.SPAG2_CONSTANTS.k                  = value; // Spaghetti2 K
-  else if (index == 45) data.SPAG2_CONSTANTS.b_dldt             = value; // Spaghetti2 B DLDT
-  else if (index == 46) data.SPAG2_CONSTANTS.v_dldt             = value; // Spaghetti2 V DLDT
-  else if (index == 47) data.SPAG2_CONSTANTS.rate_min           = value; // Spaghetti2 RATE MIN
-  else if (index == 48) data.SPAG2_CONSTANTS.rate_max           = value; // Spaghetti2 RATE MAX
-  else if (index == 49) data.SPAG2_CONSTANTS.b_tmin             = value; // Spaghetti2 B TMIN
-  else if (index == 50) data.SPAG2_CONSTANTS.v_tmin             = value; // Spaghetti2 V TMIN
-  else if (index == 51) data.SPAG2_CONSTANTS.h_cmd              = value; // Spaghetti2 H CMD
-  else if (index == 52) data.SPAG2_CONSTANTS.v_ss_error_thresh  = value; // Spaghetti2 V SS ERROR THRESH
-  else if (index == 53) data.SPAG2_CONSTANTS.b_ss_error_thresh  = value; // Spaghetti2 B SS ERROR THRESH
-  else if (index == 54) data.SPAG2_CONSTANTS.ascent_rate_thresh = value; // Spaghetti2 ASCENT RATE THRESH
-  else if (index == 55) data.SPAG2_CONSTANTS.kfuse              = value; // Spaghetti2 KFUSE
-  else if (index == 56) data.SPAG2_CONSTANTS.kfuse_v            = value; // Spaghetti2 KFUSE V
-  else if (index == 57) data.LAS_CONSTANTS.freq            = value; // Lasagna FREQ
-  else if (index == 58) data.LAS_CONSTANTS.k_v             = value; // Lasagna K V
-  else if (index == 59) data.LAS_CONSTANTS.k_h             = value; // Lasagna K H
-  else if (index == 60) data.LAS_CONSTANTS.b_dldt          = value; // Lasagna B dLdT
-  else if (index == 61) data.LAS_CONSTANTS.v_dldt_a        = value; // Lasagna V dLdT A
-  else if (index == 62) data.LAS_CONSTANTS.v_dldt_b        = value; // Lasagna V dLdT B
-  else if (index == 63) data.LAS_CONSTANTS.b_tmin          = value; // Lasagna B tMin
-  else if (index == 64) data.LAS_CONSTANTS.v_tmin          = value; // Lasagna V tMin
-  else if (index == 65) data.LAS_CONSTANTS.h_cmd           = value; // Lasagna H Cmd
-  else if (index == 66) data.LAS_CONSTANTS.kfuse           = value; // Lasagna kFuse
-  else if (index == 67) data.LAS_CONSTANTS.kfuse_val       = value; // Lasagna kFuse V
-  else if (index == 68) data.LAS_CONSTANTS.ss_error_thresh = value; // Lasagna SS Error Thresh
-  else if (index == 69) data.LAS_CONSTANTS.v_limit         = value; // Lasanga V Limit
-  else if (index == 70) data.LAS_CONSTANTS.equil_h_thresh  = value; // Lasagna Equilibrium H Thresh
-  else if (index == 71) data.LAS_CONSTANTS.launch_h_thresh = value; // Lasagna Launch H Thresh
+  else if (index == 33) data.CURRENT_CONTROLLER_INDEX = value; // Controller Index | 0: Legacy; 1: Lasagna
+  else if (index == 55) data.LAS_CONSTANTS.freq                 =   value; // Control Freqency (Hz)
+  else if (index == 56) data.LAS_CONSTANTS.gain                 =   value; // Total gain magnititude (g / m)
+  else if (index == 57) data.LAS_CONSTANTS.damping              =   value; // damping ratio (unitless)
+  else if (index == 58) data.LAS_CONSTANTS.v_gain               =   value; // velocity gain (g/s / m/s) 
+  else if (index == 59) data.LAS_CONSTANTS.h_gain               =   value; // altitude gain (m/s / km)
+  else if (index == 60) data.LAS_CONSTANTS.bal_dldt             =   value; // balast dl/dt (g / s)
+  else if (index == 61) data.LAS_CONSTANTS.val_dldt_a           =   value; 
+  else if (index == 62) data.LAS_CONSTANTS.val_dldt_b           =   value; // valve dl/dt (g / s))
+  else if (index == 63) data.LAS_CONSTANTS.bal_tmin             =   value; // minimum ballast event time (s)
+  else if (index == 64) data.LAS_CONSTANTS.val_tmin             =   value; // minimum valve event time (s)
+  else if (index == 65) data.LAS_CONSTANTS.setpoint             =   value; // altidute comand (m)
+  else if (index == 66) data.LAS_CONSTANTS.tolerance            =   value; // comand tollerance (m)
+  else if (index == 67) data.LAS_CONSTANTS.k_drag               =   value; // drag constant, (m/s / g)
+  else if (index == 68) data.LAS_CONSTANTS.kfuse_val            =   value; // scale factor on effect of valve actions (unitless)
+  else if (index == 69) data.LAS_CONSTANTS.v_limit              =   value; // velocity limit commanded by altitude loop (m/s)   
+  else if (index == 70) data.LAS_CONSTANTS.equil_h_thresh       =   value; // altitude where controller transitions to normal mode (m)
+  else if (index == 71) data.LAS_CONSTANTS.launch_h_thresh      =   value; // change in altitide required to detect launch (m)
   else if (index == 72) data.HEATER_CONSTANTS.temp_thresh           = value; // RB Heat Temp Thresh
   else if (index == 73) data.HEATER_CONSTANTS.temp_gain             = value; // RB Heat Temp Gain
   else if (index == 74) data.HEATER_CONSTANTS.comm_gain             = value; // RB Heat Comm Gain

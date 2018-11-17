@@ -1,28 +1,34 @@
 #include "LasagnaController.h"
+#include <cmath>
 
 LasagnaController::LasagnaController() :
   v1_filter(1./60./16., 0.5, 20.),
   v2_filter(1./60./7.,  0.5, 20.),
   action_filter(1./60./16., 0.5, 20.)
-{}
+{
+  calcGains();
+}
 
 LasagnaController::LasagnaController(float freq) : 
   v1_filter(1./60./16., 0.5, freq),
   v2_filter(1./60./7.,  0.5, freq),
   action_filter(1./60./16., 0.5, freq) 
 {
-  constants.freq = freq;
+  this->freq = freq;
+  calcGains();
 }
+
+
 
 bool LasagnaController::update(Input input){ 
 
   /**
    * Input protection for dtdl_ext
    */
-  if(isnan(input.dldt_ext)){
+  if(std::isnan(input.dldt_ext)){
     input.dldt_ext = 0; 
   } else {
-    float limit = 0.0001*4;
+    float limit = 0.6; // limit on what the max value for sunset dldt can be, in grams/s
     input.dldt_ext = pasta_clamp(input.dldt_ext,-limit,limit);
   }
 
@@ -30,8 +36,8 @@ bool LasagnaController::update(Input input){
    * Update both filtered velocities
    */
   if(!is_first_call){ 
-    state.v1 = v1_filter.update((input.h_rel-state.h_rel_last)*constants.freq);
-    state.v2 = v2_filter.update((input.h_rel-state.h_rel_last)*constants.freq);
+    state.v1 = v1_filter.update((input.h_rel-state.h_rel_last)*freq);
+    state.v2 = v2_filter.update((input.h_rel-state.h_rel_last)*freq);
   }
 
   /**
@@ -56,7 +62,7 @@ bool LasagnaController::update(Input input){
       break;
   }
 
-  state.v_dldt = input.op*constants.v_dldt_a + constants.v_dldt_b; 
+  state.val_dldt = input.op*constants.val_dldt_a + constants.val_dldt_b; 
   state.v = (state.status==EQUIL) ? state.v1 : state.v2; // v1 is low corner freqency, so it's used after equilibration
 
   /**
@@ -68,8 +74,8 @@ bool LasagnaController::update(Input input){
    */
   float dv_pred = 0;
   if(state.status==EQUIL){
-    float act_dldt = state.action > 0 ? float(state.action)*constants.b_dldt : float(state.action)*state.v_dldt*constants.kfuse_val;
-    dv_pred = constants.kfuse*(act_dldt + input.dldt_ext/constants.freq);
+    float act_dldt = state.action > 0 ? float(state.action)*constants.bal_dldt : float(state.action)*state.val_dldt*constants.kfuse_val;
+    dv_pred = constants.k_drag*(act_dldt + input.dldt_ext/freq);
   }
   state.dv_sum += dv_pred;  
   state.fused_v = state.v + state.dv_sum - action_filter.update(state.dv_sum);
@@ -91,10 +97,10 @@ void LasagnaController::innerLoop(float input_h){
   /**
    * compute effort pre-deadband
    */
-  if(state.comp_ctr >= comp_freq*constants.freq){
-    state.v_cmd = constants.k_h * (constants.h_cmd - input_h);
-    state.v_cmd_clamped = pasta_clamp(state.v_cmd,-(constants.k_h*constants.ss_error_thresh+constants.v_limit),(constants.k_h*constants.ss_error_thresh+constants.v_limit));
-    state.effort = constants.k_v * (state.v_cmd_clamped - state.fused_v);
+  if(state.comp_ctr >= comp_freq*freq){
+    state.v_cmd = constants.h_gain * (constants.setpoint - input_h);
+    state.v_cmd_clamped = pasta_clamp(state.v_cmd,-(constants.h_gain*constants.tolerance+constants.v_limit),(constants.h_gain*constants.tolerance+constants.v_limit));
+    state.effort = constants.v_gain * (state.v_cmd_clamped - state.fused_v);
     if((state.v_cmd_clamped - state.fused_v)*state.v_cmd_clamped < 0){
       state.effort = 0;
     }
@@ -105,11 +111,12 @@ void LasagnaController::innerLoop(float input_h){
    * deadband
    */
   float deadband_effort = 0;
-  float thresh = constants.k_v*constants.k_h*constants.ss_error_thresh;
+  float thresh = constants.v_gain*constants.h_gain*constants.tolerance;
+  state.effort_ratio = state.effort / thresh;
   if(pasta_abs(state.effort)-thresh > 0){
     deadband_effort = state.effort + ((state.effort<0)-(state.effort>0))*thresh;
   }
-  deadband_effort = pasta_clamp(deadband_effort,-state.v_dldt,constants.b_dldt);
+  deadband_effort = pasta_clamp(deadband_effort,-state.val_dldt,constants.bal_dldt);
 
   /**
    * keeps track of a sum of the total desired effort (which is in kg/s since its a dldt)
@@ -118,13 +125,13 @@ void LasagnaController::innerLoop(float input_h){
    * vent would happen. At 20Hz, there would never be multiple events in one control cycle, but at very low 
    * frequencies, it could happen.
    */
-  state.effort_sum += deadband_effort/constants.freq;
-  if(state.effort_sum >= constants.b_tmin*constants.b_dldt){
-    state.action = constants.b_tmin*int(state.effort_sum/(constants.b_tmin*constants.b_dldt));
-    state.effort_sum -= constants.b_tmin*constants.b_dldt*int(state.effort_sum/(constants.b_tmin*constants.b_dldt));
-  } else if(-state.effort_sum >= constants.v_tmin*state.v_dldt){
-    state.action = constants.v_tmin*int(state.effort_sum/(constants.v_tmin*state.v_dldt));
-    state.effort_sum -= constants.v_tmin*state.v_dldt*int(state.effort_sum/(constants.v_tmin*state.v_dldt));
+  state.effort_sum += deadband_effort/freq;
+  if(state.effort_sum >= constants.bal_tmin*constants.bal_dldt){
+    state.action = constants.bal_tmin*int(state.effort_sum/(constants.bal_tmin*constants.bal_dldt));
+    state.effort_sum -= constants.bal_tmin*constants.bal_dldt*int(state.effort_sum/(constants.bal_tmin*constants.bal_dldt));
+  } else if(-state.effort_sum >= constants.val_tmin*state.val_dldt){
+    state.action = constants.val_tmin*int(state.effort_sum/(constants.val_tmin*state.val_dldt));
+    state.effort_sum -= constants.val_tmin*state.val_dldt*int(state.effort_sum/(constants.val_tmin*state.val_dldt));
   } else {
     state.action = 0;
   }
@@ -132,10 +139,12 @@ void LasagnaController::innerLoop(float input_h){
 }
 
 void LasagnaController::updateConstants(Constants constants){
-  if(this->constants.h_cmd != constants.h_cmd){
-
-  }
+  //bool calc_gains = false;
+  //if((this->constants.gain != constants.gain) || (this->constants.damping != constants.damping)){
+  //  calc_gains = true;
+  //}
   this->constants = constants;
+  calcGains();
 }
 
 int LasagnaController::getAction(){
@@ -148,4 +157,9 @@ LasagnaController::State LasagnaController::getState(){
 
 LasagnaController::Constants LasagnaController::getConstants(){
   return constants;
+}
+
+void LasagnaController::calcGains(){
+  constants.v_gain = 2.*constants.damping*sqrt(constants.gain / constants.k_drag);
+  constants.h_gain = sqrt(constants.gain * constants.k_drag) / (2.*constants.damping);
 }

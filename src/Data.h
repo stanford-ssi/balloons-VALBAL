@@ -16,8 +16,6 @@
 #include "Heater.h"
 #include "Utils.h"
 #include "LasagnaController.h"
-#include "SpaghettiController.h"
-#include "SpaghettiController2.h"
 
 /**************************  CURRENT DATA FRAME  ******************************/
 struct DataFrame {
@@ -172,7 +170,7 @@ struct DataFrame {
 
   float      RB_HEAT_DUTY                    =                                0;
 
-  int32_t ACTIONS[4] = {0};
+  int32_t ACTIONS[2] = {0};
 
   float ESTIMATED_DLDT                       =                                0;
   float SOLAR_ELEVATION                      =                                0;
@@ -201,15 +199,10 @@ struct DataFrame {
   float VOLTAGE_SUPERCAP_MIN = 314;
 
   bool       POWER_STATE_RADIO =                           !true;
-
-  SpaghettiController::Constants SPAG_CONSTANTS;
-  SpaghettiController::State SPAG_STATE;
-  SpaghettiController2::Constants SPAG2_CONSTANTS;
-  SpaghettiController2::State SPAG2_STATE;
   LasagnaController::Constants LAS_CONSTANTS;
   LasagnaController::State LAS_STATE;
   Heater::Constants HEATER_CONSTANTS;
-  uint32_t  ACTION_TIME_TOTALS[8]            =                               {0};
+  uint32_t  ACTION_TIME_TOTALS[2]            =                               {0};
   float     OVERPRESSURE                     =                                 0;
   float     OVERPRESSURE_FILT                =                                 0;
   float     OVERPRESSURE_VREF                =                                 0;
@@ -220,7 +213,7 @@ struct DataFrame {
 
 #include <assert.h>
 
-static_assert(sizeof(DataFrame) >= 860, "ohp dataframe too big");
+static_assert(sizeof(DataFrame) <= 860, "ohp dataframe too big");
 
 // template<int s> struct Wow;
 // struct foo {

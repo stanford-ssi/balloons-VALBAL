@@ -107,31 +107,16 @@ static const uint16_t  MINIMUM_ALTITUDE_POINTS               =              600;
 static const uint16_t  MINIMUM_ASCENT_RATE_POINTS            =              600;
 static const uint16_t  VOLTAGE_BUFFER_SIZE                   =               20;
 
-static const float     SPAG_K_DEFAULT                        =          0.00001;
-static const float     SPAG_B_DLDT_DEFAULT                   =            0.001;
-static const float     SPAG_V_DLDT_DEFAULT                   =            0.001;
-static const float     SPAG_RATE_MIN_DEFAULT                 =          0.00001;
-static const float     SPAG_RATE_MAX_DEFAULT                 =            0.001;
-static const float     SPAG_B_TMIN_DEFAULT                   =                2;
-static const float     SPAG_V_TMIN_DEFAULT                   =                2;
-static const float     SPAG_H_CMD_DEFAULT                    =            14000;
-static const float     SPAG_ASCENT_RATE_THRESH_DEFAULT       =              0.4;
-static const float     SPAG_V_SS_ERROR_THRESH_DEFAULT        =             1000;
-static const float     SPAG_B_SS_ERROR_THRESH_DEFAULT        =             1000;
-static const float     SPAG_KFUSE_DEFAULT                    =                7;
-static const float     SPAG_KFUSE_V_DEFAULT                  =              0.5;
 
 static const float     PSC_SLOPE                             =            0.011;
 static const float     PSC_INTERCEPT                         =          -0.2419;
 static const float     CM_WATER_TO_PA                        =          98.0665;
 
-static const uint8_t   CONTROLLER_INDEX_DEFAULT              =                3;
+static const uint8_t   CONTROLLER_INDEX_DEFAULT              =                1;
 
 enum {
   LEGACY_CONTROLLER_INDEX               =                0,
-  SPAG_CONTROLLER_INDEX                 =                1,
-  SPAG2_CONTROLLER_INDEX                =                2,
-  LAS_CONTROLLER_INDEX                  =                3
+  LAS_CONTROLLER_INDEX                  =                1
 };
 
 /*****************************  EEPROM ADDRESSES  *****************************/

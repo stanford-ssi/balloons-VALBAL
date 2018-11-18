@@ -111,9 +111,9 @@ void LasagnaController<Float>::innerLoop(float input_h){
   /**
    * deadband
    */
-  float deadband_effort = 0;
-  float thresh = constants.v_gain*constants.h_gain*constants.tolerance;
-  state.effort_ratio = state.effort / thresh;
+  Float deadband_effort = 0;
+  Float thresh = constants.v_gain*constants.h_gain*constants.tolerance;
+  state.effort_ratio = VAL(state.effort) / VAL(thresh);
   if(pasta_abs(state.effort)-thresh > 0){
     deadband_effort = state.effort + ((state.effort<0)-(state.effort>0))*thresh;
   }
@@ -126,7 +126,7 @@ void LasagnaController<Float>::innerLoop(float input_h){
    * vent would happen. At 20Hz, there would never be multiple events in one control cycle, but at very low 
    * frequencies, it could happen.
    */
-  state.effort_sum += deadband_effort/freq;
+  state.effort_sum += VAL(deadband_effort)/freq;
   if(state.effort_sum >= constants.bal_tmin*constants.bal_dldt){
     state.action = constants.bal_tmin*int(state.effort_sum/(constants.bal_tmin*constants.bal_dldt));
     state.effort_sum -= constants.bal_tmin*constants.bal_dldt*int(state.effort_sum/(constants.bal_tmin*constants.bal_dldt));
@@ -171,3 +171,6 @@ void LasagnaController<Float>::calcGains(){
 }
 
 template class LasagnaController<float>;
+#ifdef traj_sim 
+  template class LasagnaController<adept::adouble>;
+#endif

@@ -16,9 +16,13 @@
 #include <math.h>
 #include "spa.h"
 
-#ifdef TRAJ
+#ifdef traj_sim
   #include "utils.h"
+#else
+  inline float VAL(float f) { return f; }
 #endif
+
+
 
 #define pi 3.14159
 #define SECONDS_PER_DAY (86400.)
@@ -40,7 +44,7 @@ template<class T> const T pasta_max(const T a, const T b)
     return (a < b) ? b : a;
 }
 
-template<class T> const T pasta_clamp(const T v, const T lo, const T hi)
+template<class T1 , class T2> const T1 pasta_clamp(const T1 v, const T2 lo, const T2 hi)
 {
     return v < lo ? lo : hi < v ? hi : v;
 }
@@ -50,6 +54,7 @@ template<class T> const T pasta_clamp(const T v, const T lo, const T hi)
  * Implementation of a biquad IIR filter.
  * Pray for stability.
  */
+template <typename Float = float>
 class Biquad {
 public:
   typedef struct {
@@ -114,6 +119,7 @@ private:
  * Lastly, these things are not foolproof so some spooky stuff can happen if you do things wrong. 
  * Probably a good idea to check the final implementation and use with @johndean
  */
+template <typename Float = float>
 class AdjustableLowpass{
 public:
   AdjustableLowpass(float F0, float Q, float Fs);
@@ -124,8 +130,8 @@ public:
   void setSampleRate(float Fs);
   float update(float input);
 private:
-  Biquad::Coeffs calcCoeffs();
-  Biquad biquad;
+  typename Biquad<Float>::Coeffs calcCoeffs();
+  Biquad<Float> biquad;
   float Q;
   float F0;
   float Fs;

@@ -1,22 +1,24 @@
 #include "PastaSim.h"
 
 
-
-PastaSim::PastaSim(int seed) : 
+template <typename Float>
+PastaSim<Float>::PastaSim(int seed) : 
 	l_noise(0,0.0014)
 {
 	gen.seed(seed);
 	init();
 }
 
-PastaSim::PastaSim() : 
+template <typename Float>
+PastaSim<Float>::PastaSim() : 
 	l_noise(0,0.0014)
 {
 	gen.seed(std::time(0));
 	init();
 }
 
-void PastaSim::init(){
+template <typename Float>
+void PastaSim<Float>::init(){
 	h = 13000;
 	conf.gtime.year = 2018;
     conf.gtime.month = 1;
@@ -26,7 +28,8 @@ void PastaSim::init(){
     conf.gtime.second = 0;
 }
 
-float PastaSim::evolve(float  action){
+template <typename Float>
+float PastaSim<Float>::evolve(float  action){
 	time += 1000/conf.freq;
 	if((time/conf.sun_calc_interval >= sun_pred_ctr) && conf.nightfall){
 		sunpred.calcValues(conf.lon, conf.lat, conf.gtime, time/1000);
@@ -43,3 +46,9 @@ float PastaSim::evolve(float  action){
 	//l -= v/freq*5e-5;
 	return h;
 }
+
+template class PastaSim<float>;
+#ifdef traj_sim 
+  #include <adept.h>
+  template class PastaSim<adept::adouble>;
+#endif

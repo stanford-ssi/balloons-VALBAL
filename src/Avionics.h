@@ -149,8 +149,8 @@ private:
   RockBLOCK RBModule;
   Radio radio;
 
-  Biquad op_filter;
-  Biquad op_vref_filter;
+  Biquad<> op_filter;
+  Biquad<> op_vref_filter;
 
   LasagnaController<> lasController;
 

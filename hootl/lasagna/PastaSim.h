@@ -7,8 +7,11 @@
 /**
  * This is the simulator class for altitude feedback controllers run on vabal. 
  * It contians the constants and state variables necessary to simulate the balloon 
- * dynamics in the atmosphere
+ * dynamics in the atmosphere. It is template defined so that it can be differentiable 
+ * with respect to certian parameters when used in the trajectory optimization.
  */
+
+template <typename Float = float>
 class PastaSim
 {
 public:

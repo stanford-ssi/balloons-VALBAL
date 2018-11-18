@@ -113,11 +113,11 @@ public:
   static const int N_RB_VARS = __LINE__ - start - 1;
   var_t rb_vars[N_RB_VARS];
 
-  AdjustableLowpass h_filter;
+  AdjustableLowpass<> h_filter;
   float h_filtered;
   float h_prefiltered_last;
   float v_raw;
-  AdjustableLowpass v_filters[N_V_FILTERS];
+  AdjustableLowpass<> v_filters[N_V_FILTERS];
   float v_filtered[N_V_FILTERS];
 
   var_t current_ballast;
@@ -129,7 +129,7 @@ public:
   bool bmps_enabled[N_SENSORS];
   uint32_t bmps_last[N_SENSORS] = {0};
 
-  AdjustableLowpass fast_filters[N_SENSORS];
+  AdjustableLowpass<> fast_filters[N_SENSORS];
   float last_filtered[N_SENSORS];
   uint32_t last_accepted[N_SENSORS];
   bool vel_rejected[N_SENSORS];

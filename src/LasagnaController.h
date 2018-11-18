@@ -18,32 +18,44 @@ public:
     EQUIL,
   };
 
+#ifdef traj_sim
+  typedef struct {
+#else 
   typedef struct __attribute__((packed)) {
+#endif
     unsigned int comp_ctr      =   0;
     int action                 =   0;        // action command
     float v                    =   0;
     float v1                   =   0;
     float v2                   =   0;
     float fused_v              =   0;
-    float v_cmd                =   0;
-    float v_cmd_clamped        =   0;
+    Float v_cmd                =   0;
+    Float v_cmd_clamped        =   0;
     float dv_sum               =   0;
-    float effort               =   0;
+    Float effort               =   0;
     float effort_sum           =   0;
     float effort_ratio         =   0;    
-    float val_dldt               =   0;
+    float val_dldt             =   0;
     float h_rel_last           =   0;
     Status status              =   PRELAUNCH;
   } State;
 
+#ifdef traj_sim
+  typedef struct {
+#else 
   typedef struct __attribute__((packed)) {
+#endif
     float h_abs = 0;
     float h_rel = 0;
     float op = 0;
     float dldt_ext = 0;
   } Input;
 
+#ifdef traj_sim
+  typedef struct {
+#else 
   typedef struct __attribute__((packed)) {
+#endif
     float gain                 =   0.14/1000;   // Total gain magnititude (g / m)
     float damping              =   1.2;         // damping ratio (unitless)
     float v_gain               =   0;           // velocity gain (g/s / m/s) 
@@ -75,9 +87,9 @@ private:
   void outerLoop();
   void innerLoop(float input_h);
   Constants constants;
-  AdjustableLowpass v1_filter;
-  AdjustableLowpass v2_filter;
-  AdjustableLowpass action_filter;
+  AdjustableLowpass<Float> v1_filter;
+  AdjustableLowpass<Float> v2_filter;
+  AdjustableLowpass<Float> action_filter;
   State state;
   unsigned int comp_freq = 1;
   float launch_h = 0;

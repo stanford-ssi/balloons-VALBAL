@@ -26,7 +26,8 @@
  * -------------------
  * updates filter and returns a new output
  */
-float Biquad::update(float input){
+template <typename Float> 
+float Biquad<Float>::update(float input){
   /* Roll back values */
   x[2] = x[1];
   x[1] = x[0];
@@ -46,7 +47,8 @@ float Biquad::update(float input){
  * -------------------
  * resets fitler to a steady state value
  */
-void Biquad::setSS(float val){
+template <typename Float>
+void Biquad<Float>::setSS(float val){
   for(int i = 0; i < 3; i++){
     x[i] = val;
     y[i] = val;
@@ -59,7 +61,8 @@ void Biquad::setSS(float val){
  * changes the coeficents of the biquad and sets to steady state.
  * Use with extreme caution
  */
-void Biquad::setCoeffs(Coeffs coeffs){
+template <typename Float>
+void Biquad<Float>::setCoeffs(Coeffs coeffs){
   this->coeffs = coeffs;
   setSS(y[0]);
 }
@@ -70,7 +73,8 @@ void Biquad::setCoeffs(Coeffs coeffs){
  * Resturns the SS gain of the filter. If the filter is unstable,
  * you're fucked
  */
-double Biquad::getSSGain(){
+template <typename Float>
+double Biquad<Float>::getSSGain(){
   double a_sum = 0;
   double b_sum = 0;
   for(int i = 0; i < 3; i++){
@@ -86,7 +90,8 @@ double Biquad::getSSGain(){
  * Shifts thes steady state bias of the filter. Extremely useful for changing
  * the input commands to lead compensators
  */
-void Biquad::shiftBias(float offset){
+template <typename Float>
+void Biquad<Float>::shiftBias(float offset){
   float bias = offset*getSSGain();
   for(int i = 0; i < 3; i++){
     y[i] += bias;
@@ -147,47 +152,55 @@ void DBiquad::setCoeffs(Coeffs coeffs){
 /************* AdjustableLowpass **************/
 /**********************************************/
 
-AdjustableLowpass::AdjustableLowpass() {
+template <typename Float>
+AdjustableLowpass<Float>::AdjustableLowpass() {
   this->F0 = 1;
   this->Q = 0.5;
   this->Fs = 20;
   biquad.setCoeffs(calcCoeffs());
 }
 
-AdjustableLowpass::AdjustableLowpass(float F0, float Q, float Fs) {
+template <typename Float>
+AdjustableLowpass<Float>::AdjustableLowpass(float F0, float Q, float Fs) {
   this->F0 = F0;
   this->Q = Q;
   this->Fs = Fs;
   biquad.setCoeffs(calcCoeffs());
 }
 
-void AdjustableLowpass::setQ(float Q){
+template <typename Float>
+void AdjustableLowpass<Float>::setQ(float Q){
   this->Q = Q;
   biquad.setCoeffs(calcCoeffs());
 }
 
-void AdjustableLowpass::setCorner(float F0){
+template <typename Float>
+void AdjustableLowpass<Float>::setCorner(float F0){
   this->F0 = F0;
   biquad.setCoeffs(calcCoeffs());
 }
 
-void AdjustableLowpass::setSampleRate(float Fs){
+template <typename Float>
+void AdjustableLowpass<Float>::setSampleRate(float Fs){
   this->Fs = Fs;
   biquad.setCoeffs(calcCoeffs());
 }
 
-float AdjustableLowpass::update(float input){
+template <typename Float>
+float AdjustableLowpass<Float>::update(float input){
   return biquad.update(input);
 }
 
-void AdjustableLowpass::setSS(float v){
+template <typename Float>
+void AdjustableLowpass<Float>::setSS(float v){
   biquad.setSS(v);
 }
 
-Biquad::Coeffs AdjustableLowpass::calcCoeffs(){
+template <typename Float>
+typename Biquad<Float>::Coeffs AdjustableLowpass<Float>::calcCoeffs(){
   double w0 = 2 * pi * F0 / Fs;
   double alpha = sin(w0)/(2*Q);
-  Biquad::Coeffs coeffs;
+  typename Biquad<Float>::Coeffs coeffs;
   coeffs.a[0] = 1+alpha;
   coeffs.a[1] = -2*cos(w0);
   coeffs.a[2] = 1-alpha;
@@ -250,3 +263,13 @@ void SunsetPredictor::calcValues(float lon, float lat, GPSTime gpsTime, double e
       estimated_dldt = 0;
     }
 }
+
+template class AdjustableLowpass<float>;
+#ifdef traj_sim 
+  template class AdjustableLowpass<adept::adouble>;
+#endif
+
+template class Biquad<float>;
+#ifdef traj_sim 
+  template class Biquad<adept::adouble>;
+#endif

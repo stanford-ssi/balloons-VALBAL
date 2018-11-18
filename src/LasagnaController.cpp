@@ -1,7 +1,8 @@
 #include "LasagnaController.h"
 #include <cmath>
 
-LasagnaController::LasagnaController() :
+template <typename Float>
+LasagnaController<Float>::LasagnaController() :
   v1_filter(1./60./16., 0.5, 20.),
   v2_filter(1./60./7.,  0.5, 20.),
   action_filter(1./60./16., 0.5, 20.)
@@ -9,7 +10,8 @@ LasagnaController::LasagnaController() :
   calcGains();
 }
 
-LasagnaController::LasagnaController(float freq) : 
+template <typename Float>
+LasagnaController<Float>::LasagnaController(float freq) : 
   v1_filter(1./60./16., 0.5, freq),
   v2_filter(1./60./7.,  0.5, freq),
   action_filter(1./60./16., 0.5, freq) 
@@ -18,9 +20,8 @@ LasagnaController::LasagnaController(float freq) :
   calcGains();
 }
 
-
-
-bool LasagnaController::update(Input input){ 
+template <typename Float>
+bool LasagnaController<Float>::update(Input input){ 
 
   /**
    * Input protection for dtdl_ext
@@ -91,8 +92,8 @@ bool LasagnaController::update(Input input){
   return true;
 }
 
-
-void LasagnaController::innerLoop(float input_h){
+template <typename Float>
+void LasagnaController<Float>::innerLoop(float input_h){
 
   /**
    * compute effort pre-deadband
@@ -138,7 +139,8 @@ void LasagnaController::innerLoop(float input_h){
   state.comp_ctr++;
 }
 
-void LasagnaController::updateConstants(Constants constants){
+template <typename Float>
+void LasagnaController<Float>::updateConstants(Constants constants){
   //bool calc_gains = false;
   //if((this->constants.gain != constants.gain) || (this->constants.damping != constants.damping)){
   //  calc_gains = true;
@@ -147,19 +149,25 @@ void LasagnaController::updateConstants(Constants constants){
   calcGains();
 }
 
-int LasagnaController::getAction(){
+template <typename Float>
+int LasagnaController<Float>::getAction(){
   return state.action * 1000;
 }
 
-LasagnaController::State LasagnaController::getState(){
+template <typename Float>
+typename LasagnaController<Float>::State LasagnaController<Float>::getState(){
   return state;
 }
 
-LasagnaController::Constants LasagnaController::getConstants(){
+template <typename Float>
+typename LasagnaController<Float>::Constants LasagnaController<Float>::getConstants(){
   return constants;
 }
 
-void LasagnaController::calcGains(){
+template <typename Float>
+void LasagnaController<Float>::calcGains(){
   constants.v_gain = 2.*constants.damping*sqrt(constants.gain / constants.k_drag);
   constants.h_gain = sqrt(constants.gain * constants.k_drag) / (2.*constants.damping);
 }
+
+template class LasagnaController<float>;

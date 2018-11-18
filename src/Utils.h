@@ -16,6 +16,10 @@
 #include <math.h>
 #include "spa.h"
 
+#ifdef TRAJ
+  #include "utils.h"
+#endif
+
 #define pi 3.14159
 #define SECONDS_PER_DAY (86400.)
 #define DAYS_PER_SECOND (0.0000115741)

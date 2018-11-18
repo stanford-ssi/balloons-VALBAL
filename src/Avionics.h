@@ -152,7 +152,7 @@ private:
   Biquad op_filter;
   Biquad op_vref_filter;
 
-  LasagnaController lasController;
+  LasagnaController<> lasController;
 
   Heater heater;
 

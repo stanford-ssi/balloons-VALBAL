@@ -199,8 +199,8 @@ struct DataFrame {
   float VOLTAGE_SUPERCAP_MIN = 314;
 
   bool       POWER_STATE_RADIO =                           !true;
-  LasagnaController::Constants LAS_CONSTANTS;
-  LasagnaController::State LAS_STATE;
+  LasagnaController<>::Constants LAS_CONSTANTS;
+  LasagnaController<>::State LAS_STATE;
   Heater::Constants HEATER_CONSTANTS;
   uint32_t  ACTION_TIME_TOTALS[2]            =                               {0};
   float     OVERPRESSURE                     =                                 0;

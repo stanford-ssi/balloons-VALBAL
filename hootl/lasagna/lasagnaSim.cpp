@@ -66,12 +66,12 @@ void equil20Hz(){
 }
 
 void equilfreqtesting(){
-	const float freq = 1/60.;
+	const float freq = 20;
 	fstream f ("data.bin", std::fstream::in | std::fstream::binary);
 	fstream o ("output.bin", std::fstream::out | std::fstream::binary);
 	PastaSim sim(1);
-	sim.h = 12000;
-	sim.l = 0.1;
+	sim.h = 5000;
+	sim.l = -.1;
 	sim.conf.freq = freq;
 	CONTROLLER las(freq);
 	printf("%f %f \n",1.0,las.getConstants().k_drag);

@@ -81,7 +81,7 @@ bool Avionics::calcIncentives() {
 
   uint32_t INDEX = LAS_CONTROLLER_INDEX;
   lasController.updateConstants(data.LAS_CONSTANTS);
-  LasagnaController::Input lasInput;
+  LasagnaController<>::Input lasInput;
   lasInput.h_rel = data.ALTITUDE_BAROMETER;
   float las_h_abs = data.USE_ALTITUDE_CORRECTED ? data.ALTITUDE_CORRECTED : data.ALTITUDE_BAROMETER;
   lasInput.h_abs = las_h_abs;

@@ -8,6 +8,7 @@
 #include <iostream>
 #endif
 
+template <typename Float = float>
 class LasagnaController
 {
 public:

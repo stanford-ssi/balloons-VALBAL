@@ -8,6 +8,8 @@
 #include <iostream>
 #endif
 
+#define mFloat Float
+
 template <typename Float = float>
 class LasagnaController
 {
@@ -25,10 +27,10 @@ public:
 #endif
     unsigned int comp_ctr      =   0;
     int action                 =   0;        // action command
-    float v                    =   0;
-    float v1                   =   0;
-    float v2                   =   0;
-    float fused_v              =   0;
+    mFloat v                    =   0;
+    mFloat v1                   =   0;
+    mFloat v2                   =   0;
+    mFloat fused_v              =   0;
     Float v_cmd                =   0;
     Float v_cmd_clamped        =   0;
     float dv_sum               =   0;
@@ -36,7 +38,7 @@ public:
     float effort_sum           =   0;
     float effort_ratio         =   0;    
     float val_dldt             =   0;
-    float h_rel_last           =   0;
+    mFloat h_rel_last           =   0;
     Status status              =   PRELAUNCH;
   } State;
 
@@ -45,8 +47,8 @@ public:
 #else 
   typedef struct __attribute__((packed)) {
 #endif
-    float h_abs = 0;
-    float h_rel = 0;
+    mFloat h_abs = 0;
+    mFloat h_rel = 0;
     float op = 0;
     float dldt_ext = 0;
   } Input;
@@ -85,11 +87,11 @@ private:
   float freq = 20;          // Control Freqency (Hz)
   void calcGains();
   void outerLoop();
-  void innerLoop(float input_h);
+  void innerLoop(Float input_h);
   Constants constants;
-  AdjustableLowpass<Float> v1_filter;
-  AdjustableLowpass<Float> v2_filter;
-  AdjustableLowpass<Float> action_filter;
+  AdjustableLowpass<mFloat> v1_filter;
+  AdjustableLowpass<mFloat> v2_filter;
+  AdjustableLowpass<float> action_filter;
   State state;
   unsigned int comp_freq = 1;
   float launch_h = 0;

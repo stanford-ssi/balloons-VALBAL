@@ -27,7 +27,7 @@
  * updates filter and returns a new output
  */
 template <typename Float> 
-float Biquad<Float>::update(float input){
+Float Biquad<Float>::update(Float input){
   /* Roll back values */
   x[2] = x[1];
   x[1] = x[0];
@@ -64,7 +64,7 @@ void Biquad<Float>::setSS(float val){
 template <typename Float>
 void Biquad<Float>::setCoeffs(Coeffs coeffs){
   this->coeffs = coeffs;
-  setSS(y[0]);
+  setSS(VAL(y[0]));
 }
 
 /*
@@ -187,7 +187,7 @@ void AdjustableLowpass<Float>::setSampleRate(float Fs){
 }
 
 template <typename Float>
-float AdjustableLowpass<Float>::update(float input){
+Float AdjustableLowpass<Float>::update(Float input){
   return biquad.update(input);
 }
 
@@ -269,7 +269,7 @@ template class AdjustableLowpass<float>;
   template class AdjustableLowpass<adept::adouble>;
 #endif
 
-template class Biquad<float>;
+template class Biquad<double>;
 #ifdef traj_sim 
   template class Biquad<adept::adouble>;
 #endif

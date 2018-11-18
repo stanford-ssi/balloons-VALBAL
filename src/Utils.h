@@ -48,13 +48,14 @@ template<class T1 , class T2> const T1 pasta_clamp(const T1 v, const T2 lo, cons
 {
     return v < lo ? lo : hi < v ? hi : v;
 }
+
 /*
  * class: Biquad
  * -------------------
  * Implementation of a biquad IIR filter.
  * Pray for stability.
  */
-template <typename Float = float>
+template <typename Float = double>
 class Biquad {
 public:
   typedef struct {
@@ -63,14 +64,14 @@ public:
   } Coeffs;
   Biquad(): x{0.0,0.0,0.0},y{0.0,0.0,0.0} ,coeffs{{0.0,0.0,0.0},{0.0,0.0,0.0}}{}
   Biquad(Coeffs coeffs): x{0.0,0.0,0.0},y{0.0,0.0,0.0},coeffs(coeffs){}
-  float update(float input);
+  Float update(Float input);
   void setSS(float val);
   void setCoeffs(Coeffs coeffs);
   double getSSGain();
   void shiftBias(float offset);
 private:
-  double x[3];
-  double y[3];
+  Float x[3];
+  Float y[3];
   Coeffs coeffs;
 };
 
@@ -128,7 +129,7 @@ public:
   void setQ(float Q);
   void setCorner(float F0);
   void setSampleRate(float Fs);
-  float update(float input);
+  Float update(Float input);
 private:
   typename Biquad<Float>::Coeffs calcCoeffs();
   Biquad<Float> biquad;

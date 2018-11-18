@@ -47,17 +47,17 @@ bool LasagnaController<Float>::update(Input input){
   switch(state.status){
     case PRELAUNCH:
       if(is_first_call){        // this is the first time lasagna is called on startup
-        if(input.h_rel > constants.equil_h_thresh){       // looks like we are already in flight ohp
+        if(VAL(input.h_rel) > constants.equil_h_thresh){       // looks like we are already in flight ohp
           launch_h = 0;
           state.status = EQUIL;
         } else {
-          launch_h = input.h_rel;
+          launch_h = VAL(input.h_rel);
         }
         is_first_call = false;
-      } else if(pasta_abs(input.h_rel - launch_h) > constants.launch_h_thresh) state.status = ASCENT;
+      } else if(pasta_abs(VAL(input.h_rel) - launch_h) > constants.launch_h_thresh) state.status = ASCENT;
       break;
     case ASCENT:
-      if(input.h_rel > constants.equil_h_thresh) state.status = EQUIL;
+      if(VAL(input.h_rel) > constants.equil_h_thresh) state.status = EQUIL;
       break;
     case EQUIL:
       break;
@@ -93,7 +93,7 @@ bool LasagnaController<Float>::update(Input input){
 }
 
 template <typename Float>
-void LasagnaController<Float>::innerLoop(float input_h){
+void LasagnaController<Float>::innerLoop(Float input_h){
 
   /**
    * compute effort pre-deadband

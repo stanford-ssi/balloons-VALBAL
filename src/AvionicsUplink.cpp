@@ -88,7 +88,6 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 31) parseGPSPowerCommand(value); // GPS Power State | 0: shutdown; 1: restart; 2: hot start
   else if (index == 32) parsePayloadPowerCommand(value); // Payload Power State | 0: shutdown; 1: restart
   else if (index == 33) data.CURRENT_CONTROLLER_INDEX = value; // Controller Index | 0: Legacy; 1: Lasagna
-  else if (index == 55) data.LAS_CONSTANTS.freq                 =   value; // Control Freqency (Hz)
   else if (index == 56) data.LAS_CONSTANTS.gain                 =   value; // Total gain magnititude (g / m)
   else if (index == 57) data.LAS_CONSTANTS.damping              =   value; // damping ratio (unitless)
   else if (index == 58) data.LAS_CONSTANTS.v_gain               =   value; // velocity gain (g/s / m/s) 

@@ -30,7 +30,6 @@ void Avionics::serialMonitorUpdate(){
   report[j] = data.LAS_STATE.effort_ratio   ; j++;
   report[j] = data.LAS_STATE.val_dldt         ; j++;
   report[j] = data.LAS_STATE.h_rel_last     ; j++;
-  report[j] = data.LAS_CONSTANTS.freq              ; j++;
   report[j] = data.LAS_CONSTANTS.gain              ; j++;
   report[j] = data.LAS_CONSTANTS.damping           ; j++;
   report[j] = data.LAS_CONSTANTS.v_gain            ; j++;

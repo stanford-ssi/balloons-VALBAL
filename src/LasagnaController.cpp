@@ -6,7 +6,6 @@ LasagnaController::LasagnaController() :
   v2_filter(1./60./7.,  0.5, 20.),
   action_filter(1./60./16., 0.5, 20.)
 {
-  calcGains();
 }
 
 LasagnaController::LasagnaController(float freq) : 
@@ -15,7 +14,6 @@ LasagnaController::LasagnaController(float freq) :
   action_filter(1./60./16., 0.5, freq) 
 {
   this->freq = freq;
-  calcGains();
 }
 
 
@@ -94,7 +92,7 @@ bool LasagnaController::update(Input input){
 
 void LasagnaController::innerLoop(float input_h){
 
-  bool override_gain == (constants.v_gain_override != 0) && (constants.h_gain_override != 0);
+  bool override_gain = (constants.v_gain_override != 0) && (constants.h_gain_override != 0);
   float v_gain = override_gain ? constants.v_gain_override : 2.*constants.damping*sqrt(constants.gain / constants.k_drag);
   float h_gain = override_gain ? constants.h_gain_override : sqrt(constants.gain * constants.k_drag) / (2.*constants.damping);
 

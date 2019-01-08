@@ -94,13 +94,17 @@ bool LasagnaController::update(Input input){
 
 void LasagnaController::innerLoop(float input_h){
 
+  bool override_gain == (constants.v_gain_override != 0) && (constants.h_gain_override != 0);
+  float v_gain = override_gain ? constants.v_gain_override : 2.*constants.damping*sqrt(constants.gain / constants.k_drag);
+  float h_gain = override_gain ? constants.h_gain_override : sqrt(constants.gain * constants.k_drag) / (2.*constants.damping);
+
   /**
    * compute effort pre-deadband
    */
   if(state.comp_ctr >= comp_freq*freq){
-    state.v_cmd = constants.h_gain * (constants.setpoint - input_h);
-    state.v_cmd_clamped = pasta_clamp(state.v_cmd,-(constants.h_gain*constants.tolerance+constants.v_limit),(constants.h_gain*constants.tolerance+constants.v_limit));
-    state.effort = constants.v_gain * (state.v_cmd_clamped - state.fused_v);
+    state.v_cmd = h_gain * (constants.setpoint - input_h);
+    state.v_cmd_clamped = pasta_clamp(state.v_cmd,-(h_gain*constants.tolerance+constants.v_limit),(h_gain*constants.tolerance+constants.v_limit));
+    state.effort = v_gain * (state.v_cmd_clamped - state.fused_v);
     if((state.v_cmd_clamped - state.fused_v)*state.v_cmd_clamped < 0){
       state.effort = 0;
     }
@@ -111,7 +115,7 @@ void LasagnaController::innerLoop(float input_h){
    * deadband
    */
   float deadband_effort = 0;
-  float thresh = constants.v_gain*constants.h_gain*constants.tolerance;
+  float thresh = v_gain*h_gain*constants.tolerance;
   state.effort_ratio = state.effort / thresh;
   if(pasta_abs(state.effort)-thresh > 0){
     deadband_effort = state.effort + ((state.effort<0)-(state.effort>0))*thresh;
@@ -144,7 +148,6 @@ void LasagnaController::updateConstants(Constants constants){
   //  calc_gains = true;
   //}
   this->constants = constants;
-  calcGains();
 }
 
 int LasagnaController::getAction(){
@@ -157,9 +160,4 @@ LasagnaController::State LasagnaController::getState(){
 
 LasagnaController::Constants LasagnaController::getConstants(){
   return constants;
-}
-
-void LasagnaController::calcGains(){
-  constants.v_gain = 2.*constants.damping*sqrt(constants.gain / constants.k_drag);
-  constants.h_gain = sqrt(constants.gain * constants.k_drag) / (2.*constants.damping);
 }

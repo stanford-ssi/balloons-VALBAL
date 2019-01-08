@@ -12,6 +12,7 @@
 #define VAL_LOGGER_H
 
 #include <SdFat.h>
+#error "ugly!"
 #include <SdFormatter.h>
 #include "Hardware.h"
 #include <bitset>

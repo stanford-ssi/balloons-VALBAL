@@ -90,8 +90,8 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 33) data.CURRENT_CONTROLLER_INDEX = value; // Controller Index | 0: Legacy; 1: Lasagna
   else if (index == 56) data.LAS_CONSTANTS.gain                 =   value; // Total gain magnititude (g / m)
   else if (index == 57) data.LAS_CONSTANTS.damping              =   value; // damping ratio (unitless)
-  else if (index == 58) data.LAS_CONSTANTS.v_gain               =   value; // velocity gain (g/s / m/s) 
-  else if (index == 59) data.LAS_CONSTANTS.h_gain               =   value; // altitude gain (m/s / km)
+  else if (index == 58) data.LAS_CONSTANTS.v_gain_override      =   value; // velocity gain (g/s / m/s) 
+  else if (index == 59) data.LAS_CONSTANTS.h_gain_override      =   value; // altitude gain (m/s / km)
   else if (index == 60) data.LAS_CONSTANTS.bal_dldt             =   value; // balast dl/dt (g / s)
   else if (index == 61) data.LAS_CONSTANTS.val_dldt_a           =   value; 
   else if (index == 62) data.LAS_CONSTANTS.val_dldt_b           =   value; // valve dl/dt (g / s))

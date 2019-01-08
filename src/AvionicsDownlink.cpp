@@ -165,8 +165,8 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(1.0 / data.BALLAST_ALTITUDE_DIFF_CONSTANT,0,    4095,    8,  lengthBits); // Ballast Altitude Difference Constant
     lengthBits += compressVariable(1.0 / data.BALLAST_LAST_ACTION_CONSTANT,  0,    4095,    8,  lengthBits); // Ballast last action constant
     // lasagna readback
-    lengthBits += compressVariable(data.LAS_CONSTANTS.v_gain,                   0,      .01,   8,  lengthBits);
-    lengthBits += compressVariable(data.LAS_CONSTANTS.h_gain,                   0,      .01,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.v_gain_override,                   0,      .01,   8,  lengthBits);
+    lengthBits += compressVariable(data.LAS_CONSTANTS.h_gain_override,                   0,      .01,   8,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.bal_dldt,           0,      100,   8,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.val_dldt_a,           0,      100,   8,  lengthBits);
     lengthBits += compressVariable(data.LAS_CONSTANTS.val_dldt_b,           0,      100,   8,  lengthBits);

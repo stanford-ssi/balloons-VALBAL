@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-I ../../src/ -I ../../lib/spa -I ../ -std=c++17 -D JOHNSIM
+CFLAGS=-I ../../src/ -I ../../lib/spa -I ../ -std=c++17 -D JOHNSIM -g
 _SRCF = Utils LasagnaController
 SRCF = $(addprefix ../../src/, $(addsuffix .cpp, $(_SRCF)))
 LIBF = ../../lib/spa/spa.cpp

@@ -48,10 +48,10 @@ public:
     float v_gain_override      =   0;           // velocity gain (g/s / m/s) 
     float h_gain_override      =   0;           // altitude gain (m/s / km)
     float bal_dldt             =   0.666;       // balast dl/dt (g / s)
-    float val_dldt_a           =   0;           
-    float val_dldt_b           =   3;           // valve dl/dt (g / s))
-    float bal_tmin             =   2;           // minimum ballast event time (s)
-    float val_tmin             =   3;           // minimum valve event time (s)
+    float val_dldt_slope       =   0;           
+    float val_dldt_intercept   =   3;           // valve dl/dt (g / s))
+    float bal_min_t            =   2;           // minimum ballast event time (s)
+    float val_min_t            =   3;           // minimum valve event time (s)
     float setpoint             =   13500;       // altidute comand (m)
     float tolerance            =   750;         // comand tollerance (m)
     float k_drag               =   0.006;       // drag constant, (m/s / g)

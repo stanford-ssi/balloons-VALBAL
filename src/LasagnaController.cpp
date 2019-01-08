@@ -60,7 +60,7 @@ bool LasagnaController::update(Input input){
       break;
   }
 
-  state.val_dldt = input.op*constants.val_dldt_a + constants.val_dldt_b; 
+  state.val_dldt = input.op*constants.val_dldt_slope + constants.val_dldt_intercept; 
   state.v = (state.status==EQUIL) ? state.v1 : state.v2; // v1 is low corner freqency, so it's used after equilibration
 
   /**
@@ -128,12 +128,12 @@ void LasagnaController::innerLoop(float input_h){
    * frequencies, it could happen.
    */
   state.effort_sum += deadband_effort/freq;
-  if(state.effort_sum >= constants.bal_tmin*constants.bal_dldt){
-    state.action = constants.bal_tmin*int(state.effort_sum/(constants.bal_tmin*constants.bal_dldt));
-    state.effort_sum -= constants.bal_tmin*constants.bal_dldt*int(state.effort_sum/(constants.bal_tmin*constants.bal_dldt));
-  } else if(-state.effort_sum >= constants.val_tmin*state.val_dldt){
-    state.action = constants.val_tmin*int(state.effort_sum/(constants.val_tmin*state.val_dldt));
-    state.effort_sum -= constants.val_tmin*state.val_dldt*int(state.effort_sum/(constants.val_tmin*state.val_dldt));
+  if(state.effort_sum >= constants.bal_min_t*constants.bal_dldt){
+    state.action = constants.bal_min_t*int(state.effort_sum/(constants.bal_min_t*constants.bal_dldt));
+    state.effort_sum -= constants.bal_min_t*constants.bal_dldt*int(state.effort_sum/(constants.bal_min_t*constants.bal_dldt));
+  } else if(-state.effort_sum >= constants.val_min_t*state.val_dldt){
+    state.action = constants.val_min_t*int(state.effort_sum/(constants.val_min_t*state.val_dldt));
+    state.effort_sum -= constants.val_min_t*state.val_dldt*int(state.effort_sum/(constants.val_min_t*state.val_dldt));
   } else {
     state.action = 0;
   }

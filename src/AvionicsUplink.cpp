@@ -93,10 +93,10 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 58) data.LAS_CONSTANTS.v_gain_override      =   value; // velocity gain (g/s / m/s) 
   else if (index == 59) data.LAS_CONSTANTS.h_gain_override      =   value; // altitude gain (m/s / km)
   else if (index == 60) data.LAS_CONSTANTS.bal_dldt             =   value; // balast dl/dt (g / s)
-  else if (index == 61) data.LAS_CONSTANTS.val_dldt_a           =   value; 
-  else if (index == 62) data.LAS_CONSTANTS.val_dldt_b           =   value; // valve dl/dt (g / s))
-  else if (index == 63) data.LAS_CONSTANTS.bal_tmin             =   value; // minimum ballast event time (s)
-  else if (index == 64) data.LAS_CONSTANTS.val_tmin             =   value; // minimum valve event time (s)
+  else if (index == 61) data.LAS_CONSTANTS.val_dldt_slope           =   value; 
+  else if (index == 62) data.LAS_CONSTANTS.val_dldt_intercept           =   value; // valve dl/dt (g / s))
+  else if (index == 63) data.LAS_CONSTANTS.bal_min_t             =   value; // minimum ballast event time (s)
+  else if (index == 64) data.LAS_CONSTANTS.val_min_t             =   value; // minimum valve event time (s)
   else if (index == 65) data.LAS_CONSTANTS.setpoint             =   value; // altidute comand (m)
   else if (index == 66) data.LAS_CONSTANTS.tolerance            =   value; // comand tollerance (m)
   else if (index == 67) data.LAS_CONSTANTS.k_drag               =   value; // drag constant, (m/s / g)

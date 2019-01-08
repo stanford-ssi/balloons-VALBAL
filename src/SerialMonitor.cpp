@@ -35,10 +35,10 @@ void Avionics::serialMonitorUpdate(){
   report[j] = data.LAS_CONSTANTS.v_gain_override   ; j++;
   report[j] = data.LAS_CONSTANTS.h_gain_override   ; j++;
   report[j] = data.LAS_CONSTANTS.bal_dldt          ; j++;
-  report[j] = data.LAS_CONSTANTS.val_dldt_a        ; j++;
-  report[j] = data.LAS_CONSTANTS.val_dldt_b        ; j++;
-  report[j] = data.LAS_CONSTANTS.bal_tmin          ; j++;
-  report[j] = data.LAS_CONSTANTS.val_tmin          ; j++;
+  report[j] = data.LAS_CONSTANTS.val_dldt_slope        ; j++;
+  report[j] = data.LAS_CONSTANTS.val_dldt_intercept        ; j++;
+  report[j] = data.LAS_CONSTANTS.bal_min_t          ; j++;
+  report[j] = data.LAS_CONSTANTS.val_min_t          ; j++;
   report[j] = data.LAS_CONSTANTS.setpoint          ; j++;
   report[j] = data.LAS_CONSTANTS.tolerance         ; j++;
   report[j] = data.LAS_CONSTANTS.k_drag            ; j++;

@@ -28,8 +28,8 @@ if 1:
 	for i in np.nonzero(np.diff(D('act')) < 0)[0]:
 		ax1.axvline(t[i], c='g',alpha=0.2)
 
-ax1.axhline(14250,c='gray',alpha=0.4)
-ax1.axhline(12750,c='gray',alpha=0.4)
+ax1.axhline(14500,c='gray',alpha=0.4)
+ax1.axhline(12500,c='gray',alpha=0.4)
 
 print(np.sum(np.abs(np.diff(D('act')))))
 

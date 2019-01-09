@@ -12,6 +12,9 @@ build:
 run:
 	./lasagnaSim #> output.csv
 
+diff:
+	$(CC) $(CFLAGS) -o diffLas diffLasSim.cpp PastaSim.cpp $(SRCF) $(LIBF) -Dtraj_sim -I . -I /usr/local/include -ladept
+
 plot:
 	python plot.py
 

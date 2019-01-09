@@ -27,18 +27,19 @@ public:
 #endif
     unsigned int comp_ctr      =   0;
     int action                 =   0;        // action command
-    mFloat v                    =   0;
-    mFloat v1                   =   0;
-    mFloat v2                   =   0;
-    mFloat fused_v              =   0;
+    mFloat v                   =   0;
+    mFloat v1                  =   0;
+    mFloat v2                  =   0;
+    mFloat fused_v             =   0;
     Float v_cmd                =   0;
     Float v_cmd_clamped        =   0;
     float dv_sum               =   0;
     Float effort               =   0;
     float effort_sum           =   0;
-    float effort_ratio         =   0;    
+    float effort_ratio         =   0;
+    Float deadband_effort      =   0;    
     float val_dldt             =   0;
-    mFloat h_rel_last           =   0;
+    mFloat h_rel_last          =   0;
     Status status              =   PRELAUNCH;
   } State;
 
@@ -67,8 +68,8 @@ public:
     float val_dldt_b           =   3;           // valve dl/dt (g / s))
     float bal_tmin             =   2;           // minimum ballast event time (s)
     float val_tmin             =   3;           // minimum valve event time (s)
-    float setpoint             =   13500;       // altidute comand (m)
-    float tolerance            =   750;         // comand tollerance (m)
+    Float setpoint             =   13500;       // altidute comand (m)
+    Float tolerance            =   750;         // comand tollerance (m)
     float k_drag               =   0.006;       // drag constant, (m/s / g)
     float kfuse_val            =   0.75;        // scale factor on effect of valve actions (unitless)
     float v_limit              =   0.5;         // velocity limit commanded by altitude loop (m/s)   
@@ -79,10 +80,10 @@ public:
   LasagnaController();
   LasagnaController(float freq);
   bool update(Input input);
-  void updateConstants(Constants constants);
+  void updateConstants(const Constants& constants);
   int getAction();
-  State getState();
-  Constants getConstants();
+  const State* getState();
+  const Constants* getConstants();
 private:
   float freq = 20;          // Control Freqency (Hz)
   void calcGains();

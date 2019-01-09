@@ -29,7 +29,7 @@ void PastaSim<Float>::init(){
 }
 
 template <typename Float>
-float PastaSim<Float>::evolve(float  action){
+Float PastaSim<Float>::evolve(float  action){
 	time += 1000/conf.freq;
 	if((time/conf.sun_calc_interval >= sun_pred_ctr) && conf.nightfall){
 		sunpred.calcValues(conf.lon, conf.lat, conf.gtime, time/1000);
@@ -49,6 +49,5 @@ float PastaSim<Float>::evolve(float  action){
 
 template class PastaSim<float>;
 #ifdef traj_sim 
-  #include <adept.h>
   template class PastaSim<adept::adouble>;
 #endif

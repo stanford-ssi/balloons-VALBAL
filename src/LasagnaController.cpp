@@ -100,7 +100,7 @@ void LasagnaController<Float>::innerLoop(Float input_h){
    */
   if(state.comp_ctr >= comp_freq*freq){
     state.v_cmd = constants.h_gain * (constants.setpoint - input_h);
-    state.v_cmd_clamped = pasta_clamp(state.v_cmd,-(constants.h_gain*constants.tolerance+constants.v_limit),(constants.h_gain*constants.tolerance+constants.v_limit));
+    state.v_cmd_clamped = pasta_clamp<Float,Float>(state.v_cmd,-(constants.h_gain*constants.tolerance+constants.v_limit),(constants.h_gain*constants.tolerance+constants.v_limit));
     state.effort = constants.v_gain * (state.v_cmd_clamped - state.fused_v);
     if((state.v_cmd_clamped - state.fused_v)*state.v_cmd_clamped < 0){
       state.effort = 0;
@@ -111,13 +111,13 @@ void LasagnaController<Float>::innerLoop(Float input_h){
   /**
    * deadband
    */
-  Float deadband_effort = 0;
+  state.deadband_effort = 0;
   Float thresh = constants.v_gain*constants.h_gain*constants.tolerance;
   state.effort_ratio = VAL(state.effort) / VAL(thresh);
   if(pasta_abs(state.effort)-thresh > 0){
-    deadband_effort = state.effort + ((state.effort<0)-(state.effort>0))*thresh;
+    state.deadband_effort = state.effort + ((state.effort<0)-(state.effort>0))*thresh;
   }
-  deadband_effort = pasta_clamp(deadband_effort,-state.val_dldt,constants.bal_dldt);
+  state.deadband_effort = pasta_clamp(state.deadband_effort,-state.val_dldt,constants.bal_dldt);
 
   /**
    * keeps track of a sum of the total desired effort (which is in kg/s since its a dldt)
@@ -126,7 +126,7 @@ void LasagnaController<Float>::innerLoop(Float input_h){
    * vent would happen. At 20Hz, there would never be multiple events in one control cycle, but at very low 
    * frequencies, it could happen.
    */
-  state.effort_sum += VAL(deadband_effort)/freq;
+  state.effort_sum += VAL(state.deadband_effort)/freq;
   if(state.effort_sum >= constants.bal_tmin*constants.bal_dldt){
     state.action = constants.bal_tmin*int(state.effort_sum/(constants.bal_tmin*constants.bal_dldt));
     state.effort_sum -= constants.bal_tmin*constants.bal_dldt*int(state.effort_sum/(constants.bal_tmin*constants.bal_dldt));
@@ -140,7 +140,7 @@ void LasagnaController<Float>::innerLoop(Float input_h){
 }
 
 template <typename Float>
-void LasagnaController<Float>::updateConstants(Constants constants){
+void LasagnaController<Float>::updateConstants(const Constants& constants){
   //bool calc_gains = false;
   //if((this->constants.gain != constants.gain) || (this->constants.damping != constants.damping)){
   //  calc_gains = true;
@@ -155,13 +155,13 @@ int LasagnaController<Float>::getAction(){
 }
 
 template <typename Float>
-typename LasagnaController<Float>::State LasagnaController<Float>::getState(){
-  return state;
+const typename LasagnaController<Float>::State * LasagnaController<Float>::getState(){
+  return &state;
 }
 
 template <typename Float>
-typename LasagnaController<Float>::Constants LasagnaController<Float>::getConstants(){
-  return constants;
+const typename LasagnaController<Float>::Constants * LasagnaController<Float>::getConstants(){
+  return &constants;
 }
 
 template <typename Float>
@@ -172,5 +172,5 @@ void LasagnaController<Float>::calcGains(){
 
 template class LasagnaController<float>;
 #ifdef traj_sim 
-  template class LasagnaController<adept::adouble>;
+  template class LasagnaController<adouble>;
 #endif

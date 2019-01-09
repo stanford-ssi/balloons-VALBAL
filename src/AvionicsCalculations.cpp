@@ -103,7 +103,7 @@ bool Avionics::calcIncentives() {
   data.ACTIONS[INDEX] = 0;
   for (int k=0; k<numExecNow; k++) {
     lasController.update(lasInput);
-    data.LAS_STATE = lasController.getState();
+    data.LAS_STATE = *lasController.getState();
     data.ACTIONS[INDEX] += lasController.getAction();
   }
   data.ACTION_TIME_TOTALS[2*INDEX] = data.ACTIONS[INDEX] < 0 ? data.ACTION_TIME_TOTALS[2*INDEX] - data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX];

@@ -29,13 +29,13 @@ public:
 	Config conf;
 	PastaSim(int seed);
 	PastaSim();
-	float evolve(float action);
+	Float evolve(float action);
 	float sunset_dldt = 0;
 	SunsetPredictor sunpred;
 	unsigned int time = 0;				// sim time in ms
-	float h;							// sim altitude in m
-	float v;							// sim velocity in m/s
-	float l;							// sim balloon lift in g 
+	Float h;							// sim altitude in m
+	Float v;							// sim velocity in m/s
+	Float l;							// sim balloon lift in g 
 	unsigned int sun_pred_ctr = 0;
 private:
 	void init();

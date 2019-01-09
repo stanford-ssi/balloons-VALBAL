@@ -8,6 +8,10 @@
 void Avionics::parseCommand(int16_t len) {
   Serial.println("Got stuff");
   COMMS_BUFFER[len] = 0;
+  if(COMMS_BUFFER[0]=='$') {
+    Avionics::parseCommandNew(len);
+    return;
+  }
   const char* commandStrFormat = "%d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s";
   uint8_t commandIndexes[8] = {0};
   char commandStrings[8][100] = {{0},{0},{0},{0},{0},{0},{0},{0}};
@@ -37,6 +41,72 @@ void Avionics::parseCommand(int16_t len) {
     Serial.println(commandValue);
     updateConstant(index, commandValue);
   }
+}
+
+bool compareTime(uint32_t timestamp1, uint32_t timestamp2) {
+    return (timestamp1<timestamp2);
+}
+
+/*
+ * Function: parseCommandNew
+ * -------------------
+ * This function parses planned commands received from the RockBLOCK and places them in an array.
+ */
+void Avionics::parseCommandNew(int16_t len) {
+    //for(uint8_t i = 0; i < PLANNED_COMMANDS_SIZE; i++) PLANNED_COMMANDS[i] = {-1, -1, ""};
+    uint32_t plannedIndex = 0;
+    uint8_t commandIndex;
+    uint32_t time;
+    uint8_t startIndex = 1;
+    uint8_t endIndex = 1; // 0 is "P"
+    bool interpolate = false;
+    bool append = false;
+    bool recent = false;
+    bool readingFlags = true;
+    while(endIndex < len) {
+        if(startIndex==1 && readingFlags) {
+            if(COMMS_BUFFER[endIndex]=='i') interpolate = true;
+            else if(COMMS_BUFFER[endIndex]=='a') append = true;
+            else if(COMMS_BUFFER[endIndex]=='r') recent = true;
+            else {
+                startIndex = endIndex;
+                readingFlags = 0;
+            }
+        } else if(COMMS_BUFFER[endIndex]=='#') { // using '#' as deliminator between commandIndex and commands
+            if(!append) { /* clear the PLANNED_COMMANDS */ }
+            if(endIndex==startIndex) return;
+            char commandIndexC[endIndex-startIndex+1];
+            commandIndexC[endIndex-startIndex] = '\0';
+            memcpy(commandIndexC, COMMS_BUFFER[startIndex], endIndex-startIndex);
+            commandIndex = atoi(commandIndexC); // should stoi be used in case of error?
+            if (commandIndex < 0 || commandIndex > 128) return;
+            startIndex=endIndex+1;
+        } else if(COMMS_BUFFER[endIndex]==':') { // a timestamp was just read
+            if(endIndex==startIndex) return;
+            char timestampC[endIndex-startIndex+1];
+            timestampC[endIndex-startIndex] = '\0';
+            memcpy(timestampC, COMMS_BUFFER[startIndex], endIndex-startIndex);
+            timestamp = atoi(timestampC);
+            startIndex=endIndex+1;
+        } else if(COMMS_BUFFER[endIndex]==','
+                  || COMMS_BUFFER[endIndex]=='&'
+                  || (endIndex+1==len && startIndex!=endIndex)) { // command value paired with that time was just read
+            if(endIndex==startIndex) return;
+            char commandValueC[endIndex-startIndex+1];
+            commandValueC[endIndex-startIndex] = '\0';
+            memcpy(commandString, COMMS_BUFFER[startIndex], endIndex-startIndex);
+            //PLANNED_COMMANDS[commandIndex][plannedIndex].COMMAND_INDEX = commandIndex;
+            PLANNED_COMMANDS[commandIndex][plannedIndex].TIME = timestamp;
+            memcpy(PLANNED_COMMANDS[commandIndex][plannedIndex].COMMAND_STRING, &commandString, strlen(commandString)+1);
+            if(COMMS_BUFFER[endIndex]=='&') readingFlags = true;
+            plannedIndex++;
+            startIndex=endIndex+1;
+        }
+        endIndex++;
+    }
+    for(uint8_t i = 0; i<plannedIndex; i++) PLANNED_COMMANDS[commandIndex][plannedIndex].INTERPOLATE = interpolate;
+    for(uint8_t i = 0; i<plannedIndex; i++) PLANNED_COMMANDS[commandIndex][plannedIndex].RECENT = recent;
+    std::sort(PLANNED_COMMANDS[commandIndex][0],PLANNED_COMMANDS[commandIndex][PLANNED_COMMANDS_SIZE-1],compareTime);
 }
 
 /*
@@ -90,10 +160,10 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 33) data.CURRENT_CONTROLLER_INDEX = value; // Controller Index | 0: Legacy; 1: Lasagna
   else if (index == 56) data.LAS_CONSTANTS.gain                 =   value; // Total gain magnititude (g / m)
   else if (index == 57) data.LAS_CONSTANTS.damping              =   value; // damping ratio (unitless)
-  else if (index == 58) data.LAS_CONSTANTS.v_gain               =   value; // velocity gain (g/s / m/s) 
+  else if (index == 58) data.LAS_CONSTANTS.v_gain               =   value; // velocity gain (g/s / m/s)
   else if (index == 59) data.LAS_CONSTANTS.h_gain               =   value; // altitude gain (m/s / km)
   else if (index == 60) data.LAS_CONSTANTS.bal_dldt             =   value; // balast dl/dt (g / s)
-  else if (index == 61) data.LAS_CONSTANTS.val_dldt_a           =   value; 
+  else if (index == 61) data.LAS_CONSTANTS.val_dldt_a           =   value;
   else if (index == 62) data.LAS_CONSTANTS.val_dldt_b           =   value; // valve dl/dt (g / s))
   else if (index == 63) data.LAS_CONSTANTS.bal_tmin             =   value; // minimum ballast event time (s)
   else if (index == 64) data.LAS_CONSTANTS.val_tmin             =   value; // minimum valve event time (s)
@@ -101,7 +171,7 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 66) data.LAS_CONSTANTS.tolerance            =   value; // comand tollerance (m)
   else if (index == 67) data.LAS_CONSTANTS.k_drag               =   value; // drag constant, (m/s / g)
   else if (index == 68) data.LAS_CONSTANTS.kfuse_val            =   value; // scale factor on effect of valve actions (unitless)
-  else if (index == 69) data.LAS_CONSTANTS.v_limit              =   value; // velocity limit commanded by altitude loop (m/s)   
+  else if (index == 69) data.LAS_CONSTANTS.v_limit              =   value; // velocity limit commanded by altitude loop (m/s)
   else if (index == 70) data.LAS_CONSTANTS.equil_h_thresh       =   value; // altitude where controller transitions to normal mode (m)
   else if (index == 71) data.LAS_CONSTANTS.launch_h_thresh      =   value; // change in altitide required to detect launch (m)
   else if (index == 72) data.HEATER_CONSTANTS.temp_thresh           = value; // RB Heat Temp Thresh

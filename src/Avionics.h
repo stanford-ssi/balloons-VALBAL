@@ -38,7 +38,12 @@
 //#define SERIALMONITOR
 //#define SERIALSHITL_LEN 32
 
-
+struct PlannedCommand {
+    uint32_t TIMESTAMP;
+    char COMMAND_STRING[100];
+    bool INTERPOLATE;
+    bool RECENT;
+};
 
 // regualar min and max is not compatible with vector in std
 #define _min(a,b) ((a)<(b)?(a):(b))
@@ -101,6 +106,7 @@ private:
 
   bool    sendSATCOMS();
   void    parseCommand(int16_t len);
+  void    parseCommandNew(int16_t len);
   void    updateConstant(uint8_t index, float value);
   void    parseManualCommand(bool command);
   void    parseReportCommand(uint8_t command);
@@ -134,6 +140,8 @@ private:
 
   int numExecNow = 0;
 
+  uint8_t PLANNED_COMMANDS_SIZE = 32;
+  PlannedCommand PLANNED_COMMANDS[129][PLANNED_COMMANDS_SIZE+1];
   char COMMS_BUFFER[COMMS_BUFFER_SIZE];
   DataFrame data;
   Logger log;

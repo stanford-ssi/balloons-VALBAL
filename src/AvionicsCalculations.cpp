@@ -8,6 +8,9 @@
 bool Avionics::processData() {
   bool success = true;
 
+  uint32_t timeSinceLaunch; // need function to calculate this
+  checkPlans(timeSinceLaunch); // updates based on planned commands
+
   float pressures[] = {data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4};
 
   numExecNow = numExecReset();

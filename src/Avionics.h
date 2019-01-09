@@ -106,6 +106,7 @@ private:
   bool    sendSATCOMS();
   void    parseCommand(int16_t len);
   void    parseCommandNew(int16_t len);
+  void    checkPlans(uint32_t timeSinceLaunch);
   void    updateConstant(uint8_t index, float value);
   void    parseManualCommand(bool command);
   void    parseReportCommand(uint8_t command);

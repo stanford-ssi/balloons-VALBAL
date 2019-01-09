@@ -109,6 +109,37 @@ bool compareTime(PlannedCommand command1, PlannedCommand command2) {
 }
 
 /*
+ * Function: checkPlans
+ * -------------------
+ * This function checks the plans to see if anything needs to be updated, given the current time since launch.
+ */
+void checkPlans(uint32_t timeSinceLaunch) {
+  for(uint8_t i=0; i<126; i++) {
+    if(hasPlans[i]==1) {
+      PlannedCommand mostRecent = {-1,1,1};
+      PlannedCommand next = {-1,1,1};
+      uint8_t j = 0;
+      while(j<PLANNED_COMMANDS_SIZE) {
+        if(PLANNED_COMMANDS[j].COMMAND_INDEX==i) {
+          if(PLANNED_COMMANDS[j].TIMESTAMP<=timeSinceLaunch) mostRecent=PLANNED_COMMANDS[j];
+          else if(next.COMMAND_INDEX==-1) next=PLANNED_COMMANDS[j];
+        }
+      }
+      if(mostRecent.COMMAND_INDEX!=-1) {
+        float commandValue;
+        if(shouldInterpolate[i]==1 && next.COMMAND_INDEX!=-1) {
+          commandValue = (mostRecent.COMMAND_VALUE - next.COMMAND_VALUE) /
+            (mostRecent.TIMESTAMP - next.TIMESTAMP) * (timeSinceLaunch-mostRecent.TIMESTAMP);
+        } else {
+          commandValue = mostRecent.COMMAND_VALUE;
+        }
+        updateConstant(i, value);
+      }
+    }
+  }
+}
+
+/*
  * Function: updateConstant
  * -------------------
  * This function updates the state appropriate state variable

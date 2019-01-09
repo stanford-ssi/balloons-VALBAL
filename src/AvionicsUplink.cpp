@@ -14,6 +14,8 @@ void Avionics::parseCommand(int16_t len) {
     return;
   }
   for(uint8_t i=0; i<PLANNED_COMMANDS_SIZE; i++) PLANNED_COMMANDS[i] = {-1,1,1}; // erases all planned commands
+  memset(shouldInterpolate, 0, sizeof(shouldInterpolate)); // resets shouldInterpolate
+  memset(hasPlans, 0, sizeof(hasPlans)); // resets hasPlans
   const char* commandStrFormat = "%d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s";
   uint8_t commandIndexes[8] = {0};
   char commandStrings[8][100] = {{0},{0},{0},{0},{0},{0},{0},{0}};
@@ -57,6 +59,8 @@ bool compareTime(PlannedCommand command1, PlannedCommand command2) {
  */
  void Avionics::parseCommandNew(int16_t len) {
    for(uint8_t i=0; i<PLANNED_COMMANDS_SIZE; i++) PLANNED_COMMANDS[i] = {-1,1,1}; // erases all planned commands
+   memset(shouldInterpolate, 0, sizeof(shouldInterpolate)); // resets shouldInterpolate
+   memset(hasPlans, 0, sizeof(hasPlans)); // resets hasPlans
    uint32_t plannedIndex = 0;
    char *oneComm;
    oneComm = strtok(COMMS_BUFFER," ");

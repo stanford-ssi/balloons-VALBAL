@@ -13,6 +13,7 @@ void Avionics::parseCommand(int16_t len) {
     Avionics::parseCommandNew(len);
     return;
   }
+  for(uint8_t i=0; i<PLANNED_COMMANDS_SIZE; i++) PLANNED_COMMANDS[i] = {-1,1,1}; // erases all planned commands
   const char* commandStrFormat = "%d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s";
   uint8_t commandIndexes[8] = {0};
   char commandStrings[8][100] = {{0},{0},{0},{0},{0},{0},{0},{0}};

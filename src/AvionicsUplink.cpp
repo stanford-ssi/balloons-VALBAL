@@ -45,7 +45,8 @@ void Avionics::parseCommand(int16_t len) {
 }
 
 bool compareTime(PlannedCommand command1, PlannedCommand command2) {
-    return (command1.TIMESTAMP<command2.TIMESTAMP);
+  if(command1.TIMESTAMP==command2.TIMESTAMP) return (command1.COMMAND_INDEX<command2.COMMAND_INDEX);
+  return (command1.TIMESTAMP<command2.TIMESTAMP);
 }
 
 /*

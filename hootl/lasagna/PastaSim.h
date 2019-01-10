@@ -29,6 +29,7 @@ public:
 	float evolve(float action);
 	float sunset_dldt = 0;
 	SunsetPredictor sunpred;
+	unsigned int unix_offset;
 	unsigned int time = 0;				// sim time in ms
 	float h;							// sim altitude in m
 	float v;							// sim velocity in m/s

@@ -24,6 +24,7 @@ void PastaSim::init(){
     conf.gtime.hour = 10;
     conf.gtime.minute = 0;
     conf.gtime.second = 0;
+    unix_offset = 1514800800;
 }
 
 float PastaSim::evolve(float  action){

@@ -1,5 +1,7 @@
 #include "Avionics.h"
 #include <string.h>
+#include <cstring>
+#include <algorithm>
 
 /*
  * Function: parseCommand
@@ -10,10 +12,14 @@ void Avionics::parseCommand(int16_t len) {
   Serial.println("Got stuff");
   COMMS_BUFFER[len] = 0;
   if(COMMS_BUFFER[0]=='$') {
-    Avionics::parseCommandNew(len);
+    parseCommandNew();
     return;
   }
-  for(uint8_t i=0; i<PLANNED_COMMANDS_SIZE; i++) PLANNED_COMMANDS[i] = {-1,1,1}; // erases all planned commands
+  for(uint8_t i=0; i<PLANNED_COMMANDS_SIZE; i++) {
+    PLANNED_COMMANDS[i].COMMAND_INDEX = -1;
+    PLANNED_COMMANDS[i].TIMESTAMP = UINT32_MAX;
+    PLANNED_COMMANDS[i].COMMAND_VALUE = -1;
+  } // erases all planned commands
   memset(shouldInterpolate, 0, sizeof(shouldInterpolate)); // resets shouldInterpolate
   memset(hasPlans, 0, sizeof(hasPlans)); // resets hasPlans
   const char* commandStrFormat = "%d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s";
@@ -57,8 +63,12 @@ bool compareTime(PlannedCommand command1, PlannedCommand command2) {
  * -------------------
  * This function parses planned commands received from the RockBLOCK and places them in an array.
  */
- void Avionics::parseCommandNew(int16_t len) {
-   for(uint8_t i=0; i<PLANNED_COMMANDS_SIZE; i++) PLANNED_COMMANDS[i] = {-1,1,1}; // erases all planned commands
+ void Avionics::parseCommandNew() {
+   for(uint8_t i=0; i<PLANNED_COMMANDS_SIZE; i++) {
+     PLANNED_COMMANDS[i].COMMAND_INDEX = -1;
+     PLANNED_COMMANDS[i].TIMESTAMP = UINT32_MAX;
+     PLANNED_COMMANDS[i].COMMAND_VALUE = -1;
+   } // erases all planned commands
    memset(shouldInterpolate, 0, sizeof(shouldInterpolate)); // resets shouldInterpolate
    memset(hasPlans, 0, sizeof(hasPlans)); // resets hasPlans
    uint32_t plannedIndex = 0;
@@ -71,47 +81,47 @@ bool compareTime(PlannedCommand command1, PlannedCommand command2) {
      uint8_t startIndex = 1;
      uint8_t endIndex = 1;
      while(endIndex < oneCommLength) {
-       if(COMMS_BUFFER[endIndex]=='#') { // using '#' as deliminator between commandIndex and commands
-       if(endIndex==startIndex) return;
-       char commandIndexC[endIndex-startIndex+1];
-       commandIndexC[endIndex-startIndex] = '\0';
-       memcpy(commandIndexC, COMMS_BUFFER[startIndex], endIndex-startIndex);
-       commandIndex = atoi(commandIndexC);
-       if (commandIndex < 0 || commandIndex > 125) return;
-       hasPlans[commandIndex] = 1;
-       startIndex=endIndex+1;
-     } else if(COMMS_BUFFER[endIndex]==':') { // a timestamp was just read
-       if(endIndex==startIndex) return;
-       char timestampC[endIndex-startIndex+1];
-       timestampC[endIndex-startIndex] = '\0';
-       memcpy(timestampC, COMMS_BUFFER[startIndex], endIndex-startIndex);
-       timestamp = atoi(timestampC);
-       startIndex=endIndex+1;
-     } else if(COMMS_BUFFER[endIndex]==','
-     || (endIndex+1==len && startIndex!=endIndex)) { // command value paired with that time was just read
-       if(COMMS_BUFFER[endIndex]=='i') {
-         shouldInterpolate[commandIndex] = 1;
-         endIndex = endIndex - 1;
+       if(oneComm[endIndex]=='#') { // using '#' as deliminator between commandIndex and commands
+         if(endIndex==startIndex) return;
+         char commandIndexC[endIndex-startIndex+1];
+         commandIndexC[endIndex-startIndex] = '\0';
+         memcpy(commandIndexC, &oneComm[startIndex], endIndex-startIndex);
+         commandIndex = atoi(commandIndexC);
+         if (commandIndex < 0 || commandIndex > 125) return;
+         hasPlans[commandIndex] = 1;
+         startIndex=endIndex+1;
+       } else if(oneComm[endIndex]==':') { // a timestamp was just read
+         if(endIndex==startIndex) return;
+         char timestampC[endIndex-startIndex+1];
+         timestampC[endIndex-startIndex] = '\0';
+         memcpy(timestampC, &oneComm[startIndex], endIndex-startIndex);
+         timestamp = atoi(timestampC);
+         startIndex=endIndex+1;
+       } else if(oneComm[endIndex]==',' || endIndex+1==oneCommLength) { // command value paired with that time was just read
+         if(oneComm[endIndex]=='i') {
+           shouldInterpolate[commandIndex] = 1;
+         } else if(endIndex+1==oneCommLength) {
+          endIndex++;
+         }
+         if(endIndex==startIndex) return;
+         char commandValueC[endIndex-startIndex+1];
+         commandValueC[endIndex-startIndex] = '\0';
+         memcpy(commandValueC, &oneComm[startIndex], endIndex-startIndex);
+         float commandValue = atof(commandValueC);
+         if(plannedIndex<PLANNED_COMMANDS_SIZE) {
+           PLANNED_COMMANDS[plannedIndex].COMMAND_INDEX = commandIndex;
+           PLANNED_COMMANDS[plannedIndex].TIMESTAMP = timestamp;
+           PLANNED_COMMANDS[plannedIndex].COMMAND_VALUE = commandValue;
+           plannedIndex++;
+         }
+         startIndex=endIndex+1;
        }
-       if(endIndex==startIndex) return;
-       char commandValueC[endIndex-startIndex+1];
-       commandValueC[endIndex-startIndex] = '\0';
-       memcpy(commandValueC, COMMS_BUFFER[startIndex], endIndex-startIndex);
-       float commandValue = atof(commandValueC);
-       if(plannedIndex<PLANNED_COMMANDS_SIZE) {
-         PLANNED_COMMANDS[plannedIndex].COMMAND_INDEX = commandIndex;
-         PLANNED_COMMANDS[plannedIndex].TIMESTAMP = timestamp;
-         PLANNED_COMMANDS[plannedIndex].COMMAND_VALUE = commandValue;
-         plannedIndex++;
-       }
-       startIndex=endIndex+1;
+       endIndex++;
      }
-     endIndex++;
+     oneComm = strtok(NULL, " ");
    }
-   oneComm = strtok(NULL, " ");
+   std::sort(&PLANNED_COMMANDS[0],&PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE],compareTime);
  }
- std::sort(PLANNED_COMMANDS[0],PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE-1],compareTime);
-}
 
 /*
  * Function: checkPlans
@@ -129,16 +139,17 @@ void Avionics::checkPlans(uint32_t timeSinceLaunch) {
           if(PLANNED_COMMANDS[j].TIMESTAMP<=timeSinceLaunch) mostRecent=PLANNED_COMMANDS[j];
           else if(next.COMMAND_INDEX==-1) next=PLANNED_COMMANDS[j];
         }
+        j++;
       }
       if(mostRecent.COMMAND_INDEX!=-1) {
         float commandValue;
         if(shouldInterpolate[i]==1 && next.COMMAND_INDEX!=-1) {
-          commandValue = (mostRecent.COMMAND_VALUE - next.COMMAND_VALUE) /
-            (mostRecent.TIMESTAMP - next.TIMESTAMP) * (timeSinceLaunch-mostRecent.TIMESTAMP);
+          commandValue = ((next.COMMAND_VALUE - mostRecent.COMMAND_VALUE) /
+            (next.TIMESTAMP - mostRecent.TIMESTAMP) * (timeSinceLaunch-mostRecent.TIMESTAMP)) + mostRecent.COMMAND_VALUE;
         } else {
           commandValue = mostRecent.COMMAND_VALUE;
         }
-        updateConstant(i, value);
+        updateConstant(i, commandValue);
       }
     }
   }

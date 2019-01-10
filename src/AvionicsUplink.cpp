@@ -118,7 +118,7 @@ bool compareTime(PlannedCommand command1, PlannedCommand command2) {
  * -------------------
  * This function checks the plans to see if anything needs to be updated, given the current time since launch.
  */
-void checkPlans(uint32_t timeSinceLaunch) {
+void Avionics::checkPlans(uint32_t timeSinceLaunch) {
   for(uint8_t i=0; i<126; i++) {
     if(hasPlans[i]==1) {
       PlannedCommand mostRecent = {-1,1,1};

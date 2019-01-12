@@ -227,7 +227,7 @@ SunsetPredictor::SunsetPredictor(){
 }
 
 void SunsetPredictor::calcValues(float lon, float lat, GPSTime gpsTime, double extra_seconds) {
-    spa.longitude = lon;
+    spa.longitude = fmod(lon,360.0);
     spa.latitude = lat;
 
     double jd = julian_day(gpsTime.year, gpsTime.month, gpsTime.day, gpsTime.hour, gpsTime.minute, gpsTime.second, 0, 0);

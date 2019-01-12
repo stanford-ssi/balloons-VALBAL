@@ -24,13 +24,15 @@ void PastaSim::init(){
     conf.gtime.hour = 10;
     conf.gtime.minute = 0;
     conf.gtime.second = 0;
+    unix_offset = 1514800800;
 }
 
 float PastaSim::evolve(float  action){
-	time += 1000/conf.freq;
+	time += round(1000./conf.freq);
 	if((time/conf.sun_calc_interval >= sun_pred_ctr) && conf.nightfall){
 		sunpred.calcValues(conf.lon, conf.lat, conf.gtime, time/1000);
 		sunset_dldt = sunpred.estimated_dldt;
+		//printf("yo:%ld,%d,%d,%f,%f,%f\n",time/1000,conf.sun_calc_interval,sun_pred_ctr,sunset_dldt,conf.lon, conf.lat);
 		sun_pred_ctr++;
 	}
 	action = action/1000;

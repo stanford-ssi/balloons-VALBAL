@@ -30,7 +30,7 @@ public:
     float effort               =   0;
     float effort_sum           =   0;
     float effort_ratio         =   0;    
-    float val_dldt               =   0;
+    float val_dldt             =   0;
     float h_rel_last           =   0;
     Status status              =   PRELAUNCH;
   } State;
@@ -45,13 +45,13 @@ public:
   typedef struct __attribute__((packed)) {
     float gain                 =   0.14/1000;   // Total gain magnititude (g / m)
     float damping              =   1.2;         // damping ratio (unitless)
-    float v_gain               =   0;           // velocity gain (g/s / m/s) 
-    float h_gain               =   0;           // altitude gain (m/s / km)
+    float v_gain_override      =   0;           // velocity gain (g/s / m/s) 
+    float h_gain_override      =   0;           // altitude gain (m/s / km)
     float bal_dldt             =   0.666;       // balast dl/dt (g / s)
-    float val_dldt_a           =   0;           
-    float val_dldt_b           =   3;           // valve dl/dt (g / s))
-    float bal_tmin             =   2;           // minimum ballast event time (s)
-    float val_tmin             =   3;           // minimum valve event time (s)
+    float val_dldt_slope       =   0;           
+    float val_dldt_intercept   =   3;           // valve dl/dt (g / s))
+    float bal_min_t            =   2;           // minimum ballast event time (s)
+    float val_min_t            =   3;           // minimum valve event time (s)
     float setpoint             =   13500;       // altidute comand (m)
     float tolerance            =   750;         // comand tollerance (m)
     float k_drag               =   0.006;       // drag constant, (m/s / g)
@@ -70,7 +70,6 @@ public:
   Constants getConstants();
 private:
   float freq = 20;          // Control Freqency (Hz)
-  void calcGains();
   void outerLoop();
   void innerLoop(float input_h);
   Constants constants;

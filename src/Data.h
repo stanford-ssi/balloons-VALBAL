@@ -73,6 +73,7 @@ struct DataFrame {
   float      SPEED_GPS                       =                                0;
   float      HEADING_GPS                     =                                0;
   SunsetPredictor::GPSTime GPS_TIME;
+  float      LAUNCH_TIME                     =                                0;
   bool SWITCH_TO_MANUAL = false;
   float      ALTITUDE_OFFSET                 =                                0;
   float      ALTITUDE_OFFSET_GAIN            =                             4e-5;

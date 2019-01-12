@@ -130,6 +130,7 @@ private:
   void    shitlUpdate();
   void    serialMonitorUpdate();
   int     numExecReset();
+  uint32_t    getTimeSinceLaunch();
 
 /*********************************  OBJECTS  **********************************/
 

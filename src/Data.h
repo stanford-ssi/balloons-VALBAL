@@ -81,6 +81,8 @@ struct DataFrame {
   float      RE_ARM_CONSTANT                 =                   RE_ARM_DEFAULT;
   float      VALVE_ALT_LAST                  =           VALVE_ALT_LAST_DEFAULT;
   float      BALLAST_ALT_LAST                =         BALLAST_ALT_LAST_DEFAULT;
+  int        BALLAST_ENCODER_COUNT           =                                0;
+  int        VALVE_ENCODER_COUNT             =                                0;
 
   uint8_t    CURRENT_CONTROLLER_INDEX        =         CONTROLLER_INDEX_DEFAULT;
 

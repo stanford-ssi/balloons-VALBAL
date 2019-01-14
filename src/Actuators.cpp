@@ -1,5 +1,4 @@
 /*
-  Stanford Student Space Initiative
   Balloons | VALBAL | December 2017
   Davy Ragland | dragland@stanford.edu
   Claire Huang | chuang20@stanford.edu
@@ -12,6 +11,7 @@
 */
 
 #include "Actuators.h"
+
 
 //#define JANKSHITL
 
@@ -47,14 +47,16 @@ static int bal_fwd = 0;
 static int bal_rev = 0;
 
 auto pwm_fn = [&](){
-val_ctr++; val_ctr = val_ctr % n_cts;
-bal_ctr++; bal_ctr = bal_ctr % n_cts;
-digitalWriteFast(VALVE_FORWARD,(val_fwd==1)||((val_fwd==2)&&(val_ctr<val_duty)));
-digitalWriteFast(VALVE_REVERSE,(val_rev==1)||((val_rev==2)&&(val_ctr<val_duty)));
-digitalWriteFast(BALLAST_FORWARD,(bal_fwd==1)||((bal_fwd==2)&&(bal_ctr<bal_duty)));
-digitalWriteFast(BALLAST_REVERSE,(bal_rev==1)||((bal_rev==2)&&(bal_ctr<bal_duty)));
+  val_ctr++; val_ctr = val_ctr % n_cts;
+  bal_ctr++; bal_ctr = bal_ctr % n_cts;
+  digitalWriteFast(VALVE_FORWARD,(val_fwd==1)||((val_fwd==2)&&(val_ctr<val_duty)));
+  digitalWriteFast(VALVE_REVERSE,(val_rev==1)||((val_rev==2)&&(val_ctr<val_duty)));
+  digitalWriteFast(BALLAST_FORWARD,(bal_fwd==1)||((bal_fwd==2)&&(bal_ctr<bal_duty)));
+  digitalWriteFast(BALLAST_REVERSE,(bal_rev==1)||((bal_rev==2)&&(bal_ctr<bal_duty)));
 };
 
+static Encoder balenc(BALLAST_ENCA, BALLAST_ENCB);
+static Encoder valenc(VALVE_ENCA, VALVE_ENCB);
 
 /**********************************  SETUP  ***********************************/
 /*
@@ -68,6 +70,12 @@ void Actuators::init() {
   pinMode(BALLAST_FORWARD,  OUTPUT);
   pinMode(BALLAST_REVERSE,  OUTPUT);
   pinMode(CUTDOWN_POWER,    OUTPUT);
+  pinMode(BALLAST_ENCPWR,   OUTPUT);
+  pinMode(VALVE_ENCPWR,     OUTPUT);
+  //pinMode(BALLAST_ENCA,     INPUT);
+  //pinMode(VALVE_ENCA,       INPUT);
+  //pinMode(BALLAST_ENCB,     INPUT);
+  //pinMode(VALVE_ENCB,       INPUT);
   //pinMode(CUTDOWN_SIGNAL,   OUTPUT);
   digitalWrite(CUTDOWN_POWER, LOW);
   //digitalWrite(CUTDOWN_SIGNAL, LOW);
@@ -150,6 +158,7 @@ void Actuators::play() {
  * Called every loop; updates and acts on the current state of the valve.
  */
 bool Actuators::checkValve(float current) {
+  digitalWriteFast(VALVE_ENCPWR, 1); // Valve encoder always on so that counts don't get missed
   if (paused) return valveState != CLOSED;
   // Serial.print("Called checkValve with ");
   // Serial.print(valveQueue);
@@ -190,6 +199,8 @@ bool Actuators::checkValve(float current) {
     valveState = CLOSED;
     stopValve();
   }
+
+  valenc_count = valenc.read();
   return valveState != CLOSED;
 }
 
@@ -243,6 +254,27 @@ bool Actuators::checkBallast(float current, uint32_t reverseTimeout, uint16_t st
       stopBallast();
     }
   }
+  /*
+  long bal_enc = balenc.read(); 
+  bool a1 = digitalRead(BALLAST_ENCA);
+  bool a2 = digitalRead(BALLAST_ENCB);
+  digitalWrite(VALVE_ENCPWR, 1);
+  digitalWrite(BALLAST_ENCPWR, 1);
+  bool v1 = digitalRead(VALVE_ENCA);
+  bool v2 = digitalRead(VALVE_ENCB);
+  Serial.print("Enc = ");
+  Serial.println(bal_enc);
+  Serial.print(a1);
+  Serial.print(", ");
+  Serial.println(a2);
+  Serial.print(v1);
+  Serial.print(", ");
+  Serial.println(v2);
+  */
+
+  long balenc_count = balenc.read();
+  balenc_sum += abs(balenc_count_prev - balenc_count);
+  balenc_count_prev = balenc_count;
   return ballastState != CLOSED;
 }
 
@@ -348,6 +380,7 @@ void Actuators::closeValve() {
  * This function stops the ballast.
  */
 void Actuators::stopBallast() {
+  digitalWriteFast(BALLAST_ENCPWR, 0);
   bal_fwd = 0;
   bal_rev = 0;
 }
@@ -358,6 +391,7 @@ void Actuators::stopBallast() {
  * This function drops ballast.
  */
 void Actuators::dropBallast(bool direction) {
+  digitalWriteFast(BALLAST_ENCPWR, 1);
   if (direction) {
     bal_fwd = 2;
     bal_rev = 0;

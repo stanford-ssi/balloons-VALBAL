@@ -15,6 +15,7 @@
 
 #include "Config.h"
 #include <EEPROM.h>
+#include <Encoder.h>
 #include "spa.h"
 
 class Actuators {
@@ -45,6 +46,11 @@ public:
 
   void pause();
   void play();
+
+  long balenc_count_prev = 0;
+  long balenc_sum = 0;
+  long valenc_count = 0;
+
 
 private:
 /*********************************  HELPERS  **********************************/

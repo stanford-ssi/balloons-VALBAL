@@ -118,6 +118,9 @@ delay(1000);*/
   pixels.show();*/
   sixtyScoreRevolutionsPerMinute.priority(16);
   sixtyScoreRevolutionsPerMinute.begin(rpmCounter, 50000);
+
+  actuator.queueBallast(1000000, true);
+
 }
 
 /*

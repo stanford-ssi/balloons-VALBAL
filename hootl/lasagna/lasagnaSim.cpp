@@ -19,7 +19,7 @@ void equil20Hz(){
 	const float freq = 1;
 	fstream f ("data.bin", std::fstream::in | std::fstream::binary);
 	fstream o ("output.bin", std::fstream::out | std::fstream::binary);
-	PastaSim sim;
+	PastaSim sim(1);
 	sim.conf.nightfall = true;
 	sim.conf.freq = freq;
 	sim.h = 0;
@@ -27,11 +27,12 @@ void equil20Hz(){
 	CONTROLLER las(freq);
 	LasagnaController::Constants c;
 	c.tolerance = 1000;
+	c.gain = 0.14/1000;
+	c.damping = 1.2;
 	las.updateConstants(c);
-	printf("%f %f \n",las.getConstants().h_gain,las.getConstants().k_drag);
 	miniframe data;
 	float v_cmd = 0;
-	int dur = 60*60*24*100*freq;
+	int dur = 60*60*24*5*freq;
 	int act_sum = 0;
 	float bal_sum = 0;
 	for(int i = 0; i < 60*60*20*4; i++){
@@ -164,6 +165,6 @@ void exampleSim(){
 
 int main ()
 {
-	exampleSim();
-	//equil20Hz();
+	//exampleSim();
+	equil20Hz();
 }

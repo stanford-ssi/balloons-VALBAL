@@ -38,16 +38,18 @@ void Avionics::parseCommand(int16_t len) {
       data.SHOULD_CUTDOWN = true;
     }
     if (index < 0 || index > 128) return;
-    for(uint8_t j=0; j<PLANNED_COMMANDS_SIZE; j++) {
-      if(PLANNED_COMMANDS[j].COMMAND_INDEX==index) {
-        PLANNED_COMMANDS[j].COMMAND_INDEX = -1;
-        PLANNED_COMMANDS[j].TIMESTAMP = UINT32_MAX;
-        PLANNED_COMMANDS[j].COMMAND_VALUE = -1;
-      }
-    } // erases all planned commands for that index
-    std::sort(&PLANNED_COMMANDS[0],&PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE],compareTime); // re-sorts the array
-    shouldInterpolate[index] = 0; // resets shouldInterpolate for that index
-    hasPlans[index] = 0; // resets hasPlans for that index
+    if(hasPlans[index]==1) {
+      for(uint8_t j=0; j<PLANNED_COMMANDS_SIZE; j++) {
+        if(PLANNED_COMMANDS[j].COMMAND_INDEX==index) {
+          PLANNED_COMMANDS[j].COMMAND_INDEX = -1;
+          PLANNED_COMMANDS[j].TIMESTAMP = UINT32_MAX;
+          PLANNED_COMMANDS[j].COMMAND_VALUE = -1;
+        }
+      } // erases all planned commands for that index
+      std::sort(&PLANNED_COMMANDS[0],&PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE],compareTime); // re-sorts the array
+      shouldInterpolate[index] = 0; // resets shouldInterpolate for that index
+      hasPlans[index] = 0; // resets hasPlans for that index
+    }
     char* charAfterNumbers;
     float commandValue = (float) strtod(commandStrings[i], &charAfterNumbers);
     if (*charAfterNumbers) return;
@@ -73,13 +75,6 @@ bool Avionics::compareTime(PlannedCommand command1, PlannedCommand command2) {
  * This function parses planned commands received from the RockBLOCK and places them in an array.
  */
  void Avionics::parseCommandNew() {
-   for(uint8_t i=0; i<PLANNED_COMMANDS_SIZE; i++) {
-     PLANNED_COMMANDS[i].COMMAND_INDEX = -1;
-     PLANNED_COMMANDS[i].TIMESTAMP = UINT32_MAX;
-     PLANNED_COMMANDS[i].COMMAND_VALUE = -1;
-   } // erases all planned commands
-   memset(shouldInterpolate, 0, sizeof(shouldInterpolate)); // resets shouldInterpolate
-   memset(hasPlans, 0, sizeof(hasPlans)); // resets hasPlans
    uint32_t plannedIndex = 0;
    char *oneComm;
    oneComm = strtok(COMMS_BUFFER," ");
@@ -97,6 +92,18 @@ bool Avionics::compareTime(PlannedCommand command1, PlannedCommand command2) {
          memcpy(commandIndexC, &oneComm[startIndex], endIndex-startIndex);
          commandIndex = atoi(commandIndexC);
          if (commandIndex < 0 || commandIndex > 125) return;
+         if(hasPlans[commandIndex]==1) {
+           for(uint8_t j=0; j<PLANNED_COMMANDS_SIZE; j++) {
+             if(PLANNED_COMMANDS[j].COMMAND_INDEX==commandIndex) {
+               PLANNED_COMMANDS[j].COMMAND_INDEX = -1;
+               PLANNED_COMMANDS[j].TIMESTAMP = UINT32_MAX;
+               PLANNED_COMMANDS[j].COMMAND_VALUE = -1;
+             }
+           } // erases all planned commands for that index
+           std::sort(&PLANNED_COMMANDS[0],&PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE],compareTime); // re-sorts the array
+           shouldInterpolate[commandIndex] = 0; // resets shouldInterpolate for that index
+           hasPlans[commandIndex] = 0; // resets hasPlans for that index
+         }
          hasPlans[commandIndex] = 1;
          startIndex=endIndex+1;
        } else if(oneComm[endIndex]==':') { // a timestamp was just read

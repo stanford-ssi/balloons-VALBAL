@@ -185,6 +185,10 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.LONG_GPS_MANUAL,                   -180,     180,  22,  lengthBits);
     lengthBits += compressVariable(data.GPS_MANUAL_MODE,                      0,       1,   1,  lengthBits);
     lengthBits += compressVariable(data.GPS_MANUAL_MODE_OVERRIDE,             0,       1,   1,  lengthBits);
+
+    for(uint8_t i=0; i<NUM_INDEXES; i++) {
+      lengthBits += compressVariable(hasPlans[i],                             0,       1,   1,  lengthBits);
+    }
   }
   lengthBits += 8 - (lengthBits % 8);
   lengthBytes = lengthBits / 8;

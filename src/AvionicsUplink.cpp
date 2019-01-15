@@ -85,7 +85,16 @@ bool Avionics::compareTime(PlannedCommand command1, PlannedCommand command2) {
      uint8_t startIndex = 1;
      uint8_t endIndex = 1;
      while(endIndex < oneCommLength) {
-       if(oneComm[endIndex]=='#') { // using '#' as deliminator between commandIndex and commands
+       if(oneComm[endIndex]=='c') { // clear all planned commands
+         for(uint8_t i=0; i<PLANNED_COMMANDS_SIZE; i++) {
+           PLANNED_COMMANDS[i].COMMAND_INDEX = -1;
+           PLANNED_COMMANDS[i].TIMESTAMP = UINT32_MAX;
+           PLANNED_COMMANDS[i].COMMAND_VALUE = -1;
+         } // erases all planned commands
+         memset(shouldInterpolate, 0, sizeof(shouldInterpolate)); // resets shouldInterpolate
+         memset(hasPlans, 0, sizeof(hasPlans)); // resets hasPlans
+         break;
+       } else if(oneComm[endIndex]=='#') { // using '#' as deliminator between commandIndex and commands
          if(endIndex==startIndex) return;
          char commandIndexC[endIndex-startIndex+1];
          commandIndexC[endIndex-startIndex] = '\0';

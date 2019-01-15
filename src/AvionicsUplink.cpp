@@ -160,8 +160,14 @@ void Avionics::checkPlans(uint32_t timeSinceLaunch) {
       PlannedCommand next = {-1,1,1};
       for(uint8_t j=0; j<PLANNED_COMMANDS_SIZE; j++) {
         if(PLANNED_COMMANDS[j].COMMAND_INDEX==i) {
-          if(PLANNED_COMMANDS[j].TIMESTAMP<=timeSinceLaunch) mostRecent=PLANNED_COMMANDS[j];
-          else if(next.COMMAND_INDEX==-1) {
+          if(PLANNED_COMMANDS[j].TIMESTAMP<=timeSinceLaunch) {
+            mostRecent=PLANNED_COMMANDS[j];
+            if(shouldInterpolate[i]==0) {
+              PLANNED_COMMANDS[j].COMMAND_INDEX = -1;
+              PLANNED_COMMANDS[j].TIMESTAMP = UINT32_MAX;
+              PLANNED_COMMANDS[j].COMMAND_VALUE = -1;
+            }
+          } else if(next.COMMAND_INDEX==-1) {
             next=PLANNED_COMMANDS[j];
             break;
           }
@@ -177,6 +183,7 @@ void Avionics::checkPlans(uint32_t timeSinceLaunch) {
         }
         updateConstant(i, commandValue);
       }
+      if(shouldInterpolate[i]==0) std::sort(&PLANNED_COMMANDS[0],&PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE],compareTime);
     }
   }
 }

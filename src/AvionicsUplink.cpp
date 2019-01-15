@@ -15,13 +15,6 @@ void Avionics::parseCommand(int16_t len) {
     parseCommandNew();
     return;
   }
-  for(uint8_t i=0; i<PLANNED_COMMANDS_SIZE; i++) {
-    PLANNED_COMMANDS[i].COMMAND_INDEX = -1;
-    PLANNED_COMMANDS[i].TIMESTAMP = UINT32_MAX;
-    PLANNED_COMMANDS[i].COMMAND_VALUE = -1;
-  } // erases all planned commands
-  memset(shouldInterpolate, 0, sizeof(shouldInterpolate)); // resets shouldInterpolate
-  memset(hasPlans, 0, sizeof(hasPlans)); // resets hasPlans
   const char* commandStrFormat = "%d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s";
   uint8_t commandIndexes[8] = {0};
   char commandStrings[8][100] = {{0},{0},{0},{0},{0},{0},{0},{0}};
@@ -45,6 +38,16 @@ void Avionics::parseCommand(int16_t len) {
       data.SHOULD_CUTDOWN = true;
     }
     if (index < 0 || index > 128) return;
+    for(uint8_t j=0; j<PLANNED_COMMANDS_SIZE; j++) {
+      if(PLANNED_COMMANDS[j].COMMAND_INDEX==index) {
+        PLANNED_COMMANDS[j].COMMAND_INDEX = -1;
+        PLANNED_COMMANDS[j].TIMESTAMP = UINT32_MAX;
+        PLANNED_COMMANDS[j].COMMAND_VALUE = -1;
+      }
+    } // erases all planned commands for that index
+    std::sort(&PLANNED_COMMANDS[0],&PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE],compareTime); // re-sorts the array
+    shouldInterpolate[index] = 0; // resets shouldInterpolate for that index
+    hasPlans[index] = 0; // resets hasPlans for that index
     char* charAfterNumbers;
     float commandValue = (float) strtod(commandStrings[i], &charAfterNumbers);
     if (*charAfterNumbers) return;
@@ -53,7 +56,13 @@ void Avionics::parseCommand(int16_t len) {
   }
 }
 
-bool compareTime(PlannedCommand command1, PlannedCommand command2) {
+/*
+ * Function: compareTime
+ * -------------------
+ * This function compares the time of PlannedCommand structs for sorting. It sorts by command index if two
+ * planned commands have the same time.
+ */
+bool Avionics::compareTime(PlannedCommand command1, PlannedCommand command2) {
   if(command1.TIMESTAMP==command2.TIMESTAMP) return (command1.COMMAND_INDEX<command2.COMMAND_INDEX);
   return (command1.TIMESTAMP<command2.TIMESTAMP);
 }
@@ -129,17 +138,18 @@ bool compareTime(PlannedCommand command1, PlannedCommand command2) {
  * This function checks the plans to see if anything needs to be updated, given the current time since launch.
  */
 void Avionics::checkPlans(uint32_t timeSinceLaunch) {
-  for(uint8_t i=0; i<126; i++) {
+  for(uint8_t i=0; i<NUM_INDEXES; i++) {
     if(hasPlans[i]==1) {
       PlannedCommand mostRecent = {-1,1,1};
       PlannedCommand next = {-1,1,1};
-      uint8_t j = 0;
-      while(j<PLANNED_COMMANDS_SIZE) {
+      for(uint8_t j=0; j<PLANNED_COMMANDS_SIZE; j++) {
         if(PLANNED_COMMANDS[j].COMMAND_INDEX==i) {
           if(PLANNED_COMMANDS[j].TIMESTAMP<=timeSinceLaunch) mostRecent=PLANNED_COMMANDS[j];
-          else if(next.COMMAND_INDEX==-1) next=PLANNED_COMMANDS[j];
+          else if(next.COMMAND_INDEX==-1) {
+            next=PLANNED_COMMANDS[j];
+            break;
+          }
         }
-        j++;
       }
       if(mostRecent.COMMAND_INDEX!=-1) {
         float commandValue;

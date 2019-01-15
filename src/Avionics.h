@@ -105,6 +105,7 @@ private:
 
   bool    sendSATCOMS();
   void    parseCommand(int16_t len);
+  bool    compareTime(PlannedCommand command1, PlannedCommand command2);
   void    parseCommandNew();
   void    checkPlans(uint32_t timeSinceLaunch);
   void    updateConstant(uint8_t index, float value);
@@ -143,8 +144,9 @@ private:
 
   static const uint8_t PLANNED_COMMANDS_SIZE = 32;
   PlannedCommand PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE];
-  uint8_t shouldInterpolate[126] = {0};
-  uint8_t hasPlans[126] = {0};
+  static const uint8_t NUM_INDEXES = 126;
+  uint8_t shouldInterpolate[NUM_INDEXES] = {0};
+  uint8_t hasPlans[NUM_INDEXES] = {0};
   char COMMS_BUFFER[COMMS_BUFFER_SIZE];
   DataFrame data;
   Logger log;

@@ -142,7 +142,7 @@ int Filters::consensus_check(float *pressures, float max_dev) {
 
 void Filters::update_current_motors(float current, bool valve, bool ballast) {
   if (valve) current_valve.update(current);
-  if (ballast) current_ballast.update(ballast);
+  if (ballast) current_ballast.update(current);
 }
 
 void Filters::clear() {

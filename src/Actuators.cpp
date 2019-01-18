@@ -17,7 +17,19 @@
 
 //extern float Slift;
 
+void boopBoop() {
+	analogWrite(CUTDOWN_FWD, 128);
+}
+void Boopboop() {
+	analogWrite(CUTDOWN_FWD, 0);
+}
 
+void dootDoot() {
+	analogWrite(CUTDOWN_REV, 128);
+}
+void Dootdoot() {
+	analogWrite(CUTDOWN_REV, 0);
+}
 
 #define analogWrite(VALVE_FORWARD, HIGH); val_fwd=0;
 #define analogWrite(VALVE_REVERSE, HIGH); val_rev=0;
@@ -36,8 +48,8 @@
 
 static IntervalTimer sw_pwm;
 static const int n_cts = 10;
-int val_duty = 10;
-int bal_duty = 9;
+int val_duty = 4;
+int bal_duty = 6;
 static int val_ctr = 0;
 static int bal_ctr = 0;
 // 0 is off, 1 is high, 2 is pwm
@@ -300,11 +312,26 @@ void Actuators::cutDown() {
   Serial.println("starting cutdown...");
   clearValveQueue();
   clearBallastQueue();
+#ifdef MOTOR_CUTDOWN
+Serial.println("heyyy doing motor cutdown");
+Serial.println(CUTDOWN_FWD);
+Serial.println(CUTDOWN_REV);
+pinMode(CUTDOWN_FWD, OUTPUT);
+pinMode(CUTDOWN_REV, OUTPUT);
+	boopBoop();
+	delay(2000);
+	Boopboop();
+	delay(2000);
+	dootDoot();
+	delay(2000);
+	Dootdoot();
+#else
   digitalWrite(CUTDOWN_POWER, HIGH);
   //digitalWrite(CUTDOWN_SIGNAL, HIGH);
   delay(CUTDOWN_DURATION);
   digitalWrite(CUTDOWN_POWER, LOW);
   //digitalWrite(CUTDOWN_SIGNAL, LOW);
+#endif
   Serial.println("cutdown completed.");
 }
 

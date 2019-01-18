@@ -23,6 +23,8 @@
 //#define RB_DISABLED_FLAG  // uncomment to disable rockblock
 //#define WIPE_SD_CARD_YOLO // uncomment to wipe the SD card
 
+#define MOTOR_CUTDOWN
+
 #ifndef JOHNSIM
   #include "ConfigHardware.h"
 #endif
@@ -67,7 +69,7 @@ static const float     RE_ARM_DEFAULT                        =                0;
 static const float     BALLAST_ARM_ALT_DEFAULT               =          13250.0;
 static const float     BALLAST_ALT_LAST_FILLER               =          14000.0;
 static const uint32_t  BALLAST_REVERSE_INTERVAL_DEFAULT      =           300000;
-static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              200;
+static const uint16_t  BALLAST_STALL_CURRENT_DEFAULT         =              150;
 
 static const float     VALVE_SETPOINT_DEFAULT                =          14500.0;
 static const uint32_t  VALVE_VENT_DURATION_DEFAULT           =            20000;

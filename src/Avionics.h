@@ -105,7 +105,7 @@ private:
 
   bool    sendSATCOMS();
   void    parseCommand(int16_t len);
-  bool    compareTime(PlannedCommand command1, PlannedCommand command2);
+  static bool    compareTime(PlannedCommand command1, PlannedCommand command2);
   void    parseCommandNew();
   void    checkPlans(uint32_t timeSinceLaunch);
   void    updateConstant(uint8_t index, float value);

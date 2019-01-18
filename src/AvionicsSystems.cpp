@@ -269,10 +269,13 @@ __always_inline void mkone() {
 }
 
 __always_inline void mkled() {
-	for (int i=0; i<3; i++) {
+	/*for (int i=0; i<3; i++) {
 		//mkzero(); mkone(); mkone(); mkzero(); mkone(); mkzero(); mkone(); mkone();
 		mkone();mkone();mkone();mkone();mkone();mkone();mkone();mkone();
-	}
+	}*/
+	mkzero();mkzero();mkzero();mkzero();mkzero();mkzero();mkzero();mkzero();
+	mkone();mkone();mkone();mkone();mkone();mkone();mkone();mkone();
+	mkzero();mkzero();mkzero();mkzero();mkzero();mkzero();mkzero();mkzero();
 }
 __always_inline void mknoled() {
 	for (int i=0; i<3; i++) {
@@ -293,7 +296,7 @@ bool Avionics::runLED() {
 	delayMicroseconds(100);
 
 	int doot = data.LOOP_NUMBER % 30;
-	if (!data.POWER_STATE_LED || doot < 20) {
+	if (data.POWER_STATE_LED && doot < 15) {
 		mkled();
 	} else {
 		//Serial.println("mking led");

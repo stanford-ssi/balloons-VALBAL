@@ -269,7 +269,7 @@ bool Actuators::checkBallast(float current, uint32_t reverseTimeout, uint16_t st
     }
   }
   /*
-  long bal_enc = balenc.read(); 
+  long bal_enc = balenc.read();
   bool a1 = digitalRead(BALLAST_ENCA);
   bool a2 = digitalRead(BALLAST_ENCB);
   digitalWrite(VALVE_ENCPWR, 1);
@@ -360,10 +360,11 @@ pinMode(CUTDOWN_REV, OUTPUT);
 	delay(2000);
 	Dootdoot();
 #else
-  digitalWrite(CUTDOWN_POWER, HIGH);
+	pinMode(CUTDOWN_POWER, OUTPUT);
+  digitalWriteFast(CUTDOWN_POWER, HIGH);
   //digitalWrite(CUTDOWN_SIGNAL, HIGH);
   delay(CUTDOWN_DURATION);
-  digitalWrite(CUTDOWN_POWER, LOW);
+  digitalWriteFast(CUTDOWN_POWER, LOW);
   //digitalWrite(CUTDOWN_SIGNAL, LOW);
 #endif
   Serial.println("cutdown completed.");

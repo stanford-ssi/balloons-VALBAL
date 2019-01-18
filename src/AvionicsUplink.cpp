@@ -11,7 +11,7 @@
 void Avionics::parseCommand(int16_t len) {
   Serial.println("Got stuff");
   COMMS_BUFFER[len] = 0;
-  if(COMMS_BUFFER[0]=='$') {
+  if(COMMS_BUFFER[0]=='P') {
     parseCommandNew();
     return;
   }
@@ -55,6 +55,10 @@ void Avionics::parseCommand(int16_t len) {
     if (*charAfterNumbers) return;
     Serial.println(commandValue);
     updateConstant(index, commandValue);
+		Serial.print("LEGACY VARIABLE UPDATE ");
+		Serial.print(index);
+		Serial.print(" to ");
+		Serial.println(commandValue);
   }
 }
 
@@ -94,7 +98,7 @@ bool Avionics::compareTime(PlannedCommand command1, PlannedCommand command2) {
          memset(shouldInterpolate, 0, sizeof(shouldInterpolate)); // resets shouldInterpolate
          memset(hasPlans, 0, sizeof(hasPlans)); // resets hasPlans
          break;
-       } else if(oneComm[endIndex]=='#') { // using '#' as deliminator between commandIndex and commands
+       } else if(oneComm[endIndex]=='Q') { // using 'Q' as deliminator between commandIndex and commands
          if(endIndex==startIndex) return;
          char commandIndexC[endIndex-startIndex+1];
          commandIndexC[endIndex-startIndex] = '\0';
@@ -115,7 +119,7 @@ bool Avionics::compareTime(PlannedCommand command1, PlannedCommand command2) {
          }
          hasPlans[commandIndex] = 1;
          startIndex=endIndex+1;
-       } else if(oneComm[endIndex]==':') { // a timestamp was just read
+       } else if(oneComm[endIndex]=='R') { // a timestamp was just read
          if(endIndex==startIndex) return;
          char timestampC[endIndex-startIndex+1];
          timestampC[endIndex-startIndex] = '\0';
@@ -178,10 +182,18 @@ void Avionics::checkPlans(uint32_t timeSinceLaunch) {
         if(shouldInterpolate[i]==1 && next.COMMAND_INDEX!=-1) {
           commandValue = ((next.COMMAND_VALUE - mostRecent.COMMAND_VALUE) /
             (next.TIMESTAMP - mostRecent.TIMESTAMP) * (timeSinceLaunch-mostRecent.TIMESTAMP)) + mostRecent.COMMAND_VALUE;
+					// Serial.print("INTERPOLATING VALUE ");
+					// Serial.print(commandValue);
+					// Serial.print(" for variable ");
+					// Serial.println(i);
         } else {
           commandValue = mostRecent.COMMAND_VALUE;
         }
         updateConstant(i, commandValue);
+				// Serial.println("Updated variable ");
+				// Serial.print(i);
+				// Serial.println(" to value ");
+				// Serial.println(commandValue);
       }
       if(shouldInterpolate[i]==0) std::sort(&PLANNED_COMMANDS[0],&PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE],compareTime);
     }
@@ -199,10 +211,6 @@ void Avionics::checkPlans(uint32_t timeSinceLaunch) {
 	 extern int val_duty;
 
 void Avionics::updateConstant(uint8_t index, float value) {
-  Serial.print("UPDATE COSNTANTS CALLED: ");
-  Serial.print(index);
-  Serial.print(" , ");
-  Serial.println(value);
   if      (index ==  0) data.VALVE_ALT_LAST = value; // Altitude During Last Venting Event | meters
   else if (index ==  1) data.BALLAST_ALT_LAST = value; // Altitude During Last Ballast Event | meters
   else if (index ==  2) data.VALVE_SETPOINT = value; // Valve Setpoint | meters

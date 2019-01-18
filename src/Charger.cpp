@@ -20,6 +20,7 @@
  * This function initializes the PCB hardware.
  */
 bool Charger::init() {
+	Serial.println("hellooooooooooooooooooooooo!");
   pinMode(SUPER_CAP_ENABLE, OUTPUT);
   pinMode(FIVE_VOLT_ENABLE, OUTPUT);
   //digitalWrite(SUPER_CAP_ENABLE, LOW);
@@ -27,6 +28,7 @@ bool Charger::init() {
   digitalWrite(FIVE_VOLT_ENABLE, LOW);
 	pinMode(POT_CS, OUTPUT);
 	SPI.begin();
+	runChargerPID(0, 20);
   /*if (resistor.init()){
     chargingLimit = 3;
     digitalWrite(SUPER_CAP_ENABLE, HIGH);

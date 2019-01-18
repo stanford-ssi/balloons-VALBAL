@@ -152,7 +152,8 @@ void Avionics::updateSunValues() {
  * -------------------
  * Returns time since launch. If launch has not occured, it returns 0.
  */
-void Avionics::getTimeSinceLaunch(){
+uint32_t Avionics::getTimeSinceLaunch(){
+	return millis()/1000;
   if(!data.LAUNCH_TIME) return 0;
   return (millis() - data.LAUNCH_TIME)/1000;
 }

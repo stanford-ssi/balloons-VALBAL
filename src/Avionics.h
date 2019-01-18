@@ -180,6 +180,9 @@ private:
   void timedCutdown();
   void runDeadMansSwitch();
   void updateSunValues();
+
+  long pretransmission_balenc_count;
+  long last_balenc_count = 0;
 };
 
 

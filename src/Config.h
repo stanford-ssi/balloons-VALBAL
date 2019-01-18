@@ -91,6 +91,7 @@ static const uint16_t  BALLAST_MOTOR_SPEED_DEFAULT           =              255;
 static const uint32_t  VALVE_OPENING_DURATION_DEFAULT        =             1500;
 static const uint32_t  VALVE_CLOSING_DURATION_DEFAULT        =             2000;
 static const uint16_t  BALLAST_STALL_TIMEOUT                 =             3000;
+static const uint16_t  ENCODER_COUNTS_PER_REV                =             2100;
 
 static const float     DLDT_SCALE_DEFAULT                    =             0.0;
 

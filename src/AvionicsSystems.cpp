@@ -79,6 +79,7 @@ bool Avionics::runValve() {
   }
   data.VALVE_QUEUE = actuator.getValveQueue();
   data.VALVE_STATE = actuator.checkValve(data.CURRENT_MOTOR_VALVE);
+  data.VALVE_ENCODER_COUNT = actuator.valenc_count;
   return true;
 }
 
@@ -124,6 +125,7 @@ bool Avionics::runBallast() {
   data.BALLAST_QUEUE = actuator.getBallastQueue();
   data.BALLAST_NUM_OVERCURRENTS = actuator.getNumBallastOverCurrents();
   data.BALLAST_STATE = actuator.checkBallast(data.CURRENT_MOTOR_BALLAST, data.BALLAST_REVERSE_INTERVAL, data.BALLAST_STALL_CURRENT);
+  data.BALLAST_ENCODER_COUNT = actuator.balenc_sum/ENCODER_COUNTS_PER_REV;
   return true;
 }
 

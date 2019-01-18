@@ -31,6 +31,9 @@ int16_t Avionics::compressVariable(float var, float minimum, float maximum, int1
  * The total bitstream cannot exceed 400 bytes.
  */
 int16_t Avionics::compressData() {
+  pretransmission_balenc_count = actuator.balenc_sum;
+  float deltaBBs = (actuator.balenc_sum - last_balenc_count)/(68./(9*8)*150*7*2);
+
   int16_t lengthBits  = 0;
   int16_t lengthBytes = 0;
   for(uint16_t i = 0; i < COMMS_BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
@@ -141,6 +144,10 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(filter.v_filtered[0], -5, 5,  8,  lengthBits);
     lengthBits += compressVariable(filter.v_filtered[3], -5, 5,  8,  lengthBits);
     lengthBits += compressVariable(filter.v_filtered[4], -5, 5,  8,  lengthBits);
+	lengthBits += compressVariable(filter.val_delta.min, -8192, 8191, 12, lengthBits);
+	lengthBits += compressVariable(filter.val_delta.max, -8192, 8191, 12, lengthBits);
+	lengthBits += compressVariable(filter.val_delta.avg, -8192, 8191, 12, lengthBits);
+	lengthBits += compressVariable(deltaBBs, 0, 8192, 13, lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval

@@ -118,6 +118,9 @@ delay(1000);*/
   pixels.show();*/
   sixtyScoreRevolutionsPerMinute.priority(16);
   sixtyScoreRevolutionsPerMinute.begin(rpmCounter, 50000);
+
+  actuator.queueBallast(1000000, true);
+
 }
 
 /*
@@ -336,6 +339,7 @@ void Avionics::clearVariables() {
   data.LOOP_TIME_MAX = 0;
   data.RB_RESTARTS = 0;
   data.VOLTAGE_SUPERCAP_MIN = 314;
+  last_balenc_count = pretransmission_balenc_count;
   int len = sizeof(data.ACTION_TIME_TOTALS)/sizeof(data.ACTION_TIME_TOTALS[0]);
   for(int i=0; i < len; i++){
     data.ACTION_TIME_TOTALS[i] = 0;

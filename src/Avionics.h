@@ -38,8 +38,6 @@
 //#define SERIALMONITOR
 //#define SERIALSHITL_LEN 32
 
-
-
 // regualar min and max is not compatible with vector in std
 #define _min(a,b) ((a)<(b)?(a):(b))
 #define _max(a,b) ((a)>(b)?(a):(b))
@@ -77,6 +75,12 @@ public:
   void    sleep();
   bool    finishedSetup();
 
+  typedef struct __attribute__((packed)) {
+    int8_t COMMAND_INDEX;
+    uint32_t TIMESTAMP;
+    float COMMAND_VALUE;
+  } PlannedCommand;
+
 private:
 /*********************************  HELPERS  **********************************/
   bool    setupSDCard();
@@ -101,6 +105,9 @@ private:
 
   bool    sendSATCOMS();
   void    parseCommand(int16_t len);
+  bool    compareTime(PlannedCommand command1, PlannedCommand command2);
+  void    parseCommandNew();
+  void    checkPlans(uint32_t timeSinceLaunch);
   void    updateConstant(uint8_t index, float value);
   void    parseManualCommand(bool command);
   void    parseReportCommand(uint8_t command);
@@ -124,6 +131,7 @@ private:
   void    shitlUpdate();
   void    serialMonitorUpdate();
   int     numExecReset();
+  uint32_t    getTimeSinceLaunch();
 
 /*********************************  OBJECTS  **********************************/
 
@@ -134,6 +142,11 @@ private:
 
   int numExecNow = 0;
 
+  static const uint8_t PLANNED_COMMANDS_SIZE = 32;
+  PlannedCommand PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE];
+  static const uint8_t NUM_INDEXES = 126;
+  uint8_t shouldInterpolate[NUM_INDEXES] = {0};
+  uint8_t hasPlans[NUM_INDEXES] = {0};
   char COMMS_BUFFER[COMMS_BUFFER_SIZE];
   DataFrame data;
   Logger log;

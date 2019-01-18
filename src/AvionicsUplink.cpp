@@ -1,4 +1,7 @@
 #include "Avionics.h"
+#include <string.h>
+#include <cstring>
+#include <algorithm>
 
 /*
  * Function: parseCommand
@@ -8,6 +11,10 @@
 void Avionics::parseCommand(int16_t len) {
   Serial.println("Got stuff");
   COMMS_BUFFER[len] = 0;
+  if(COMMS_BUFFER[0]=='$') {
+    parseCommandNew();
+    return;
+  }
   const char* commandStrFormat = "%d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s %d,%s";
   uint8_t commandIndexes[8] = {0};
   char commandStrings[8][100] = {{0},{0},{0},{0},{0},{0},{0},{0}};
@@ -31,11 +38,153 @@ void Avionics::parseCommand(int16_t len) {
       data.SHOULD_CUTDOWN = true;
     }
     if (index < 0 || index > 128) return;
+    if(hasPlans[index]==1) {
+      for(uint8_t j=0; j<PLANNED_COMMANDS_SIZE; j++) {
+        if(PLANNED_COMMANDS[j].COMMAND_INDEX==index) {
+          PLANNED_COMMANDS[j].COMMAND_INDEX = -1;
+          PLANNED_COMMANDS[j].TIMESTAMP = UINT32_MAX;
+          PLANNED_COMMANDS[j].COMMAND_VALUE = -1;
+        }
+      } // erases all planned commands for that index
+      std::sort(&PLANNED_COMMANDS[0],&PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE],compareTime); // re-sorts the array
+      shouldInterpolate[index] = 0; // resets shouldInterpolate for that index
+      hasPlans[index] = 0; // resets hasPlans for that index
+    }
     char* charAfterNumbers;
     float commandValue = (float) strtod(commandStrings[i], &charAfterNumbers);
     if (*charAfterNumbers) return;
     Serial.println(commandValue);
     updateConstant(index, commandValue);
+  }
+}
+
+/*
+ * Function: compareTime
+ * -------------------
+ * This function compares the time of PlannedCommand structs for sorting. It sorts by command index if two
+ * planned commands have the same time.
+ */
+bool Avionics::compareTime(PlannedCommand command1, PlannedCommand command2) {
+  if(command1.TIMESTAMP==command2.TIMESTAMP) return (command1.COMMAND_INDEX<command2.COMMAND_INDEX);
+  return (command1.TIMESTAMP<command2.TIMESTAMP);
+}
+
+/*
+ * Function: parseCommandNew
+ * -------------------
+ * This function parses planned commands received from the RockBLOCK and places them in an array.
+ */
+ void Avionics::parseCommandNew() {
+   uint32_t plannedIndex = 0;
+   char *oneComm;
+   oneComm = strtok(COMMS_BUFFER," ");
+   while(oneComm != NULL) {
+     uint8_t oneCommLength = strlen(oneComm);
+     int8_t commandIndex;
+     uint32_t timestamp;
+     uint8_t startIndex = 1;
+     uint8_t endIndex = 1;
+     while(endIndex < oneCommLength) {
+       if(oneComm[endIndex]=='c') { // clear all planned commands
+         for(uint8_t i=0; i<PLANNED_COMMANDS_SIZE; i++) {
+           PLANNED_COMMANDS[i].COMMAND_INDEX = -1;
+           PLANNED_COMMANDS[i].TIMESTAMP = UINT32_MAX;
+           PLANNED_COMMANDS[i].COMMAND_VALUE = -1;
+         } // erases all planned commands
+         memset(shouldInterpolate, 0, sizeof(shouldInterpolate)); // resets shouldInterpolate
+         memset(hasPlans, 0, sizeof(hasPlans)); // resets hasPlans
+         break;
+       } else if(oneComm[endIndex]=='#') { // using '#' as deliminator between commandIndex and commands
+         if(endIndex==startIndex) return;
+         char commandIndexC[endIndex-startIndex+1];
+         commandIndexC[endIndex-startIndex] = '\0';
+         memcpy(commandIndexC, &oneComm[startIndex], endIndex-startIndex);
+         commandIndex = atoi(commandIndexC);
+         if (commandIndex < 0 || commandIndex > 125) return;
+         if(hasPlans[commandIndex]==1) {
+           for(uint8_t j=0; j<PLANNED_COMMANDS_SIZE; j++) {
+             if(PLANNED_COMMANDS[j].COMMAND_INDEX==commandIndex) {
+               PLANNED_COMMANDS[j].COMMAND_INDEX = -1;
+               PLANNED_COMMANDS[j].TIMESTAMP = UINT32_MAX;
+               PLANNED_COMMANDS[j].COMMAND_VALUE = -1;
+             }
+           } // erases all planned commands for that index
+           std::sort(&PLANNED_COMMANDS[0],&PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE],compareTime); // re-sorts the array
+           shouldInterpolate[commandIndex] = 0; // resets shouldInterpolate for that index
+           hasPlans[commandIndex] = 0; // resets hasPlans for that index
+         }
+         hasPlans[commandIndex] = 1;
+         startIndex=endIndex+1;
+       } else if(oneComm[endIndex]==':') { // a timestamp was just read
+         if(endIndex==startIndex) return;
+         char timestampC[endIndex-startIndex+1];
+         timestampC[endIndex-startIndex] = '\0';
+         memcpy(timestampC, &oneComm[startIndex], endIndex-startIndex);
+         timestamp = atoi(timestampC);
+         startIndex=endIndex+1;
+       } else if(oneComm[endIndex]==',' || endIndex+1==oneCommLength) { // command value paired with that time was just read
+         if(oneComm[endIndex]=='i') {
+           shouldInterpolate[commandIndex] = 1;
+         } else if(endIndex+1==oneCommLength) {
+          endIndex++;
+         }
+         if(endIndex==startIndex) return;
+         char commandValueC[endIndex-startIndex+1];
+         commandValueC[endIndex-startIndex] = '\0';
+         memcpy(commandValueC, &oneComm[startIndex], endIndex-startIndex);
+         float commandValue = atof(commandValueC);
+         if(plannedIndex<PLANNED_COMMANDS_SIZE) {
+           PLANNED_COMMANDS[plannedIndex].COMMAND_INDEX = commandIndex;
+           PLANNED_COMMANDS[plannedIndex].TIMESTAMP = timestamp;
+           PLANNED_COMMANDS[plannedIndex].COMMAND_VALUE = commandValue;
+           plannedIndex++;
+         }
+         startIndex=endIndex+1;
+       }
+       endIndex++;
+     }
+     oneComm = strtok(NULL, " ");
+   }
+   std::sort(&PLANNED_COMMANDS[0],&PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE],compareTime);
+ }
+
+/*
+ * Function: checkPlans
+ * -------------------
+ * This function checks the plans to see if anything needs to be updated, given the current time since launch.
+ */
+void Avionics::checkPlans(uint32_t timeSinceLaunch) {
+  for(uint8_t i=0; i<NUM_INDEXES; i++) {
+    if(hasPlans[i]==1) {
+      PlannedCommand mostRecent = {-1,1,1};
+      PlannedCommand next = {-1,1,1};
+      for(uint8_t j=0; j<PLANNED_COMMANDS_SIZE; j++) {
+        if(PLANNED_COMMANDS[j].COMMAND_INDEX==i) {
+          if(PLANNED_COMMANDS[j].TIMESTAMP<=timeSinceLaunch) {
+            mostRecent=PLANNED_COMMANDS[j];
+            if(shouldInterpolate[i]==0) {
+              PLANNED_COMMANDS[j].COMMAND_INDEX = -1;
+              PLANNED_COMMANDS[j].TIMESTAMP = UINT32_MAX;
+              PLANNED_COMMANDS[j].COMMAND_VALUE = -1;
+            }
+          } else if(next.COMMAND_INDEX==-1) {
+            next=PLANNED_COMMANDS[j];
+            break;
+          }
+        }
+      }
+      if(mostRecent.COMMAND_INDEX!=-1) {
+        float commandValue;
+        if(shouldInterpolate[i]==1 && next.COMMAND_INDEX!=-1) {
+          commandValue = ((next.COMMAND_VALUE - mostRecent.COMMAND_VALUE) /
+            (next.TIMESTAMP - mostRecent.TIMESTAMP) * (timeSinceLaunch-mostRecent.TIMESTAMP)) + mostRecent.COMMAND_VALUE;
+        } else {
+          commandValue = mostRecent.COMMAND_VALUE;
+        }
+        updateConstant(i, commandValue);
+      }
+      if(shouldInterpolate[i]==0) std::sort(&PLANNED_COMMANDS[0],&PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE],compareTime);
+    }
   }
 }
 
@@ -90,10 +239,10 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 33) data.CURRENT_CONTROLLER_INDEX = value; // Controller Index | 0: Legacy; 1: Lasagna
   else if (index == 56) data.LAS_CONSTANTS.gain                 =   value; // Total gain magnititude (g / m)
   else if (index == 57) data.LAS_CONSTANTS.damping              =   value; // damping ratio (unitless)
-  else if (index == 58) data.LAS_CONSTANTS.v_gain_override      =   value; // velocity gain (g/s / m/s) 
+  else if (index == 58) data.LAS_CONSTANTS.v_gain_override      =   value; // velocity gain (g/s / m/s)
   else if (index == 59) data.LAS_CONSTANTS.h_gain_override      =   value; // altitude gain (m/s / km)
   else if (index == 60) data.LAS_CONSTANTS.bal_dldt             =   value; // balast dl/dt (g / s)
-  else if (index == 61) data.LAS_CONSTANTS.val_dldt_slope           =   value; 
+  else if (index == 61) data.LAS_CONSTANTS.val_dldt_slope           =   value;
   else if (index == 62) data.LAS_CONSTANTS.val_dldt_intercept           =   value; // valve dl/dt (g / s))
   else if (index == 63) data.LAS_CONSTANTS.bal_min_t             =   value; // minimum ballast event time (s)
   else if (index == 64) data.LAS_CONSTANTS.val_min_t             =   value; // minimum valve event time (s)
@@ -101,7 +250,7 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 66) data.LAS_CONSTANTS.tolerance            =   value; // comand tollerance (m)
   else if (index == 67) data.LAS_CONSTANTS.k_drag               =   value; // drag constant, (m/s / g)
   else if (index == 68) data.LAS_CONSTANTS.kfuse_val            =   value; // scale factor on effect of valve actions (unitless)
-  else if (index == 69) data.LAS_CONSTANTS.v_limit              =   value; // velocity limit commanded by altitude loop (m/s)   
+  else if (index == 69) data.LAS_CONSTANTS.v_limit              =   value; // velocity limit commanded by altitude loop (m/s)
   else if (index == 70) data.LAS_CONSTANTS.equil_h_thresh       =   value; // altitude where controller transitions to normal mode (m)
   else if (index == 71) data.LAS_CONSTANTS.launch_h_thresh      =   value; // change in altitide required to detect launch (m)
   else if (index == 72) data.HEATER_CONSTANTS.temp_thresh           = value; // RB Heat Temp Thresh

@@ -8,6 +8,9 @@
 bool Avionics::processData() {
   bool success = true;
 
+  uint32_t timeSinceLaunch = getTimeSinceLaunch();
+  checkPlans(timeSinceLaunch); // updates based on planned commands
+
   float pressures[] = {data.RAW_PRESSURE_1, data.RAW_PRESSURE_2, data.RAW_PRESSURE_3, data.RAW_PRESSURE_4};
 
   numExecNow = numExecReset();
@@ -41,6 +44,7 @@ bool Avionics::processData() {
   if (data.ASCENT_RATE           >= 10) success = false;
   return success;
 }
+
 
 /*
  * Function: calcVitals
@@ -110,6 +114,10 @@ bool Avionics::calcIncentives() {
   data.ACTION_TIME_TOTALS[2*INDEX+1] = data.ACTIONS[INDEX] > 0 ? data.ACTION_TIME_TOTALS[2*INDEX+1] + data.ACTIONS[INDEX] : data.ACTION_TIME_TOTALS[2*INDEX+1];
   //Serial.print("numExecNow: ");
   //Serial.println(numExecNow);
+
+  if(data.LAUNCH_TIME == 0 && (data.LAS_STATE.status == LasagnaController::ASCENT || data.LAS_STATE.status == LasagnaController::EQUIL))
+    data.LAUNCH_TIME == millis();
+
   return success;
 }
 
@@ -132,4 +140,14 @@ void Avionics::updateSunValues() {
 		Serial.println("solar elevation");
 		Serial.println(data.SOLAR_ELEVATION);
     data.DSEDT = sunsetPredictor.dsedt;
+}
+
+/*
+ * Function: getTimeSinceLaunch()
+ * -------------------
+ * Returns time since launch. If launch has not occured, it returns 0.
+ */
+void Avionics::getTimeSinceLaunch(){
+  if(!data.LAUNCH_TIME) return 0;
+  return (millis() - data.LAUNCH_TIME)/1000;
 }

@@ -295,7 +295,7 @@ bool Avionics::runLED() {
 		mkled();
 	} else {
 		//Serial.println("mking led");
-		mkled();
+		mknoled();
 	}
 
 	delayMicroseconds(100);

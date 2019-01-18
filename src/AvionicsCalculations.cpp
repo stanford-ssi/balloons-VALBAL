@@ -28,6 +28,11 @@ bool Avionics::processData() {
 
   filter.update_loop_time(data.LOOP_TIME);
 
+  if (!actuator.delta_read) {
+    filter.update_val_delta(actuator.val_delta);
+    actuator.delta_read = true;
+  }
+
   data.INCENTIVE_NOISE            = filter.incentive_noise;
 
   float overpressure = analogRead(OP_PIN) * 1.2 / ((double)pow(2, 12)) * 3.2;

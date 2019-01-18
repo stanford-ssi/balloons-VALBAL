@@ -51,6 +51,9 @@ public:
   long balenc_sum = 0;
   long valenc_count = 0;
 
+  long val_initial;
+  long val_delta;
+  bool delta_read = true;
 
 private:
 /*********************************  HELPERS  **********************************/

@@ -158,7 +158,6 @@ void Actuators::play() {
  * Called every loop; updates and acts on the current state of the valve.
  */
 bool Actuators::checkValve(float current) {
-  digitalWriteFast(VALVE_ENCPWR, 1); // Valve encoder always on so that counts don't get missed
   if (paused) return valveState != CLOSED;
   // Serial.print("Called checkValve with ");
   // Serial.print(valveQueue);
@@ -170,6 +169,7 @@ bool Actuators::checkValve(float current) {
       (deltaTime >= valveQueueFake) ? (valveQueueFake = 0) : (valveQueueFake -= deltaTime);
     }
     if (valveQueue > 0) {
+      val_initial = valenc.read();
       valveActionStartTime = millis();
       valveCheckTime = millis();
       valveState = OPENING;
@@ -179,6 +179,8 @@ bool Actuators::checkValve(float current) {
   if ((valveState == OPENING) && (millis() - valveActionStartTime >= valveOpeningTimeout)) {
     valveState = OPEN;
     stopValve();
+	val_delta = valenc.read() - val_initial;
+    delta_read = false;
   }
   if (valveState == OPEN) {
     if(valveQueue > 0) {
@@ -346,6 +348,7 @@ void Actuators::cutDown() {
  * This function stops the valve.
  */
 void Actuators::stopValve() {
+  digitalWriteFast(VALVE_ENCPWR, 0);
   Serial.println("--- STOPPING VALVE ---");
   val_fwd = 0;
   val_rev = 0;
@@ -358,6 +361,7 @@ void Actuators::stopValve() {
  * This function starts opening the valve.
  */
 void Actuators::openValve() {
+  digitalWriteFast(VALVE_ENCPWR, 1);
   Serial.println("--- OPEN VALVE ---");
   val_fwd = 2;
   val_rev = 0;

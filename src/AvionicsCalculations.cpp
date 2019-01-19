@@ -122,7 +122,6 @@ bool Avionics::calcIncentives() {
 
   if(data.LAUNCH_TIME == 0 && (data.LAS_STATE.status == LasagnaController::ASCENT || data.LAS_STATE.status == LasagnaController::EQUIL))
     data.LAUNCH_TIME = millis();
-
   return success;
 }
 
@@ -153,7 +152,7 @@ void Avionics::updateSunValues() {
  * Returns time since launch. If launch has not occured, it returns 0.
  */
 uint32_t Avionics::getTimeSinceLaunch(){
-	return millis()/1000;
+	//return millis()/1000;
   if(!data.LAUNCH_TIME) return 0;
   return (millis() - data.LAUNCH_TIME)/1000;
 }

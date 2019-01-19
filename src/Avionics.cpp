@@ -296,7 +296,7 @@ void Avionics::logState() {
    }
    if(compressData() < 0) alert("unable to compress Data", true);
 
-	 if (data.TEMP_INT < -50) {
+	 if (data.TEMP_INT < data.COLD_THRESH) {
 		 Serial.println("temporary pause in motor operation");
 		 time_to_replay = millis() + 2*60*1000;
 		 actuator.pause();

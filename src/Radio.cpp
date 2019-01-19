@@ -95,6 +95,10 @@ void Radio::restart() {
 
 void Radio::shutdown() {
   pinMode(35, LOW);
+	digitalWrite(31, 0);
+	digitalWrite(32, 0);
+	pinMode(31, INPUT);
+	pinMode(32, INPUT);
 }
 
 bool Radio::readyDataFrame(){

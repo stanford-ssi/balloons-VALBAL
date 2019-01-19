@@ -201,7 +201,7 @@ struct DataFrame {
 
   float VOLTAGE_SUPERCAP_MIN = 314;
 
-  bool       POWER_STATE_RADIO =                           true;
+  bool       POWER_STATE_RADIO =                           false;
   LasagnaController::Constants LAS_CONSTANTS;
   LasagnaController::State LAS_STATE;
   Heater::Constants HEATER_CONSTANTS;

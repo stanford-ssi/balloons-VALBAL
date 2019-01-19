@@ -181,6 +181,8 @@ private:
   void runDeadMansSwitch();
   void updateSunValues();
 
+
+	uint32_t time_to_replay = -1;
   long pretransmission_balenc_count;
   long last_balenc_count = 0;
 };

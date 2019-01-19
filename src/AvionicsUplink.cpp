@@ -273,7 +273,7 @@ void Avionics::updateConstant(uint8_t index, float value) {
     data.CUBA_TIMEOUT = millis() + 1000*data.CUBA_MAX_SECONDS;
   }
   else if (index == 79) data.RESISTOR_MODE           = (int)value; // Resistor mode
-  else if (index == 80) parseRadioPowerCommand(value);
+  else if (index == 80) parseRadioPowerCommand(value); // Radio power
   else if (index == 81) { // GPS mode
     int GPS_MODE = (int) value;
     if (GPS_MODE == 0 || GPS_MODE == 1) {
@@ -292,20 +292,20 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 92) data.BB_LON1 = value;
   else if (index == 93) data.BB_LON2 = value;
   else if (index == 94) data.CUBA_MAX_SECONDS = value;
-  else if (index == 95) {
+  else if (index == 95) { // timed cutdown | ms
     data.TIMED_CUTDOWN_MILLIS = value;
     data.TIMED_CUTDOWN_ENABLE = true;
   }
   else if (index == 96) data.DLDT_SCALE = value;                          // Scalar factor on predicted DLDT for sunset
   else if (index == 97) data.LAT_GPS_MANUAL = value;                      // Manual Latitude for sunset prediction
   else if (index == 98) data.LONG_GPS_MANUAL = value;                     // Manual Longitude for sunset precitions
-  else if (index == 99) data.GPS_MANUAL_MODE = value;                     // Toggels if manual input or gps-recieved coords are used for sunset prediction
-  else if (index == 100) data.GPS_MANUAL_MODE_OVERRIDE = value;           // Toggels if new getting new GPS coords trigger disabling of manual mode or not
+  else if (index == 99) data.GPS_MANUAL_MODE = value;                     // Toggles if manual input or gps-recieved coords are used for sunset prediction
+  else if (index == 100) data.GPS_MANUAL_MODE_OVERRIDE = value;           // Toggles if new getting new GPS coords trigger disabling of manual mode or not
   else if (index == 101) data.DEADMAN_ENABLED = (bool)value;
   else if (index == 102) data.DEADMAN_TIME = value * 1000. * 60 * 60; // hours
   else if (index == 123) data.RB_COOLDOWN = value * 1000;
   else if (index == 124) data.SWITCH_TO_MANUAL = (bool)value;
-  else if (index == 125) data.USE_ALTITUDE_CORRECTED = (bool)value;       // Select weather or not the controller should use ALTITUDE_CORRECTED
+  else if (index == 125) data.USE_ALTITUDE_CORRECTED = (bool)value;       // Select whether or not the controller should use ALTITUDE_CORRECTED
 }
 
 /*

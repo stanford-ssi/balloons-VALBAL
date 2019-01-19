@@ -88,7 +88,10 @@ delay(1000);*/
 	}*/
   if(!RBModule.init(false))     alert("unable to initialize RockBlock", true);
 #endif
-  //if(!radio.init(data.POWER_STATE_RADIO)) alert("unable to initialize Payload", true);
+
+#ifdef MOTOR_CUTDOWN
+  if(!radio.init(data.POWER_STATE_RADIO)) alert("unable to initialize Payload", true);
+#endif
 	delay(1000);
 
 /*
@@ -119,7 +122,7 @@ delay(1000);*/
   sixtyScoreRevolutionsPerMinute.priority(16);
   sixtyScoreRevolutionsPerMinute.begin(rpmCounter, 50000);
 
-  actuator.queueBallast(1000000, true);
+  //actuator.queueBallast(1000000, true);
 
 }
 
@@ -131,7 +134,7 @@ delay(1000);*/
 void Avionics::test() {
   alert("Initializing test...", true);
 
-  //actuator.queueBallast(40000, true);
+  //actuator.queueBallast(30000, true);
   //actuator.queueValve(10000, true);
   //actuator.queueValve(30000, true)
   /*data.SHOULD_CUTDOWN = true;
@@ -203,16 +206,20 @@ void Avionics::evaluateState() {
  * This function intelligently reacts to the current data frame.
  */
 void Avionics::actuateState() {
+	if (time_to_replay > 0 && time_to_replay >= millis()) {
+		actuator.play();
+		time_to_replay = -1;
+	}
   if(!runCharger()) alert("unable to run charger", true);
   if(!runValve())   alert("unable to run valve", true);
   if(!runBallast()) alert("unable to run ballast", true);
   if(!runCutdown()) alert("unable to run cutdown", true);
   if(!runLED())     alert("unable to run LED", true);
+  if(!runRadio()) alert("Unable to run payload", true);
   //runHeaters();
   rumAndCoke();
   timedCutdown();
   runDeadMansSwitch();
-  //if(!runRadio()) alert("Unable to run payload", true);
 
 }
 
@@ -243,14 +250,27 @@ void Avionics::logState() {
      RBModule.restart();
      data.POWER_STATE_RB = true;
    }
+
+	 bool can_RB = (data.TEMP_INT >= -50) || (data.TEMP_INT < -50 && actuator.valveState == actuator.CLOSED);
+
    //Serial.println((millis()-data.RB_LAST)/RB_DEBUG_INTERVAL);
    if(data.DEBUG_STATE && ((millis() - data.RB_LAST) < RB_DEBUG_INTERVAL)) return;
    if(!data.DEBUG_STATE && ((millis() - data.RB_LAST) < data.RB_INTERVAL)) return;
+	 if (!can_RB) return;
    if (!data.POWER_STATE_RB) {
      Serial.println("normally would've comm'd here, but we're too rekt to do that rn.");
      return;
    }
    if(compressData() < 0) alert("unable to compress Data", true);
+
+	 if (data.TEMP_INT < -50) {
+		 Serial.println("temporary pause in motor operation");
+		 time_to_replay = millis() + 2*60*1000;
+		 actuator.pause();
+	 } else {
+		 actuator.play();
+	 }
+
    if(!sendSATCOMS())  {
      alert("unable to communicate over RB", true);
      // cooldown for 30 seconds
@@ -312,6 +332,8 @@ bool Avionics::setupSDCard() {
  * This function charges the superCap to 5 Volts.
  */
 bool Avionics::setup5VLine() {
+	Serial.println("Setting up 5 V line");
+	Serial.println(sensors.getVoltageSuperCap());
   while(sensors.getVoltageSuperCap() <= SUPER_CAP_VOLTAGE_NOMINAL) {
     delay(LOOP_INTERVAL);
     Serial.print("SuperCap is currently at: ");

@@ -1,5 +1,7 @@
 #include "Avionics.h"
 
+bool old_power_state_led = true;
+
 /*
  * Function: runCharger
  * -------------------
@@ -9,6 +11,9 @@ bool Avionics::runCharger() {
   superCap.runChargerPID(data.RESISTOR_MODE, data.TEMP_INT);
   if(data.SYSTEM_POWER_STATE == 0) {
     if (data.VOLTAGE_SUPERCAP_AVG < 5.9) {
+			old_power_state_led = data.POWER_STATE_LED;
+			//data.POWER_STATE_RADIO = false;
+			//radio.shutdown();
       data.POWER_STATE_LED = false;
       data.SYSTEM_POWER_STATE = 1;
     }
@@ -18,11 +23,13 @@ bool Avionics::runCharger() {
       data.POWER_STATE_RB = false;
       Serial.println("shutting down RB, possibly mid comm, sad");
       RBModule.shutdown();
+			time_to_replay = -1;
+			actuator.play();
       data.RB_LAST = millis();
       data.SYSTEM_POWER_STATE = 2;
     }
     if (data.VOLTAGE_SUPERCAP_AVG > 6.1) {
-      data.POWER_STATE_LED = true;
+      data.POWER_STATE_LED = old_power_state_led;
       data.SYSTEM_POWER_STATE = 0;
     }
   }
@@ -327,33 +334,30 @@ uint32_t last_received = 0;
  * This function interfaces with the payload.
  */
 bool Avionics::runRadio() {
-	return true;
   if (!data.POWER_STATE_RADIO) return true;
   radio.readyDataFrame();
-  radio.addVariable(data.ALTITUDE_BAROMETER, -100, 25000, 16);
+  radio.addVariable(data.ALTITUDE_BAROMETER, -100, 25000, 15);
   radio.addVariable(data.ASCENT_RATE, -6, 6, 10);
   radio.addVariable(data.LAT_GPS,  -90, 90,  20);
   radio.addVariable(data.LONG_GPS, -180,  180, 21);
-  radio.addVariable(data.VALVE_TIME_TOTAL / 1000, 0,  16383, 13);
-  radio.addVariable(data.BALLAST_TIME_TOTAL / 1000, 0,  16383, 13);
-  radio.addVariable(data.VOLTAGE_PRIMARY, 0,  6,  9);
-  radio.addVariable(data.VOLTAGE_SUPERCAP,  0,  6,  9);
+  radio.addVariable(data.VALVE_TIME_TOTAL / 1000, 0,  16383, 12);
+  radio.addVariable(data.BALLAST_TIME_TOTAL / 1000, 0,  16383, 12);
+  radio.addVariable(data.VOLTAGE_PRIMARY, 0,  6,  8);
+  radio.addVariable(data.VOLTAGE_SUPERCAP,  0,  7,  8);
   radio.addVariable(data.TEMP_INT, -60, 60, 8);
   radio.addVariable(data.CURRENT_CONTROLLER_INDEX,  0,  3, 2);
-  radio.addVariable(data.CURRENT_TOTAL, 0, 1500, 8);
-  radio.addVariable(data.CURRENT_RB,  0,  2500, 7);
-  radio.addVariable(data.CURRENT_MOTORS, 0,  500, 7);
+  radio.addVariable(data.CURRENT_TOTAL, 0, 1000, 6);
+  radio.addVariable(data.CURRENT_RB,  0,  2000, 6);
+  radio.addVariable(data.CURRENT_MOTORS, 0,  500, 6);
   radio.addVariable(data.MANUAL_MODE, 0,  1,  1);
-  radio.addVariable(data.OVERPRESSURE, -500,  500,  9);
-  radio.addVariable(data.OVERPRESSURE_VREF, 0,  3.84,  7);
   radio.addVariable(data.LAS_STATE.v, -6, 6, 8);
   radio.addVariable(data.LAS_STATE.effort, -0.005, 0.005, 9);
   radio.addVariable(data.BALLAST_NUM_OVERCURRENTS, 0, 127, 6);
-  bool got_sth = (millis()-last_received) < 15000;
-  radio.addVariable(got_sth, 0, 1, 1);
+  //bool got_sth = (millis()-last_received) < 15000;
+  //radio.addVariable(got_sth, 0, 1, 1);
   radio.setDataFrame();
   radio.run();
-  if (radio.got_rb) {
+/*  if (radio.got_rb) {
     last_received = millis();
     for(uint16_t i = 0; i < COMMS_BUFFER_SIZE; i++) COMMS_BUFFER[i] = 0;
     memcpy(COMMS_BUFFER, radio.message, radio.parse_pos);
@@ -371,7 +375,7 @@ bool Avionics::runRadio() {
       parseCommand(radio.parse_pos);
     }
     radio.got_rb = false;
-  }
+  }*/
   return true;
 }
 
@@ -382,6 +386,7 @@ bool Avionics::runRadio() {
  */
 bool Avionics::sendSATCOMS() {
   alert("sending Rockblock message", false);
+
   data.RB_SENT_COMMS++;
 #ifndef RB_DISABLED_FLAG
   Serial.println();Serial.println();Serial.println();Serial.println();Serial.println();

@@ -284,7 +284,7 @@ void Avionics::logState() {
      data.POWER_STATE_RB = true;
    }
 
-	 bool can_RB = (data.TEMP_INT >= data.COLD_THRESH) || (data.TEMP_INT < data.COLD_THRESH && actuator.valveState == actuator.CLOSED);
+	 bool can_RB = (data.TEMP_INT >= data.COLD_THRESH) || (data.TEMP_INT < data.COLD_THRESH && actuator.valveState == actuator.CLOSED && actuator.ballastState == actuator.CLOSED);
 
    //Serial.println((millis()-data.RB_LAST)/RB_DEBUG_INTERVAL);
    if(data.DEBUG_STATE && ((millis() - data.RB_LAST) < RB_DEBUG_INTERVAL)) return;

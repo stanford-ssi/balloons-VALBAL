@@ -189,20 +189,20 @@ bool Radio::run(){
  * This function sends the dataframe over UART.
  */
 bool Radio::sendDataFrame() {
-  Serial.print("[RADIO] Sending dataframe over, ");
+  /*Serial.print("[RADIO] Sending dataframe over, ");
   Serial.print(lengthBytes);
-  Serial.println(" bytes.");
+  Serial.println(" bytes.");*/
 	lengthBytes = 18;
 	uint8_t msg[50];
 	msg[0] = 0;
 	msg[1] = lengthBytes;
 	memcpy(msg+2, DATA_BUFFER, lengthBytes);
-	Serial.println("RADIO FRAME");
+	/*Serial.println("RADIO FRAME");
 	for (int i=0; i<lengthBytes; i++) {
 		Serial.print(msg[i]);
 		Serial.print(" ");
 	}
-	Serial.println();
+	Serial.println();*/
 
 	min_send_frame(&min_ctx, cur_min_id++, (uint8_t *)msg, (uint8_t)(lengthBytes + 2));
 

@@ -55,6 +55,8 @@ void Avionics::init() {
   pinMode(57, OUTPUT);
   digitalWrite(57, LOW);*/
 
+	pinMode(22, INPUT_PULLUP);
+
   if(!setupSDCard())                          alert("unable to initialize SD Card", true);
   if(!readHistory())                          alert("unable to initialize EEPROM", true);
   if(!sensors.init())                         alert("unable to initialize Sensors", true);
@@ -86,7 +88,7 @@ delay(1000);*/
 	/*while(millis() < 60000) {
 		Serial1.write(0xaa);
 	}*/
-  if(!RBModule.init(false))     alert("unable to initialize RockBlock", true);
+  if(!RBModule.init(!true))     alert("unable to initialize RockBlock", true);
 #endif
 
 #ifdef MOTOR_CUTDOWN
@@ -135,11 +137,11 @@ void Avionics::test() {
   alert("Initializing test...", true);
 
   //actuator.queueBallast(30000, true);
-  //actuator.queueValve(10000, true);
   //actuator.queueValve(30000, true)
   /*data.SHOULD_CUTDOWN = true;
   actuator.cutDown();
   data.SHOULD_CUTDOWN = false;*/
+  //actuator.queueValve(10000, true);
 }
 
 void Avionics::runHeaters() {
@@ -200,6 +202,11 @@ void Avionics::evaluateState() {
   if(!calcIncentives()) alert("unable to calculate incentives", true);
 }
 
+Actuators::state_t prev_valve_state = Actuators::CLOSED;
+
+uint32_t switch_time;
+bool prev_button;
+
 /*
  * Function: actuateState
  * -------------------
@@ -216,6 +223,32 @@ void Avionics::actuateState() {
   if(!runCutdown()) alert("unable to run cutdown", true);
   if(!runLED())     alert("unable to run LED", true);
   if(!runRadio()) alert("Unable to run payload", true);
+
+	bool val_button = digitalReadFast(22);
+	val_button = !val_button;
+	//Serial.print("VAL BUTTON ");
+	//Serial.println(val_button);
+	if (actuator.valveState == actuator.CLOSING) {
+		filter.update_val_button(val_button);
+	}
+	if (actuator.valveState == actuator.OPENING) {
+		switch_time = -1;
+	}
+	if (prev_valve_state != actuator.CLOSED && actuator.valveState == actuator.CLOSED) {
+		Serial.println("closed!");
+		filter.update_val_final(val_button);
+		Serial.print("margin ");
+		Serial.println(millis()-switch_time);
+		filter.update_val_margin(millis() - switch_time);
+	}
+	if (!prev_button && val_button && actuator.valveState == actuator.CLOSING) {
+		Serial.println("heyyyy changed!");
+		switch_time = millis();
+	}
+
+	prev_valve_state = actuator.valveState;
+	prev_button = val_button;
+
   //runHeaters();
   rumAndCoke();
   timedCutdown();
@@ -251,7 +284,7 @@ void Avionics::logState() {
      data.POWER_STATE_RB = true;
    }
 
-	 bool can_RB = (data.TEMP_INT >= -50) || (data.TEMP_INT < -50 && actuator.valveState == actuator.CLOSED);
+	 bool can_RB = (data.TEMP_INT >= data.COLD_THRESH) || (data.TEMP_INT < data.COLD_THRESH && actuator.valveState == actuator.CLOSED);
 
    //Serial.println((millis()-data.RB_LAST)/RB_DEBUG_INTERVAL);
    if(data.DEBUG_STATE && ((millis() - data.RB_LAST) < RB_DEBUG_INTERVAL)) return;

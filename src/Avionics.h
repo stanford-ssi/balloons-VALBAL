@@ -38,6 +38,9 @@
 //#define SERIALMONITOR
 //#define SERIALSHITL_LEN 32
 
+extern int val_duty;
+extern int bal_duty;
+
 // regualar min and max is not compatible with vector in std
 #define _min(a,b) ((a)<(b)?(a):(b))
 #define _max(a,b) ((a)>(b)?(a):(b))

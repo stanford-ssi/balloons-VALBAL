@@ -121,7 +121,7 @@ bool Avionics::calcIncentives() {
   //Serial.println(numExecNow);
 
   if(data.LAUNCH_TIME == 0 && (data.LAS_STATE.status == LasagnaController::ASCENT || data.LAS_STATE.status == LasagnaController::EQUIL))
-    data.LAUNCH_TIME == millis();
+    data.LAUNCH_TIME = millis();
 
   return success;
 }

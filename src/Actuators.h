@@ -18,6 +18,9 @@
 #include <Encoder.h>
 #include "spa.h"
 
+extern int val_duty;
+extern int bal_duty;
+
 class Actuators {
 public:
 /**********************************  SETUP  ***********************************/

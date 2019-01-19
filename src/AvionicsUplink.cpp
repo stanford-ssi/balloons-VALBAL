@@ -11,6 +11,7 @@
 void Avionics::parseCommand(int16_t len) {
   Serial.println("Got stuff");
   COMMS_BUFFER[len] = 0;
+	COMMS_BUFFER[100] = 0;
   if(COMMS_BUFFER[0]=='P') {
     parseCommandNew();
     return;
@@ -182,6 +183,7 @@ void Avionics::checkPlans(uint32_t timeSinceLaunch) {
         if(shouldInterpolate[i]==1 && next.COMMAND_INDEX!=-1) {
           commandValue = ((next.COMMAND_VALUE - mostRecent.COMMAND_VALUE) /
             (next.TIMESTAMP - mostRecent.TIMESTAMP) * (timeSinceLaunch-mostRecent.TIMESTAMP)) + mostRecent.COMMAND_VALUE;
+					if (isnan(commandValue)) continue;
 					// Serial.print("INTERPOLATING VALUE ");
 					// Serial.print(commandValue);
 					// Serial.print(" for variable ");
@@ -190,10 +192,10 @@ void Avionics::checkPlans(uint32_t timeSinceLaunch) {
           commandValue = mostRecent.COMMAND_VALUE;
         }
         updateConstant(i, commandValue);
-				// Serial.println("Updated variable ");
-				// Serial.print(i);
-				// Serial.println(" to value ");
-				// Serial.println(commandValue);
+			Serial.println("Updated variable ");
+			Serial.print(i);
+			Serial.println(" to value ");
+			Serial.println(commandValue);
       }
       if(shouldInterpolate[i]==0) std::sort(&PLANNED_COMMANDS[0],&PLANNED_COMMANDS[PLANNED_COMMANDS_SIZE],compareTime);
     }
@@ -299,10 +301,13 @@ void Avionics::updateConstant(uint8_t index, float value) {
   else if (index == 96) data.DLDT_SCALE = value;                          // Scalar factor on predicted DLDT for sunset
   else if (index == 97) data.LAT_GPS_MANUAL = value;                      // Manual Latitude for sunset prediction
   else if (index == 98) data.LONG_GPS_MANUAL = value;                     // Manual Longitude for sunset precitions
-  else if (index == 99) data.GPS_MANUAL_MODE = value;                     // Toggels if manual input or gps-recieved coords are used for sunset prediction
+  else if (index == 103) data.GPS_MANUAL_MODE = value;                     // Toggels if manual input or gps-recieved coords are used for sunset prediction
   else if (index == 100) data.GPS_MANUAL_MODE_OVERRIDE = value;           // Toggels if new getting new GPS coords trigger disabling of manual mode or not
   else if (index == 101) data.DEADMAN_ENABLED = (bool)value;
   else if (index == 102) data.DEADMAN_TIME = value * 1000. * 60 * 60; // hours
+  else if (index == 105) val_duty = value;
+  else if (index == 106) bal_duty = value;
+  else if (index == 107) data.COLD_THRESH = value;
   else if (index == 123) data.RB_COOLDOWN = value * 1000;
   else if (index == 124) data.SWITCH_TO_MANUAL = (bool)value;
   else if (index == 125) data.USE_ALTITUDE_CORRECTED = (bool)value;       // Select weather or not the controller should use ALTITUDE_CORRECTED

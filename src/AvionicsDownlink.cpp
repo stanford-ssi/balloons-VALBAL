@@ -74,9 +74,8 @@ int16_t Avionics::compressData() {
   lengthBits += compressVariable(filter.current_valve.max,                   0,    1023,    8,  lengthBits);
   lengthBits += compressVariable(filter.current_ballast.avg,                 0,    1023,    8,  lengthBits);
   lengthBits += compressVariable(filter.current_ballast.max,                 0,    1023,    8,  lengthBits);
-  lengthBits += compressVariable(filter.current_payload.avg,                 0,    63,    5,  lengthBits);
-  lengthBits += compressVariable(filter.current_payload.max,                 0,    127,    5,  lengthBits);
-  lengthBits += compressVariable(data.TEMP_EXT,                             -100,  30,      8,  lengthBits);
+  lengthBits += compressVariable(filter.current_payload.avg,                 0,    100,    8,  lengthBits);
+  lengthBits += compressVariable(filter.current_payload.max,                 0,    200,    8,  lengthBits);
   lengthBits += compressVariable(data.LOOP_TIME_MAX,                         0,    10239,   9, lengthBits);
   lengthBits += compressVariable(filter.loop_time.avg,                       0,    100,   6, lengthBits);
   lengthBits += compressVariable(data.RB_SENT_COMMS,                         0,    8191,    13, lengthBits);
@@ -91,7 +90,7 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.POWER_STATE_LED,                     0,    1,       1,  lengthBits); // LED Power state
     lengthBits += compressVariable(data.POWER_STATE_RB,                      0,    1,       1,  lengthBits); // RB Power State
     lengthBits += compressVariable(data.POWER_STATE_GPS,                     0,    1,       1,  lengthBits); // GPS Power State
-    lengthBits += compressVariable(data.POWER_STATE_PAYLOAD,                 0,    1,       1,  lengthBits); // Payload Power State
+    lengthBits += compressVariable(data.POWER_STATE_RADIO,                 0,    1,       1,  lengthBits); // Radio Power State
     lengthBits += compressVariable(data.NUM_SATS_GPS,                        0,    15,      3,  lengthBits);
     lengthBits += compressVariable(data.INCENTIVE_NOISE,                     0,    4,       8,  lengthBits);
     lengthBits += compressVariable(data.VALVE_ALT_LAST,                     -2000, 50000,   11, lengthBits); // Altitude During Last Venting Event
@@ -119,10 +118,6 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(data.LAS_STATE.v_cmd,                 -10,      10,   8, lengthBits);
     lengthBits += compressVariable(data.ACTION_TIME_TOTALS[2]/1000,        0,     600,   8, lengthBits);
     lengthBits += compressVariable(data.ACTION_TIME_TOTALS[3]/1000,        0,     600,   8, lengthBits);
-    lengthBits += compressVariable(data.ACTION_TIME_TOTALS[4]/1000,        0,     600,   8, lengthBits);
-    lengthBits += compressVariable(data.ACTION_TIME_TOTALS[5]/1000,        0,     600,   8, lengthBits);
-    lengthBits += compressVariable(data.ACTION_TIME_TOTALS[6]/1000,        0,     600,   8, lengthBits);
-    lengthBits += compressVariable(data.ACTION_TIME_TOTALS[7]/1000,        0,     600,   8, lengthBits);
     lengthBits += compressVariable(data.RB_HEAT_DUTY,        0,     255,   8, lengthBits);
     lengthBits += compressVariable(data.HEATER_CONSTANTS.temp_thresh,        -100,     100,   8, lengthBits);
     lengthBits += compressVariable(data.HEATER_CONSTANTS.temp_gain,        0,     1,   8, lengthBits);
@@ -144,10 +139,17 @@ int16_t Avionics::compressData() {
     lengthBits += compressVariable(filter.v_filtered[0], -5, 5,  8,  lengthBits);
     lengthBits += compressVariable(filter.v_filtered[3], -5, 5,  8,  lengthBits);
     lengthBits += compressVariable(filter.v_filtered[4], -5, 5,  8,  lengthBits);
-	lengthBits += compressVariable(filter.val_delta.min, -8192, 8191, 12, lengthBits);
-	lengthBits += compressVariable(filter.val_delta.max, -8192, 8191, 12, lengthBits);
-	lengthBits += compressVariable(filter.val_delta.avg, -8192, 8191, 12, lengthBits);
-	lengthBits += compressVariable(deltaBBs, 0, 8192, 13, lengthBits);
+		lengthBits += compressVariable(filter.val_delta.min, -8192, 8191, 12, lengthBits);
+		lengthBits += compressVariable(filter.val_delta.max, -8192, 8191, 12, lengthBits);
+		lengthBits += compressVariable(filter.val_delta.avg, -8192, 8191, 12, lengthBits);
+		lengthBits += compressVariable(deltaBBs, 0, 8192, 13, lengthBits);
+		lengthBits += compressVariable(filter.val_button.avg, 0, 1, 6, lengthBits);
+		lengthBits += compressVariable(filter.val_button.min, 0, 1, 1, lengthBits);
+		lengthBits += compressVariable(filter.val_button.max, 0, 1, 1, lengthBits);
+		lengthBits += compressVariable(filter.val_final.avg, 0, 1, 6, lengthBits);
+		lengthBits += compressVariable(filter.val_final.min, 0, 1, 1, lengthBits);
+		lengthBits += compressVariable(filter.val_final.max, 0, 1, 1, lengthBits);
+		lengthBits += compressVariable(filter.val_margin.avg, 0, 3000, 8, lengthBits);
   }
   if (data.SHOULD_REPORT || data.REPORT_MODE == 2) {
     lengthBits += compressVariable(data.RB_INTERVAL / 1000,                  0,    1023,    10, lengthBits); // RB communication interval

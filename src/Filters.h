@@ -111,6 +111,9 @@ public:
   RB_FILTERED(current_payload)
   RB_FILTERED(loop_time)
   RB_FILTERED(val_delta)
+	RB_FILTERED(val_button)
+	RB_FILTERED(val_final)
+	RB_FILTERED(val_margin)
   static const int N_RB_VARS = __LINE__ - start - 1;
   var_t rb_vars[N_RB_VARS];
 

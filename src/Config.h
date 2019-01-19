@@ -17,7 +17,7 @@
 
 /****************************  COMPILE FLAGS  *********************************/
 //#define STORAGE_MODE_FLAG // uncomment for power off
-#define RESET_EEPROM_FLAG // uncomment for EEPROM reset
+//#define RESET_EEPROM_FLAG // uncomment for EEPROM reset
 // #define HITL_ENABLED_FLAG // uncomment for HITL
 
 //#define RB_DISABLED_FLAG  // uncomment to disable rockblock

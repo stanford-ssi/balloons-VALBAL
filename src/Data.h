@@ -211,7 +211,7 @@ struct DataFrame {
   float     OVERPRESSURE_VREF                =                                 0;
   float     OVERPRESSURE_VREF_FILT           =                                 0;
 
-	float COLD_THRESH = -50;
+	float COLD_THRESH = -60;
   //uint8_t stuff_to_make_sure_it_goes_above_1024[512];
 
 } __attribute__((packed));
